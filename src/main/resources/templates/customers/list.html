@@ -1,0 +1,31 @@
+<h2>Müşteri Listesi</h2>
+<table class="table table-striped">
+	<thead>
+		<tr>
+			<th scope="col">Id</th>
+			<th scope="col">Meslek id</th>
+			<th scope="col">İkamet şehri id</th>
+      <th scope="col">ad</th>
+      <th scope="col">soyad</th>
+      <th scope="col">tc</th>
+      <th scope="col">tel</th>
+      <th scope="col">doğum</th>
+      <th scope="col">ehliyet</th>
+      <th scope="col">ek ücret</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr th:each="customer : ${customers}">
+			<th scope="row" th:text="${customer.id}"></th>
+      <td th:text="${customer.professionId}"></td>
+      <td th:text="${customer.cityOfResidenceId}"></td>
+      <td th:text="${customer.firstName}"></td>
+      <td th:text="${customer.lastName}"></td>
+      <td th:text="${customer.tc}"></td>
+      <td th:text="${customer.phoneNumber}"></td>
+      <td th:text="${customer.birthDate}"></td>
+      <td th:text="${customer.licenseObtainedAt}"></td>
+			<td th:text="'%' + ${customer.scaleFactor} + ' + ' + ${customer.valueFactor}"></td>
+		</tr>
+	</tbody>
+</table>

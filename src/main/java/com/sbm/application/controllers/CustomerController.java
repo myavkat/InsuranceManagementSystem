@@ -1,37 +1,57 @@
 package com.sbm.application.controllers;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
 
+import com.sbm.application.business.abstracts.CustomerService;
 import com.sbm.application.entities.concretes.Customer;
-import com.sbm.application.repositories.concretes.CustomerRepository;
 
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
-@RestController
+@Controller
 @RequestMapping("/customers")
 public class CustomerController {
-	private final CustomerRepository customerRepository;
+	private final String controllerName = "customers";
+	@Autowired
+	private CustomerService customerService;
 
-	public CustomerController(CustomerRepository customerRepository) {
-		this.customerRepository = customerRepository;
+	@GetMapping("/add")
+	public String addCustomer(Model model) {
+		model.addAttribute("customer", new Customer());
+		return "app";
 	}
-	
-	@PostMapping("/")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Mono<Customer> createCustomer(@RequestBody Customer customer) {
-        return customerRepository.save(customer);
-    }
-	
-	@GetMapping("/")
-    public Flux<Customer> getCustomers() {
-        return customerRepository.findAll();
-    }
+
+	@GetMapping("/edit/{id}")
+	public String editCustomer(@PathVariable int id, Model model) {
+		var result = customerService.getById(id);
+		model.addAttribute("controller", controllerName);
+		if (result.isSuccess()) {
+			model.addAttribute("customer", result.getData());
+			model.addAttribute("page", "edit");
+		}
+		model.addAttribute("page", "list");
+		model.addAttribute("toast", "customerNotFound");
+		return "app";
+
+	}
+
+	@PostMapping("/save")
+	public String saveCustomerForm(@ModelAttribute("customer") Customer customer, Model model) {
+		customerService.save(customer);
+		return "app";
+	}
+
+	@GetMapping("/list")
+	public String getCustomers(Model model) {
+		model.addAttribute("controller", controllerName);
+		model.addAttribute("page", "list");
+		var result = customerService.getAll();
+		model.addAttribute("customers", result.getData());
+		return "app";
+	}
 }

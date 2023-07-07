@@ -2,6 +2,7 @@ package com.sbm.application.controllers;
 
 import java.util.ArrayList;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,18 +20,14 @@ import com.sbm.application.repositories.concretes.*;
 public class InsuranceController {
 
 	private final String controllerName = "insurances";
-	private final InsuranceRepository insuranceRepository;
-	private final CityRepository cityRepository;
-	private final ProfessionRepository professionRepository;
-	private final CustomerRepository customerRepository;
-
-	public InsuranceController(InsuranceRepository insuranceRepository, CityRepository cityRepository,
-			ProfessionRepository professionRepository, CustomerRepository customerRepository) {
-		this.insuranceRepository = insuranceRepository;
-		this.cityRepository = cityRepository;
-		this.professionRepository = professionRepository;
-		this.customerRepository = customerRepository;
-	}
+	@Autowired
+	private InsuranceRepository insuranceRepository;
+	@Autowired
+	private CityRepository cityRepository;
+	@Autowired
+	private ProfessionRepository professionRepository;
+	@Autowired
+	private CustomerRepository customerRepository;
 
 	@GetMapping("/calculate/{name}")
 	public String calculate(@PathVariable String name, Model model) {
