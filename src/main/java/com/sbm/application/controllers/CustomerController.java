@@ -6,7 +6,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.sbm.application.business.abstracts.CityService;
 import com.sbm.application.business.abstracts.CustomerService;
+import com.sbm.application.business.abstracts.ProfessionService;
 import com.sbm.application.entities.concretes.Customer;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,35 +21,46 @@ public class CustomerController {
 	private final String controllerName = "customers";
 	@Autowired
 	private CustomerService customerService;
+	@Autowired
+	private ProfessionService professionService;
+	@Autowired
+	private CityService cityService;
 
 	@GetMapping("/add")
-	public String addCustomer(Model model) {
+	public String add(Model model) {
 		model.addAttribute("customer", new Customer());
+		model.addAttribute("controller", controllerName);
+		model.addAttribute("page", "save");
+		model.addAttribute("professions", professionService.getAll().getData());
+		model.addAttribute("cities", cityService.getAll().getData());
 		return "app";
 	}
 
 	@GetMapping("/edit/{id}")
-	public String editCustomer(@PathVariable int id, Model model) {
+	public String edit(@PathVariable int id, Model model) {
 		var result = customerService.getById(id);
 		model.addAttribute("controller", controllerName);
 		if (result.isSuccess()) {
 			model.addAttribute("customer", result.getData());
-			model.addAttribute("page", "edit");
+			model.addAttribute("page", "save");
+			model.addAttribute("professions", professionService.getAll().getData());
+			model.addAttribute("cities", cityService.getAll().getData());
+			return "app";
 		}
-		model.addAttribute("page", "list");
-		model.addAttribute("toast", "customerNotFound");
-		return "app";
+		model.addAttribute("customerNotFound", true);
+		return list(model);
 
 	}
 
-	@PostMapping("/save")
-	public String saveCustomerForm(@ModelAttribute("customer") Customer customer, Model model) {
+	@PostMapping("/save/{id}")
+	public String saveForm(@ModelAttribute("customer") Customer customer, Model model, @PathVariable int id) {
+		customer.setId(id);
 		customerService.save(customer);
-		return "app";
+		return list(model);
 	}
 
 	@GetMapping("/list")
-	public String getCustomers(Model model) {
+	public String list(Model model) {
 		model.addAttribute("controller", controllerName);
 		model.addAttribute("page", "list");
 		var result = customerService.getAll();
