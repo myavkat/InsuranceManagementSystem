@@ -44,8 +44,15 @@ public class CustomerManager implements CustomerService {
 
 	@Override
 	public DataResult<Customer> getById(int id) {
-		customerRepository.findById(id);
-		return null;
+		Customer customer = new Customer();
+		try {
+			customer = customerRepository.findById(id).block(Duration.ofSeconds(1));
+		}
+		catch(RuntimeException ex) {
+			System.out.println(ex.getMessage());
+			return new ErrorDataResult<Customer>(customer,"İstek zaman aşımına uğradı!");
+		}
+		return new SuccessDataResult<Customer>(customer,"Başarılı");
 	}
 
 	@Override
