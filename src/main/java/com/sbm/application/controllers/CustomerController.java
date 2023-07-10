@@ -39,9 +39,9 @@ public class CustomerController {
 	@GetMapping("/edit/{id}")
 	public String edit(@PathVariable int id, Model model) {
 		var result = customerService.getById(id);
-		model.addAttribute("controller", controllerName);
 		if (result.isSuccess()) {
 			model.addAttribute("customer", result.getData());
+			model.addAttribute("controller", controllerName);
 			model.addAttribute("page", "save");
 			model.addAttribute("professions", professionService.getAll().getData());
 			model.addAttribute("cities", cityService.getAll().getData());
@@ -56,6 +56,7 @@ public class CustomerController {
 	public String saveForm(@ModelAttribute("customer") Customer customer, Model model, @PathVariable int id) {
 		customer.setId(id);
 		customerService.save(customer);
+		model.addAttribute("customerSaved",true);
 		return list(model);
 	}
 
@@ -66,5 +67,13 @@ public class CustomerController {
 		var result = customerService.getAll();
 		model.addAttribute("customers", result.getData());
 		return "app";
+	}
+
+
+	@GetMapping("/delete/{id}")
+	public String delete(@PathVariable int id, Model model) {
+		customerService.deleteById(id);
+		model.addAttribute("customerDeleted", true);
+		return list(model);
 	}
 }
