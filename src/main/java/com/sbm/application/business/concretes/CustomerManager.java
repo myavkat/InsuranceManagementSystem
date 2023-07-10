@@ -14,7 +14,7 @@ import com.sbm.application.repositories.concretes.CustomerRepository;
 
 @Service
 public class CustomerManager implements CustomerService {
-	
+
 	@Autowired
 	private CustomerRepository customerRepository;
 
@@ -27,12 +27,12 @@ public class CustomerManager implements CustomerService {
 	@Override
 	public Result save(Customer customer) {
 		try {
-			if(customer.getId()==0) {
+			if (customer.getId() == 0) {
 				customerRepository.save(customer).block(Duration.ofSeconds(1));
 				return new SuccessResult("Müşteri eklendi");
 			}
 			Customer foundCustomer = customerRepository.findById(customer.getId()).block(Duration.ofSeconds(1));
-			if(foundCustomer == null) {
+			if (foundCustomer == null) {
 				return new ErrorResult("%s idli Müşteri bulunamadı".formatted(customer.getId()));
 			}
 			customerRepository.save(customer).block(Duration.ofSeconds(1));
@@ -47,24 +47,39 @@ public class CustomerManager implements CustomerService {
 		Customer customer = new Customer();
 		try {
 			customer = customerRepository.findById(id).block(Duration.ofSeconds(1));
-		}
-		catch(RuntimeException ex) {
+		} catch (RuntimeException ex) {
 			System.out.println(ex.getMessage());
-			return new ErrorDataResult<Customer>(customer,"İstek zaman aşımına uğradı!");
+			return new ErrorDataResult<Customer>(customer, "İstek zaman aşımına uğradı!");
 		}
-		return new SuccessDataResult<Customer>(customer,"Başarılı");
+		if (customer == null) {
+			return new ErrorDataResult<Customer>(new Customer(), "Müşteri Bulunamadı!");
+		}
+		return new SuccessDataResult<Customer>(customer, "Başarılı");
 	}
 
 	@Override
 	public DataResult<List<Customer>> getAll() {
 		List<Customer> customers = new ArrayList<Customer>();
 		try {
-		  customerRepository.findAll().doOnNext(customers::add).blockLast(Duration.ofSeconds(10));
-		  return new SuccessDataResult<List<Customer>>(customers,"Başarılı");
-		}
-		catch(RuntimeException ex) {
+			customerRepository.findAll().doOnNext(customers::add).blockLast(Duration.ofSeconds(10));
+			return new SuccessDataResult<List<Customer>>(customers, "Başarılı");
+		} catch (RuntimeException ex) {
 			System.out.println(ex.getMessage());
-			return new ErrorDataResult<List<Customer>>(customers,"İstek zaman aşımına uğradı!");
+			return new ErrorDataResult<List<Customer>>(customers, "İstek zaman aşımına uğradı!");
+		}
+	}
+
+	@Override
+	public Result deleteById(int id) {
+		var result = getById(id);
+		if (!result.isSuccess()) {
+			return new ErrorResult("Müşteri bulunamadı");
+		}
+		try {
+			customerRepository.delete(result.getData()).block(Duration.ofSeconds(1));
+			return new SuccessResult("Müşteri silindi");
+		} catch (RuntimeException ex) {
+			return new ErrorResult("İstek zaman aşımına uğradı");
 		}
 	}
 

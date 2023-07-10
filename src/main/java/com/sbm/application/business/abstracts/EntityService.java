@@ -10,6 +10,7 @@ public interface EntityService<T extends Entity> {
 
 	public Result save(T entity);
 	public Result delete(T entity);
+	public Result deleteById(int id);
 	public DataResult<T> getById(int id);
 	public DataResult<List<T>> getAll();
 }

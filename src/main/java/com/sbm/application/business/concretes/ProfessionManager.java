@@ -51,4 +51,10 @@ public class ProfessionManager implements ProfessionService {
 		}
 	}
 
+	@Override
+	public Result deleteById(int id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

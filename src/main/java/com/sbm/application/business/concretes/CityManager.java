@@ -66,4 +66,10 @@ public class CityManager implements CityService {
 		}
 	}
 
+	@Override
+	public Result deleteById(int id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

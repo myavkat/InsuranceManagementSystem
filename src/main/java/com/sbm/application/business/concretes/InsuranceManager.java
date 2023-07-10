@@ -51,4 +51,10 @@ public class InsuranceManager implements InsuranceService {
 		}
 	}
 
+	@Override
+	public Result deleteById(int id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
