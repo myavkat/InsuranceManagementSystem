@@ -67,24 +67,3 @@
 		</tbody>
 	</table>
 </div>
-<script th:if="${customerNotFound}">
-function toast(){
-  iziToast.error({
-    title : 'Hata!',
-    message : 'Düzenlemek istediğiniz müşteri bulunamadı.'
-  });}
-</script>
-<script th:if="${customerSaved}">
-function toast(){
-  iziToast.success({
-    title : 'Başarılı!',
-    message : 'Müşteri kaydedildi.'
-  });}
-</script>
-<script th:if="${customerDeleted}">
-function toast(){
-  iziToast.warning({
-    title : 'Uyarı!',
-    message : 'Müşteri silindi.'
-  });}
-</script>

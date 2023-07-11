@@ -1,0 +1,42 @@
+<form class="row" action="#" th:action="'/vehicles/save/'+ ${vehicle.id}"
+  method="post" th:object="${vehicle}">
+  <div class="form-floating mb-3 col-6 p-1">
+    <input class="form-control" type="text" th:field="*{vin}" id="vinInput" />
+    <label for="vinInput">Şasi Numarası:</label> 
+  </div>
+  <div class="form-floating col-3 p-1">
+    <select id="carSelect" class="form-select" th:field="*{carId}">
+      <option th:each="c : ${cars}" th:value="${c.id}" th:text="${c.carPackageId}" />
+    </select>
+    <label for="carSelect">Araba:</label>
+  </div> 
+  <div class="form-floating col-3 p-1">
+    <select id="customerSelect" class="form-select" th:field="*{customerId}">
+      <option th:each="c : ${customers}" th:value="${c.id}" th:text="${c.firstName} + ${c.tc}" />
+    </select>
+    <label for="customerSelect">Müşteri:</label>
+  </div> 
+  <div class="form-floating mb-3 col-6 p-1">
+    <input class="form-control" type="text" th:field="*{licensePlate}" id="licensePlateInput" />
+    <label for="licensePlateInput">Plakası:</label> 
+  </div>
+  <div class="col-3 mt-2">
+	  <div class="form-check">
+	    <input class="form-check-input" type="radio" th:field="*{damaged}" 
+	      name="flexRadioDefault" id="damagedRadio" value="true">
+		  <label class="form-check-label" for="damagedRadio">
+		    Hasarlı
+		  </label>
+	  </div>
+	  <div>
+	    <input class="form-check-input" type="radio" th:field="*{damaged}" 
+	      name="flexRadioDefault" id="notDamagedRadio" value="false" checked>
+	    <label class="form-check-label" for="notDamagedRadio">
+	      Hasarsız
+	    </label>
+	  </div>
+  </div>
+  <button class="btn btn-primary my-2" type="submit">
+    Aracı Müşteriye Kaydet
+  </button>
+</form>

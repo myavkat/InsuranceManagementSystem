@@ -1,68 +1,57 @@
 <div class="row">
-	<p class="h2 col-10 my-4">Araba Listesi</p>
-	<a class="btn btn-primary col-2 my-4" href="/cars/add">Araba
-		Ekle</a>
+	<p class="h2 col-10 my-4">Araç Listesi</p>
+	<a class="btn btn-primary col-2 my-4" href="/vehicles/add">Araç Ekle</a>
 	<table class="table table-striped">
 		<thead>
 			<tr>
 				<th scope="col">Id</th>
-				<th scope="col">Meslek id</th>
-				<th scope="col">İkamet şehri id</th>
-				<th scope="col">ad</th>
-				<th scope="col">soyad</th>
-				<th scope="col">tc</th>
-				<th scope="col">tel</th>
-				<th scope="col">doğum</th>
-				<th scope="col">ehliyet</th>
+				<th scope="col">Müşteri id</th>
+				<th scope="col">Araba id</th>
+				<th scope="col">Hasarlı</th>
+				<th scope="col">Plaka</th>
+				<th scope="col">Şasi No</th>
 				<th scope="col">ek ücret</th>
 				<th scope="col">İşlemler</th>
 			</tr>
 		</thead>
 		<tbody>
-			<tr th:each="customer : ${customers}">
-				<th scope="row" th:text="${customer.id}"></th>
-				<td th:text="${customer.professionId}"></td>
-				<td th:text="${customer.cityOfResidenceId}"></td>
-				<td th:text="${customer.firstName}"></td>
-				<td th:text="${customer.lastName}"></td>
-				<td th:text="${customer.tc}"></td>
-				<td th:text="${customer.phoneNumber}"></td>
-				<td th:text="${customer.birthDate}"></td>
-				<td th:text="${customer.licenseObtainedAt}"></td>
-				<td
-					th:text="'%' + ${customer.scaleFactor} + ' + ' + ${customer.valueFactor}"></td>
+			<tr th:each="vehicle : ${vehicles}">
+				<th scope="row" th:text="${vehicle.id}"></th>
+				<td th:text="${vehicle.customerId}"></td>
+				<td th:text="${vehicle.carId}"></td>
+				<td th:text="${vehicle.damaged}"></td>
+				<td th:text="${vehicle.licensePlate}"></td>
+				<td th:text="${vehicle.vin}"></td>
+				<td th:text="'%' + ${vehicle.scaleFactor} + ' + ' + ${vehicle.valueFactor}"></td>
 
-				<td>
-				  <a class="btn btn-warning"
-					th:href="'/customers/edit/' + ${customer.id}"> Düzenle </a>
+				<td><a class="btn btn-warning"
+					th:href="'/vehicles/edit/' + ${vehicle.id}"> Düzenle </a>
 					<button type="button" class="btn btn-primary"
 						data-bs-toggle="modal"
-						th:data-bs-target="'#deleteModal-' + ${customer.id}">Sil
-					</button>
-					<div class="modal fade" th:id="'deleteModal-' + ${customer.id}"
+						th:data-bs-target="'#deleteModal-' + ${vehicle.id}">Sil</button>
+					<div class="modal fade" th:id="'deleteModal-' + ${vehicle.id}"
 						tabindex="-1">
 						<div class="modal-dialog">
 							<div class="modal-content">
 								<div class="modal-header">
-									<h5 class="modal-title" id="exampleModalLabel">Müşteri
+									<h5 class="modal-title" id="exampleModalLabel">Araç
 										Silinsin mi?</h5>
 									<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 								</div>
 								<div class="modal-body">
-									Müşteriyi ve müşteriye bağlı bütün kayıtları silmek istiyor
-									musunuz? <strong>Bu işlem geri alınamaz.</strong>
+									Aracı silmek istiyor musunuz? <strong>Bu işlem geri
+										alınamaz.</strong>
 								</div>
 								<div class="modal-footer">
 									<button type="button" class="btn btn-secondary"
 										data-bs-dismiss="modal">İptal</button>
 									<a class="btn btn-primary"
-										th:href="'/customers/delete/' + ${customer.id}">Müşteriyi
+										th:href="'/vehicles/delete/' + ${vehicle.id}">Aracı
 										Sil</a>
 								</div>
 							</div>
 						</div>
-				  </div>
-			  </td>
+					</div></td>
 			</tr>
 		</tbody>
 	</table>

@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.sbm.application.business.abstracts.CarService;
+import com.sbm.application.business.abstracts.CustomerService;
 import com.sbm.application.business.abstracts.VehicleService;
 import com.sbm.application.entities.concretes.Vehicle;
 
@@ -19,11 +21,17 @@ public class VehicleController {
 	private final String controllerName = "vehicles";
 	@Autowired
 	private VehicleService vehicleService;
+	@Autowired
+	private CarService carService;
+	@Autowired
+	private CustomerService customerService;
 	@GetMapping("/add")
 	public String add(Model model) {
 		model.addAttribute("vehicle", new Vehicle());
 		model.addAttribute("controller", controllerName);
 		model.addAttribute("page", "save");
+		model.addAttribute("cars", carService.getAll().getData());
+		model.addAttribute("customers", customerService.getAll().getData());
 		return "app";
 	}
 
@@ -43,7 +51,7 @@ public class VehicleController {
 	}
 
 	@PostMapping("/save/{id}")
-	public String saveForm(@ModelAttribute("customer") Vehicle vehicle, Model model, @PathVariable int id) {
+	public String saveForm(@ModelAttribute("vehicle") Vehicle vehicle, Model model, @PathVariable int id) {
 		vehicle.setId(id);
 		vehicleService.save(vehicle);
 		model.addAttribute("vehicleSaved",true);
