@@ -15,6 +15,7 @@ import com.sbm.application.repositories.concretes.CustomerRepository;
 @Service
 public class CustomerManager implements CustomerService {
 
+	private final String entityName = "Müşteri";
 	@Autowired
 	private CustomerRepository customerRepository;
 
@@ -29,14 +30,14 @@ public class CustomerManager implements CustomerService {
 		try {
 			if (customer.getId() == 0) {
 				customerRepository.save(customer).block(Duration.ofSeconds(1));
-				return new SuccessResult("Müşteri eklendi");
+				return new SuccessResult("%s eklendi".formatted(entityName));
 			}
 			Customer foundCustomer = customerRepository.findById(customer.getId()).block(Duration.ofSeconds(1));
 			if (foundCustomer == null) {
-				return new ErrorResult("%s idli Müşteri bulunamadı".formatted(customer.getId()));
+				return new ErrorResult("%s idli %s bulunamadı".formatted(customer.getId(), entityName));
 			}
 			customerRepository.save(customer).block(Duration.ofSeconds(1));
-			return new SuccessResult("Müşteri güncelleme başarılı!");
+			return new SuccessResult("%s güncelleme başarılı!".formatted(entityName));
 		} catch (RuntimeException ex) {
 			return new ErrorResult("İstek zaman aşımına uğradı!");
 		}
@@ -52,7 +53,7 @@ public class CustomerManager implements CustomerService {
 			return new ErrorDataResult<Customer>(customer, "İstek zaman aşımına uğradı!");
 		}
 		if (customer == null) {
-			return new ErrorDataResult<Customer>(new Customer(), "Müşteri Bulunamadı!");
+			return new ErrorDataResult<Customer>(new Customer(), "%s Bulunamadı!".formatted(entityName));
 		}
 		return new SuccessDataResult<Customer>(customer, "Başarılı");
 	}
@@ -73,11 +74,11 @@ public class CustomerManager implements CustomerService {
 	public Result deleteById(int id) {
 		var result = getById(id);
 		if (!result.isSuccess()) {
-			return new ErrorResult("Müşteri bulunamadı");
+			return new ErrorResult("%s bulunamadı".formatted(entityName));
 		}
 		try {
 			customerRepository.delete(result.getData()).block(Duration.ofSeconds(1));
-			return new SuccessResult("Müşteri silindi");
+			return new SuccessResult("%s silindi".formatted(entityName));
 		} catch (RuntimeException ex) {
 			return new ErrorResult("İstek zaman aşımına uğradı");
 		}

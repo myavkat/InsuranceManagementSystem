@@ -20,22 +20,23 @@ import com.sbm.application.repositories.concretes.CityRepository;
 @Service
 public class CityManager implements CityService {
 
+	private final String entityName = "Şehir";
 	@Autowired
 	private CityRepository cityRepository;
 
 	@Override
 	public Result save(City city) {
 		try {
-			if(city.getId()==0) {
+			if (city.getId() == 0) {
 				cityRepository.save(city).block(Duration.ofSeconds(1));
-				return new SuccessResult("Şehir eklendi");
+				return new SuccessResult("%s eklendi".formatted(entityName));
 			}
 			City foundCity = cityRepository.findById(city.getId()).block(Duration.ofSeconds(1));
-			if(foundCity == null) {
-				return new ErrorResult("%s idli Şehir bulunamadı".formatted(city.getId()));
+			if (foundCity == null) {
+				return new ErrorResult("%s idli %s bulunamadı".formatted(city.getId(), entityName));
 			}
 			cityRepository.save(city).block(Duration.ofSeconds(1));
-			return new SuccessResult("Şehir güncelleme başarılı!");
+			return new SuccessResult("%s güncelleme başarılı!".formatted(entityName));
 		} catch (RuntimeException ex) {
 			return new ErrorResult("İstek zaman aşımına uğradı!");
 		}
@@ -43,33 +44,53 @@ public class CityManager implements CityService {
 
 	@Override
 	public Result delete(City city) {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			cityRepository.delete(city);
+			return new SuccessResult("Silindi");
+		} catch (Exception ex) {
+			return new ErrorResult(ex.getMessage());
+		}
 	}
 
 	@Override
 	public DataResult<City> getById(int id) {
-		// TODO Auto-generated method stub
-		return null;
+		City city = new City();
+		try {
+			city = cityRepository.findById(id).block(Duration.ofSeconds(1));
+		} catch (RuntimeException ex) {
+			System.out.println(ex.getMessage());
+			return new ErrorDataResult<City>(city, "İstek zaman aşımına uğradı!");
+		}
+		if (city == null) {
+			return new ErrorDataResult<City>(new City(), "%s Bulunamadı!".formatted(entityName));
+		}
+		return new SuccessDataResult<City>(city, "Başarılı");
 	}
 
 	@Override
 	public DataResult<List<City>> getAll() {
 		List<City> cities = new ArrayList<City>();
 		try {
-		  cityRepository.findAll().doOnNext(cities::add).blockLast(Duration.ofSeconds(10));
-		  return new SuccessDataResult<List<City>>(cities,"Başarılı");
-		}
-		catch(RuntimeException ex) {
+			cityRepository.findAll().doOnNext(cities::add).blockLast(Duration.ofSeconds(10));
+			return new SuccessDataResult<List<City>>(cities, "Başarılı");
+		} catch (RuntimeException ex) {
 			System.out.println(ex.getMessage());
-			return new ErrorDataResult<List<City>>(cities,"İstek zaman aşımına uğradı!");
+			return new ErrorDataResult<List<City>>(cities, "İstek zaman aşımına uğradı!");
 		}
 	}
 
 	@Override
 	public Result deleteById(int id) {
-		// TODO Auto-generated method stub
-		return null;
+		var result = getById(id);
+		if (!result.isSuccess()) {
+			return new ErrorResult("%s bulunamadı".formatted(entityName));
+		}
+		try {
+			cityRepository.delete(result.getData()).block(Duration.ofSeconds(1));
+			return new SuccessResult("%s silindi".formatted(entityName));
+		} catch (RuntimeException ex) {
+			return new ErrorResult("İstek zaman aşımına uğradı");
+		}
 	}
 
 }
