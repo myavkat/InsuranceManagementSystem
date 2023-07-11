@@ -13,13 +13,13 @@ import lombok.EqualsAndHashCode;
 @Table("Vehicles")
 public class Vehicle extends Parameter {
 
-	@Column("customerId")
+	@Column("CustomerId")
 	private int customerId;
-	@Column("carId")
+	@Column("CarId")
 	private int carId;
-	@Column("isDamaged")
+	@Column("Damaged")
 	private boolean damaged;
-	@Column("licensePlate")
+	@Column("LicensePlate")
 	private String licensePlate;
 	@Column("VIN")
 	private String vin;

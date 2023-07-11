@@ -40,11 +40,13 @@ public class VehicleController {
 		var result = vehicleService.getById(id);
 		if (result.isSuccess()) {
 			model.addAttribute("vehicle", result.getData());
+			model.addAttribute("cars", carService.getAll().getData());
+			model.addAttribute("customers", customerService.getAll().getData());
 			model.addAttribute("controller", controllerName);
 			model.addAttribute("page", "save");
 			return "app";
 		}
-		model.addAttribute("errorToast", true);
+		model.addAttribute("toastError", true);
 		model.addAttribute("toastMessage",result.getMessage());
 		return list(model);
 
@@ -53,8 +55,8 @@ public class VehicleController {
 	@PostMapping("/save/{id}")
 	public String saveForm(@ModelAttribute("vehicle") Vehicle vehicle, Model model, @PathVariable int id) {
 		vehicle.setId(id);
-		vehicleService.save(vehicle);
-		model.addAttribute("vehicleSaved",true);
+		model.addAttribute("toastMessage", vehicleService.save(vehicle).getMessage());
+		model.addAttribute("toastSuccess",true);
 		return list(model);
 	}
 
@@ -70,8 +72,8 @@ public class VehicleController {
 
 	@GetMapping("/delete/{id}")
 	public String delete(@PathVariable int id, Model model) {
-		vehicleService.deleteById(id);
-		model.addAttribute("vehicleDeleted", true);
+		model.addAttribute("toastMessage", vehicleService.deleteById(id).getMessage());
+		model.addAttribute("toastWarning", true);
 		return list(model);
 	}
 }

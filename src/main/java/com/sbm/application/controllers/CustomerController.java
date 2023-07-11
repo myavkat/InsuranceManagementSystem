@@ -71,8 +71,8 @@ public class CustomerController {
 
 	@GetMapping("/delete/{id}")
 	public String delete(@PathVariable int id, Model model) {
-		customerService.deleteById(id);
-		model.addAttribute("customerDeleted", true);
+		model.addAttribute("toastMessage", customerService.deleteById(id).getMessage());
+		model.addAttribute("toastWarning", true);
 		return list(model);
 	}
 }

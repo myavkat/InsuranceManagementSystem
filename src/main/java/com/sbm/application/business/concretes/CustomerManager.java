@@ -27,7 +27,7 @@ public class CustomerManager implements CustomerService {
 	@Override
 	public Result delete(Customer customer) {
 		customerRepository.delete(customer);
-		return new SuccessResult();
+		return new SuccessResult("%s silindi".formatted(entityName));
 	}
 
 	@Override
