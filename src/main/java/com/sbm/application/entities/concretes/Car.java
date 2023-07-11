@@ -8,34 +8,26 @@ import com.sbm.application.entities.abstracts.Parameter;
 @Table("Cars")
 public class Car extends Parameter {
 
-	@Column("carModelId")
-	private int carModelId;
 	@Column("carEngineId")
 	private int carEngineId;
-	@Column("carTypeId")
-	private int carTypeId;
+	@Column("carPackageId")
+	private int carPackageId;
 	@Column("year")
 	private String year;
+	@Column("estimatedValue")
+	private double estimatedValue;
 
 	public Car() {
 		super(0, 0, 0);
 	}
 
-	public Car(double scaleFactor, double valueFactor, int id, int carModelId, int carEngineId, int carTypeId,
-			String year) {
+	public Car(double scaleFactor, double valueFactor, int id, int carEngineId, int carPackageId,
+			double estimatedValue, String year) {
 		super(id, scaleFactor, valueFactor);
-		this.carModelId = carModelId;
 		this.carEngineId = carEngineId;
-		this.carTypeId = carTypeId;
+		this.carPackageId = carPackageId;
+		this.estimatedValue = estimatedValue;
 		this.year = year;
-	}
-
-	public int getCarModelId() {
-		return carModelId;
-	}
-
-	public void setCarModelId(int carModelId) {
-		this.carModelId = carModelId;
 	}
 
 	public int getCarEngineId() {
@@ -46,12 +38,20 @@ public class Car extends Parameter {
 		this.carEngineId = carEngineId;
 	}
 
-	public int getCarTypeId() {
-		return carTypeId;
+	public int getCarPackageId() {
+		return carPackageId;
 	}
 
-	public void setCarTypeId(int carTypeId) {
-		this.carTypeId = carTypeId;
+	public void setCarPackageId(int carPackageId) {
+		this.carPackageId = carPackageId;
+	}
+
+	public double getEstimatedValue() {
+		return estimatedValue;
+	}
+
+	public void setEstimatedValue(double estimatedValue) {
+		this.estimatedValue = estimatedValue;
 	}
 
 	public String getYear() {

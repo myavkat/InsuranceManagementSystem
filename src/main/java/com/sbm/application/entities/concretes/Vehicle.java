@@ -10,30 +10,27 @@ public class Vehicle extends Parameter {
 
 	@Column("customerId")
 	private int customerId;
-	@Column("cityId")
-	private int cityId;
-	@Column("carPackageId")
-	private int carPackageId;
+	@Column("carId")
+	private int carId;
 	@Column("isDamaged")
 	private boolean isDamaged;
-	@Column("estimatedValue")
-	private double estimatedValue;
 	@Column("licensePlate")
 	private String licensePlate;
+	@Column("VIN")
+	private String vin;
 
 	public Vehicle() {
 		super(0, 0, 0);
 	}
 
-	public Vehicle(double scaleFactor, double valueFactor, int id, int customerId, int cityId, int carPackageId,
-			boolean isDamaged, double estimatedValue, String licensePlate) {
+	public Vehicle(double scaleFactor, double valueFactor, int id, int customerId, int carId,
+			boolean isDamaged, String licensePlate, String vin) {
 		super(id, scaleFactor, valueFactor);
 		this.customerId = customerId;
-		this.cityId = cityId;
-		this.carPackageId = carPackageId;
+		this.carId = carId;
 		this.isDamaged = isDamaged;
-		this.estimatedValue = estimatedValue;
 		this.licensePlate = licensePlate;
+		this.vin = vin;
 	}
 
 	public int getCustomerId() {
@@ -44,20 +41,12 @@ public class Vehicle extends Parameter {
 		this.customerId = customerId;
 	}
 
-	public int getCityId() {
-		return cityId;
+	public int getCarId() {
+		return carId;
 	}
 
-	public void setCityId(int cityId) {
-		this.cityId = cityId;
-	}
-
-	public int getCarPackageId() {
-		return carPackageId;
-	}
-
-	public void setCarPackageId(int carPackageId) {
-		this.carPackageId = carPackageId;
+	public void setCarId(int carId) {
+		this.carId = carId;
 	}
 
 	public boolean isDamaged() {
@@ -68,20 +57,20 @@ public class Vehicle extends Parameter {
 		this.isDamaged = isDamaged;
 	}
 
-	public double getEstimatedValue() {
-		return estimatedValue;
-	}
-
-	public void setEstimatedValue(double estimatedValue) {
-		this.estimatedValue = estimatedValue;
-	}
-
 	public String getLicensePlate() {
 		return licensePlate;
 	}
 
 	public void setLicensePlate(String licensePlate) {
 		this.licensePlate = licensePlate;
+	}
+
+	public String getVin() {
+		return vin;
+	}
+
+	public void setVin(String vin) {
+		this.vin = vin;
 	}
 
 }
