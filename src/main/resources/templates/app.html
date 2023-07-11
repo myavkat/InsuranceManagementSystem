@@ -65,4 +65,32 @@
 <script th:src="@{/webjars/popper.js/umd/popper.min.js}"></script>
 <script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
 <script th:src="@{/webjars/izitoast/dist/js/iziToast.min.js}"></script>
+<script th:if="${toastError}" th:inline="javascript">
+function errorToast(){
+  iziToast.error({
+    title : 'Hata!',
+    message : /*[[${toastMessage}]]*/ "Varsayılan mesaj."
+  });}
+</script>
+<script th:if="${toastSuccess}" th:inline="javascript">
+function successToast(){
+  iziToast.success({
+    title : 'Başarılı!',
+    message : /*[[${toastMessage}]]*/ "Varsayılan mesaj."
+  });}
+</script>
+<script th:if="${toastWarning}" th:inline="javascript">
+function warningToast(){
+  iziToast.warning({
+    title : 'Uyarı!',
+    message : /*[[${toastMessage}]]*/ "Varsayılan mesaj."
+  });}
+</script>
+<script>
+function toast(){
+	errorToast();
+	successToast();
+	warningToast();
+}
+</script>
 </html>
