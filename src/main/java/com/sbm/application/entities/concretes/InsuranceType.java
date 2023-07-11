@@ -5,6 +5,11 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import com.sbm.application.entities.abstracts.Entity;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+@Data
+@EqualsAndHashCode(callSuper = true)
 @Table("InsuranceTypes")
 public class InsuranceType extends Entity {
 
@@ -13,30 +18,5 @@ public class InsuranceType extends Entity {
 	@Column("parameterTable")
 	private String parameterTable;
 
-	public InsuranceType() {
-		super(0);
-	}
-
-	public InsuranceType(int id, String name, String parameterTable) {
-		super(id);
-		this.name = name;
-		this.parameterTable = parameterTable;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getParameterTable() {
-		return parameterTable;
-	}
-
-	public void setParameterTable(String parameterTable) {
-		this.parameterTable = parameterTable;
-	}
 
 }

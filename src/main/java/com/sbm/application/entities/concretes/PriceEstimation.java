@@ -7,6 +7,11 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import com.sbm.application.entities.abstracts.Entity;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+@Data
+@EqualsAndHashCode(callSuper = true)
 @Table("PriceEstimations")
 public class PriceEstimation extends Entity {
 
@@ -19,48 +24,5 @@ public class PriceEstimation extends Entity {
 	@Column("estimationDate")
 	private Timestamp estimationDate;
 
-	public PriceEstimation() {
-		super(0);
-	}
-
-	public PriceEstimation(int id, int insuranceId, int parameterId, double price, Timestamp estimationDate) {
-		super(id);
-		this.insuranceId = insuranceId;
-		this.parameterId = parameterId;
-		this.price = price;
-		this.estimationDate = estimationDate;
-	}
-
-	public int getInsuranceId() {
-		return insuranceId;
-	}
-
-	public void setInsuranceId(int insuranceId) {
-		this.insuranceId = insuranceId;
-	}
-
-	public int getParameterId() {
-		return parameterId;
-	}
-
-	public void setParameterId(int parameterId) {
-		this.parameterId = parameterId;
-	}
-
-	public double getPrice() {
-		return price;
-	}
-
-	public void setPrice(double price) {
-		this.price = price;
-	}
-
-	public Timestamp getEstimationDate() {
-		return estimationDate;
-	}
-
-	public void setEstimationDate(Timestamp estimationDate) {
-		this.estimationDate = estimationDate;
-	}
 
 }

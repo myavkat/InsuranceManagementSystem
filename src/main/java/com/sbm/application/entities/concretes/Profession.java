@@ -5,32 +5,14 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import com.sbm.application.entities.abstracts.Parameter;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+@Data
+@EqualsAndHashCode(callSuper = true)
 @Table("Professions")
 public class Profession extends Parameter {
 
 	@Column("Name")
 	private String name;
-
-	public Profession() {
-		super(0, 0, 0);
-	}
-
-	public Profession(double scaleFactor, double valueFactor, int id, String name) {
-		super(id, scaleFactor, valueFactor);
-		this.name = name;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String toString() {
-		return String.format("Profession [\nname=%s, \nscaleFactor=%s, \nvalueFactor=%s, \nid=%s]\n", name, getScaleFactor(),
-				getValueFactor(), getId());
-	}
 }

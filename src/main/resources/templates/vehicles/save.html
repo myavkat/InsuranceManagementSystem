@@ -12,7 +12,7 @@
   </div> 
   <div class="form-floating col-3 p-1">
     <select id="customerSelect" class="form-select" th:field="*{customerId}">
-      <option th:each="c : ${customers}" th:value="${c.id}" th:text="${c.firstName} + ${c.tc}" />
+      <option th:each="c : ${customers}" th:value="${c.id}" th:text="${c.toString()}" />
     </select>
     <label for="customerSelect">Müşteri:</label>
   </div> 

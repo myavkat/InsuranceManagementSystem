@@ -5,26 +5,14 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import com.sbm.application.entities.abstracts.Parameter;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+@Data
+@EqualsAndHashCode(callSuper = true)
 @Table("CarBrands")
 public class CarBrand extends Parameter {
 
 	@Column("name")
 	private String name;
-
-	public CarBrand() {
-		super(0, 0, 0);
-	}
-
-	public CarBrand(double scaleFactor, double valueFactor, int id, String name) {
-		super(id, scaleFactor, valueFactor);
-		this.name = name;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
 }

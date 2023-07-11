@@ -5,6 +5,11 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import com.sbm.application.entities.abstracts.Parameter;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+@Data
+@EqualsAndHashCode(callSuper = true)
 @Table("Cities")
 public class City extends Parameter {
 
@@ -12,31 +17,5 @@ public class City extends Parameter {
 	private String name;
 	@Column("plateCode")
 	private String plateCode;
-
-	public City() {
-		super(0, 0, 0);
-	}
-
-	public City(double scaleFactor, double valueFactor, int id, String name, String plateCode) {
-		super(id, scaleFactor, valueFactor);
-		this.name = name;
-		this.plateCode = plateCode;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getPlateCode() {
-		return plateCode;
-	}
-
-	public void setPlateCode(String plateCode) {
-		this.plateCode = plateCode;
-	}
 
 }
