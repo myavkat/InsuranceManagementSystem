@@ -8,7 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.sbm.application.business.abstracts.CustomerService;
-import com.sbm.application.core.utilities.results.*;
+import com.sbm.application.core.utilities.results.DataResult;
+import com.sbm.application.core.utilities.results.ErrorDataResult;
+import com.sbm.application.core.utilities.results.ErrorResult;
+import com.sbm.application.core.utilities.results.Result;
+import com.sbm.application.core.utilities.results.SuccessDataResult;
+import com.sbm.application.core.utilities.results.SuccessResult;
 import com.sbm.application.entities.concretes.Customer;
 import com.sbm.application.repositories.concretes.CustomerRepository;
 

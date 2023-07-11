@@ -1,5 +1,8 @@
 package com.sbm.application.controllers;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,10 +13,6 @@ import com.sbm.application.business.abstracts.CityService;
 import com.sbm.application.business.abstracts.CustomerService;
 import com.sbm.application.business.abstracts.ProfessionService;
 import com.sbm.application.entities.concretes.Customer;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 
 @Controller
 @RequestMapping("/customers")
