@@ -13,7 +13,7 @@ public class Vehicle extends Parameter {
 	@Column("carId")
 	private int carId;
 	@Column("isDamaged")
-	private boolean isDamaged;
+	private boolean damaged;
 	@Column("licensePlate")
 	private String licensePlate;
 	@Column("VIN")
@@ -28,7 +28,7 @@ public class Vehicle extends Parameter {
 		super(id, scaleFactor, valueFactor);
 		this.customerId = customerId;
 		this.carId = carId;
-		this.isDamaged = isDamaged;
+		this.damaged = isDamaged;
 		this.licensePlate = licensePlate;
 		this.vin = vin;
 	}
@@ -50,11 +50,11 @@ public class Vehicle extends Parameter {
 	}
 
 	public boolean isDamaged() {
-		return isDamaged;
+		return damaged;
 	}
 
 	public void setDamaged(boolean isDamaged) {
-		this.isDamaged = isDamaged;
+		this.damaged = isDamaged;
 	}
 
 	public String getLicensePlate() {
