@@ -19,7 +19,6 @@ import com.sbm.application.repositories.concretes.CarRepository;
 
 @Service
 public class CarManager implements CarService {
-
 	private final String entityName = "Araba";
 	@Autowired
 	private CarRepository carRepository;
@@ -31,8 +30,8 @@ public class CarManager implements CarService {
 				carRepository.save(car).block(Duration.ofSeconds(1));
 				return new SuccessResult("%s eklendi".formatted(entityName));
 			}
-			Car foundCar = carRepository.findById(car.getId()).block(Duration.ofSeconds(1));
-			if (foundCar == null) {
+			Car foundCarBrand = carRepository.findById(car.getId()).block(Duration.ofSeconds(1));
+			if (foundCarBrand == null) {
 				return new ErrorResult("%s idli %s bulunamadı".formatted(car.getId(), entityName));
 			}
 			carRepository.save(car).block(Duration.ofSeconds(1));

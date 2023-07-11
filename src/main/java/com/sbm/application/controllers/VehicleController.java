@@ -9,19 +9,19 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.sbm.application.business.abstracts.CarService;
-import com.sbm.application.entities.concretes.Car;
+import com.sbm.application.business.abstracts.VehicleService;
+import com.sbm.application.entities.concretes.Vehicle;
 
 
 @Controller
-@RequestMapping("/cars")
-public class CarController {
-	private final String controllerName = "cars";
+@RequestMapping("/vehicles")
+public class VehicleController {
+	private final String controllerName = "vehicles";
 	@Autowired
-	private CarService carService;
+	private VehicleService vehicleService;
 	@GetMapping("/add")
 	public String add(Model model) {
-		model.addAttribute("car", new Car());
+		model.addAttribute("vehicle", new Vehicle());
 		model.addAttribute("controller", controllerName);
 		model.addAttribute("page", "save");
 		return "app";
@@ -29,23 +29,24 @@ public class CarController {
 
 	@GetMapping("/edit/{id}")
 	public String edit(@PathVariable int id, Model model) {
-		var result = carService.getById(id);
+		var result = vehicleService.getById(id);
 		if (result.isSuccess()) {
-			model.addAttribute("car", result.getData());
+			model.addAttribute("vehicle", result.getData());
 			model.addAttribute("controller", controllerName);
 			model.addAttribute("page", "save");
 			return "app";
 		}
-		model.addAttribute("carNotFound", true);
+		model.addAttribute("errorToast", true);
+		model.addAttribute("toastMessage",result.getMessage());
 		return list(model);
 
 	}
 
 	@PostMapping("/save/{id}")
-	public String saveForm(@ModelAttribute("customer") Car car, Model model, @PathVariable int id) {
-		car.setId(id);
-		carService.save(car);
-		model.addAttribute("carSaved",true);
+	public String saveForm(@ModelAttribute("customer") Vehicle vehicle, Model model, @PathVariable int id) {
+		vehicle.setId(id);
+		vehicleService.save(vehicle);
+		model.addAttribute("vehicleSaved",true);
 		return list(model);
 	}
 
@@ -53,16 +54,16 @@ public class CarController {
 	public String list(Model model) {
 		model.addAttribute("controller", controllerName);
 		model.addAttribute("page", "list");
-		var result = carService.getAll();
-		model.addAttribute("cars", result.getData());
+		var result = vehicleService.getAll();
+		model.addAttribute("vehicles", result.getData());
 		return "app";
 	}
 
 
 	@GetMapping("/delete/{id}")
 	public String delete(@PathVariable int id, Model model) {
-		carService.deleteById(id);
-		model.addAttribute("carDeleted", true);
+		vehicleService.deleteById(id);
+		model.addAttribute("vehicleDeleted", true);
 		return list(model);
 	}
 }

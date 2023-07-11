@@ -8,80 +8,58 @@ import com.sbm.application.entities.abstracts.Parameter;
 @Table("Cars")
 public class Car extends Parameter {
 
-	@Column("customerId")
-	private int customerId;
-	@Column("cityId")
-	private int cityId;
-	@Column("carPackageId")
-	private int carPackageId;
-	@Column("isDamaged")
-	private boolean isDamaged;
-	@Column("estimatedValue")
-	private double estimatedValue;
-	@Column("licensePlate")
-	private String licensePlate;
+	@Column("carModelId")
+	private int carModelId;
+	@Column("carEngineId")
+	private int carEngineId;
+	@Column("carTypeId")
+	private int carTypeId;
+	@Column("year")
+	private String year;
 
 	public Car() {
 		super(0, 0, 0);
 	}
 
-	public Car(double scaleFactor, double valueFactor, int id, int customerId, int cityId, int carPackageId,
-			boolean isDamaged, double estimatedValue, String licensePlate) {
+	public Car(double scaleFactor, double valueFactor, int id, int carModelId, int carEngineId, int carTypeId,
+			String year) {
 		super(id, scaleFactor, valueFactor);
-		this.customerId = customerId;
-		this.cityId = cityId;
-		this.carPackageId = carPackageId;
-		this.isDamaged = isDamaged;
-		this.estimatedValue = estimatedValue;
-		this.licensePlate = licensePlate;
+		this.carModelId = carModelId;
+		this.carEngineId = carEngineId;
+		this.carTypeId = carTypeId;
+		this.year = year;
 	}
 
-	public int getCustomerId() {
-		return customerId;
+	public int getCarModelId() {
+		return carModelId;
 	}
 
-	public void setCustomerId(int customerId) {
-		this.customerId = customerId;
+	public void setCarModelId(int carModelId) {
+		this.carModelId = carModelId;
 	}
 
-	public int getCityId() {
-		return cityId;
+	public int getCarEngineId() {
+		return carEngineId;
 	}
 
-	public void setCityId(int cityId) {
-		this.cityId = cityId;
+	public void setCarEngineId(int carEngineId) {
+		this.carEngineId = carEngineId;
 	}
 
-	public int getCarPackageId() {
-		return carPackageId;
+	public int getCarTypeId() {
+		return carTypeId;
 	}
 
-	public void setCarPackageId(int carPackageId) {
-		this.carPackageId = carPackageId;
+	public void setCarTypeId(int carTypeId) {
+		this.carTypeId = carTypeId;
 	}
 
-	public boolean isDamaged() {
-		return isDamaged;
+	public String getYear() {
+		return year;
 	}
 
-	public void setDamaged(boolean isDamaged) {
-		this.isDamaged = isDamaged;
-	}
-
-	public double getEstimatedValue() {
-		return estimatedValue;
-	}
-
-	public void setEstimatedValue(double estimatedValue) {
-		this.estimatedValue = estimatedValue;
-	}
-
-	public String getLicensePlate() {
-		return licensePlate;
-	}
-
-	public void setLicensePlate(String licensePlate) {
-		this.licensePlate = licensePlate;
+	public void setYear(String year) {
+		this.year = year;
 	}
 
 }

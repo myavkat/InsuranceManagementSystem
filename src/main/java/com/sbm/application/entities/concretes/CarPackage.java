@@ -8,58 +8,24 @@ import com.sbm.application.entities.abstracts.Parameter;
 @Table("CarPackages")
 public class CarPackage extends Parameter {
 
-	@Column("carModelId")
-	private int carModelId;
-	@Column("carEngineId")
-	private int carEngineId;
-	@Column("carTypeId")
-	private int carTypeId;
-	@Column("year")
-	private String year;
+	@Column("name")
+	private String name;
 
 	public CarPackage() {
 		super(0, 0, 0);
 	}
 
-	public CarPackage(double scaleFactor, double valueFactor, int id, int carModelId, int carEngineId, int carTypeId,
-			String year) {
+	public CarPackage(double scaleFactor, double valueFactor, int id, String name) {
 		super(id, scaleFactor, valueFactor);
-		this.carModelId = carModelId;
-		this.carEngineId = carEngineId;
-		this.carTypeId = carTypeId;
-		this.year = year;
+		this.name = name;
 	}
 
-	public int getCarModelId() {
-		return carModelId;
+	public String getName() {
+		return name;
 	}
 
-	public void setCarModelId(int carModelId) {
-		this.carModelId = carModelId;
-	}
-
-	public int getCarEngineId() {
-		return carEngineId;
-	}
-
-	public void setCarEngineId(int carEngineId) {
-		this.carEngineId = carEngineId;
-	}
-
-	public int getCarTypeId() {
-		return carTypeId;
-	}
-
-	public void setCarTypeId(int carTypeId) {
-		this.carTypeId = carTypeId;
-	}
-
-	public String getYear() {
-		return year;
-	}
-
-	public void setYear(String year) {
-		this.year = year;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 }

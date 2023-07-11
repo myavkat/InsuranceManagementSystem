@@ -30,7 +30,8 @@ public class CarPackageManager implements CarPackageService {
 				carPackageRepository.save(carPackage).block(Duration.ofSeconds(1));
 				return new SuccessResult("%s eklendi".formatted(entityName));
 			}
-			CarPackage foundCarBrand = carPackageRepository.findById(carPackage.getId()).block(Duration.ofSeconds(1));
+			CarPackage foundCarBrand = carPackageRepository.findById(carPackage.getId())
+					.block(Duration.ofSeconds(1));
 			if (foundCarBrand == null) {
 				return new ErrorResult("%s idli %s bulunamadı".formatted(carPackage.getId(), entityName));
 			}
@@ -91,5 +92,4 @@ public class CarPackageManager implements CarPackageService {
 			return new ErrorDataResult<List<CarPackage>>(carPackages, "İstek zaman aşımına uğradı!");
 		}
 	}
-
 }
