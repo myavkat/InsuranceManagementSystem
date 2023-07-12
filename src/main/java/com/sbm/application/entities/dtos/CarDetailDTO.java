@@ -5,11 +5,22 @@ import lombok.Data;
 @Data
 public class CarDetailDTO {
 
-	private String brand;
-	private String carType;
-	private String model;
-	private String packageName;
-	private String fuelType;
-	private String engineSize;
+	private int id;
+	private double estimatedValue;
 	private String year;
+	private String fuelTypeName;
+	private String engineSize;
+	private String carTypeName;
+	private String carName;
+	private double valueFactor;
+	private double scaleFactor;
+	private int carEngineId;
+	private int carPackageId;
+	private int carEngineSizeId;
+	private int carFuelTypeId;
+	private int carModelId;
+	private int carBrandId;
+	private int carTypeId;
+	
+	
 }

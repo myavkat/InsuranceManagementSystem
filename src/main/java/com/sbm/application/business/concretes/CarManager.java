@@ -15,6 +15,7 @@ import com.sbm.application.core.utilities.results.Result;
 import com.sbm.application.core.utilities.results.SuccessDataResult;
 import com.sbm.application.core.utilities.results.SuccessResult;
 import com.sbm.application.entities.concretes.Car;
+import com.sbm.application.entities.dtos.CarDetailDTO;
 import com.sbm.application.repositories.concretes.CarRepository;
 
 @Service
@@ -89,6 +90,17 @@ public class CarManager implements CarService {
 		} catch (RuntimeException ex) {
 			System.out.println(ex.getMessage());
 			return new ErrorDataResult<List<Car>>(cars, "İstek zaman aşımına uğradı!");
+		}
+	}
+
+	@Override
+	public DataResult<List<CarDetailDTO>> getCarDetails() {
+		List<CarDetailDTO> carDetails = new ArrayList<CarDetailDTO>();
+		try {
+			carRepository.findCarDetails().doOnNext(carDetails::add).blockLast(Duration.ofSeconds(3));
+			return new SuccessDataResult<List<CarDetailDTO>>(carDetails, "Araba detayları listelendi");
+		} catch (RuntimeException ex) {
+			return new ErrorDataResult<List<CarDetailDTO>>(carDetails, "İstek zaman aşımına uğradı");
 		}
 	}
 

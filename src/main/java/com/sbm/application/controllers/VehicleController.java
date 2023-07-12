@@ -30,7 +30,7 @@ public class VehicleController {
 		model.addAttribute("vehicle", new Vehicle());
 		model.addAttribute("controller", controllerName);
 		model.addAttribute("page", "save");
-		model.addAttribute("cars", carService.getAll().getData());
+		model.addAttribute("cars", carService.getCarDetails().getData());
 		model.addAttribute("customers", customerService.getAll().getData());
 		return "app";
 	}

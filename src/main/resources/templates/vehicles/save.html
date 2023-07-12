@@ -6,7 +6,7 @@
   </div>
   <div class="form-floating col-3 p-1">
     <select id="carSelect" class="form-select" th:field="*{carId}">
-      <option th:each="c : ${cars}" th:value="${c.id}" th:text="${c.carPackageId}" />
+      <option th:each="c : ${cars}" th:value="${c.id}" th:text="${c.carName}" />
     </select>
     <label for="carSelect">Araba:</label>
   </div> 
