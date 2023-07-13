@@ -17,8 +17,8 @@ public class Insurance extends Entity {
 	private int companyId;
 	@Column("insuranceTypeId")
 	private int insuranceTypeId;
-	@Column("basePrice")
-	private double basePrice;
+	@Column("unitPrice")
+	private double unitPrice;
 
 
 }

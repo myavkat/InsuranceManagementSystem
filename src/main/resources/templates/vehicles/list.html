@@ -5,24 +5,25 @@
 		<thead>
 			<tr>
 				<th scope="col">Id</th>
-				<th scope="col">Müşteri id</th>
-				<th scope="col">Araba id</th>
+				<th scope="col">Müşteri TC</th>
+				<th scope="col">Araba Adı</th>
 				<th scope="col">Hasarlı</th>
 				<th scope="col">Plaka</th>
 				<th scope="col">Şasi No</th>
-				<th scope="col">ek ücret</th>
 				<th scope="col">İşlemler</th>
 			</tr>
 		</thead>
 		<tbody>
 			<tr th:each="vehicle : ${vehicles}">
 				<th scope="row" th:text="${vehicle.id}"></th>
-				<td th:text="${vehicle.customerId}"></td>
-				<td th:text="${vehicle.carId}"></td>
-				<td th:text="${vehicle.damaged}"></td>
+				<td th:each="customerDetail : ${customerDetails}" 
+				th:if="${customerDetail.id} == ${vehicle.customerId}" th:text="${customerDetail.tc}"></td>
+				<td th:each="carDetail : ${carDetails}" 
+        th:if="${carDetail.id} == ${vehicle.carId}" th:text="${carDetail.carName}"></td>
+        <td th:if="${vehicle.damaged}" th:text="Hasarlı"></td>
+        <td th:if="${!vehicle.damaged}" th:text="Hasarsız"></td>
 				<td th:text="${vehicle.licensePlate}"></td>
 				<td th:text="${vehicle.vin}"></td>
-				<td th:text="'%' + ${vehicle.scaleFactor} + ' + ' + ${vehicle.valueFactor}"></td>
 
 				<td><a class="btn btn-warning"
 					th:href="'/vehicles/edit/' + ${vehicle.id}"> Düzenle </a>

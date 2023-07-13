@@ -6,13 +6,13 @@
   </div>
   <div class="form-floating col-3 p-1">
     <select id="carSelect" class="form-select" th:field="*{carId}">
-      <option th:each="c : ${cars}" th:value="${c.id}" th:text="${c.carName}" />
+      <option th:each="c : ${carDetails}" th:value="${c.id}" th:text="${c.carName}" />
     </select>
     <label for="carSelect">Araba:</label>
   </div> 
   <div class="form-floating col-3 p-1">
     <select id="customerSelect" class="form-select" th:field="*{customerId}">
-      <option th:each="c : ${customers}" th:value="${c.id}" th:text="${c.toString()}" />
+      <option th:each="c : ${customerDetails}" th:value="${c.id}" th:text="${c.tc}" />
     </select>
     <label for="customerSelect">Müşteri:</label>
   </div> 

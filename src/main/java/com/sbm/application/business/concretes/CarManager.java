@@ -104,4 +104,14 @@ public class CarManager implements CarService {
 		}
 	}
 
+	@Override
+	public DataResult<CarDetailDTO> getCarDetailById(int id) {
+		try {
+		return new SuccessDataResult<CarDetailDTO>(carRepository.findCarDetailById(id).block(Duration.ofSeconds(1)));
+		}
+		catch(RuntimeException ex) {
+			return new ErrorDataResult<CarDetailDTO>(new CarDetailDTO(), "İstek zaman aşımına uğradı");
+		}
+	}
+
 }

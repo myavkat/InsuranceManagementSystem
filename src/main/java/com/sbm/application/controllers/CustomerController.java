@@ -63,8 +63,8 @@ public class CustomerController {
 	public String list(Model model) {
 		model.addAttribute("controller", controllerName);
 		model.addAttribute("page", "list");
-		var result = customerService.getAll();
-		model.addAttribute("customers", result.getData());
+		var result = customerService.getCustomerDetails();
+		model.addAttribute("customerDetails", result.getData());
 		return "app";
 	}
 

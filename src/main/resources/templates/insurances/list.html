@@ -3,7 +3,7 @@
   <thead>
     <tr>
       <th scope="col">Id</th>
-      <th scope="col">Taban Fiyat</th>
+      <th scope="col">Birim Fiyat</th>
       <th scope="col">Şirket Adı</th>
       <th scope="col">Sigorta Tipi</th>
     </tr>
@@ -11,9 +11,9 @@
   <tbody>
     <tr th:each="insurance : ${insurances}">
       <th scope="row" th:text="${insurance.id}"></th>
-      <td th:text="${insurance.basePrice}"></td>
-      <td th:text="${insurance.companyId}"></td>
-      <td th:text="${insurance.insuranceTypeId}"></td>
+      <td th:text="${insurance.unitPrice} + ' TRY'"></td>
+      <td th:text="${insurance.insuranceCompanyName}"></td>
+      <td th:text="${insurance.insuranceTypeName}"></td>
     </tr>
   </tbody>
 </table>

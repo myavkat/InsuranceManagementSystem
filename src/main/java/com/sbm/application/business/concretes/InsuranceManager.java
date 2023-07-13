@@ -15,6 +15,7 @@ import com.sbm.application.core.utilities.results.Result;
 import com.sbm.application.core.utilities.results.SuccessDataResult;
 import com.sbm.application.core.utilities.results.SuccessResult;
 import com.sbm.application.entities.concretes.Insurance;
+import com.sbm.application.entities.dtos.InsuranceDetailDTO;
 import com.sbm.application.repositories.concretes.InsuranceRepository;
 
 @Service
@@ -86,6 +87,27 @@ public class InsuranceManager implements InsuranceService {
 			return new SuccessResult("%s silindi".formatted(entityName));
 		} catch (RuntimeException ex) {
 			return new ErrorResult("İstek zaman aşımına uğradı");
+		}
+	}
+
+	@Override
+	public DataResult<InsuranceDetailDTO> getInsuranceDetailById(int id) {
+		try {
+			InsuranceDetailDTO dto = insuranceRepository.getInsuranceDetailById(id).block(Duration.ofSeconds(1));
+			return new SuccessDataResult<InsuranceDetailDTO>(dto, "Başarılı");
+		} catch (RuntimeException ex) {
+			return new ErrorDataResult<InsuranceDetailDTO>(new InsuranceDetailDTO(), "İstek zaman aşımına uğradı");
+		}
+	}
+
+	@Override
+	public DataResult<List<InsuranceDetailDTO>> getInsuranceDetails() {
+		List<InsuranceDetailDTO> dtos = new ArrayList<InsuranceDetailDTO>();
+		try {
+			insuranceRepository.getInsuranceDetails().doOnNext(dtos::add).blockLast(Duration.ofSeconds(3));
+			return new SuccessDataResult<List<InsuranceDetailDTO>>(dtos, "Başarılı");
+		} catch (RuntimeException ex) {
+			return new ErrorDataResult<List<InsuranceDetailDTO>>(dtos, "İstek zaman aşımına uğradı");
 		}
 	}
 

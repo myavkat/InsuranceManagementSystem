@@ -43,7 +43,7 @@ public class InsuranceController {
 	public String getAll(Model model) {
 		model.addAttribute("controller", controllerName);
 		model.addAttribute("page", "list");
-		model.addAttribute("insurances", insuranceService.getAll().getData());
+		model.addAttribute("insurances", insuranceService.getInsuranceDetails().getData());
 		return "app";
 	}
 

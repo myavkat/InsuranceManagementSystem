@@ -30,8 +30,8 @@ public class VehicleController {
 		model.addAttribute("vehicle", new Vehicle());
 		model.addAttribute("controller", controllerName);
 		model.addAttribute("page", "save");
-		model.addAttribute("cars", carService.getCarDetails().getData());
-		model.addAttribute("customers", customerService.getAll().getData());
+		model.addAttribute("carDetails", carService.getCarDetails().getData());
+		model.addAttribute("customerDetails", customerService.getCustomerDetails().getData());
 		return "app";
 	}
 
@@ -40,8 +40,8 @@ public class VehicleController {
 		var result = vehicleService.getById(id);
 		if (result.isSuccess()) {
 			model.addAttribute("vehicle", result.getData());
-			model.addAttribute("cars", carService.getAll().getData());
-			model.addAttribute("customers", customerService.getAll().getData());
+			model.addAttribute("carDetails", carService.getCarDetails().getData());
+			model.addAttribute("customerDetails", customerService.getCustomerDetails().getData());
 			model.addAttribute("controller", controllerName);
 			model.addAttribute("page", "save");
 			return "app";
@@ -66,6 +66,8 @@ public class VehicleController {
 		model.addAttribute("page", "list");
 		var result = vehicleService.getAll();
 		model.addAttribute("vehicles", result.getData());
+		model.addAttribute("carDetails", carService.getCarDetails().getData());
+		model.addAttribute("customerDetails", customerService.getCustomerDetails().getData());
 		return "app";
 	}
 

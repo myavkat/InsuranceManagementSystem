@@ -12,8 +12,8 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Table("PriceEstimations")
-public class PriceEstimation extends Entity {
+@Table("Estimations")
+public class Estimation extends Entity {
 
 	@Column("insuranceId")
 	private int insuranceId;

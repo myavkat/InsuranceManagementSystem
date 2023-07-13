@@ -6,41 +6,36 @@
 		<thead>
 			<tr>
 				<th scope="col">Id</th>
-				<th scope="col">Meslek id</th>
-				<th scope="col">İkamet şehri id</th>
-				<th scope="col">ad</th>
-				<th scope="col">soyad</th>
-				<th scope="col">tc</th>
-				<th scope="col">tel</th>
-				<th scope="col">doğum</th>
-				<th scope="col">ehliyet</th>
-				<th scope="col">ek ücret</th>
+				<th scope="col">Meslek</th>
+				<th scope="col">İkamet Şehri</th>
+				<th scope="col">Ad</th>
+				<th scope="col">Soyad</th>
+				<th scope="col">TC</th>
+				<th scope="col">Telefon No</th>
+				<th scope="col">Doğum Tarihi</th>
+				<th scope="col">Ehliyet Tarihi</th>
 				<th scope="col">İşlemler</th>
 			</tr>
 		</thead>
 		<tbody>
-			<tr th:each="customer : ${customers}">
-				<th scope="row" th:text="${customer.id}"></th>
-				<td th:text="${customer.professionId}"></td>
-				<td th:text="${customer.cityOfResidenceId}"></td>
-				<td th:text="${customer.firstName}"></td>
-				<td th:text="${customer.lastName}"></td>
-				<td th:text="${customer.tc}"></td>
-				<td th:text="${customer.phoneNumber}"></td>
-				<td th:text="${customer.birthDate}"></td>
-				<td th:text="${customer.licenseObtainedAt}"></td>
-				<td
-					th:text="'%' + ${customer.scaleFactor} + ' + ' + ${customer.valueFactor}"></td>
-
-				<td>
-				  <a class="btn btn-warning"
-					th:href="'/customers/edit/' + ${customer.id}"> Düzenle </a>
+			<tr th:each="customerDetail : ${customerDetails}">
+				<th scope="row" th:text="${customerDetail.id}"></th>
+				<td th:text="${customerDetail.professionName}"></td>
+				<td th:text="${customerDetail.cityOfResidenceName}"></td>
+				<td th:text="${customerDetail.firstName}"></td>
+				<td th:text="${customerDetail.lastName}"></td>
+				<td th:text="${customerDetail.tc}"></td>
+				<td th:text="${customerDetail.phoneNumber}"></td>
+				<td th:text="${customerDetail.birthDate}"></td>
+				<td th:text="${customerDetail.licenseObtainedAt}"></td>
+				<td><a class="btn btn-warning"
+					th:href="'/customers/edit/' + ${customerDetail.id}"> Düzenle </a>
 					<button type="button" class="btn btn-primary"
 						data-bs-toggle="modal"
-						th:data-bs-target="'#deleteModal-' + ${customer.id}">Sil
+						th:data-bs-target="'#deleteModal-' + ${customerDetail.id}">Sil
 					</button>
-					<div class="modal fade" th:id="'deleteModal-' + ${customer.id}"
-						tabindex="-1">
+					<div class="modal fade"
+						th:id="'deleteModal-' + ${customerDetail.id}" tabindex="-1">
 						<div class="modal-dialog">
 							<div class="modal-content">
 								<div class="modal-header">
@@ -49,20 +44,19 @@
 									<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 								</div>
 								<div class="modal-body">
-									Müşteriyi ve müşteriye bağlı bütün kayıtları silmek istiyor
-									musunuz? <strong>Bu işlem geri alınamaz.</strong>
+									Müşteriyi silmek istiyor musunuz? <strong>Bu işlem
+										geri alınamaz.</strong>
 								</div>
 								<div class="modal-footer">
 									<button type="button" class="btn btn-secondary"
 										data-bs-dismiss="modal">İptal</button>
 									<a class="btn btn-primary"
-										th:href="'/customers/delete/' + ${customer.id}">Müşteriyi
+										th:href="'/customers/delete/' + ${customerDetail.id}">Müşteriyi
 										Sil</a>
 								</div>
 							</div>
 						</div>
-				  </div>
-			  </td>
+					</div></td>
 			</tr>
 		</tbody>
 	</table>

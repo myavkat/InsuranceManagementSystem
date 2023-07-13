@@ -15,6 +15,7 @@ import com.sbm.application.core.utilities.results.Result;
 import com.sbm.application.core.utilities.results.SuccessDataResult;
 import com.sbm.application.core.utilities.results.SuccessResult;
 import com.sbm.application.entities.concretes.Customer;
+import com.sbm.application.entities.dtos.CustomerDetailDTO;
 import com.sbm.application.repositories.concretes.CustomerRepository;
 
 @Service
@@ -86,6 +87,29 @@ public class CustomerManager implements CustomerService {
 			return new SuccessResult("%s silindi".formatted(entityName));
 		} catch (RuntimeException ex) {
 			return new ErrorResult("İstek zaman aşımına uğradı");
+		}
+	}
+
+	@Override
+	public DataResult<CustomerDetailDTO> getCustomerDetailById(int id) {
+		CustomerDetailDTO customerDetail = new CustomerDetailDTO();
+		try {
+			customerDetail = customerRepository.getCustomerDetailById(id).block(Duration.ofSeconds(1));
+			return new SuccessDataResult<CustomerDetailDTO>(customerDetail, "Başarılı");
+		} catch (RuntimeException ex) {
+			return new ErrorDataResult<CustomerDetailDTO>(customerDetail, "İstek zaman aşımına uğradı");
+		}
+	}
+
+	@Override
+	public DataResult<List<CustomerDetailDTO>> getCustomerDetails() {
+		List<CustomerDetailDTO> customerDetails = new ArrayList<CustomerDetailDTO>();
+		try {
+			customerRepository.getCustomerDetails().doOnNext(customerDetails::add).blockLast(Duration.ofSeconds(10));
+			return new SuccessDataResult<List<CustomerDetailDTO>>(customerDetails, "Başarılı");
+		} catch (RuntimeException ex) {
+			System.out.println(ex.getMessage());
+			return new ErrorDataResult<List<CustomerDetailDTO>>(customerDetails, "İstek zaman aşımına uğradı!");
 		}
 	}
 

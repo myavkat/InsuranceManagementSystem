@@ -9,4 +9,5 @@ import com.sbm.application.entities.dtos.CarDetailDTO;
 public interface CarService extends EntityService<Car> {
 
 	DataResult<List<CarDetailDTO>> getCarDetails();
+	DataResult<CarDetailDTO> getCarDetailById(int id);
 }
