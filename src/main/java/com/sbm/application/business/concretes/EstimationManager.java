@@ -114,6 +114,7 @@ public class EstimationManager implements EstimationService {
 	@Override
 	public DataResult<Estimation> estimateKasko(int insuranceId, int vehicleId) {
 		Estimation estimation = new Estimation();
+		// Sigorta ve aracı getir hata varsa mesajla beraber dön
 		var insuranceResult = insuranceService.getInsuranceDetailById(insuranceId);
 		if (!insuranceResult.isSuccess()) {
 			return new ErrorDataResult<Estimation>(estimation, insuranceResult.getMessage());
@@ -124,28 +125,40 @@ public class EstimationManager implements EstimationService {
 		}
 		InsuranceDetailDTO insurance = insuranceResult.getData();
 		Vehicle vehicle = vehicleResult.getData();
+		// Fiyat tahmini objesinin boş alanlarını doldur
 		estimation.setEstimationDate(new Timestamp(new Date().getTime()));
 		estimation.setInsuranceId(insuranceId);
 		estimation.setParameterId(vehicleId);
+		// Araca bağlı araba ve müşteri detaylarını getir
 		var carDetail = carService.getCarDetailById(vehicle.getCarId()).getData();
 		var customerDetail = customerService.getCustomerDetailById(vehicle.getCustomerId()).getData();
 		double price = 0;
+		// Arabanın TSB tarafından belirlenen kasko değeri
+		// ile sigorta şirketinin birim fiyatını çarparak varsayılan fiyatı belirle
 		price += insurance.getUnitPrice() * carDetail.getEstimatedValue();
+		// Araç hasarlıysa fiyatı belirlenen oranda artır
+		//TODO bunu başka bir yerden çekmek daha mantıklı gömülü yazmaktansa
+		double damageScaleValue = 0.25;
+		if (vehicle.isDamaged()) {
+			price *= (1 + damageScaleValue);
+		}
+		//aracın plakasındaki şehri getir ve bulamazsa mesajla beraber dön
 		var cityOfVehicleResult = cityService.getByPlateCode(vehicle.extractCityCode());
-		if(!cityOfVehicleResult.isSuccess()) {
+		if (!cityOfVehicleResult.isSuccess()) {
 			return new ErrorDataResult<Estimation>(estimation, vehicleResult.getMessage());
 		}
-		double cityOfVehicleScaleFactor =  cityOfVehicleResult.getData().getScaleFactor()*0.5;
-		//If vehicle is damaged increase price by 25%
-		double damageScaleValue = 0.25;
-		if(vehicle.isDamaged()) {
-			price *= (1+damageScaleValue);
-		}
+		var cityOfVehicle = cityOfVehicleResult.getData();
+		//Aracın şehrinin yüzdelik oranını yarıya azalt (Müşterinin ikamet şehri daha önemli)
+		double cityOfVehicleScaleFactor = cityOfVehicle.getScaleFactor() * 0.5;
 		price *= (1 + cityOfVehicleScaleFactor);
-		double licenseScaleFactor = (5 - customerDetail.getLicenseAge()) * 0.01;
-		price *= (1 + licenseScaleFactor);
+		price += (cityOfVehicle.getValueFactor()/2);
+		//Müşteri ehliyet tarihine göre fiyatta değişiklik yap
+		double licenseAgeScaleFactor = (5 - customerDetail.getLicenseAge()) * 0.01;
+		price *= (1 + licenseAgeScaleFactor);
+		// Müşteri yaşına göre fiyatta değişiklik yap
 		double ageScaleFactor = (45 - customerDetail.getAge()) * 0.01;
 		price *= (1 + ageScaleFactor);
+		//Müşteri ikamet şehri ve mesleğine göre fiyatta yüzdelik ve doğrusal değişiklik yap
 		price *= (1 + customerDetail.getCityScaleFactor());
 		price *= (1 + customerDetail.getProfessionScaleFactor());
 		price += customerDetail.getCityValueFactor() + customerDetail.getProfessionValueFactor();
