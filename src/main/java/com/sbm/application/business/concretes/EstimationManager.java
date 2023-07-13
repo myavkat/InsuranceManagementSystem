@@ -131,8 +131,8 @@ public class EstimationManager implements EstimationService {
 		double price = 0;
 		price += insurance.getUnitPrice() * carDetail.getEstimatedValue();
 		var customerAge = ageFromDateString(customerDetail.getBirthDate());
-		price += (45 - customerAge) * 100;
-		price *= (customerDetail.getCityScaleFactor() + customerDetail.getProfessionScaleFactor()) / 2;
+		double ageScaleFactor = (45 - customerAge) * 0.01;
+		price *= (customerDetail.getCityScaleFactor() + customerDetail.getProfessionScaleFactor() + ageScaleFactor) / 3;
 		price += customerDetail.getCityValueFactor() + customerDetail.getProfessionValueFactor();
 		estimation.setPrice(price);
 		return new SuccessDataResult<Estimation>(estimation);
