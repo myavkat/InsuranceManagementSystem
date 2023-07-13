@@ -10,5 +10,6 @@ public interface InsuranceService extends EntityService<Insurance> {
 
 	public DataResult<InsuranceDetailDTO> getInsuranceDetailById(int id);
 	public DataResult<List<InsuranceDetailDTO>> getInsuranceDetails();
+	public DataResult<List<InsuranceDetailDTO>> getInsuranceDetailsByInsuranceTypeName(String insuranceTypeName);
 	
 }

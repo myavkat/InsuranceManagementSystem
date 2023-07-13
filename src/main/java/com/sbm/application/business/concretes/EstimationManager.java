@@ -26,6 +26,7 @@ import com.sbm.application.entities.concretes.Vehicle;
 import com.sbm.application.entities.dtos.InsuranceDetailDTO;
 import com.sbm.application.repositories.concretes.EstimationRepository;
 
+
 @Service
 public class EstimationManager implements EstimationService {
 	private final String entityName = "Fiyat Tahmini";
@@ -137,33 +138,52 @@ public class EstimationManager implements EstimationService {
 		// ile sigorta şirketinin birim fiyatını çarparak varsayılan fiyatı belirle
 		price += insurance.getUnitPrice() * carDetail.getEstimatedValue();
 		// Araç hasarlıysa fiyatı belirlenen oranda artır
-		//TODO bunu başka bir yerden çekmek daha mantıklı gömülü yazmaktansa
+		// TODO bunu başka bir yerden çekmek daha mantıklı gömülü yazmaktansa
 		double damageScaleValue = 0.25;
 		if (vehicle.isDamaged()) {
 			price *= (1 + damageScaleValue);
 		}
-		//aracın plakasındaki şehri getir ve bulamazsa mesajla beraber dön
+		// aracın plakasındaki şehri getir ve bulamazsa mesajla beraber dön
 		var cityOfVehicleResult = cityService.getByPlateCode(vehicle.extractCityCode());
 		if (!cityOfVehicleResult.isSuccess()) {
 			return new ErrorDataResult<Estimation>(estimation, vehicleResult.getMessage());
 		}
 		var cityOfVehicle = cityOfVehicleResult.getData();
-		//Aracın şehrinin yüzdelik oranını yarıya azalt (Müşterinin ikamet şehri daha önemli)
+		// Aracın şehrinin yüzdelik oranını yarıya azalt (Müşterinin ikamet şehri daha
+		// önemli)
 		double cityOfVehicleScaleFactor = cityOfVehicle.getScaleFactor() * 0.5;
 		price *= (1 + cityOfVehicleScaleFactor);
-		price += (cityOfVehicle.getValueFactor()/2);
-		//Müşteri ehliyet tarihine göre fiyatta değişiklik yap
+		price += (cityOfVehicle.getValueFactor() / 2);
+		// Müşteri ehliyet tarihine göre fiyatta değişiklik yap
 		double licenseAgeScaleFactor = (5 - customerDetail.getLicenseAge()) * 0.01;
 		price *= (1 + licenseAgeScaleFactor);
 		// Müşteri yaşına göre fiyatta değişiklik yap
 		double ageScaleFactor = (45 - customerDetail.getAge()) * 0.01;
 		price *= (1 + ageScaleFactor);
-		//Müşteri ikamet şehri ve mesleğine göre fiyatta yüzdelik ve doğrusal değişiklik yap
+		// Müşteri ikamet şehri ve mesleğine göre fiyatta yüzdelik ve doğrusal
+		// değişiklik yap
 		price *= (1 + customerDetail.getCityScaleFactor());
 		price *= (1 + customerDetail.getProfessionScaleFactor());
 		price += customerDetail.getCityValueFactor() + customerDetail.getProfessionValueFactor();
 		estimation.setPrice(price);
 		return new SuccessDataResult<Estimation>(estimation);
+	}
+
+	public DataResult<List<Estimation>> estimateKaskoAllCompanies(int vehicleId) {
+		List<Estimation> estimations = new ArrayList<Estimation>();
+		var insurancesResult = insuranceService.getInsuranceDetailsByInsuranceTypeName("Kasko");
+		if (!insurancesResult.isSuccess()) {
+			return new ErrorDataResult<List<Estimation>>(estimations, insurancesResult.getMessage());
+		}
+		for (InsuranceDetailDTO insurance : insurancesResult.getData()) {
+			var estimationResult = estimateKasko(insurance.getId(), vehicleId);
+			if (!estimationResult.isSuccess()) {
+				return new ErrorDataResult<List<Estimation>>(estimations, estimationResult.getMessage());
+			} else {
+				estimations.add(estimationResult.getData());
+			}
+		}
+		return new SuccessDataResult<List<Estimation>>(estimations, "Başarılı");
 	}
 
 }

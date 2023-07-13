@@ -39,5 +39,19 @@ public class EstimationController {
 		model.addAttribute("estimation", result.getData());
 		return "app";
 	}
+	@GetMapping("/kaskoall")
+	public String estimateKaskoAllCompaniesForm(Model model, @RequestParam int vehicleId) {
+		var result = estimationService.estimateKaskoAllCompanies(vehicleId);
+		model.addAttribute("controller", controllerName);
+		if(!result.isSuccess()) {
+			model.addAttribute("page", "list");
+			model.addAttribute("toastError", true);
+			model.addAttribute("toastMessage", result.getMessage());
+			return "app";
+		}
+		model.addAttribute("page", "successAllCompanies");
+		model.addAttribute("estimations", result.getData());
+		return "app";
+	}
 	
 }
