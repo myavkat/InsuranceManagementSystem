@@ -117,7 +117,6 @@ public class InsuranceManager implements InsuranceService {
 		try {
 			insuranceRepository.getInsuranceDetails().doOnNext(dtos::add).blockLast(Duration.ofSeconds(3));
 			dtos.removeIf(dto -> !dto.getInsuranceTypeName().equalsIgnoreCase(insuranceTypeName));
-			System.out.println(dtos.toString());
 			return new SuccessDataResult<List<InsuranceDetailDTO>>(dtos, "Başarılı");
 		} catch (RuntimeException ex) {
 			return new ErrorDataResult<List<InsuranceDetailDTO>>(dtos, "İstek zaman aşımına uğradı");
