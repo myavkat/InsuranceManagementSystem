@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.sbm.application.business.abstracts.CarService;
+import com.sbm.application.business.abstracts.CityService;
 import com.sbm.application.business.abstracts.CustomerService;
 import com.sbm.application.business.abstracts.EstimationService;
 import com.sbm.application.business.abstracts.InsuranceService;
@@ -38,6 +39,8 @@ public class EstimationManager implements EstimationService {
 	private CarService carService;
 	@Autowired
 	private CustomerService customerService;
+	@Autowired
+	private CityService cityService;
 
 	@Override
 	public Result save(Estimation estimation) {
@@ -110,17 +113,17 @@ public class EstimationManager implements EstimationService {
 
 	@Override
 	public DataResult<Estimation> estimateKasko(int insuranceId, int vehicleId) {
+		Estimation estimation = new Estimation();
 		var insuranceResult = insuranceService.getInsuranceDetailById(insuranceId);
 		if (!insuranceResult.isSuccess()) {
-			return new ErrorDataResult<Estimation>(new Estimation(), insuranceResult.getMessage());
+			return new ErrorDataResult<Estimation>(estimation, insuranceResult.getMessage());
 		}
 		var vehicleResult = vehicleService.getById(vehicleId);
 		if (!vehicleResult.isSuccess()) {
-			return new ErrorDataResult<Estimation>(new Estimation(), vehicleResult.getMessage());
+			return new ErrorDataResult<Estimation>(estimation, vehicleResult.getMessage());
 		}
 		InsuranceDetailDTO insurance = insuranceResult.getData();
 		Vehicle vehicle = vehicleResult.getData();
-		Estimation estimation = new Estimation();
 		estimation.setEstimationDate(new Timestamp(new Date().getTime()));
 		estimation.setInsuranceId(insuranceId);
 		estimation.setParameterId(vehicleId);
@@ -128,9 +131,20 @@ public class EstimationManager implements EstimationService {
 		var customerDetail = customerService.getCustomerDetailById(vehicle.getCustomerId()).getData();
 		double price = 0;
 		price += insurance.getUnitPrice() * carDetail.getEstimatedValue();
+		var cityOfVehicleResult = cityService.getByPlateCode(vehicle.extractCityCode());
+		if(!cityOfVehicleResult.isSuccess()) {
+			return new ErrorDataResult<Estimation>(estimation, vehicleResult.getMessage());
+		}
+		double cityOfVehicleScaleFactor =  cityOfVehicleResult.getData().getScaleFactor()*0.5;
+		//If vehicle is damaged increase price by 25%
+		double damageScaleValue = 0.25;
+		if(vehicle.isDamaged()) {
+			price *= (1+damageScaleValue);
+		}
+		price *= (1 + cityOfVehicleScaleFactor);
 		double licenseScaleFactor = (5 - customerDetail.getLicenseAge()) * 0.01;
-		double ageScaleFactor = (45 - customerDetail.getAge()) * 0.01;
 		price *= (1 + licenseScaleFactor);
+		double ageScaleFactor = (45 - customerDetail.getAge()) * 0.01;
 		price *= (1 + ageScaleFactor);
 		price *= (1 + customerDetail.getCityScaleFactor());
 		price *= (1 + customerDetail.getProfessionScaleFactor());

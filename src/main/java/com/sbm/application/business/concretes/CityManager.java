@@ -93,4 +93,15 @@ public class CityManager implements CityService {
 		}
 	}
 
+	@Override
+	public DataResult<City> getByPlateCode(String plateCode) {
+		City city = new City();
+		try {
+			city = cityRepository.findByPlateCode(plateCode).block(Duration.ofSeconds(1));
+			return new SuccessDataResult<City>(city, "başarılı");
+		} catch (RuntimeException ex) {
+			return new ErrorDataResult<City>(city, "İstek zaman aşımına uğradı veya plaka şehir kodu geçersiz");
+		}
+	}
+
 }
