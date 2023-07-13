@@ -2,8 +2,6 @@ package com.sbm.application.business.concretes;
 
 import java.sql.Timestamp;
 import java.time.Duration;
-import java.time.LocalDate;
-import java.time.Period;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -130,17 +128,15 @@ public class EstimationManager implements EstimationService {
 		var customerDetail = customerService.getCustomerDetailById(vehicle.getCustomerId()).getData();
 		double price = 0;
 		price += insurance.getUnitPrice() * carDetail.getEstimatedValue();
-		var customerAge = ageFromDateString(customerDetail.getBirthDate());
-		double ageScaleFactor = (45 - customerAge) * 0.01;
-		price *= (customerDetail.getCityScaleFactor() + customerDetail.getProfessionScaleFactor() + ageScaleFactor) / 3;
+		double licenseScaleFactor = (5 - customerDetail.getLicenseAge()) * 0.01;
+		double ageScaleFactor = (45 - customerDetail.getAge()) * 0.01;
+		price *= (1 + licenseScaleFactor);
+		price *= (1 + ageScaleFactor);
+		price *= (1 + customerDetail.getCityScaleFactor());
+		price *= (1 + customerDetail.getProfessionScaleFactor());
 		price += customerDetail.getCityValueFactor() + customerDetail.getProfessionValueFactor();
 		estimation.setPrice(price);
 		return new SuccessDataResult<Estimation>(estimation);
 	}
 
-	private int ageFromDateString(String birthDateStr) {
-		LocalDate birthDate = LocalDate.parse(birthDateStr); // string must be in iso format yyy-MM-dd
-		return Period.between(birthDate, LocalDate.now()).getYears();
-
-	}
 }

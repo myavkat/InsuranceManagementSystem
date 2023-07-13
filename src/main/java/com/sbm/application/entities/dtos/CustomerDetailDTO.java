@@ -1,5 +1,8 @@
 package com.sbm.application.entities.dtos;
 
+import java.time.LocalDate;
+import java.time.Period;
+
 import lombok.Data;
 
 @Data
@@ -19,4 +22,13 @@ public class CustomerDetailDTO {
 	private String phoneNumber;
 	private String birthDate;
 	private String licenseObtainedAt;
+
+	public int getAge() {
+		LocalDate date = LocalDate.parse(birthDate);
+		return Period.between(date, LocalDate.now()).getYears();
+	}
+	public int getLicenseAge() {
+		LocalDate date = LocalDate.parse(licenseObtainedAt);
+		return Period.between(date, LocalDate.now()).getYears();
+	}
 }

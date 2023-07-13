@@ -23,5 +23,9 @@ public class Vehicle extends Parameter {
 	private String licensePlate;
 	@Column("VIN")
 	private String vin;
+	
+	public String extractCityCode() {
+		return licensePlate.substring(0, 2);
+	}
 
 }

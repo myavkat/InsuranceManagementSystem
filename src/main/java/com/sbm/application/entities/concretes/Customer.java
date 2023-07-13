@@ -1,5 +1,8 @@
 package com.sbm.application.entities.concretes;
 
+import java.time.LocalDate;
+import java.time.Period;
+
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -29,5 +32,14 @@ public class Customer extends Parameter {
 	private String birthDate;
 	@Column("licenseObtainedAt")
 	private String licenseObtainedAt;
+
+	public int getAge() {
+		LocalDate date = LocalDate.parse(birthDate);
+		return Period.between(date, LocalDate.now()).getYears();
+	}
+	public int getLicenseAge() {
+		LocalDate date = LocalDate.parse(licenseObtainedAt);
+		return Period.between(date, LocalDate.now()).getYears();
+	}
 
 }
