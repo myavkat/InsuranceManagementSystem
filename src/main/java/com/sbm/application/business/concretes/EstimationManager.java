@@ -23,9 +23,9 @@ import com.sbm.application.core.utilities.results.SuccessDataResult;
 import com.sbm.application.core.utilities.results.SuccessResult;
 import com.sbm.application.entities.concretes.Estimation;
 import com.sbm.application.entities.concretes.Vehicle;
+import com.sbm.application.entities.dtos.EstimationDetailDTO;
 import com.sbm.application.entities.dtos.InsuranceDetailDTO;
 import com.sbm.application.repositories.concretes.EstimationRepository;
-
 
 @Service
 public class EstimationManager implements EstimationService {
@@ -184,6 +184,18 @@ public class EstimationManager implements EstimationService {
 			}
 		}
 		return new SuccessDataResult<List<Estimation>>(estimations, "Başarılı");
+	}
+
+	@Override
+	public DataResult<List<EstimationDetailDTO>> getDetails() {
+		List<EstimationDetailDTO> details = new ArrayList<EstimationDetailDTO>();
+		try {
+			estimationRepository.findKaskoDetails().doOnNext(details::add).blockLast(Duration.ofSeconds(5));
+			return new SuccessDataResult<List<EstimationDetailDTO>>(details, "Başarılı");
+		} catch (RuntimeException ex) {
+			System.out.println(ex.getMessage());
+			return new ErrorDataResult<List<EstimationDetailDTO>>(details, "İstek zaman aşımına uğradı!");
+		}
 	}
 
 }

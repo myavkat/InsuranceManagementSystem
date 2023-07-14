@@ -46,6 +46,19 @@ public class EstimationController {
 		model.addAttribute("estimations", result.getData());
 		return "app";
 	}
+	
+	@GetMapping("/list")
+	public String list(Model model) {
+		model.addAttribute("controller", controllerName);
+		model.addAttribute("page", "list");
+		var estimationResult = estimationService.getDetails();
+		if(!estimationResult.isSuccess()) {
+			return "redirect:/";
+		}
+		System.out.println(estimationResult.getData().toString());
+		model.addAttribute("estimationDetails",estimationResult.getData());
+		return "app";
+	}
 
 	
 

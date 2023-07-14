@@ -1,0 +1,27 @@
+<div class="row">
+  <p class="h2 col-10 my-4">Fiyat Teklifleri Listesi</p>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th scope="col">Id</th>
+        <th scope="col">Sigorta Tipi</th>
+        <th scope="col">Sigorta Şirketi</th>
+        <th scope="col">Sigortalanan Adı</th>
+        <th scope="col">Fiyat</th>
+        <th scope="col">İşlemler</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr th:each="estimationDetail : ${estimationDetails}">
+        <th scope="row" th:text="${estimationDetail.id}"></th>
+        <td th:text="${estimationDetail.insuranceTypeName}"></td>
+        <td th:text="${estimationDetail.insuranceCompanyName}"></td>
+        <td th:text="${estimationDetail.parameterName}"></td>
+        <td th:text="${#numbers.formatDecimal(estimationDetail.price, 1, 'POINT', 2, 'COMMA')} + ' TRY'"></td>
+        <td><a class="btn btn-success"
+          th:href="'/estimations/confirm/' + ${estimationDetail.id}"> Kabul Et </a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
