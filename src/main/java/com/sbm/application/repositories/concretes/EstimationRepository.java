@@ -19,6 +19,7 @@ public interface EstimationRepository extends EntityRepository<Estimation> {
 				,company.Name insurance_company_name
 				,vehicle.Id parameter_id
 				,vehicle.LicensePlate + ' ' + customer.FirstName + ' ' + customer.LastName + ' ' + customer.TC parameter_name
+				,estimation.EstimationDate estimation_date
 		  FROM [InsuranceDB].[dbo].[Estimations] estimation
 		  JOIN Insurances insurance on insurance.Id = estimation.InsuranceId
 		  JOIN InsuranceCompanies company on company.Id = insurance.CompanyId
@@ -37,6 +38,7 @@ public interface EstimationRepository extends EntityRepository<Estimation> {
 					,company.Name insurance_company_name
 					,vehicle.Id parameter_id
 					,vehicle.LicensePlate + ' ' + customer.FirstName + ' ' + customer.LastName + ' ' + customer.TC parameter_name
+					,estimation.EstimationDate estimation_date
 			  FROM [InsuranceDB].[dbo].[Estimations] estimation
 			  JOIN Insurances insurance on insurance.Id = estimation.InsuranceId
 			  JOIN InsuranceCompanies company on company.Id = insurance.CompanyId
