@@ -6,13 +6,19 @@
 <title th:if="${title != null}" th:text="${title} + ' | Sigortacın'"></title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link th:rel="stylesheet" th:href="@{/webjars/izitoast/dist/css/iziToast.min.css} "/>
-<link th:rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css} "/>
+<link th:rel="stylesheet"
+	th:href="@{/webjars/izitoast/dist/css/iziToast.min.css} " />
+<link th:rel="stylesheet"
+	th:href="@{/webjars/bootstrap/css/bootstrap.min.css} " />
+<link th:rel="stylesheet"
+	th:href="@{/webjars/font-awesome/css/fontawesome.min.css} " />
+<link th:rel="stylesheet"
+	th:href="@{/webjars/font-awesome/css/solid.min.css} " />
 </head>
 
 <body onLoad="toast()" class="bg-light">
-	<nav
-		class="navbar navbar-expand-lg bg-body-tertiary sticky-top" data-bs-theme="dark">
+	<nav class="navbar navbar-expand-lg bg-body-tertiary sticky-top"
+		data-bs-theme="dark">
 		<div class="container-fluid">
 			<a class="navbar-brand" href="/">Sigortacın</a>
 			<button class="navbar-toggler" type="button"
@@ -23,23 +29,40 @@
 			</button>
 			<div class="collapse navbar-collapse" id="navbarSupportedContent">
 				<ul class="navbar-nav me-auto mb-2 mb-lg-0">
-					<li class="nav-item"><a class="nav-link active"
-						aria-current="page" href="/">Ana Sayfa</a></li>
+					<li class="nav-item"><a class="nav-link active" href="/">Ana
+							Sayfa</a></li>
 					<!--  				<li class="nav-item"><a class="nav-link" href="#">Link</a></li> -->
 					<li class="nav-item dropdown"><a
 						class="nav-link dropdown-toggle active" href="#" role="button"
-						data-bs-toggle="dropdown" aria-expanded="false"> Sigortalar </a>
+						data-bs-toggle="dropdown" aria-expanded="false"><i
+							class="fa-solid fa-shield-halved"></i> Sigorta </a>
 						<ul class="dropdown-menu">
-							<li><a class="dropdown-item"
-								href="/insurances/details/kasko">Kasko</a></li>
-							<li><a class="dropdown-item"
-								href="/insurances/details/trafik">Trafik Sigortası</a></li>
+							<li><a class="dropdown-item" href="/insuranceTypes/select">
+									<i class="fa-solid fa-calculator me-1"></i>Fiyat
+									Hesaplayıcılar
+							</a></li>
 							<li><hr class="dropdown-divider"></li>
-							<li><a class="dropdown-item" href="/insurances/list">Tüm
-									Sigortalar</a></li>
+							<li><a class="dropdown-item"
+								href="/insuranceTypes/details/kasko">Kasko</a></li>
+							<li><a class="dropdown-item"
+								href="/insuranceTypes/details/trafik">Trafik Sigortası</a></li>
+							<li><hr class="dropdown-divider"></li>
+							<li><a class="dropdown-item" href="/insurances/list">Sigorta
+									Paketleri</a></li>
+							<li><a class="dropdown-item" href="/insuranceTypes/list">
+									Sigorta Tipleri</a></li>
 						</ul></li>
-					<li class="nav-item"><a class="nav-link active"
-						aria-current="page" href="/customers/list">Müşteriler</a></li>
+					<li class="nav-item dropdown"><a
+						class="nav-link dropdown-toggle active" href="#" role="button"
+						data-bs-toggle="dropdown" aria-expanded="false"><i
+							class="fa-solid fa-users me-1"></i>Müşteri Kayıtları</a>
+						<ul class="dropdown-menu">
+							<li><a class="dropdown-item" href="/vehicles/list">Araçlar</a></li>
+							<li><a class="dropdown-item" href="/homes/list">Evler</a></li>
+							<li><hr class="dropdown-divider"></li>
+							<li><a class="dropdown-item" href="/customers/list">Müşteri
+									Listesi</a></li>
+						</ul></li>
 					<!-- <li class="nav-item"><a class="nav-link disabled">Disabled</a> -->
 
 				</ul>
@@ -52,7 +75,7 @@
 		</div>
 	</nav>
 
-	<div class="container p-2" style="width: 100%;min-height: 85vh;">
+	<div class="container p-2" style="width: 100%; min-height: 85vh;">
 		<div id="content" th:replace="~{${controller}+'/'+${page}+'.html'}" />
 	</div>
 	<footer class="footer py-2 bg-light">
@@ -61,29 +84,32 @@
 		</div>
 	</footer>
 </body>
-	
+
 <script th:src="@{/webjars/popper.js/umd/popper.min.js}"></script>
 <script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
 <script th:src="@{/webjars/izitoast/dist/js/iziToast.min.js}"></script>
 <script th:if="${toastError}" th:inline="javascript">
-function toast(){
-  iziToast.error({
-    title : 'Hata!',
-    message : /*[[${toastMessage}]]*/ "Varsayılan mesaj."
-  });}
+	function toast() {
+		iziToast.error({
+			title : 'Hata!',
+			message : /*[[${toastMessage}]]*/"Varsayılan mesaj."
+		});
+	}
 </script>
 <script th:if="${toastSuccess}" th:inline="javascript">
-function toast(){
-  iziToast.success({
-    title : 'Başarılı!',
-    message : /*[[${toastMessage}]]*/ "Varsayılan mesaj."
-  });}
+	function toast() {
+		iziToast.success({
+			title : 'Başarılı!',
+			message : /*[[${toastMessage}]]*/"Varsayılan mesaj."
+		});
+	}
 </script>
 <script th:if="${toastWarning}" th:inline="javascript">
-function toast(){
-  iziToast.warning({
-    title : 'Uyarı!',
-    message : /*[[${toastMessage}]]*/ "Varsayılan mesaj."
-  });}
+	function toast() {
+		iziToast.warning({
+			title : 'Uyarı!',
+			message : /*[[${toastMessage}]]*/"Varsayılan mesaj."
+		});
+	}
 </script>
 </html>

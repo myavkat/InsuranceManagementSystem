@@ -32,12 +32,7 @@ public class InsuranceController {
 		return "app";
 	}
 
-	@GetMapping("/details/{name}")
-	public String details(@PathVariable String name, Model model) {
-		model.addAttribute("controller", controllerName);
-		model.addAttribute("page", name + "Details");
-		return "app";
-	}
+	
 
 	@GetMapping("/list")
 	public String getAll(Model model) {
