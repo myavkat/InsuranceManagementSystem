@@ -1,27 +1,27 @@
 <form class="row" action="#" th:action="'/customers/save/'+ ${customer.id}"
   method="post" th:object="${customer}">
   <div class="form-floating mb-3 col-6 p-1">
-    <input class="form-control" type="text" th:field="*{firstName}" id="firstNameInput" />
+    <input class="form-control" type="text" th:field="*{firstName}" id="firstNameInput" required/>
     <label for="firstNameInput">İsim:</label> </div>
   <div class="form-floating mb-3 col-6 p-1">
-    <input class="form-control" type="text" th:field="*{lastName}"  id="lastNameInput"/>
+    <input class="form-control" type="text" th:field="*{lastName}"  id="lastNameInput" required/>
     <label for="lastNameInput">Soy İsim:</label>
   </div>
   <div class="form-floating mb-3 col-6 p-1">
-    <input class="form-control" type="text" pattern="^\d{11}" th:field="*{tc}"  id="tcInput"/>
+    <input class="form-control" type="text" pattern="^\d{11}" th:field="*{tc}"  id="tcInput" required/>
     <label for="tcInput">Tc:</label>
   </div>
   <div class="form-floating mb-3 col-6 p-1">
     <input class="form-control" type="text" 
-      pattern="^([+]?\d{1,2}[-\s]?|)\d{3}[-\s]?\d{3}[-\s]?\d{4}$" th:field="*{phoneNumber}"  id="phoneNumberInput"/>
+      pattern="^([+]?\d{1,2}[-\s]?|)\d{3}[-\s]?\d{3}[-\s]?\d{4}$" th:field="*{phoneNumber}"  id="phoneNumberInput" required/>
     <label for="phoneNumberInput">Telefon Numarası:</label> 
   </div>
   <div class="form-floating mb-3 col-3 p-1">
-    <input class="form-control" type="date" th:field="*{birthDate}"  id="birthDateInput"/>
+    <input class="form-control" type="date" th:field="*{birthDate}"  id="birthDateInput" required/>
     <label for="birthDateInput">Doğum Günü:</label> 
   </div>
   <div class="form-floating mb-3 col-3 p-1">
-    <input class="form-control" type="date" th:field="*{licenseObtainedAt}"  id="licenseDateInput"/>
+    <input class="form-control" type="date" th:field="*{licenseObtainedAt}"  id="licenseDateInput" required/>
     <label for="licenseDateInput">Ehliyet Alım Tarihi:</label>
   </div>
   <div class="form-floating col-3 p-1">

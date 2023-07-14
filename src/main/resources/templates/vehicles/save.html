@@ -1,12 +1,12 @@
 <form class="row" action="#" th:action="'/vehicles/save/'+ ${vehicle.id}"
   method="post" th:object="${vehicle}">
   <div class="form-floating mb-3 col-6 p-1">
-    <input class="form-control" type="text" th:field="*{vin}" id="vinInput" />
+    <input class="form-control" type="text" th:field="*{vin}" id="vinInput" required/>
     <label for="vinInput">Şasi Numarası:</label> 
   </div>
   <div class="form-floating col-3 p-1">
     <select id="carSelect" class="form-select" th:field="*{carId}">
-      <option th:each="c : ${carDetails}" th:value="${c.id}" th:text="${c.carName}" />
+      <option th:each="c : ${carDetails}" th:value="${c.id}" th:text="${c.carName}"/>
     </select>
     <label for="carSelect">Araba:</label>
   </div> 
@@ -17,7 +17,7 @@
     <label for="customerSelect">Müşteri:</label>
   </div> 
   <div class="form-floating mb-3 col-6 p-1">
-    <input class="form-control" type="text" th:field="*{licensePlate}" id="licensePlateInput" />
+    <input class="form-control" type="text" th:field="*{licensePlate}" id="licensePlateInput" required/>
     <label for="licensePlateInput">Plakası:</label> 
   </div>
   <div class="col-3 mt-2">
