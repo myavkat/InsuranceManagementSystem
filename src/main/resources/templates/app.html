@@ -10,7 +10,7 @@
 <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css} "/>
 </head>
 
-<body onLoad="toast()">
+<body onLoad="toast()" class="bg-light">
 	<nav
 		class="navbar navbar-expand-lg bg-body-tertiary sticky-top" data-bs-theme="dark">
 		<div class="container-fluid">
@@ -52,7 +52,7 @@
 		</div>
 	</nav>
 
-	<div class="container p-2">
+	<div class="container p-2" style="width: 100%;min-height: 85vh;">
 		<div id="content" th:replace="~{${controller}+'/'+${page}+'.html'}" />
 	</div>
 	<footer class="footer py-2 bg-light">
