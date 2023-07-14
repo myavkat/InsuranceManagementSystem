@@ -1,17 +1,19 @@
-<h2>Sigorta Tipi Listesi</h2>
-<table class="table table-striped">
-  <thead>
-    <tr>
-      <th scope="col">Id</th>
-      <th scope="col">İsim</th>
-      <th scope="col">Tablo Adı</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr th:each="insuranceType : ${insuranceTypes}">
-      <th scope="row" th:text="${insuranceType.id}"></th>
-      <td th:text="${insuranceType.name}"></td>
-      <td th:text="${insuranceType.parameterTable}"></td>
-    </tr>
-  </tbody>
-</table>
+<div class="row">
+	<h2 class="h2 col-10 my-4">Sigorta Tipi Listesi</h2>
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th scope="col">Id</th>
+				<th scope="col">İsim</th>
+				<th scope="col">Tablo Adı</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="insuranceType : ${insuranceTypes}">
+				<th scope="row" th:text="${insuranceType.id}"></th>
+				<td th:text="${insuranceType.name}"></td>
+				<td th:text="${insuranceType.parameterTable}"></td>
+			</tr>
+		</tbody>
+	</table>
+</div>
