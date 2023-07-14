@@ -1,0 +1,29 @@
+<form action="#" th:action="'/estimations/kasko'" method="GET">
+	<div th:if="${customers!=null}">
+		<div class="form-floating col-6 p-1">
+			<select id="customerSelect" class="form-select" th:name="customerId">
+				<option th:each="c : ${customers}" th:value="${c.id}"
+					th:text="${c.firstName + c.lastName + c.tc}" />
+			</select> <label for="customerSelect">Müşteri Seçiniz:</label>
+		</div>
+		<div class="col-9">
+			<button class="btn btn-warning" type=submit>Araçları Getir</button>
+		</div>
+	</div>
+	<div th:if="${vehicles!=null}">
+	  <a th:href="'/estimations/kasko'" class="btn btn-secondary"> Müşteri Seçimine Geri Dön</a>
+		<div class="form-floating col-3 p-1">
+			<select id="vehicleSelect" class="form-select" th:name="vehicleId">
+				<option th:each="v : ${vehicles}" th:value="${v.id}"
+					th:text="${v.licensePlate}" />
+			</select> <label for="vehicleSelect">Araç Seçiniz:</label>
+		</div>
+		<div class="col-9">
+			<button class="btn btn-primary" type=submit>Hesapla</button>
+		</div>
+	</div>
+</form>
+<div th:if="${estimations!=null}">
+    <a th:href="'/estimations/kasko'" class="btn btn-secondary">Yeni Fiyat Tahmini</a>
+<p th:each="estimation : ${estimations}" th:text="${estimation.toString()}"></p>
+</div>

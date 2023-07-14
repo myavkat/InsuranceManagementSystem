@@ -93,4 +93,16 @@ public class VehicleManager implements VehicleService {
 		}
 	}
 
+	@Override
+	public DataResult<List<Vehicle>> getVehiclesByCustomerId(int customerId) {
+		List<Vehicle> vehicles = new ArrayList<Vehicle>();
+		try {
+			vehicleRepository.findByCustomerId(customerId).doOnNext(vehicles::add).blockLast(Duration.ofSeconds(10));
+			return new SuccessDataResult<List<Vehicle>>(vehicles, "Başarılı");
+		} catch (RuntimeException ex) {
+			System.out.println(ex.getMessage());
+			return new ErrorDataResult<List<Vehicle>>(vehicles, "İstek zaman aşımına uğradı!");
+		}
+	}
+
 }
