@@ -23,6 +23,7 @@ public class Estimation extends Entity {
 	private double price;
 	@Column("estimationDate")
 	private Timestamp estimationDate;
-
+	@Column("confirmed")
+	private boolean confirmed;
 
 }

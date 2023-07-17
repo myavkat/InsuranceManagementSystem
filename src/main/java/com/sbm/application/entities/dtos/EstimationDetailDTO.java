@@ -16,5 +16,6 @@ public class EstimationDetailDTO {
 	private String parameterName;
 	private double price;
 	private Timestamp estimationDate;
+	private boolean confirmed;
 
 }
