@@ -1,6 +1,7 @@
 package com.sbm.application.repositories.concretes;
 
 import org.springframework.data.r2dbc.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import com.sbm.application.entities.concretes.Estimation;
 import com.sbm.application.entities.dtos.EstimationDetailDTO;
@@ -8,6 +9,7 @@ import com.sbm.application.repositories.abstracts.EntityRepository;
 
 import reactor.core.publisher.Flux;
 
+@Repository
 public interface EstimationRepository extends EntityRepository<Estimation> {
 
 	@Query("""
