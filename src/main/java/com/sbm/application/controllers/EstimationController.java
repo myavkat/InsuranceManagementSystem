@@ -4,8 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -55,11 +54,22 @@ public class EstimationController {
 		if(!estimationResult.isSuccess()) {
 			return "redirect:/";
 		}
-		System.out.println(estimationResult.getData().toString());
 		model.addAttribute("estimationDetails",estimationResult.getData());
 		return "app";
 	}
-
+	
+	@GetMapping("/confirm/{id}")
+	public String confirm(Model model, @PathVariable int id) {
+		var confirmResult = estimationService.confirmById(id);
+		if(confirmResult.isSuccess()){
+			model.addAttribute("toastSuccess", true);
+			model.addAttribute("toastMessage", "Teklif kabul edildi");
+			return list(model);
+		}
+		model.addAttribute("toastError", true);
+		model.addAttribute("toastMessage", confirmResult.getMessage());
+		return list(model);
+	}
 	
 
 }
