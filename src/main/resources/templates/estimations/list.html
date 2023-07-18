@@ -20,8 +20,10 @@
         <td th:text="${estimationDetail.parameterName}"></td>
         <td th:text="${#numbers.formatDecimal(estimationDetail.price, 1, 'POINT', 2, 'COMMA')} + ' TRY'"></td>
         <td th:text="${estimationDetail.estimationDate}"></td>
-        <td><a class="btn btn-success"
+        <td><a class="btn btn-success" th:if="${!estimationDetail.confirmed}"
           th:href="'/estimations/confirm/' + ${estimationDetail.id}"> Kabul Et </a>
+          <a class="btn btn-warning" th:if="${estimationDetail.confirmed}"
+          th:href="'/estimations/removeConfirm/' + ${estimationDetail.id}"> İptal Et </a>
         </td>
       </tr>
     </tbody>
