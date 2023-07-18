@@ -1,7 +1,5 @@
 package com.sbm.application.entities.dtos;
 
-import java.sql.Timestamp;
-
 import lombok.Data;
 
 @Data
@@ -15,7 +13,7 @@ public class EstimationDetailDTO {
 	private int parameterId;
 	private String parameterName;
 	private double price;
-	private Timestamp estimationDate;
+	private String estimationDate;
 	private boolean confirmed;
 
 }

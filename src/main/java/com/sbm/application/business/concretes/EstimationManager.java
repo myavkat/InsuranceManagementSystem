@@ -1,9 +1,8 @@
 package com.sbm.application.business.concretes;
 
-import java.sql.Timestamp;
 import java.time.Duration;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -127,9 +126,10 @@ public class EstimationManager implements EstimationService {
 		InsuranceDetailDTO insurance = insuranceResult.getData();
 		Vehicle vehicle = vehicleResult.getData();
 		// Fiyat tahmini objesinin boş alanlarını doldur
-		estimation.setEstimationDate(new Timestamp(new Date().getTime()));
+		estimation.setEstimationDate(OffsetDateTime.now().toString());
 		estimation.setInsuranceId(insuranceId);
 		estimation.setParameterId(vehicleId);
+		estimation.setConfirmed(false);
 		// Araca bağlı araba ve müşteri detaylarını getir
 		var carDetail = carService.getCarDetailById(vehicle.getCarId()).getData();
 		var customerDetail = customerService.getCustomerDetailById(vehicle.getCustomerId()).getData();
@@ -182,6 +182,12 @@ public class EstimationManager implements EstimationService {
 			} else {
 				estimations.add(estimationResult.getData());
 			}
+		}
+		try {
+			estimationRepository.saveAll(estimations).blockLast(Duration.ofSeconds(3));
+		} catch (RuntimeException ex) {
+			System.out.println(ex.getMessage() + ex.getCause().toString());
+			return new ErrorDataResult<List<Estimation>>(estimations, "%s eklenemedi!".formatted(entityName));
 		}
 		return new SuccessDataResult<List<Estimation>>(estimations, "Başarılı");
 	}
