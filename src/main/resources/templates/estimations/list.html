@@ -19,7 +19,7 @@
         <td th:text="${estimationDetail.insuranceCompanyName}"></td>
         <td th:text="${estimationDetail.parameterName}"></td>
         <td th:text="${#numbers.formatDecimal(estimationDetail.price, 1, 'POINT', 2, 'COMMA')} + ' TRY'"></td>
-        <td th:text="${#dates.format(estimationDetail.estimationDate, 'yyyy-MM-dd HH:mm:ss')}"></td>
+        <td th:text="${estimationDetail.estimationDate}"></td>
         <td><a class="btn btn-success"
           th:href="'/estimations/confirm/' + ${estimationDetail.id}"> Kabul Et </a>
         </td>
