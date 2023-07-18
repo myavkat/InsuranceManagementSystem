@@ -4,6 +4,9 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +24,7 @@ import com.sbm.application.repositories.concretes.CityRepository;
 public class CityManager implements CityService {
 
 	private final String entityName = "Şehir";
+	Logger logger = LoggerFactory.getLogger(CityManager.class);
 	@Autowired
 	private CityRepository cityRepository;
 
@@ -38,7 +42,8 @@ public class CityManager implements CityService {
 			cityRepository.save(city).block(Duration.ofSeconds(1));
 			return new SuccessResult("%s güncelleme başarılı!".formatted(entityName));
 		} catch (RuntimeException ex) {
-			return new ErrorResult("İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorResult("Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
@@ -48,7 +53,8 @@ public class CityManager implements CityService {
 			cityRepository.delete(city);
 			return new SuccessResult("Silindi");
 		} catch (Exception ex) {
-			return new ErrorResult(ex.getMessage());
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorResult("Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
@@ -58,8 +64,8 @@ public class CityManager implements CityService {
 		try {
 			city = cityRepository.findById(id).block(Duration.ofSeconds(1));
 		} catch (RuntimeException ex) {
-			System.out.println(ex.getMessage());
-			return new ErrorDataResult<City>(city, "İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorDataResult<City>(city, "Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 		if (city == null) {
 			return new ErrorDataResult<City>(new City(), "%s Bulunamadı!".formatted(entityName));
@@ -74,8 +80,8 @@ public class CityManager implements CityService {
 			cityRepository.findAll().doOnNext(cities::add).blockLast(Duration.ofSeconds(10));
 			return new SuccessDataResult<List<City>>(cities, "Başarılı");
 		} catch (RuntimeException ex) {
-			System.out.println(ex.getMessage());
-			return new ErrorDataResult<List<City>>(cities, "İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorDataResult<List<City>>(cities, "Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
@@ -89,7 +95,8 @@ public class CityManager implements CityService {
 			cityRepository.delete(result.getData()).block(Duration.ofSeconds(1));
 			return new SuccessResult("%s silindi".formatted(entityName));
 		} catch (RuntimeException ex) {
-			return new ErrorResult("İstek zaman aşımına uğradı");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorResult("Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
@@ -100,7 +107,8 @@ public class CityManager implements CityService {
 			city = cityRepository.findByPlateCode(plateCode).block(Duration.ofSeconds(1));
 			return new SuccessDataResult<City>(city, "başarılı");
 		} catch (RuntimeException ex) {
-			return new ErrorDataResult<City>(city, "İstek zaman aşımına uğradı veya plaka şehir kodu geçersiz");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorDataResult<City>(city, "Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 

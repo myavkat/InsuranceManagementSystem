@@ -4,6 +4,9 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +24,7 @@ import com.sbm.application.repositories.concretes.CarFuelTypeRepository;
 public class CarFuelTypeManager implements CarFuelTypeService {
 
 	private final String entityName = "Araba Yakıt Tipi";
+	Logger logger = LoggerFactory.getLogger(CarFuelTypeManager.class);
 	@Autowired
 	private CarFuelTypeRepository carFuelTypeRepository;
 
@@ -39,7 +43,8 @@ public class CarFuelTypeManager implements CarFuelTypeService {
 			carFuelTypeRepository.save(carFuelType).block(Duration.ofSeconds(1));
 			return new SuccessResult("%s güncelleme başarılı!".formatted(entityName));
 		} catch (RuntimeException ex) {
-			return new ErrorResult("İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorResult("Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
@@ -49,7 +54,8 @@ public class CarFuelTypeManager implements CarFuelTypeService {
 			carFuelTypeRepository.delete(carFuelType);
 			return new SuccessResult("Silindi");
 		} catch (Exception ex) {
-			return new ErrorResult(ex.getMessage());
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorResult("Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
@@ -63,7 +69,8 @@ public class CarFuelTypeManager implements CarFuelTypeService {
 			carFuelTypeRepository.delete(result.getData()).block(Duration.ofSeconds(1));
 			return new SuccessResult("%s silindi".formatted(entityName));
 		} catch (RuntimeException ex) {
-			return new ErrorResult("İstek zaman aşımına uğradı");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorResult("Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
@@ -73,8 +80,8 @@ public class CarFuelTypeManager implements CarFuelTypeService {
 		try {
 			carFuelType = carFuelTypeRepository.findById(id).block(Duration.ofSeconds(1));
 		} catch (RuntimeException ex) {
-			System.out.println(ex.getMessage());
-			return new ErrorDataResult<CarFuelType>(carFuelType, "İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorDataResult<CarFuelType>(carFuelType, "Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 		if (carFuelType == null) {
 			return new ErrorDataResult<CarFuelType>(new CarFuelType(), "%s Bulunamadı!".formatted(entityName));
@@ -89,8 +96,8 @@ public class CarFuelTypeManager implements CarFuelTypeService {
 			carFuelTypeRepository.findAll().doOnNext(carFuelTypes::add).blockLast(Duration.ofSeconds(10));
 			return new SuccessDataResult<List<CarFuelType>>(carFuelTypes, "Başarılı");
 		} catch (RuntimeException ex) {
-			System.out.println(ex.getMessage());
-			return new ErrorDataResult<List<CarFuelType>>(carFuelTypes, "İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorDataResult<List<CarFuelType>>(carFuelTypes, "Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 

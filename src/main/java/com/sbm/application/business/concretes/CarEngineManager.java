@@ -4,6 +4,9 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +24,7 @@ import com.sbm.application.repositories.concretes.CarEngineRepository;
 public class CarEngineManager implements CarEngineService {
 
 	private final String entityName = "Araba Motoru";
+	Logger logger = LoggerFactory.getLogger(CarEngineManager.class);
 	@Autowired
 	private CarEngineRepository carEngineRepository;
 
@@ -38,7 +42,8 @@ public class CarEngineManager implements CarEngineService {
 			carEngineRepository.save(carEngine).block(Duration.ofSeconds(1));
 			return new SuccessResult("%s güncelleme başarılı!".formatted(entityName));
 		} catch (RuntimeException ex) {
-			return new ErrorResult("İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorResult("Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
@@ -48,7 +53,8 @@ public class CarEngineManager implements CarEngineService {
 			carEngineRepository.delete(carEngine);
 			return new SuccessResult("Silindi");
 		} catch (Exception ex) {
-			return new ErrorResult(ex.getMessage());
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorResult("Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
@@ -62,7 +68,8 @@ public class CarEngineManager implements CarEngineService {
 			carEngineRepository.delete(result.getData()).block(Duration.ofSeconds(1));
 			return new SuccessResult("%s silindi".formatted(entityName));
 		} catch (RuntimeException ex) {
-			return new ErrorResult("İstek zaman aşımına uğradı");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorResult("Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
@@ -72,8 +79,8 @@ public class CarEngineManager implements CarEngineService {
 		try {
 			carEngine = carEngineRepository.findById(id).block(Duration.ofSeconds(1));
 		} catch (RuntimeException ex) {
-			System.out.println(ex.getMessage());
-			return new ErrorDataResult<CarEngine>(carEngine, "İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorDataResult<CarEngine>(carEngine, "Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 		if (carEngine == null) {
 			return new ErrorDataResult<CarEngine>(new CarEngine(), "%s Bulunamadı!".formatted(entityName));
@@ -88,8 +95,8 @@ public class CarEngineManager implements CarEngineService {
 			carEngineRepository.findAll().doOnNext(carEngines::add).blockLast(Duration.ofSeconds(10));
 			return new SuccessDataResult<List<CarEngine>>(carEngines, "Başarılı");
 		} catch (RuntimeException ex) {
-			System.out.println(ex.getMessage());
-			return new ErrorDataResult<List<CarEngine>>(carEngines, "İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorDataResult<List<CarEngine>>(carEngines, "Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 

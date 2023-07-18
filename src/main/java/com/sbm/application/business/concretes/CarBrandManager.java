@@ -4,6 +4,9 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +24,7 @@ import com.sbm.application.repositories.concretes.CarBrandRepository;
 public class CarBrandManager implements CarBrandService {
 
 	private final String entityName = "Araba Markası";
+	Logger logger = LoggerFactory.getLogger(CarBrandManager.class);
 	@Autowired
 	private CarBrandRepository carBrandRepository;
 
@@ -38,7 +42,8 @@ public class CarBrandManager implements CarBrandService {
 			carBrandRepository.save(carBrand).block(Duration.ofSeconds(1));
 			return new SuccessResult("%s güncelleme başarılı!".formatted(entityName));
 		} catch (RuntimeException ex) {
-			return new ErrorResult("İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorResult("Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
@@ -48,7 +53,8 @@ public class CarBrandManager implements CarBrandService {
 			carBrandRepository.delete(carBrand);
 			return new SuccessResult("Silindi");
 		} catch (Exception ex) {
-			return new ErrorResult(ex.getMessage());
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorResult("Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
@@ -62,7 +68,8 @@ public class CarBrandManager implements CarBrandService {
 			carBrandRepository.delete(result.getData()).block(Duration.ofSeconds(1));
 			return new SuccessResult("%s silindi".formatted(entityName));
 		} catch (RuntimeException ex) {
-			return new ErrorResult("İstek zaman aşımına uğradı");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorResult("Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
@@ -72,8 +79,8 @@ public class CarBrandManager implements CarBrandService {
 		try {
 			carBrand = carBrandRepository.findById(id).block(Duration.ofSeconds(1));
 		} catch (RuntimeException ex) {
-			System.out.println(ex.getMessage());
-			return new ErrorDataResult<CarBrand>(carBrand, "İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorDataResult<CarBrand>(carBrand, "Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 		if (carBrand == null) {
 			return new ErrorDataResult<CarBrand>(new CarBrand(), "%s Bulunamadı!".formatted(entityName));
@@ -88,8 +95,8 @@ public class CarBrandManager implements CarBrandService {
 			carBrandRepository.findAll().doOnNext(carBrands::add).blockLast(Duration.ofSeconds(10));
 			return new SuccessDataResult<List<CarBrand>>(carBrands, "Başarılı");
 		} catch (RuntimeException ex) {
-			System.out.println(ex.getMessage());
-			return new ErrorDataResult<List<CarBrand>>(carBrands, "İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorDataResult<List<CarBrand>>(carBrands, "Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 

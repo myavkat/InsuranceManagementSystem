@@ -4,6 +4,9 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +24,7 @@ import com.sbm.application.repositories.concretes.CarEngineSizeRepository;
 public class CarEngineSizeManager implements CarEngineSizeService {
 
 	private final String entityName = "Araba Motoru Büyüklüğü";
+	Logger logger = LoggerFactory.getLogger(CarEngineSizeManager.class);
 	@Autowired
 	private CarEngineSizeRepository carEngineSizeRepository;
 
@@ -39,7 +43,8 @@ public class CarEngineSizeManager implements CarEngineSizeService {
 			carEngineSizeRepository.save(carEngineSize).block(Duration.ofSeconds(1));
 			return new SuccessResult("%s güncelleme başarılı!".formatted(entityName));
 		} catch (RuntimeException ex) {
-			return new ErrorResult("İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorResult("Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
@@ -49,7 +54,8 @@ public class CarEngineSizeManager implements CarEngineSizeService {
 			carEngineSizeRepository.delete(carEngineSize);
 			return new SuccessResult("Silindi");
 		} catch (Exception ex) {
-			return new ErrorResult(ex.getMessage());
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorResult("Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
@@ -63,7 +69,8 @@ public class CarEngineSizeManager implements CarEngineSizeService {
 			carEngineSizeRepository.delete(result.getData()).block(Duration.ofSeconds(1));
 			return new SuccessResult("%s silindi".formatted(entityName));
 		} catch (RuntimeException ex) {
-			return new ErrorResult("İstek zaman aşımına uğradı");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorResult("Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
@@ -73,8 +80,8 @@ public class CarEngineSizeManager implements CarEngineSizeService {
 		try {
 			carEngineSize = carEngineSizeRepository.findById(id).block(Duration.ofSeconds(1));
 		} catch (RuntimeException ex) {
-			System.out.println(ex.getMessage());
-			return new ErrorDataResult<CarEngineSize>(carEngineSize, "İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorDataResult<CarEngineSize>(carEngineSize, "Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 		if (carEngineSize == null) {
 			return new ErrorDataResult<CarEngineSize>(new CarEngineSize(), "%s Bulunamadı!".formatted(entityName));
@@ -89,8 +96,8 @@ public class CarEngineSizeManager implements CarEngineSizeService {
 			carEngineSizeRepository.findAll().doOnNext(carEngineSizes::add).blockLast(Duration.ofSeconds(10));
 			return new SuccessDataResult<List<CarEngineSize>>(carEngineSizes, "Başarılı");
 		} catch (RuntimeException ex) {
-			System.out.println(ex.getMessage());
-			return new ErrorDataResult<List<CarEngineSize>>(carEngineSizes, "İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorDataResult<List<CarEngineSize>>(carEngineSizes, "Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 

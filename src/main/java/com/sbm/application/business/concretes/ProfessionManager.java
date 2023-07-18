@@ -4,6 +4,9 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +24,7 @@ import com.sbm.application.repositories.concretes.ProfessionRepository;
 public class ProfessionManager implements ProfessionService {
 
 	private final String entityName = "Meslek";
+	Logger logger = LoggerFactory.getLogger(ProfessionManager.class);
 	@Autowired
 	private ProfessionRepository professionRepository;
 
@@ -38,14 +42,20 @@ public class ProfessionManager implements ProfessionService {
 			professionRepository.save(profession).block(Duration.ofSeconds(1));
 			return new SuccessResult("%s güncelleme başarılı!".formatted(entityName));
 		} catch (RuntimeException ex) {
-			return new ErrorResult("İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorResult("Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
 	@Override
 	public Result delete(Profession profession) {
-		professionRepository.delete(profession);
-		return new SuccessResult();
+		try {
+			professionRepository.delete(profession);
+			return new SuccessResult("Başarılı");
+		} catch (RuntimeException ex) {
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorResult("Beklenmeyen bir hatayla karşılaşıldı!");
+		}
 	}
 
 	@Override
@@ -54,8 +64,8 @@ public class ProfessionManager implements ProfessionService {
 		try {
 			profession = professionRepository.findById(id).block(Duration.ofSeconds(1));
 		} catch (RuntimeException ex) {
-			System.out.println(ex.getMessage());
-			return new ErrorDataResult<Profession>(profession, "İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorDataResult<Profession>(profession, "Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 		if (profession == null) {
 			return new ErrorDataResult<Profession>(new Profession(), "%s Bulunamadı!".formatted(entityName));
@@ -70,8 +80,8 @@ public class ProfessionManager implements ProfessionService {
 			professionRepository.findAll().doOnNext(professions::add).blockLast(Duration.ofSeconds(10));
 			return new SuccessDataResult<List<Profession>>(professions, "Başarılı");
 		} catch (RuntimeException ex) {
-			System.out.println(ex.getMessage());
-			return new ErrorDataResult<List<Profession>>(professions, "İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorDataResult<List<Profession>>(professions, "Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
@@ -85,7 +95,8 @@ public class ProfessionManager implements ProfessionService {
 			professionRepository.delete(result.getData()).block(Duration.ofSeconds(1));
 			return new SuccessResult("%s silindi".formatted(entityName));
 		} catch (RuntimeException ex) {
-			return new ErrorResult("İstek zaman aşımına uğradı");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorResult("Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 

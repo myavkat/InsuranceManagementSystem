@@ -4,6 +4,9 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +23,7 @@ import com.sbm.application.repositories.concretes.InsuranceTypeRepository;
 @Service
 public class InsuranceTypeManager implements InsuranceTypeService {
 	private final String entityName = "Sigorta Tipi";
+	Logger logger = LoggerFactory.getLogger(InsuranceTypeManager.class);
 	@Autowired
 	private InsuranceTypeRepository insuranceTypeRepository;
 
@@ -38,7 +42,8 @@ public class InsuranceTypeManager implements InsuranceTypeService {
 			insuranceTypeRepository.save(insuranceType).block(Duration.ofSeconds(1));
 			return new SuccessResult("%s güncelleme başarılı!".formatted(entityName));
 		} catch (RuntimeException ex) {
-			return new ErrorResult("İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorResult("Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
@@ -48,7 +53,8 @@ public class InsuranceTypeManager implements InsuranceTypeService {
 			insuranceTypeRepository.delete(insuranceType);
 			return new SuccessResult("Silindi");
 		} catch (Exception ex) {
-			return new ErrorResult(ex.getMessage());
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorResult("Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
@@ -62,7 +68,8 @@ public class InsuranceTypeManager implements InsuranceTypeService {
 			insuranceTypeRepository.delete(result.getData()).block(Duration.ofSeconds(1));
 			return new SuccessResult("%s silindi".formatted(entityName));
 		} catch (RuntimeException ex) {
-			return new ErrorResult("İstek zaman aşımına uğradı");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorResult("Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
@@ -72,8 +79,8 @@ public class InsuranceTypeManager implements InsuranceTypeService {
 		try {
 			insuranceType = insuranceTypeRepository.findById(id).block(Duration.ofSeconds(1));
 		} catch (RuntimeException ex) {
-			System.out.println(ex.getMessage());
-			return new ErrorDataResult<InsuranceType>(insuranceType, "İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorDataResult<InsuranceType>(insuranceType, "Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 		if (insuranceType == null) {
 			return new ErrorDataResult<InsuranceType>(new InsuranceType(), "%s Bulunamadı!".formatted(entityName));
@@ -88,8 +95,8 @@ public class InsuranceTypeManager implements InsuranceTypeService {
 			insuranceTypeRepository.findAll().doOnNext(insuranceTypes::add).blockLast(Duration.ofSeconds(10));
 			return new SuccessDataResult<List<InsuranceType>>(insuranceTypes, "Başarılı");
 		} catch (RuntimeException ex) {
-			System.out.println(ex.getMessage());
-			return new ErrorDataResult<List<InsuranceType>>(insuranceTypes, "İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorDataResult<List<InsuranceType>>(insuranceTypes, "Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 }

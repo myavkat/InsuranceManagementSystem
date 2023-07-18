@@ -5,6 +5,9 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +32,7 @@ import com.sbm.application.repositories.concretes.EstimationRepository;
 @Service
 public class EstimationManager implements EstimationService {
 	private final String entityName = "Fiyat Teklifi";
+	Logger logger = LoggerFactory.getLogger(EstimationManager.class);
 	@Autowired
 	private EstimationRepository estimationRepository;
 	@Autowired
@@ -56,7 +60,8 @@ public class EstimationManager implements EstimationService {
 			estimationRepository.save(estimation).block(Duration.ofSeconds(1));
 			return new SuccessResult("%s güncelleme başarılı!".formatted(entityName));
 		} catch (RuntimeException ex) {
-			return new ErrorResult("İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorResult("Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
@@ -66,7 +71,8 @@ public class EstimationManager implements EstimationService {
 			estimationRepository.delete(estimation);
 			return new SuccessResult("Silindi");
 		} catch (Exception ex) {
-			return new ErrorResult(ex.getMessage());
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorResult("Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
@@ -80,7 +86,8 @@ public class EstimationManager implements EstimationService {
 			estimationRepository.delete(result.getData()).block(Duration.ofSeconds(1));
 			return new SuccessResult("%s silindi".formatted(entityName));
 		} catch (RuntimeException ex) {
-			return new ErrorResult("İstek zaman aşımına uğradı");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorResult("Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
@@ -90,8 +97,8 @@ public class EstimationManager implements EstimationService {
 		try {
 			estimation = estimationRepository.findById(id).block(Duration.ofSeconds(1));
 		} catch (RuntimeException ex) {
-			System.out.println(ex.getMessage());
-			return new ErrorDataResult<Estimation>(estimation, "İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorDataResult<Estimation>(estimation, "Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 		if (estimation == null) {
 			return new ErrorDataResult<Estimation>(new Estimation(), "%s Bulunamadı!".formatted(entityName));
@@ -106,8 +113,8 @@ public class EstimationManager implements EstimationService {
 			estimationRepository.findAll().doOnNext(estimations::add).blockLast(Duration.ofSeconds(10));
 			return new SuccessDataResult<List<Estimation>>(estimations, "Başarılı");
 		} catch (RuntimeException ex) {
-			System.out.println(ex.getMessage());
-			return new ErrorDataResult<List<Estimation>>(estimations, "İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorDataResult<List<Estimation>>(estimations, "Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
@@ -186,12 +193,12 @@ public class EstimationManager implements EstimationService {
 		}
 		try {
 			estimationRepository.saveAll(estimations).blockLast(Duration.ofSeconds(3));
-			for(Estimation estimation: estimations){
+			for (Estimation estimation : estimations) {
 				estimationRepository.findKaskoDetailById(estimation.getId()).doOnNext(details::add).block();
 			}
 		} catch (RuntimeException ex) {
-			System.out.println(ex.getMessage() + ex.getCause().toString());
-			return new ErrorDataResult<List<EstimationDetailDTO>>(details, "%s eklenemedi!".formatted(entityName));
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorDataResult<List<EstimationDetailDTO>>(details, "Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 		return new SuccessDataResult<List<EstimationDetailDTO>>(details, "Başarılı");
 	}
@@ -203,30 +210,34 @@ public class EstimationManager implements EstimationService {
 			estimationRepository.findKaskoDetails().doOnNext(details::add).blockLast(Duration.ofSeconds(5));
 			return new SuccessDataResult<List<EstimationDetailDTO>>(details, "Başarılı");
 		} catch (RuntimeException ex) {
-			System.out.println(ex.getMessage());
-			return new ErrorDataResult<List<EstimationDetailDTO>>(details, "İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorDataResult<List<EstimationDetailDTO>>(details, "Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
+
 	@Override
 	public DataResult<List<EstimationDetailDTO>> getDetailsByCustomerId(int customerId) {
 		List<EstimationDetailDTO> details = new ArrayList<EstimationDetailDTO>();
 		try {
-			estimationRepository.findKaskoDetailsByCustomerId(customerId).doOnNext(details::add).blockLast(Duration.ofSeconds(5));
+			estimationRepository.findKaskoDetailsByCustomerId(customerId).doOnNext(details::add)
+					.blockLast(Duration.ofSeconds(5));
 			return new SuccessDataResult<List<EstimationDetailDTO>>(details, "Başarılı");
 		} catch (RuntimeException ex) {
-			System.out.println(ex.getMessage());
-			return new ErrorDataResult<List<EstimationDetailDTO>>(details, "İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorDataResult<List<EstimationDetailDTO>>(details, "Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
+
 	@Override
 	public DataResult<List<EstimationDetailDTO>> getDetailsByVehicleId(int vehicleId) {
 		List<EstimationDetailDTO> details = new ArrayList<EstimationDetailDTO>();
 		try {
-			estimationRepository.findKaskoDetailsByVehicleId(vehicleId).doOnNext(details::add).blockLast(Duration.ofSeconds(5));
+			estimationRepository.findKaskoDetailsByVehicleId(vehicleId).doOnNext(details::add)
+					.blockLast(Duration.ofSeconds(5));
 			return new SuccessDataResult<List<EstimationDetailDTO>>(details, "Başarılı");
 		} catch (RuntimeException ex) {
-			System.out.println(ex.getMessage());
-			return new ErrorDataResult<List<EstimationDetailDTO>>(details, "İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorDataResult<List<EstimationDetailDTO>>(details, "Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 

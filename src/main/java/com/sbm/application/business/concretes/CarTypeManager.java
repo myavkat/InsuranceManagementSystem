@@ -4,6 +4,9 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +23,7 @@ import com.sbm.application.repositories.concretes.CarTypeRepository;
 @Service
 public class CarTypeManager implements CarTypeService {
 	private final String entityName = "Araba Tipi";
+	Logger logger = LoggerFactory.getLogger(CarTypeManager.class);
 	@Autowired
 	private CarTypeRepository carTypeRepository;
 
@@ -37,7 +41,8 @@ public class CarTypeManager implements CarTypeService {
 			carTypeRepository.save(carType).block(Duration.ofSeconds(1));
 			return new SuccessResult("%s güncelleme başarılı!".formatted(entityName));
 		} catch (RuntimeException ex) {
-			return new ErrorResult("İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorResult("Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
@@ -47,7 +52,8 @@ public class CarTypeManager implements CarTypeService {
 			carTypeRepository.delete(carType);
 			return new SuccessResult("Silindi");
 		} catch (Exception ex) {
-			return new ErrorResult(ex.getMessage());
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorResult("Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
@@ -61,7 +67,8 @@ public class CarTypeManager implements CarTypeService {
 			carTypeRepository.delete(result.getData()).block(Duration.ofSeconds(1));
 			return new SuccessResult("%s silindi".formatted(entityName));
 		} catch (RuntimeException ex) {
-			return new ErrorResult("İstek zaman aşımına uğradı");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorResult("Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
@@ -71,8 +78,8 @@ public class CarTypeManager implements CarTypeService {
 		try {
 			carType = carTypeRepository.findById(id).block(Duration.ofSeconds(1));
 		} catch (RuntimeException ex) {
-			System.out.println(ex.getMessage());
-			return new ErrorDataResult<CarType>(carType, "İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorDataResult<CarType>(carType, "Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 		if (carType == null) {
 			return new ErrorDataResult<CarType>(new CarType(), "%s Bulunamadı!".formatted(entityName));
@@ -87,8 +94,8 @@ public class CarTypeManager implements CarTypeService {
 			carTypeRepository.findAll().doOnNext(carTypes::add).blockLast(Duration.ofSeconds(10));
 			return new SuccessDataResult<List<CarType>>(carTypes, "Başarılı");
 		} catch (RuntimeException ex) {
-			System.out.println(ex.getMessage());
-			return new ErrorDataResult<List<CarType>>(carTypes, "İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorDataResult<List<CarType>>(carTypes, "Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 }

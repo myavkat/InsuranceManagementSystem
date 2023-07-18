@@ -4,6 +4,9 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +25,7 @@ import com.sbm.application.repositories.concretes.CustomerRepository;
 public class CustomerManager implements CustomerService {
 
 	private final String entityName = "Müşteri";
+	Logger logger = LoggerFactory.getLogger(CustomerManager.class);
 	@Autowired
 	private CustomerRepository customerRepository;
 
@@ -45,7 +49,8 @@ public class CustomerManager implements CustomerService {
 			customerRepository.save(customer).block(Duration.ofSeconds(1));
 			return new SuccessResult("%s güncelleme başarılı!".formatted(entityName));
 		} catch (RuntimeException ex) {
-			return new ErrorResult("İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorResult("Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
@@ -55,8 +60,8 @@ public class CustomerManager implements CustomerService {
 		try {
 			customer = customerRepository.findById(id).block(Duration.ofSeconds(1));
 		} catch (RuntimeException ex) {
-			System.out.println(ex.getMessage());
-			return new ErrorDataResult<Customer>(customer, "İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorDataResult<Customer>(customer, "Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 		if (customer == null) {
 			return new ErrorDataResult<Customer>(new Customer(), "%s Bulunamadı!".formatted(entityName));
@@ -71,8 +76,8 @@ public class CustomerManager implements CustomerService {
 			customerRepository.findAll().doOnNext(customers::add).blockLast(Duration.ofSeconds(10));
 			return new SuccessDataResult<List<Customer>>(customers, "Başarılı");
 		} catch (RuntimeException ex) {
-			System.out.println(ex.getMessage());
-			return new ErrorDataResult<List<Customer>>(customers, "İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorDataResult<List<Customer>>(customers, "Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
@@ -86,7 +91,8 @@ public class CustomerManager implements CustomerService {
 			customerRepository.delete(result.getData()).block(Duration.ofSeconds(1));
 			return new SuccessResult("%s silindi".formatted(entityName));
 		} catch (RuntimeException ex) {
-			return new ErrorResult("İstek zaman aşımına uğradı");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorResult("Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
@@ -97,7 +103,8 @@ public class CustomerManager implements CustomerService {
 			customerDetail = customerRepository.getCustomerDetailById(id).block(Duration.ofSeconds(1));
 			return new SuccessDataResult<CustomerDetailDTO>(customerDetail, "Başarılı");
 		} catch (RuntimeException ex) {
-			return new ErrorDataResult<CustomerDetailDTO>(customerDetail, "İstek zaman aşımına uğradı");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorDataResult<CustomerDetailDTO>(customerDetail, "Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
@@ -108,8 +115,8 @@ public class CustomerManager implements CustomerService {
 			customerRepository.getCustomerDetails().doOnNext(customerDetails::add).blockLast(Duration.ofSeconds(10));
 			return new SuccessDataResult<List<CustomerDetailDTO>>(customerDetails, "Başarılı");
 		} catch (RuntimeException ex) {
-			System.out.println(ex.getMessage());
-			return new ErrorDataResult<List<CustomerDetailDTO>>(customerDetails, "İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorDataResult<List<CustomerDetailDTO>>(customerDetails, "Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 

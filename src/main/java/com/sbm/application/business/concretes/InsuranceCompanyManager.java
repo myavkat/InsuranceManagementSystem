@@ -4,6 +4,9 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +23,7 @@ import com.sbm.application.repositories.concretes.InsuranceCompanyRepository;
 @Service
 public class InsuranceCompanyManager implements InsuranceCompanyService {
 	private final String entityName = "Sigorta Şirketi";
+	Logger logger = LoggerFactory.getLogger(InsuranceCompanyManager.class);
 	@Autowired
 	private InsuranceCompanyRepository insuranceCompanyRepository;
 
@@ -38,7 +42,8 @@ public class InsuranceCompanyManager implements InsuranceCompanyService {
 			insuranceCompanyRepository.save(insuranceCompany).block(Duration.ofSeconds(1));
 			return new SuccessResult("%s güncelleme başarılı!".formatted(entityName));
 		} catch (RuntimeException ex) {
-			return new ErrorResult("İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorResult("Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
@@ -48,7 +53,8 @@ public class InsuranceCompanyManager implements InsuranceCompanyService {
 			insuranceCompanyRepository.delete(insuranceCompany);
 			return new SuccessResult("Silindi");
 		} catch (Exception ex) {
-			return new ErrorResult(ex.getMessage());
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorResult("Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
@@ -62,7 +68,8 @@ public class InsuranceCompanyManager implements InsuranceCompanyService {
 			insuranceCompanyRepository.delete(result.getData()).block(Duration.ofSeconds(1));
 			return new SuccessResult("%s silindi".formatted(entityName));
 		} catch (RuntimeException ex) {
-			return new ErrorResult("İstek zaman aşımına uğradı");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorResult("Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
@@ -72,8 +79,8 @@ public class InsuranceCompanyManager implements InsuranceCompanyService {
 		try {
 			insuranceCompany = insuranceCompanyRepository.findById(id).block(Duration.ofSeconds(1));
 		} catch (RuntimeException ex) {
-			System.out.println(ex.getMessage());
-			return new ErrorDataResult<InsuranceCompany>(insuranceCompany, "İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorDataResult<InsuranceCompany>(insuranceCompany, "Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 		if (insuranceCompany == null) {
 			return new ErrorDataResult<InsuranceCompany>(new InsuranceCompany(),
@@ -89,8 +96,8 @@ public class InsuranceCompanyManager implements InsuranceCompanyService {
 			insuranceCompanyRepository.findAll().doOnNext(insuranceCompanies::add).blockLast(Duration.ofSeconds(10));
 			return new SuccessDataResult<List<InsuranceCompany>>(insuranceCompanies, "Başarılı");
 		} catch (RuntimeException ex) {
-			System.out.println(ex.getMessage());
-			return new ErrorDataResult<List<InsuranceCompany>>(insuranceCompanies, "İstek zaman aşımına uğradı!");
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorDataResult<List<InsuranceCompany>>(insuranceCompanies, "Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 }
