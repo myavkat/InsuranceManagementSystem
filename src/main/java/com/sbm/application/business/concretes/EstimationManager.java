@@ -204,4 +204,20 @@ public class EstimationManager implements EstimationService {
 		}
 	}
 
+	@Override
+	public Result confirmById(int id) {
+		var getResult = getById(id);
+		if (!getResult.isSuccess()) {
+			return new ErrorResult(getResult.getMessage());
+		}
+		var estimationToConfirm = getResult.getData();
+		estimationToConfirm.setConfirmed(true);
+		System.out.println(estimationToConfirm.getEstimationDate().getClass());
+		var saveResult = save(estimationToConfirm);
+		if (saveResult.isSuccess()) {
+			return new SuccessResult("Teklif Onaylandı");
+		}
+		return new ErrorResult("Teklif onaylanamadı: " + saveResult.getMessage());
+
+	}
 }

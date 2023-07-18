@@ -2,7 +2,6 @@ package com.sbm.application.entities.abstracts;
 
 import org.springframework.data.relational.core.mapping.Column;
 
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

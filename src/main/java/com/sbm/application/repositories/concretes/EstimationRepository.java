@@ -8,6 +8,7 @@ import com.sbm.application.entities.dtos.EstimationDetailDTO;
 import com.sbm.application.repositories.abstracts.EntityRepository;
 
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Repository
 public interface EstimationRepository extends EntityRepository<Estimation> {
@@ -51,4 +52,29 @@ public interface EstimationRepository extends EntityRepository<Estimation> {
 		  JOIN Customers customer on customer.Id = vehicle.CustomerId
 				""")
 	public Flux<EstimationDetailDTO> findTrafikSigortaDetails();
+	
+	@Override
+	@Query("""
+		SELECT estimation.Id id
+				,estimation.InsuranceId
+				,estimation.ParameterId
+				,estimation.Price
+				,CONVERT(NVARCHAR(255), estimation.EstimationDate, 121) estimationDate
+				,estimation.Confirmed confirmed
+		  FROM [InsuranceDB].[dbo].[Estimations] estimation
+			""")
+	public Flux<Estimation> findAll();
+	
+	@Override
+	@Query("""
+		SELECT estimation.Id id
+				,estimation.InsuranceId
+				,estimation.ParameterId
+				,estimation.Price
+				,CONVERT(NVARCHAR(255), estimation.EstimationDate, 121) estimationDate
+				,estimation.Confirmed confirmed
+		  FROM [InsuranceDB].[dbo].[Estimations] estimation
+		  WHERE estimation.Id = :id
+			""")
+	public Mono<Estimation> findById(Integer id);
 }
