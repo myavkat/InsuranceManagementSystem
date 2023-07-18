@@ -21,6 +21,7 @@ public interface EstimationRepository extends EntityRepository<Estimation> {
 				,insuranceType.Name insurance_type_name
 				,company.Name insurance_company_name
 				,vehicle.Id parameter_id
+				,estimation.Price price
 				,vehicle.LicensePlate + ' ' + customer.FirstName + ' ' + customer.LastName + ' ' + customer.TC parameter_name
 				,CONVERT(NVARCHAR(255), estimation.EstimationDate, 121) estimation_date
 				,estimation.Confirmed confirmed
@@ -42,6 +43,7 @@ public interface EstimationRepository extends EntityRepository<Estimation> {
 				,insuranceType.Name insurance_type_name
 				,company.Name insurance_company_name
 				,vehicle.Id parameter_id
+				,estimation.Price price
 				,vehicle.LicensePlate + ' ' + customer.FirstName + ' ' + customer.LastName + ' ' + customer.TC parameter_name
 				,CONVERT(NVARCHAR(255), estimation.EstimationDate, 121) estimation_date
 				,estimation.Confirmed confirmed
