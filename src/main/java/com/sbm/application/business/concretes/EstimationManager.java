@@ -28,7 +28,7 @@ import com.sbm.application.repositories.concretes.EstimationRepository;
 
 @Service
 public class EstimationManager implements EstimationService {
-	private final String entityName = "Fiyat Tahmini";
+	private final String entityName = "Fiyat Teklifi";
 	@Autowired
 	private EstimationRepository estimationRepository;
 	@Autowired
@@ -49,8 +49,8 @@ public class EstimationManager implements EstimationService {
 				estimationRepository.save(estimation).block(Duration.ofSeconds(1));
 				return new SuccessResult("%s eklendi".formatted(entityName));
 			}
-			Estimation foundCarBrand = estimationRepository.findById(estimation.getId()).block(Duration.ofSeconds(1));
-			if (foundCarBrand == null) {
+			Estimation foundEstimation = estimationRepository.findById(estimation.getId()).block(Duration.ofSeconds(1));
+			if (foundEstimation == null) {
 				return new ErrorResult("%s idli %s bulunamadı".formatted(estimation.getId(), entityName));
 			}
 			estimationRepository.save(estimation).block(Duration.ofSeconds(1));
