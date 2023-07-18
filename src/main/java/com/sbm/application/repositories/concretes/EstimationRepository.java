@@ -30,6 +30,7 @@ public interface EstimationRepository extends EntityRepository<Estimation> {
 		  JOIN InsuranceTypes insuranceType on insuranceType.Id = insurance.InsuranceTypeId
 		  JOIN Vehicles vehicle on vehicle.Id = estimation.ParameterId AND insuranceType.Name = 'Kasko'
 		  JOIN Customers customer on customer.Id = vehicle.CustomerId
+		  ORDER BY estimationDate DESC
 			""")
 	public Flux<EstimationDetailDTO> findKaskoDetails();
 	
@@ -50,6 +51,7 @@ public interface EstimationRepository extends EntityRepository<Estimation> {
 		  JOIN InsuranceTypes insuranceType on insuranceType.Id = insurance.InsuranceTypeId
 		  JOIN Vehicles vehicle on vehicle.Id = estimation.ParameterId AND insuranceType.Name = 'Trafik Sigortası'
 		  JOIN Customers customer on customer.Id = vehicle.CustomerId
+		  ORDER BY estimationDate DESC
 				""")
 	public Flux<EstimationDetailDTO> findTrafikSigortaDetails();
 	
@@ -62,6 +64,7 @@ public interface EstimationRepository extends EntityRepository<Estimation> {
 				,CONVERT(NVARCHAR(255), estimation.EstimationDate, 121) estimationDate
 				,estimation.Confirmed confirmed
 		  FROM [InsuranceDB].[dbo].[Estimations] estimation
+		  ORDER BY estimationDate DESC
 			""")
 	public Flux<Estimation> findAll();
 	
