@@ -55,7 +55,7 @@ public interface EstimationRepository extends EntityRepository<Estimation> {
 			  WHERE customer.Id = :customerId
 			  ORDER BY estimationDate DESC
 				""")
-		public Flux<EstimationDetailDTO> findKaskoDetailsByCustomerId(int customerId);
+	public Flux<EstimationDetailDTO> findKaskoDetailsByCustomerId(int customerId);
 	@Query("""
 			SELECT estimation.Id id
 					,insurance.Id insurance_id
@@ -77,8 +77,7 @@ public interface EstimationRepository extends EntityRepository<Estimation> {
 			  WHERE vehicle.Id = :vehicleId
 			  ORDER BY estimationDate DESC
 				""")
-		public Flux<EstimationDetailDTO> findKaskoDetailsByVehicleId(int vehicleId);
-	
+	public Flux<EstimationDetailDTO> findKaskoDetailsByVehicleId(int vehicleId);
 	@Query("""
 		SELECT estimation.Id id
 				,insurance.Id insurance_id
@@ -100,7 +99,6 @@ public interface EstimationRepository extends EntityRepository<Estimation> {
 		  ORDER BY estimationDate DESC
 				""")
 	public Flux<EstimationDetailDTO> findTrafikSigortaDetails();
-	
 	@Override
 	@Query("""
 		SELECT estimation.Id id
@@ -113,7 +111,6 @@ public interface EstimationRepository extends EntityRepository<Estimation> {
 		  ORDER BY estimationDate DESC
 			""")
 	public Flux<Estimation> findAll();
-	
 	@Override
 	@Query("""
 		SELECT estimation.Id id
