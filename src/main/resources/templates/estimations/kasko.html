@@ -35,8 +35,8 @@
 <div class="row align-items-center" th:if="${estimations!=null}">
 	<div class="card col-3 m-2" th:each="estimation : ${estimations}">
 		<div class="card-body">
-			<h5 class="card-title" th:text="${estimation.insuranceId}"></h5>
-			<h6 class="card-subtitle mb-2 text-body-secondary">Kasko</h6>
+			<h5 class="card-title" th:text="${estimation.insuranceCompanyName}"></h5>
+			<h6 class="card-subtitle mb-2 text-body-secondary" th:text="${estimation.insuranceTypeName}"></h6>
 			<p class="card-text"
 				th:text="'Fiyat: ' + ${#numbers.formatDecimal(estimation.price, 0, 'POINT', 2, 'COMMA')} + ' TRY'" />
 			<a th:href="'/estimations/confirm/' + ${estimation.id}" class="btn btn-success">Kabul Et</a>

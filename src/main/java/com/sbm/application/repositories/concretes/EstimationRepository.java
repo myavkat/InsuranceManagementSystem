@@ -79,6 +79,28 @@ public interface EstimationRepository extends EntityRepository<Estimation> {
 				""")
 	public Flux<EstimationDetailDTO> findKaskoDetailsByVehicleId(int vehicleId);
 	@Query("""
+			SELECT estimation.Id id
+					,insurance.Id insurance_id
+					,insuranceType.Id insurance_type_id
+					,company.Id insurance_company_id
+					,insuranceType.Name insurance_type_name
+					,company.Name insurance_company_name
+					,vehicle.Id parameter_id
+					,estimation.Price price
+					,vehicle.LicensePlate + ' ' + customer.FirstName + ' ' + customer.LastName + ' ' + customer.TC parameter_name
+					,CONVERT(NVARCHAR(255), estimation.EstimationDate, 121) estimation_date
+					,estimation.Confirmed confirmed
+			  FROM [InsuranceDB].[dbo].[Estimations] estimation
+			  JOIN Insurances insurance on insurance.Id = estimation.InsuranceId
+			  JOIN InsuranceCompanies company on company.Id = insurance.CompanyId
+			  JOIN InsuranceTypes insuranceType on insuranceType.Id = insurance.InsuranceTypeId
+			  JOIN Vehicles vehicle on vehicle.Id = estimation.ParameterId AND insuranceType.Name = 'Kasko'
+			  JOIN Customers customer on customer.Id = vehicle.CustomerId
+			  WHERE estimation.Id = :id
+			  ORDER BY estimationDate DESC
+				""")
+		public Mono<EstimationDetailDTO> findKaskoDetailById(int id);
+	@Query("""
 		SELECT estimation.Id id
 				,insurance.Id insurance_id
 				,insuranceType.Id insurance_type_id

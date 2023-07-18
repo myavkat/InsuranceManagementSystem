@@ -10,7 +10,7 @@ import com.sbm.application.entities.dtos.EstimationDetailDTO;
 public interface EstimationService extends EntityService<Estimation> {
 
 	public DataResult<Estimation> estimateKasko(int insuranceId, int vehicleId); 
-	public DataResult<List<Estimation>> estimateKaskoAllCompanies(int vehicleId);
+	public DataResult<List<EstimationDetailDTO>> estimateKaskoAllCompanies(int vehicleId);
 	public DataResult<List<EstimationDetailDTO>> getDetails();
 	public DataResult<List<EstimationDetailDTO>> getDetailsByVehicleId(int vehicleId);
 	public DataResult<List<EstimationDetailDTO>> getDetailsByCustomerId(int customerId);

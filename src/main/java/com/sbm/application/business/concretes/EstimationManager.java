@@ -169,27 +169,31 @@ public class EstimationManager implements EstimationService {
 		return new SuccessDataResult<Estimation>(estimation);
 	}
 
-	public DataResult<List<Estimation>> estimateKaskoAllCompanies(int vehicleId) {
+	public DataResult<List<EstimationDetailDTO>> estimateKaskoAllCompanies(int vehicleId) {
 		List<Estimation> estimations = new ArrayList<Estimation>();
+		List<EstimationDetailDTO> details = new ArrayList<EstimationDetailDTO>();
 		var insurancesResult = insuranceService.getInsuranceDetailsByInsuranceTypeName("Kasko");
 		if (!insurancesResult.isSuccess()) {
-			return new ErrorDataResult<List<Estimation>>(estimations, insurancesResult.getMessage());
+			return new ErrorDataResult<List<EstimationDetailDTO>>(details, insurancesResult.getMessage());
 		}
 		for (InsuranceDetailDTO insurance : insurancesResult.getData()) {
 			var estimationResult = estimateKasko(insurance.getId(), vehicleId);
 			if (!estimationResult.isSuccess()) {
-				return new ErrorDataResult<List<Estimation>>(estimations, estimationResult.getMessage());
+				return new ErrorDataResult<List<EstimationDetailDTO>>(details, estimationResult.getMessage());
 			} else {
 				estimations.add(estimationResult.getData());
 			}
 		}
 		try {
 			estimationRepository.saveAll(estimations).blockLast(Duration.ofSeconds(3));
+			for(Estimation estimation: estimations){
+				estimationRepository.findKaskoDetailById(estimation.getId()).doOnNext(details::add).block();
+			}
 		} catch (RuntimeException ex) {
 			System.out.println(ex.getMessage() + ex.getCause().toString());
-			return new ErrorDataResult<List<Estimation>>(estimations, "%s eklenemedi!".formatted(entityName));
+			return new ErrorDataResult<List<EstimationDetailDTO>>(details, "%s eklenemedi!".formatted(entityName));
 		}
-		return new SuccessDataResult<List<Estimation>>(estimations, "Başarılı");
+		return new SuccessDataResult<List<EstimationDetailDTO>>(details, "Başarılı");
 	}
 
 	@Override
