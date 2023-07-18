@@ -203,6 +203,28 @@ public class EstimationManager implements EstimationService {
 			return new ErrorDataResult<List<EstimationDetailDTO>>(details, "İstek zaman aşımına uğradı!");
 		}
 	}
+	@Override
+	public DataResult<List<EstimationDetailDTO>> getDetailsByCustomerId(int customerId) {
+		List<EstimationDetailDTO> details = new ArrayList<EstimationDetailDTO>();
+		try {
+			estimationRepository.findKaskoDetailsByCustomerId(customerId).doOnNext(details::add).blockLast(Duration.ofSeconds(5));
+			return new SuccessDataResult<List<EstimationDetailDTO>>(details, "Başarılı");
+		} catch (RuntimeException ex) {
+			System.out.println(ex.getMessage());
+			return new ErrorDataResult<List<EstimationDetailDTO>>(details, "İstek zaman aşımına uğradı!");
+		}
+	}
+	@Override
+	public DataResult<List<EstimationDetailDTO>> getDetailsByVehicleId(int vehicleId) {
+		List<EstimationDetailDTO> details = new ArrayList<EstimationDetailDTO>();
+		try {
+			estimationRepository.findKaskoDetailsByVehicleId(vehicleId).doOnNext(details::add).blockLast(Duration.ofSeconds(5));
+			return new SuccessDataResult<List<EstimationDetailDTO>>(details, "Başarılı");
+		} catch (RuntimeException ex) {
+			System.out.println(ex.getMessage());
+			return new ErrorDataResult<List<EstimationDetailDTO>>(details, "İstek zaman aşımına uğradı!");
+		}
+	}
 
 	@Override
 	public Result confirmById(int id) {
