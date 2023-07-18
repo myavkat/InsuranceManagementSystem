@@ -28,10 +28,11 @@
 				<td th:text="${customerDetail.phoneNumber}"></td>
 				<td th:text="${customerDetail.birthDate}"></td>
 				<td th:text="${customerDetail.licenseObtainedAt}"></td>
-				<td><a class="btn btn-warning"
+				<td><a class="btn btn-success"
+					th:href="'/estimations/list?customerId=' + ${customerDetail.id}">Teklifler</a><a
+					class="btn btn-warning"
 					th:href="'/customers/edit/' + ${customerDetail.id}"> Düzenle </a>
-					<button type="button" class="btn btn-primary"
-						data-bs-toggle="modal"
+					<button type="button" class="btn btn-danger" data-bs-toggle="modal"
 						th:data-bs-target="'#deleteModal-' + ${customerDetail.id}">Sil
 					</button>
 					<div class="modal fade"
