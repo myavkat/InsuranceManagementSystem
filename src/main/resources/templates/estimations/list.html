@@ -23,7 +23,7 @@
         <td><a class="btn btn-success" th:if="${!estimationDetail.confirmed}"
           th:href="'/estimations/confirm/' + ${estimationDetail.id}"> Kabul Et </a>
           <a class="btn btn-warning" th:if="${estimationDetail.confirmed}"
-          th:href="'/estimations/removeConfirm/' + ${estimationDetail.id}"> İptal Et </a>
+          th:href="'/estimations/revokeConfirmation/' + ${estimationDetail.id}"> İptal Et </a>
         </td>
       </tr>
     </tbody>

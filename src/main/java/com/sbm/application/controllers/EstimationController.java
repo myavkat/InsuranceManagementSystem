@@ -57,13 +57,25 @@ public class EstimationController {
 		model.addAttribute("estimationDetails",estimationResult.getData());
 		return "app";
 	}
-	
+
 	@GetMapping("/confirm/{id}")
 	public String confirm(Model model, @PathVariable int id) {
 		var confirmResult = estimationService.confirmById(id);
 		if(confirmResult.isSuccess()){
 			model.addAttribute("toastSuccess", true);
 			model.addAttribute("toastMessage", "Teklif kabul edildi");
+			return list(model);
+		}
+		model.addAttribute("toastError", true);
+		model.addAttribute("toastMessage", confirmResult.getMessage());
+		return list(model);
+	}
+	@GetMapping("/revokeConfirmation/{id}")
+	public String revoke(Model model, @PathVariable int id) {
+		var confirmResult = estimationService.revokeConfirmationById(id);
+		if(confirmResult.isSuccess()){
+			model.addAttribute("toastSuccess", true);
+			model.addAttribute("toastMessage", "Teklif onayı geri alındı");
 			return list(model);
 		}
 		model.addAttribute("toastError", true);

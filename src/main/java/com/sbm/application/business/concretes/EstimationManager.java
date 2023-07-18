@@ -212,12 +212,27 @@ public class EstimationManager implements EstimationService {
 		}
 		var estimationToConfirm = getResult.getData();
 		estimationToConfirm.setConfirmed(true);
-		System.out.println(estimationToConfirm.getEstimationDate().getClass());
 		var saveResult = save(estimationToConfirm);
 		if (saveResult.isSuccess()) {
-			return new SuccessResult("Teklif Onaylandı");
+			return new SuccessResult("%s onaylandı".formatted(entityName));
 		}
-		return new ErrorResult("Teklif onaylanamadı: " + saveResult.getMessage());
+		return new ErrorResult("%s onaylanamadı".formatted(entityName));
+
+	}
+
+	@Override
+	public Result revokeConfirmationById(int id) {
+		var getResult = getById(id);
+		if (!getResult.isSuccess()) {
+			return new ErrorResult(getResult.getMessage());
+		}
+		var estimationToConfirm = getResult.getData();
+		estimationToConfirm.setConfirmed(false);
+		var saveResult = save(estimationToConfirm);
+		if (saveResult.isSuccess()) {
+			return new SuccessResult("%s onayı geri alındı".formatted(entityName));
+		}
+		return new ErrorResult("%s onayı geri alınamadı".formatted(entityName));
 
 	}
 }
