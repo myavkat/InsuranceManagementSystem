@@ -3,6 +3,8 @@ package com.sbm.application.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -52,10 +54,21 @@ public class CustomerController {
 	}
 
 	@PostMapping("/save/{id}")
-	public String saveForm(@ModelAttribute("customer") Customer customer, Model model, @PathVariable int id) {
+	public String saveForm(@Validated @ModelAttribute("customer") Customer customer, BindingResult bindingResult,
+			Model model, @PathVariable int id) {
+		if (bindingResult.hasErrors()) {
+			model.addAttribute("toastWarning", true);
+			model.addAttribute("toastMessage", "Hatalı alanlar var");
+			model.addAttribute("controller", controllerName);
+			model.addAttribute("professions", professionService.getAll().getData());
+			model.addAttribute("cities", cityService.getAll().getData());
+			model.addAttribute("page", "save");
+			return "app";
+		}
 		customer.setId(id);
 		customerService.save(customer);
-		model.addAttribute("customerSaved",true);
+		model.addAttribute("toastSuccess", true);
+		model.addAttribute("toastMessage", "Müşteri kaydedildi.");
 		return list(model);
 	}
 
@@ -67,7 +80,6 @@ public class CustomerController {
 		model.addAttribute("customerDetails", result.getData());
 		return "app";
 	}
-
 
 	@GetMapping("/delete/{id}")
 	public String delete(@PathVariable int id, Model model) {

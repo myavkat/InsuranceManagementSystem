@@ -1,24 +1,28 @@
 <form class="row" action="#" th:action="'/vehicles/save/'+ ${vehicle.id}"
   method="post" th:object="${vehicle}">
   <div class="form-floating mb-3 col-6 p-1">
-    <input class="form-control" type="text" th:field="*{vin}" id="vinInput" required/>
+    <input class="form-control" type="text" th:field="*{vin}" id="vinInput"/>
     <label for="vinInput">Şasi Numarası:</label> 
+    <div th:if="${#fields.hasErrors('vin')}" th:errors="*{vin}"></div>
   </div>
   <div class="form-floating col-3 p-1">
     <select id="carSelect" class="form-select" th:field="*{carId}">
       <option th:each="c : ${carDetails}" th:value="${c.id}" th:text="${c.carName}"/>
     </select>
     <label for="carSelect">Araba:</label>
+    <div th:if="${#fields.hasErrors('carId')}" th:errors="*{carId}"></div>
   </div> 
   <div class="form-floating col-3 p-1">
     <select id="customerSelect" class="form-select" th:field="*{customerId}">
       <option th:each="c : ${customerDetails}" th:value="${c.id}" th:text="${c.tc}" />
     </select>
     <label for="customerSelect">Müşteri:</label>
+    <div th:if="${#fields.hasErrors('customerId')}" th:errors="*{customerId}"></div>
   </div> 
   <div class="form-floating mb-3 col-6 p-1">
-    <input class="form-control" type="text" th:field="*{licensePlate}" id="licensePlateInput" required/>
+    <input class="form-control" type="text" th:field="*{licensePlate}" id="licensePlateInput"/>
     <label for="licensePlateInput">Plakası:</label> 
+    <div th:if="${#fields.hasErrors('licensePlate')}" th:errors="*{licensePlate}"></div>
   </div>
   <div class="col-3 mt-2">
 	  <div class="form-check">
@@ -35,6 +39,7 @@
 	      Hasarsız
 	    </label>
 	  </div>
+    <div th:if="${#fields.hasErrors('damaged')}" th:errors="*{damaged}"></div>
   </div>
   <button class="btn btn-primary my-2" type="submit">
     Aracı Müşteriye Kaydet

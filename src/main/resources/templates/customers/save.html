@@ -1,40 +1,48 @@
 <form class="row" action="#" th:action="'/customers/save/'+ ${customer.id}"
   method="post" th:object="${customer}">
   <div class="form-floating mb-3 col-6 p-1">
-    <input class="form-control" type="text" th:field="*{firstName}" id="firstNameInput" required/>
-    <label for="firstNameInput">İsim:</label> </div>
+    <input class="form-control" type="text" th:field="*{firstName}" id="firstNameInput"/>
+    <label for="firstNameInput">İsim:</label> 
+    <div th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></div>
+    </div>
   <div class="form-floating mb-3 col-6 p-1">
-    <input class="form-control" type="text" th:field="*{lastName}"  id="lastNameInput" required/>
+    <input class="form-control" type="text" th:field="*{lastName}"  id="lastNameInput"/>
     <label for="lastNameInput">Soy İsim:</label>
+    <div th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></div>
   </div>
   <div class="form-floating mb-3 col-6 p-1">
-    <input class="form-control" type="text" pattern="^\d{11}" th:field="*{tc}"  id="tcInput" required/>
+    <input class="form-control" type="text" th:field="*{tc}"  id="tcInput"/>
     <label for="tcInput">Tc:</label>
+    <div th:if="${#fields.hasErrors('tc')}" th:errors="*{tc}"></div>
   </div>
   <div class="form-floating mb-3 col-6 p-1">
-    <input class="form-control" type="text" 
-      pattern="^([+]?\d{1,2}[-\s]?|)\d{3}[-\s]?\d{3}[-\s]?\d{4}$" th:field="*{phoneNumber}"  id="phoneNumberInput" required/>
+    <input class="form-control" type="text" th:field="*{phoneNumber}"  id="phoneNumberInput"/>
     <label for="phoneNumberInput">Telefon Numarası:</label> 
+    <div th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}"></div>
   </div>
   <div class="form-floating mb-3 col-3 p-1">
-    <input class="form-control" type="date" th:field="*{birthDate}"  id="birthDateInput" required/>
+    <input class="form-control" type="date" th:field="*{birthDate}"  id="birthDateInput"/>
     <label for="birthDateInput">Doğum Günü:</label> 
+    <div th:if="${#fields.hasErrors('birthDate')}" th:errors="*{birthDate}"></div>
   </div>
   <div class="form-floating mb-3 col-3 p-1">
-    <input class="form-control" type="date" th:field="*{licenseObtainedAt}"  id="licenseDateInput" required/>
+    <input class="form-control" type="date" th:field="*{licenseObtainedAt}"  id="licenseDateInput"/>
     <label for="licenseDateInput">Ehliyet Alım Tarihi:</label>
+    <div th:if="${#fields.hasErrors('licenseObtainedAt')}" th:errors="*{licenseObtainedAt}"></div>
   </div>
   <div class="form-floating col-3 p-1">
     <select id="professionSelect" class="form-select" th:field="*{professionId}">
       <option th:each="p : ${professions}" th:value="${p.id}" th:text="${p.name}" /> 
     </select>
     <label for="professionSelect">Meslek:</label>
+    <div th:if="${#fields.hasErrors('professionId')}" th:errors="*{professionId}"></div>
   </div>
   <div class="form-floating col-3 p-1">
     <select id="citySelect" class="form-select" th:field="*{cityOfResidenceId}">
       <option th:each="c : ${cities}" th:value="${c.id}" th:text="${c.name}" />
     </select>
     <label for="citySelect">İkamet Şehri:</label>
+    <div th:if="${#fields.hasErrors('cityOfResidenceId')}" th:errors="*{cityOfResidenceId}"></div>
   </div> 
   <button class="btn btn-primary my-2" type="submit">
     Müşteriyi Kaydet

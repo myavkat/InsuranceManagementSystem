@@ -3,6 +3,8 @@ package com.sbm.application.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,7 +16,6 @@ import com.sbm.application.business.abstracts.CustomerService;
 import com.sbm.application.business.abstracts.VehicleService;
 import com.sbm.application.entities.concretes.Vehicle;
 
-
 @Controller
 @RequestMapping("/vehicles")
 public class VehicleController {
@@ -25,6 +26,7 @@ public class VehicleController {
 	private CarService carService;
 	@Autowired
 	private CustomerService customerService;
+
 	@GetMapping("/add")
 	public String add(Model model) {
 		model.addAttribute("vehicle", new Vehicle());
@@ -47,16 +49,26 @@ public class VehicleController {
 			return "app";
 		}
 		model.addAttribute("toastError", true);
-		model.addAttribute("toastMessage",result.getMessage());
+		model.addAttribute("toastMessage", result.getMessage());
 		return list(model);
 
 	}
 
 	@PostMapping("/save/{id}")
-	public String saveForm(@ModelAttribute("vehicle") Vehicle vehicle, Model model, @PathVariable int id) {
+	public String saveForm(@Validated @ModelAttribute("vehicle") Vehicle vehicle, BindingResult bindingResult,
+			Model model, @PathVariable int id) {
+		if (bindingResult.hasErrors()) {
+			model.addAttribute("carDetails", carService.getCarDetails().getData());
+			model.addAttribute("customerDetails", customerService.getCustomerDetails().getData());
+			model.addAttribute("toastWarning", true);
+			model.addAttribute("toastMessage", "Hatalı alanlar var");
+			model.addAttribute("controller", controllerName);
+			model.addAttribute("page", "save");
+			return "app";
+		}
 		vehicle.setId(id);
 		model.addAttribute("toastMessage", vehicleService.save(vehicle).getMessage());
-		model.addAttribute("toastSuccess",true);
+		model.addAttribute("toastSuccess", true);
 		return list(model);
 	}
 
@@ -70,7 +82,6 @@ public class VehicleController {
 		model.addAttribute("customerDetails", customerService.getCustomerDetails().getData());
 		return "app";
 	}
-
 
 	@GetMapping("/delete/{id}")
 	public String delete(@PathVariable int id, Model model) {
