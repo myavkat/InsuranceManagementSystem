@@ -67,7 +67,16 @@ public class VehicleController {
 			return "app";
 		}
 		vehicle.setId(id);
-		model.addAttribute("toastMessage", vehicleService.save(vehicle).getMessage());
+		var saveResult = vehicleService.save(vehicle);
+		model.addAttribute("toastMessage", saveResult.getMessage());
+		if(!saveResult.isSuccess()) {
+			model.addAttribute("carDetails", carService.getCarDetails().getData());
+			model.addAttribute("customerDetails", customerService.getCustomerDetails().getData());
+			model.addAttribute("toastError", true);
+			model.addAttribute("controller", controllerName);
+			model.addAttribute("page", "save");
+			return "app";
+		}
 		model.addAttribute("toastSuccess", true);
 		return list(model);
 	}

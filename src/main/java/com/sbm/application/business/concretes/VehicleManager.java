@@ -2,7 +2,9 @@ package com.sbm.application.business.concretes;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -31,6 +33,26 @@ public class VehicleManager implements VehicleService {
 	@Override
 	public Result save(Vehicle vehicle) {
 		try {
+			/*
+			 * Same VIN and License Plate check start
+			 */
+
+			Set<Vehicle> vehicleWithSameIdentifierSet = new HashSet<Vehicle>();
+			vehicleRepository.findAllByLicensePlate(vehicle.getLicensePlate())
+					.doOnNext(vehicleWithSameIdentifierSet::add).blockLast();
+			vehicleRepository.findAllByVIN(vehicle.getVin()).doOnNext(vehicleWithSameIdentifierSet::add).blockLast();
+			for (Vehicle vehicleWithSameIdentifier : vehicleWithSameIdentifierSet) {
+				if (vehicleWithSameIdentifier.getId() != vehicle.getId()) {
+					if (vehicleWithSameIdentifier.getVin().contentEquals(vehicle.getVin()))
+						return new ErrorResult("Bu şasi numarası ile kayıtlı %s var".formatted(entityName));
+					else if (vehicleWithSameIdentifier.getLicensePlate().contentEquals(vehicle.getLicensePlate()))
+						return new ErrorResult("Bu plaka ile kayıtlı %s var".formatted(entityName));
+				}
+			}
+
+			/*
+			 * Same VIN and License Plate check end
+			 */
 			if (vehicle.getId() == 0) {
 				vehicleRepository.save(vehicle).block(Duration.ofSeconds(1));
 				return new SuccessResult("%s eklendi".formatted(entityName));
@@ -104,7 +126,7 @@ public class VehicleManager implements VehicleService {
 	public DataResult<List<Vehicle>> getVehiclesByCustomerId(int customerId) {
 		List<Vehicle> vehicles = new ArrayList<Vehicle>();
 		try {
-			vehicleRepository.findByCustomerId(customerId).doOnNext(vehicles::add).blockLast(Duration.ofSeconds(10));
+			vehicleRepository.findAllByCustomerId(customerId).doOnNext(vehicles::add).blockLast(Duration.ofSeconds(10));
 			return new SuccessDataResult<List<Vehicle>>(vehicles, "Başarılı");
 		} catch (RuntimeException ex) {
 			logger.error(ExceptionUtils.getStackTrace(ex));
