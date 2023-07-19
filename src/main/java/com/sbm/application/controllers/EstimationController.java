@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -93,6 +94,19 @@ public class EstimationController {
 		}
 		model.addAttribute("toastError", true);
 		model.addAttribute("toastMessage", confirmResult.getMessage());
+		return list(model, null, null);
+	}
+	
+	@GetMapping("/delete/{id}")
+	public String delete(Model model, @PathVariable int id) {
+		var deleteResult = estimationService.deleteById(id);
+		if(!deleteResult.isSuccess()) {
+			model.addAttribute("toastError", true);
+			model.addAttribute("toastMessage", deleteResult.getMessage());
+			return list(model, null, null);
+		}
+		model.addAttribute("toastSuccess", true);
+		model.addAttribute("toastMessage", deleteResult.getMessage());
 		return list(model, null, null);
 	}
 
