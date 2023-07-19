@@ -38,7 +38,7 @@ public class Customer extends Parameter {
 	@Column("tc")
 	private String tc;
 	@NotNull(message = "Boş geçilemez!")
-	@Pattern(regexp = "^([+]?\\d{1,2}[-\\s]?|)\\d{3}[-\\s]?\\d{3}[-\\s]?\\d{4}$", message = "Telefon numarası geçersiz!")
+	@Pattern(regexp = "^\\d{3}[-\\s]?\\d{3}[-\\s]?\\d{4}$", message = "Telefon numarasını başında 0 ve boşluk olmadan giriniz!")
 	@Column("phoneNumber")
 	private String phoneNumber;
 	@NotNull(message = "Boş geçilemez!")
