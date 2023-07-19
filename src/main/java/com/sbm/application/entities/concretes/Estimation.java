@@ -1,5 +1,7 @@
 package com.sbm.application.entities.concretes;
 
+import java.time.OffsetDateTime;
+
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -20,7 +22,7 @@ public class Estimation extends Entity {
 	@Column("price")
 	private double price;
 	@Column("estimationDate")
-	private String estimationDate;
+	private OffsetDateTime estimationDate;
 	@Column("confirmed")
 	private boolean confirmed;
 

@@ -31,7 +31,7 @@ dependencies {
 	
 	runtimeOnly("com.microsoft.sqlserver:mssql-jdbc")
 	
-	runtimeOnly("io.r2dbc:r2dbc-mssql:1.0.0.RELEASE")
+	runtimeOnly("io.r2dbc:r2dbc-mssql")
 	
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	

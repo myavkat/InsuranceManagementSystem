@@ -133,7 +133,7 @@ public class EstimationManager implements EstimationService {
 		InsuranceDetailDTO insurance = insuranceResult.getData();
 		Vehicle vehicle = vehicleResult.getData();
 		// Fiyat tahmini objesinin boş alanlarını doldur
-		estimation.setEstimationDate(OffsetDateTime.now().toString());
+		estimation.setEstimationDate(OffsetDateTime.now());
 		estimation.setInsuranceId(insuranceId);
 		estimation.setParameterId(vehicleId);
 		estimation.setConfirmed(false);

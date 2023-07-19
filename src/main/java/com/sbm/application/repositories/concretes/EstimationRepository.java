@@ -23,7 +23,7 @@ public interface EstimationRepository extends EntityRepository<Estimation> {
 				,vehicle.Id parameter_id
 				,estimation.Price price
 				,vehicle.LicensePlate + ' ' + customer.FirstName + ' ' + customer.LastName + ' ' + customer.TC parameter_name
-				,CONVERT(NVARCHAR(255), estimation.EstimationDate, 121) estimation_date
+				,estimation.EstimationDate estimation_date
 				,estimation.Confirmed confirmed
 		  FROM [InsuranceDB].[dbo].[Estimations] estimation
 		  JOIN Insurances insurance on insurance.Id = estimation.InsuranceId
@@ -44,7 +44,7 @@ public interface EstimationRepository extends EntityRepository<Estimation> {
 					,vehicle.Id parameter_id
 					,estimation.Price price
 					,vehicle.LicensePlate + ' ' + customer.FirstName + ' ' + customer.LastName + ' ' + customer.TC parameter_name
-					,CONVERT(NVARCHAR(255), estimation.EstimationDate, 121) estimation_date
+					,estimation.EstimationDate estimation_date
 					,estimation.Confirmed confirmed
 			  FROM [InsuranceDB].[dbo].[Estimations] estimation
 			  JOIN Insurances insurance on insurance.Id = estimation.InsuranceId
@@ -66,7 +66,7 @@ public interface EstimationRepository extends EntityRepository<Estimation> {
 					,vehicle.Id parameter_id
 					,estimation.Price price
 					,vehicle.LicensePlate + ' ' + customer.FirstName + ' ' + customer.LastName + ' ' + customer.TC parameter_name
-					,CONVERT(NVARCHAR(255), estimation.EstimationDate, 121) estimation_date
+					,estimation.EstimationDate estimation_date
 					,estimation.Confirmed confirmed
 			  FROM [InsuranceDB].[dbo].[Estimations] estimation
 			  JOIN Insurances insurance on insurance.Id = estimation.InsuranceId
@@ -88,7 +88,7 @@ public interface EstimationRepository extends EntityRepository<Estimation> {
 					,vehicle.Id parameter_id
 					,estimation.Price price
 					,vehicle.LicensePlate + ' ' + customer.FirstName + ' ' + customer.LastName + ' ' + customer.TC parameter_name
-					,CONVERT(NVARCHAR(255), estimation.EstimationDate, 121) estimation_date
+					,estimation.EstimationDate estimation_date
 					,estimation.Confirmed confirmed
 			  FROM [InsuranceDB].[dbo].[Estimations] estimation
 			  JOIN Insurances insurance on insurance.Id = estimation.InsuranceId
@@ -110,7 +110,7 @@ public interface EstimationRepository extends EntityRepository<Estimation> {
 				,vehicle.Id parameter_id
 				,estimation.Price price
 				,vehicle.LicensePlate + ' ' + customer.FirstName + ' ' + customer.LastName + ' ' + customer.TC parameter_name
-				,CONVERT(NVARCHAR(255), estimation.EstimationDate, 121) estimation_date
+				,estimation.EstimationDate estimation_date
 				,estimation.Confirmed confirmed
 		  FROM [InsuranceDB].[dbo].[Estimations] estimation
 		  JOIN Insurances insurance on insurance.Id = estimation.InsuranceId
@@ -121,28 +121,4 @@ public interface EstimationRepository extends EntityRepository<Estimation> {
 		  ORDER BY estimationDate DESC
 				""")
 	public Flux<EstimationDetailDTO> findTrafikSigortaDetails();
-	@Override
-	@Query("""
-		SELECT estimation.Id id
-				,estimation.InsuranceId
-				,estimation.ParameterId
-				,estimation.Price
-				,CONVERT(NVARCHAR(255), estimation.EstimationDate, 121) estimationDate
-				,estimation.Confirmed confirmed
-		  FROM [InsuranceDB].[dbo].[Estimations] estimation
-		  ORDER BY estimationDate DESC
-			""")
-	public Flux<Estimation> findAll();
-	@Override
-	@Query("""
-		SELECT estimation.Id id
-				,estimation.InsuranceId
-				,estimation.ParameterId
-				,estimation.Price
-				,CONVERT(NVARCHAR(255), estimation.EstimationDate, 121) estimationDate
-				,estimation.Confirmed confirmed
-		  FROM [InsuranceDB].[dbo].[Estimations] estimation
-		  WHERE estimation.Id = :id
-			""")
-	public Mono<Estimation> findById(Integer id);
 }

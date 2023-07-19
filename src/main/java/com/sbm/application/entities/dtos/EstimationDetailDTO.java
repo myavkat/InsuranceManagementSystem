@@ -1,5 +1,7 @@
 package com.sbm.application.entities.dtos;
 
+import java.time.OffsetDateTime;
+
 import lombok.Data;
 
 @Data
@@ -13,7 +15,7 @@ public class EstimationDetailDTO {
 	private int parameterId;
 	private String parameterName;
 	private double price;
-	private String estimationDate;
+	private OffsetDateTime estimationDate;
 	private boolean confirmed;
 
 }
