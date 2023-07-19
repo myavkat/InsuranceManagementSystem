@@ -66,10 +66,21 @@ public class CustomerController {
 			return "app";
 		}
 		customer.setId(id);
-		customerService.save(customer);
-		model.addAttribute("toastSuccess", true);
-		model.addAttribute("toastMessage", "Müşteri kaydedildi.");
-		return list(model);
+		var saveResult = customerService.save(customer);
+		if (saveResult.isSuccess()) {
+			model.addAttribute("toastSuccess", true);
+			model.addAttribute("toastMessage", "Müşteri kaydedildi.");
+			return list(model);
+		}
+		else {
+			model.addAttribute("toastError", true);
+			model.addAttribute("toastMessage", saveResult.getMessage());
+			model.addAttribute("controller", controllerName);
+			model.addAttribute("professions", professionService.getAll().getData());
+			model.addAttribute("cities", cityService.getAll().getData());
+			model.addAttribute("page", "save");
+			return "app";
+		}
 	}
 
 	@GetMapping("/list")

@@ -13,6 +13,9 @@ import reactor.core.publisher.Mono;
 @Repository
 public interface CustomerRepository extends EntityRepository<Customer>{
 	
+	@Query("Select * from Customers Where Customers.TC = :tc")
+	public Flux<Customer> findByTC(String tc);
+	
 	@Query("""
 		SELECT customer.[Id] 
 		      ,[ProfessionId] profession_id

@@ -38,6 +38,13 @@ public class CustomerManager implements CustomerService {
 	@Override
 	public Result save(Customer customer) {
 		try {
+			List<Customer> customersWithSameTC = new ArrayList<Customer>();
+			customerRepository.findByTC(customer.getTc()).doOnNext(customersWithSameTC::add).blockLast();
+			for (Customer customerWithSameTC : customersWithSameTC) {
+				if (customerWithSameTC.getId() != customer.getId()) {
+					return new ErrorResult("Bu TC ile kayıtlı %s var".formatted(entityName));
+				}
+			}
 			if (customer.getId() == 0) {
 				customerRepository.save(customer).block(Duration.ofSeconds(1));
 				return new SuccessResult("%s eklendi".formatted(entityName));
@@ -116,7 +123,8 @@ public class CustomerManager implements CustomerService {
 			return new SuccessDataResult<List<CustomerDetailDTO>>(customerDetails, "Başarılı");
 		} catch (RuntimeException ex) {
 			logger.error(ExceptionUtils.getStackTrace(ex));
-			return new ErrorDataResult<List<CustomerDetailDTO>>(customerDetails, "Beklenmeyen bir hatayla karşılaşıldı!");
+			return new ErrorDataResult<List<CustomerDetailDTO>>(customerDetails,
+					"Beklenmeyen bir hatayla karşılaşıldı!");
 		}
 	}
 
