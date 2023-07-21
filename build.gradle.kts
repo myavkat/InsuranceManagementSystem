@@ -50,3 +50,7 @@ dependencies {
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
+
+tasks.named<War>("war") {
+  enabled = false
+}
