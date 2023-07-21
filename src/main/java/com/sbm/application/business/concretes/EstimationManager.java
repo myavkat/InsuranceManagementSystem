@@ -178,6 +178,7 @@ public class EstimationManager implements EstimationService {
 
 	public DataResult<List<EstimationDetailDTO>> estimateKaskoAllCompanies(int vehicleId) {
 		List<Estimation> estimations = new ArrayList<Estimation>();
+		List<Integer> oldEstimationIds = new ArrayList<Integer>();
 		List<EstimationDetailDTO> details = new ArrayList<EstimationDetailDTO>();
 		var insurancesResult = insuranceService.getInsuranceDetailsByInsuranceTypeName("Kasko");
 		if (!insurancesResult.isSuccess()) {
@@ -192,6 +193,8 @@ public class EstimationManager implements EstimationService {
 			}
 		}
 		try {
+			estimationRepository.findKaskoDetailsByVehicleId(vehicleId).doOnNext(e-> oldEstimationIds.add(e.getId())).blockLast();
+			estimationRepository.deleteAllById(oldEstimationIds).block();
 			estimationRepository.saveAll(estimations).blockLast(Duration.ofSeconds(3));
 			for (Estimation estimation : estimations) {
 				estimationRepository.findKaskoDetailById(estimation.getId()).doOnNext(details::add).block();

@@ -8,8 +8,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.sbm.application.business.abstracts.CustomerService;
 import com.sbm.application.business.abstracts.EstimationService;
@@ -34,12 +36,22 @@ public class EstimationController {
 			@RequestParam(required = false) Integer vehicleId) {
 		model.addAttribute("controller", controllerName);
 		model.addAttribute("page", "kasko");
-		if (customerId == null && vehicleId == null) {
+		if (customerId == null && vehicleId == null) {// Müşteri ve araç seçilmemişse
 			model.addAttribute("customers", customerService.getCustomerDetails().getData());
 			return "app";
-		} else if (vehicleId == null) {
+		} else if (vehicleId == null) { // Sadece araç seçilmemişse
+			model.addAttribute("customers", customerService.getCustomerDetails().getData());
 			model.addAttribute("vehicles", vehicleService.getVehiclesByCustomerId(customerId).getData());
+			model.addAttribute("customerId", customerId);
 			return "app";
+		} else { // Araç seçilmiş ama müşteri değiştirilmişse
+			var vehicleResult = vehicleService.getById(vehicleId);
+			if (vehicleResult.isSuccess() && vehicleResult.getData().getCustomerId() != customerId) {
+				model.addAttribute("customers", customerService.getCustomerDetails().getData());
+				model.addAttribute("vehicles", vehicleService.getVehiclesByCustomerId(customerId).getData());
+				model.addAttribute("customerId", customerId);
+				return "app";
+			}
 		}
 		var result = estimationService.estimateKaskoAllCompanies(vehicleId);
 		if (!result.isSuccess()) {
@@ -96,11 +108,11 @@ public class EstimationController {
 		model.addAttribute("toastMessage", confirmResult.getMessage());
 		return list(model, null, null);
 	}
-	
+
 	@GetMapping("/delete/{id}")
 	public String delete(Model model, @PathVariable int id) {
 		var deleteResult = estimationService.deleteById(id);
-		if(!deleteResult.isSuccess()) {
+		if (!deleteResult.isSuccess()) {
 			model.addAttribute("toastError", true);
 			model.addAttribute("toastMessage", deleteResult.getMessage());
 			return list(model, null, null);
@@ -108,6 +120,18 @@ public class EstimationController {
 		model.addAttribute("toastSuccess", true);
 		model.addAttribute("toastMessage", deleteResult.getMessage());
 		return list(model, null, null);
+	}
+	
+	@PostMapping("/checkOldOffers")
+	@ResponseBody
+	// returns true if there is offers for vehicle
+	// false otherwise
+	public boolean checkOldOffers(@RequestBody int vehicleId) {
+		var result = estimationService.getDetailsByVehicleId(vehicleId);
+		if(!result.isSuccess() || result.getData().size()>0) {
+			return true;
+		}
+		return false;
 	}
 
 }

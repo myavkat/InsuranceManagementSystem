@@ -1,23 +1,20 @@
 <form action="#" th:action="'/estimations/kasko'" method="GET">
 	<div class="row align-items-center" th:if="${customers!=null}">
 		<div class="form-floating col-4 p-1">
-			<select id="customerSelect" class="form-select" th:name="customerId">
+			<select id="customerSelect" class="form-select" name="customerId">
 				<option th:each="c : ${customers}" th:value="${c.id}"
-					th:text="${c.firstName + ' ' + c.lastName + ' ' + c.tc}" />
+					th:text="${c.firstName + ' ' + c.lastName + ' ' + c.tc}"
+					th:selected="${customerId!=null and c.id == customerId}" />
 			</select> <label for="customerSelect">Müşteri Seçiniz:</label>
 		</div>
-		<div class="col-3 p-1">
-			<a class="btn btn-secondary" href="/customers/add">Yeni Müşteri</a>
-		</div>
-		<div class="col-12 p-1">
+		<div class="col-2 p-1">
 			<button class="btn btn-warning" type=submit>Araçları Getir</button>
+		</div>
+		<div class="col-2 p-1">
+			<a class="btn btn-secondary" href="/customers/add">Yeni Müşteri</a>
 		</div>
 	</div>
 	<div class="row align-items-center" th:if="${vehicles!=null}">
-		<div class="col-12 p-1">
-			<a th:href="'/estimations/kasko'" class="btn btn-secondary">
-				Müşteri Seçimine Geri Dön</a>
-		</div>
 		<div class="form-floating col-6 p-1">
 			<select id="vehicleSelect" class="form-select" th:name="vehicleId">
 				<option th:each="v : ${vehicles}" th:value="${v.id}"
@@ -28,23 +25,73 @@
 			<a class="btn btn-secondary" href="/vehicles/add">Yeni Araç</a>
 		</div>
 		<div class="col-12 p-1">
-			<button class="btn btn-primary" type=submit>Hesapla</button>
+			<button class="btn btn-primary" type="button" onclick="checkOldOffers()">Hesapla</button>
 		</div>
 	</div>
+	<div class="modal fade" id="confirmationModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalToggleLabel">Onay</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        Bu sigortalananın eski tekliflerinin silinmesini ve yeni teklifler oluşturulmasını onaylıyor musunuz?
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" type="button" onclick="estimate()">Evet</button>
+      </div>
+    </div>
+  </div>
+</div>
 </form>
 <div class="row align-items-center" th:if="${estimations!=null}">
 	<div class="card col-3 m-2" th:each="estimation : ${estimations}">
 		<div class="card-body">
 			<h5 class="card-title" th:text="${estimation.insuranceCompanyName}"></h5>
-			<h6 class="card-subtitle mb-2 text-body-secondary" th:text="${estimation.insuranceTypeName}"></h6>
+			<h6 class="card-subtitle mb-2 text-body-secondary"
+				th:text="${estimation.insuranceTypeName}"></h6>
 			<p class="card-text"
 				th:text="'Fiyat: ' + ${#numbers.formatDecimal(estimation.price, 1, 'POINT', 2, 'COMMA')} + ' TRY'" />
-			<a th:href="'/estimations/confirm/' + ${estimation.id}" class="btn btn-success"><i class="fa-solid fa-check"></i></a>
+			<a th:href="'/estimations/confirm/' + ${estimation.id}"
+				class="btn btn-success"><i class="fa-solid fa-check"></i></a>
 		</div>
 	</div>
 	<div class="col-12 row">
-		<span class="col-9 lead mt-3">Teklifler kaydedilmiştir. Teklifler listesinden ulaşabilirsiniz.</span>
-		<a th:href="'/estimations/kasko'" class="col-3 btn btn-secondary my-2">Yeni
-			Fiyat Teklifi</a>
+		<span class="col-9 lead mt-3">Teklifler kaydedilmiştir. <a
+			href="/estimations/list">Teklifler</a> listesinden ulaşabilirsiniz.
+		</span> <a th:href="'/estimations/kasko'"
+			class="col-3 btn btn-secondary my-2">Yeni Fiyat Teklifi</a>
 	</div>
 </div>
+
+<script>
+	function checkOldOffers() {
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				if (this.responseText == "true") {
+					const confirmationModal = new bootstrap.Modal(document
+							.getElementById('confirmationModal'), {
+						keyboard : true,
+						focus : true
+					});
+					confirmationModal.toggle();
+				}
+				else if(this.responseText == "false"){
+					estimate();
+				}
+			}
+		};
+		xhttp.open("POST", "/estimations/checkOldOffers", true);
+		xhttp.setRequestHeader("Content-type",
+				"application/json");
+		xhttp.send(parseInt(document.getElementById("vehicleSelect").value));
+	}
+	function estimate(){
+		window.location.href = "/estimations/kasko?customerId="+
+				document.getElementById("customerSelect").value+
+				"&vehicleId="+
+				document.getElementById("vehicleSelect").value;
+	}
+</script>
