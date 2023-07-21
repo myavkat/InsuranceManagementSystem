@@ -8,7 +8,7 @@ group = "com.sbm"
 version = "0.0.1-SNAPSHOT"
 
 java {
-	sourceCompatibility = JavaVersion.VERSION_HIGHER
+	sourceCompatibility = JavaVersion.VERSION_20
 }
 
 repositories {
@@ -42,6 +42,8 @@ dependencies {
   compileOnly("org.webjars.npm:izitoast:1.4.0")
   
 	compileOnly("org.projectlombok:lombok:1.18.28")
+	
+  annotationProcessor("org.projectlombok:lombok:1.18.28")
 }
 
 tasks.withType<Test> {
