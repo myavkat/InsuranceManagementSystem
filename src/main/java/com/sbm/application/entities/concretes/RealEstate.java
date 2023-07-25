@@ -1,7 +1,10 @@
 package com.sbm.application.entities.concretes;
 
+import java.time.OffsetDateTime;
+
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import com.sbm.application.entities.abstracts.Entity;
 

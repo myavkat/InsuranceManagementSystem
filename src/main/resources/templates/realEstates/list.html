@@ -1,0 +1,65 @@
+<div class="row">
+	<p class="h2 col-10 my-4">Emlak Listesi</p>
+	<a class="btn btn-primary col-2 my-4" href="/realEstates/add">Emlak
+		Ekle</a>
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th scope="col">Id</th>
+				<th scope="col">UAVT Kodu</th>
+				<th scope="col">Birim İnşa Maliyeti Id</th>
+        <th scope="col">Şehir</th>
+        <th scope="col">Müşteri</th>
+        <th scope="col">Değeri</th>
+        <th scope="col">Yüz Ölçümü</th>
+        <th scope="col">Yapım Yılı</th>
+        <th scope="col">Adresi</th>
+        <th scope="col">Konumu</th>
+				<th scope="col">İşlemler</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="realEstate : ${realEstates}">
+        <th scope="row" th:text="${realEstate.id}"></th>
+        <th scope="row" th:text="${realEstate.uavt}"></th>
+        <th scope="row" th:text="${realEstate.unitConstructionCostId}"></th>
+        <th scope="row" th:text="${realEstate.cityId}"></th>
+				<td scope="row" th:text="${realEstate.customerId}"></td>
+        <td scope="row" th:text="${realEstate.value}"></td>
+        <td scope="row" th:text="${realEstate.floorArea}"></td>
+        <td scope="row" th:text="${realEstate.constructionYear}"></td>
+        <td scope="row" th:text="${realEstate.address}"></td>
+        <td scope="row" th:text="${realEstate.urbanLocated?'Merkezde':'Kırsalda'}"></td>
+
+				<td><a class="btn btn-success"
+					th:href="'/estimations/list?realEstateId=' + ${realEstate.id}">Teklifler</a>
+					<a class="btn btn-warning"
+					th:href="'/realEstates/edit/' + ${realEstate.id}"> Düzenle </a>
+					<button type="button" class="btn btn-danger" data-bs-toggle="modal"
+						th:data-bs-target="'#deleteModal-' + ${realEstate.id}">Sil</button>
+					<div class="modal fade" th:id="'deleteModal-' + ${realEstate.id}"
+						tabindex="-1">
+						<div class="modal-dialog">
+							<div class="modal-content">
+								<div class="modal-header">
+									<h5 class="modal-title" id="exampleModalLabel">Emlak
+										Silinsin mi?</h5>
+									<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+								</div>
+								<div class="modal-body">
+									Emlağı silmek istiyor musunuz? <strong>Bu işlem geri
+										alınamaz.</strong>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-secondary"
+										data-bs-dismiss="modal">İptal</button>
+									<a class="btn btn-primary"
+										th:href="'/realEstates/delete/' + ${realEstate.id}">Aracı Sil</a>
+								</div>
+							</div>
+						</div>
+					</div></td>
+			</tr>
+		</tbody>
+	</table>
+</div>
