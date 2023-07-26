@@ -44,7 +44,7 @@ public class RealEstate extends Entity {
 	@Column("Address")
 	private String address;
 	@NotNull(message = "Boş geçilemez!")
-	@Column("UrbanLocation")
+	@Column("UrbanLocated")
 	private boolean urbanLocated;
 
 }

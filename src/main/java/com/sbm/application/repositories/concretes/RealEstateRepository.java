@@ -31,7 +31,7 @@ public interface RealEstateRepository extends EntityRepository<RealEstate> {
 		      ,realEstate.[FloorArea] as floor_area
 		      ,realEstate.[ConstructionYear] as construction_year
 		      ,realEstate.[Address] as "address"
-		      ,realEstate.[UrbanLocation] as urban_location
+		      ,realEstate.[UrbanLocated] as urban_located
 		  FROM [InsuranceDB].[dbo].[RealEstates] realEstate
 		  JOIN [InsuranceDB].[dbo].[RealEstateUnitConstructionCosts] unitConstructionCost ON unitConstructionCost.Id = realEstate.UnitConstructionCostId
 		  JOIN [InsuranceDB].[dbo].[RealEstateLuxuryClasses] luxuryClass ON luxuryClass.Id = unitConstructionCost.LuxuryClassId
@@ -58,7 +58,7 @@ public interface RealEstateRepository extends EntityRepository<RealEstate> {
 			      ,realEstate.[FloorArea] as floor_area
 			      ,realEstate.[ConstructionYear] as construction_year
 			      ,realEstate.[Address] as "address"
-			      ,realEstate.[UrbanLocation] as urban_location
+			      ,realEstate.[UrbanLocated] as urban_located
 			  FROM [InsuranceDB].[dbo].[RealEstates] realEstate
 			  JOIN [InsuranceDB].[dbo].[RealEstateUnitConstructionCosts] unitConstructionCost ON unitConstructionCost.Id = realEstate.UnitConstructionCostId
 			  JOIN [InsuranceDB].[dbo].[RealEstateLuxuryClasses] luxuryClass ON luxuryClass.Id = unitConstructionCost.LuxuryClassId
