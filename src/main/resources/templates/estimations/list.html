@@ -13,7 +13,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			<tr th:each="estimationDetail : ${estimationDetails}" th:class="${estimationDetail.confirmed?'table-success':''}">
+			<tr th:each="estimationDetail : ${estimationDetails}" th:class="${estimationDetail.confirmed?'table-success':''}" th:id="${estimationDetail.id}">
 				<th scope="row" th:text="${estimationDetail.id}"></th>
 				<td th:text="${estimationDetail.insuranceTypeName}"></td>
 				<td th:text="${estimationDetail.insuranceCompanyName}"></td>
@@ -21,19 +21,55 @@
 				<td th:text="${estimationDetail.price + ' TRY'}"></td>
 				<td	th:text="${#temporals.format(estimationDetail.estimationDate, 'dd MMMM yyyy HH:mm')}"></td>
 				<td>
-					<a class="btn btn-success" th:if="${!estimationDetail.confirmed}" 
-					  th:href="'/estimations/confirm/' + ${estimationDetail.id}">
+					<button class="btn btn-success" type="button" onclick="confirmEstimation(this)" th:if="${!estimationDetail.confirmed}">
 						<i class="fa-solid fa-check"></i>
-					</a>
-					<a class="btn btn-warning" th:if="${estimationDetail.confirmed}" 
-					  th:href="'/estimations/revokeConfirmation/' + ${estimationDetail.id}">
+					</button>
+					<button class="btn btn-warning" onclick="revokeConfirmation(this)" th:if="${estimationDetail.confirmed}">
 					  <i class="fa-solid fa-rotate-left"></i>
-					</a>
-					<a class="btn btn-danger" th:href="'/estimations/delete/' + ${estimationDetail.id}">
+					</button>
+					<button class="btn btn-danger" onclick="deleteEstimation(this)">
 					  <i class="fa-solid fa-trash"></i>
-					</a>
+					</button>
 				</td>
 			</tr>
 		</tbody>
 	</table>
 </div>
+<script>
+  function confirmEstimation(btn){
+	  var xhttp = new XMLHttpRequest();
+	  xhttp.onreadystatechange = function() {
+	    if (this.readyState == 4 && this.status == 200) {
+            window.location.reload();
+	    }
+	  }
+	  xhttp.open("POST", "/estimations/confirm", true);
+	  xhttp.setRequestHeader("Content-type",
+      "application/json");
+	  xhttp.send(parseInt(btn.parentElement.parentElement.id));
+  }
+  function revokeConfirmation(btn){
+	    var xhttp = new XMLHttpRequest();
+	    xhttp.onreadystatechange = function() {
+	      if (this.readyState == 4 && this.status == 200) {
+	          window.location.reload();
+	      }
+	    }
+	    xhttp.open("POST", "/estimations/revokeConfirmation", true);
+	    xhttp.setRequestHeader("Content-type",
+	      "application/json");
+	    xhttp.send(parseInt(btn.parentElement.parentElement.id));
+	  }
+  function deleteEstimation(btn){
+	    var xhttp = new XMLHttpRequest();
+	    xhttp.onreadystatechange = function() {
+	      if (this.readyState == 4 && this.status == 200) {
+	    	    window.location.reload();
+	      }
+	    }
+	    xhttp.open("POST", "/estimations/delete", true);
+	    xhttp.setRequestHeader("Content-type",
+	      "application/json");
+	    xhttp.send(parseInt(btn.parentElement.parentElement.id));
+	  }
+</script>

@@ -56,6 +56,7 @@ public class EstimationController {
 				return "app";
 			}
 		}
+		model.addAttribute("vehicleId", vehicleId);
 		var result = estimationService.estimateKaskoAllCompanies(vehicleId);
 		if (!result.isSuccess()) {
 			model.addAttribute("toastError", true);
@@ -67,13 +68,17 @@ public class EstimationController {
 	}
 
 	@GetMapping("/list")
-	public String list(Model model, @RequestParam(required = false) Integer customerId,
-			@RequestParam(required = false) Integer vehicleId) {
+	public String list(Model model, 
+			@RequestParam(required = false) Integer customerId,
+			@RequestParam(required = false) Integer vehicleId,
+			@RequestParam(required = false) Integer realEstateId) {
 		DataResult<List<EstimationDetailDTO>> estimationResult;
 		if (vehicleId != null) {
 			estimationResult = estimationService.getKaskoDetailsByVehicleId(vehicleId);
 		} else if (customerId != null) {
 			estimationResult = estimationService.getDetailsByCustomerId(customerId);
+		} else if(realEstateId!=null) {
+			estimationResult = estimationService.getKonutDetailsByRealEstateId(realEstateId);
 		} else {
 			estimationResult = estimationService.getDetails();
 		}
@@ -86,43 +91,25 @@ public class EstimationController {
 		return "app";
 	}
 
-	@GetMapping("/confirm/{id}")
-	public String confirm(Model model, @PathVariable int id) {
+	@PostMapping("/confirm")
+	@ResponseBody
+	public boolean confirm(@RequestBody int id) {
 		var confirmResult = estimationService.confirmById(id);
-		if (confirmResult.isSuccess()) {
-			model.addAttribute("toastSuccess", true);
-			model.addAttribute("toastMessage", "Teklif kabul edildi");
-			return list(model, null, null);
-		}
-		model.addAttribute("toastError", true);
-		model.addAttribute("toastMessage", confirmResult.getMessage());
-		return list(model, null, null);
+		return confirmResult.isSuccess();
 	}
 
-	@GetMapping("/revokeConfirmation/{id}")
-	public String revoke(Model model, @PathVariable int id) {
-		var confirmResult = estimationService.revokeConfirmationById(id);
-		if (confirmResult.isSuccess()) {
-			model.addAttribute("toastSuccess", true);
-			model.addAttribute("toastMessage", "Teklif onayı geri alındı");
-			return list(model, null, null);
-		}
-		model.addAttribute("toastError", true);
-		model.addAttribute("toastMessage", confirmResult.getMessage());
-		return list(model, null, null);
+	@PostMapping("/revokeConfirmation")
+	@ResponseBody
+	public boolean revoke(@RequestBody int id) {
+		var revokeResult = estimationService.revokeConfirmationById(id);
+		return revokeResult.isSuccess();
 	}
 
-	@GetMapping("/delete/{id}")
-	public String delete(Model model, @PathVariable int id) {
+	@PostMapping("/delete")
+	@ResponseBody
+	public boolean delete(@RequestBody int id) {
 		var deleteResult = estimationService.deleteById(id);
-		if (!deleteResult.isSuccess()) {
-			model.addAttribute("toastError", true);
-			model.addAttribute("toastMessage", deleteResult.getMessage());
-			return list(model, null, null);
-		}
-		model.addAttribute("toastSuccess", true);
-		model.addAttribute("toastMessage", deleteResult.getMessage());
-		return list(model, null, null);
+		return deleteResult.isSuccess();
 	}
 	
 	@PostMapping("/checkOldOffers")
@@ -159,6 +146,7 @@ public class EstimationController {
 				return "app";
 			}
 		}
+		model.addAttribute("realEstateId", realEstateId);
 		var result = estimationService.estimateKonutAllCompanies(realEstateId);
 		if (!result.isSuccess()) {
 			model.addAttribute("toastError", true);
