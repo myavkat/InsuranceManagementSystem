@@ -5,7 +5,9 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import com.sbm.application.entities.abstracts.Entity;
 
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -15,6 +17,7 @@ import lombok.EqualsAndHashCode;
 public class RealEstate extends Entity {
 
 	@NotNull(message = "Boş geçilemez!")
+	@Pattern(regexp="^\\d{10}$", message="UAVT kodu 10 haneli sayıdır")
 	@Column("UAVT")
 	private String uavt;
 	@NotNull(message = "Boş geçilemez!")
@@ -33,9 +36,11 @@ public class RealEstate extends Entity {
 	@Column("FloorArea")
 	private int floorArea;
 	@NotNull(message = "Boş geçilemez!")
+	@Pattern(regexp="^(19|20)\\d\\d$", message="Yıl geçersiz")
 	@Column("ConstructionYear")
 	private String constructionYear;
 	@NotNull(message = "Boş geçilemez!")
+	@NotEmpty(message= "Lütfen adres giriniz")
 	@Column("Address")
 	private String address;
 	@NotNull(message = "Boş geçilemez!")
