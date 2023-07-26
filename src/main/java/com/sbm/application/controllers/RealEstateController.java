@@ -92,8 +92,8 @@ public class RealEstateController {
 	public String list(Model model) {
 		model.addAttribute("controller", controllerName);
 		model.addAttribute("page", "list");
-		var result = realEstateService.getAll();
-		model.addAttribute("realEstates", result.getData());
+		var result = realEstateService.getAllDetails();
+		model.addAttribute("realEstateDetails", result.getData());
 		return "app";
 	}
 

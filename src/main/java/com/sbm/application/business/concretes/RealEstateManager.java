@@ -2,7 +2,9 @@ package com.sbm.application.business.concretes;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -18,6 +20,8 @@ import com.sbm.application.core.utilities.results.Result;
 import com.sbm.application.core.utilities.results.SuccessDataResult;
 import com.sbm.application.core.utilities.results.SuccessResult;
 import com.sbm.application.entities.concretes.RealEstate;
+import com.sbm.application.entities.dtos.EstimationDetailDTO;
+import com.sbm.application.entities.dtos.RealEstateDetailDTO;
 import com.sbm.application.repositories.concretes.RealEstateRepository;
 
 @Service
@@ -30,6 +34,20 @@ public class RealEstateManager implements RealEstateService {
 	@Override
 	public Result save(RealEstate entity) {
 		try {
+			/*
+			 * UAVT CHECK
+			 * */
+			Set<RealEstate> realEstatesWithSameIdentifier = new HashSet<RealEstate>();
+			realEstateRepository.findAllByUAVT(entity.getUavt()).doOnNext(realEstatesWithSameIdentifier::add).blockLast();
+			realEstatesWithSameIdentifier.removeIf(re -> re.getId()== entity.getId());
+			for(RealEstate realEstateWithSameIdentifier: realEstatesWithSameIdentifier) {
+				if(realEstateWithSameIdentifier.getUavt().contentEquals(entity.getUavt())) {
+					return new ErrorResult("UAVT kodu ile kayıtlı %s var".formatted(entityName));
+				}
+			}
+			/*
+			 * END UAVT CHECK
+			 * */
 			if (entity.getId() == 0) {
 				realEstateRepository.save(entity).block(Duration.ofSeconds(1));
 				return new SuccessResult("%s eklendi".formatted(entityName));
@@ -97,6 +115,33 @@ public class RealEstateManager implements RealEstateService {
 			logger.error(ExceptionUtils.getStackTrace(ex));
 			return new ErrorDataResult<List<RealEstate>>(realEstates, "Beklenmeyen bir hatayla karşılaşıldı!");
 		}
+	}
+
+	@Override
+	public DataResult<List<RealEstateDetailDTO>> getAllDetails() {
+		List<RealEstateDetailDTO> details = new ArrayList<RealEstateDetailDTO>();
+		try {
+			realEstateRepository.findAllDetails().doOnNext(details::add).blockLast(Duration.ofSeconds(10));
+			return new SuccessDataResult<List<RealEstateDetailDTO>>(details, "Başarılı");
+		} catch (RuntimeException ex) {
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorDataResult<List<RealEstateDetailDTO>>(details, "Beklenmeyen bir hatayla karşılaşıldı!");
+		}
+	}
+
+	@Override
+	public DataResult<RealEstateDetailDTO> getDetailById(int id) {
+		RealEstateDetailDTO detail = new RealEstateDetailDTO();
+		try {
+			detail = realEstateRepository.findDetailById(id).block(Duration.ofSeconds(1));
+		} catch (RuntimeException ex) {
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorDataResult<RealEstateDetailDTO>(detail, "Beklenmeyen bir hatayla karşılaşıldı!");
+		}
+		if (detail == null) {
+			return new ErrorDataResult<RealEstateDetailDTO>(new RealEstateDetailDTO(), "%s Bulunamadı!".formatted(entityName));
+		}
+		return new SuccessDataResult<RealEstateDetailDTO>(detail, "Başarılı");
 	}
 
 }
