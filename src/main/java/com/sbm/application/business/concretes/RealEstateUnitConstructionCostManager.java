@@ -18,7 +18,6 @@ import com.sbm.application.core.utilities.results.Result;
 import com.sbm.application.core.utilities.results.SuccessDataResult;
 import com.sbm.application.core.utilities.results.SuccessResult;
 import com.sbm.application.entities.concretes.RealEstateUnitConstructionCost;
-import com.sbm.application.entities.dtos.RealEstateDetailDTO;
 import com.sbm.application.entities.dtos.RealEstateUnitConstructionCostDetailDTO;
 import com.sbm.application.repositories.concretes.RealEstateUnitConstructionCostRepository;
 
