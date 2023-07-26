@@ -7,7 +7,7 @@
   </div>
   <div class="form-floating col-3 p-1">
     <select id="unitConstructionCostSelect" class="form-select" th:field="*{unitConstructionCostId}">
-      <option th:each="uCC : ${unitConstructionCosts}" th:value="${uCC.id}" th:text="${uCC.id}"/>
+      <option th:each="uCC : ${unitConstructionCosts}" th:value="${uCC.id}" th:text="${uCC.unitConstructionCostTag}"/>
     </select>
     <label for="unitConstructionCostSelect">Birim İnşa Maliyeti:</label>
     <div th:if="${#fields.hasErrors('unitConstructionCostId')}" th:errors="*{unitConstructionCostId}"></div>

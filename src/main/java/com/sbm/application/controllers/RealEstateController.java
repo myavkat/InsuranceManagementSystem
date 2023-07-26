@@ -36,7 +36,7 @@ public class RealEstateController {
 		model.addAttribute("controller", controllerName);
 		model.addAttribute("cityDetails", cityService.getAll().getData());
 		model.addAttribute("customerDetails", customerService.getCustomerDetails().getData());
-		model.addAttribute("unitConstructionCosts", unitConstructionCostService.getAll().getData());
+		model.addAttribute("unitConstructionCosts", unitConstructionCostService.getAllDetails().getData());
 		model.addAttribute("page", "save");
 		return "app";
 	}
@@ -49,7 +49,7 @@ public class RealEstateController {
 			model.addAttribute("controller", controllerName);
 			model.addAttribute("cityDetails", cityService.getAll().getData());
 			model.addAttribute("customerDetails", customerService.getCustomerDetails().getData());
-			model.addAttribute("unitConstructionCosts", unitConstructionCostService.getAll().getData());
+			model.addAttribute("unitConstructionCosts", unitConstructionCostService.getAllDetails().getData());
 			model.addAttribute("page", "save");
 			return "app";
 		}
@@ -68,7 +68,7 @@ public class RealEstateController {
 			model.addAttribute("controller", controllerName);
 			model.addAttribute("cityDetails", cityService.getAll().getData());
 			model.addAttribute("customerDetails", customerService.getCustomerDetails().getData());
-			model.addAttribute("unitConstructionCosts", unitConstructionCostService.getAll().getData());
+			model.addAttribute("unitConstructionCosts", unitConstructionCostService.getAllDetails().getData());
 			model.addAttribute("page", "save");
 			return "app";
 		}
@@ -80,7 +80,7 @@ public class RealEstateController {
 			model.addAttribute("controller", controllerName);
 			model.addAttribute("cityDetails", cityService.getAll().getData());
 			model.addAttribute("customerDetails", customerService.getCustomerDetails().getData());
-			model.addAttribute("unitConstructionCosts", unitConstructionCostService.getAll().getData());
+			model.addAttribute("unitConstructionCosts", unitConstructionCostService.getAllDetails().getData());
 			model.addAttribute("page", "save");
 			return "app";
 		}

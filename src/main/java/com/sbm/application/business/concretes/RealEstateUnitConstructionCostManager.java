@@ -18,6 +18,8 @@ import com.sbm.application.core.utilities.results.Result;
 import com.sbm.application.core.utilities.results.SuccessDataResult;
 import com.sbm.application.core.utilities.results.SuccessResult;
 import com.sbm.application.entities.concretes.RealEstateUnitConstructionCost;
+import com.sbm.application.entities.dtos.RealEstateDetailDTO;
+import com.sbm.application.entities.dtos.RealEstateUnitConstructionCostDetailDTO;
 import com.sbm.application.repositories.concretes.RealEstateUnitConstructionCostRepository;
 
 @Service
@@ -100,4 +102,15 @@ public class RealEstateUnitConstructionCostManager implements RealEstateUnitCons
 		}
 	}
 
+	@Override
+	public DataResult<List<RealEstateUnitConstructionCostDetailDTO>> getAllDetails() {
+		List<RealEstateUnitConstructionCostDetailDTO> details = new ArrayList<RealEstateUnitConstructionCostDetailDTO>();
+		try {
+			unitConstructionCostRepository.findAllDetails().doOnNext(details::add).blockLast(Duration.ofSeconds(10));
+			return new SuccessDataResult<List<RealEstateUnitConstructionCostDetailDTO>>(details, "Başarılı");
+		} catch (RuntimeException ex) {
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorDataResult<List<RealEstateUnitConstructionCostDetailDTO>>(details, "Beklenmeyen bir hatayla karşılaşıldı!");
+		}
+	}
 }
