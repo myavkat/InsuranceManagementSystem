@@ -14,11 +14,11 @@ import lombok.EqualsAndHashCode;
 public class RealEstateUnitConstructionCost extends Entity {
 
 	@Column("LuxuryClassId")
-	public int luxuryClassId;
+	private int luxuryClassId;
 	@Column("ConstructionTypeId")
-	public int constructionTypeId;
+	private int constructionTypeId;
 	@Column("UsageTypeId")
-	public int usageTypeId;
+	private int usageTypeId;
 	@Column("UnitConstructionCost")
-	public double unitConstructionCost;
+	private double unitConstructionCost;
 }

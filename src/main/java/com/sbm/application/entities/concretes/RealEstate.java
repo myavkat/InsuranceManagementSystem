@@ -1,10 +1,7 @@
 package com.sbm.application.entities.concretes;
 
-import java.time.OffsetDateTime;
-
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import com.sbm.application.entities.abstracts.Entity;
 
@@ -17,22 +14,22 @@ import lombok.EqualsAndHashCode;
 public class RealEstate extends Entity {
 
 	@Column("UAVT")
-	public String uavt;
+	private String uavt;
 	@Column("UnitConstructionCostId")
-	public int unitConstructionCostId;
+	private int unitConstructionCostId;
 	@Column("CityId")
-	public int cityId;
+	private int cityId;
 	@Column("CustomerId")
-	public int customerId;
+	private int customerId;
 	@Column("Value")
-	public double value;
+	private double value;
 	@Column("FloorArea")
-	public int floorArea;
+	private int floorArea;
 	@Column("ConstructionYear")
-	public String constructionYear;
+	private String constructionYear;
 	@Column("Address")
-	public String address;
+	private String address;
 	@Column("UrbanLocation")
-	public boolean urbanLocated;
-	
+	private boolean urbanLocated;
+
 }

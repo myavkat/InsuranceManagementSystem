@@ -15,5 +15,5 @@ public class RealEstateLuxuryClass extends Entity {
 
 
 	@Column("LuxuryClassName")
-	public String LuxuryClassName;
+	private String LuxuryClassName;
 }

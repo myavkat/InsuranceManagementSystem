@@ -14,5 +14,5 @@ import lombok.EqualsAndHashCode;
 public class RealEstateConstructionType extends Entity {
 
 	@Column("ConstructionTypeName")
-	public String ConstructionTypeName;
+	private String ConstructionTypeName;
 }
