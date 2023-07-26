@@ -53,13 +53,11 @@
 				th:text="${estimation.insuranceTypeName}"></h6>
 			<p class="card-text"
 				th:text="${'Fiyat: ' + estimation.price + ' TRY'}" />
-			<a th:href="'/estimations/confirm/' + ${estimation.id}"
-				class="btn btn-success"><i class="fa-solid fa-check"></i></a>
 		</div>
 	</div>
 	<div class="col-12 row">
 		<span class="col-9 lead mt-3">Teklifler kaydedilmiştir. <a
-			href="/estimations/list">Teklifler</a> listesinden ulaşabilirsiniz.
+			th:href="'/estimations/list?vehicleId=' + ${vehicleId}">Teklifler</a> listesinden ulaşabilirsiniz.
 		</span> <a th:href="'/estimations/kasko'"
 			class="col-3 btn btn-secondary my-2">Yeni Fiyat Teklifi</a>
 	</div>
