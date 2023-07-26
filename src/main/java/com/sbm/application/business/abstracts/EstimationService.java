@@ -12,8 +12,11 @@ public interface EstimationService extends EntityService<Estimation> {
 	public DataResult<Estimation> estimateKasko(int insuranceId, int vehicleId); 
 	public DataResult<List<EstimationDetailDTO>> estimateKaskoAllCompanies(int vehicleId);
 	public DataResult<List<EstimationDetailDTO>> getDetails();
-	public DataResult<List<EstimationDetailDTO>> getDetailsByVehicleId(int vehicleId);
+	public DataResult<List<EstimationDetailDTO>> getKaskoDetailsByVehicleId(int vehicleId);
 	public DataResult<List<EstimationDetailDTO>> getDetailsByCustomerId(int customerId);
 	public Result confirmById(int id);
 	public Result revokeConfirmationById(int id);
+	public DataResult<Estimation> estimateKonut(int insuranceId, int realEstateId); 
+	public DataResult<List<EstimationDetailDTO>> estimateKonutAllCompanies(int realEstateId);
+	public DataResult<List<EstimationDetailDTO>> getKonutDetailsByRealEstateId(int realEstateId);
 }

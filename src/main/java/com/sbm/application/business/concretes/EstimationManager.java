@@ -16,7 +16,9 @@ import com.sbm.application.business.abstracts.CityService;
 import com.sbm.application.business.abstracts.CustomerService;
 import com.sbm.application.business.abstracts.EstimationService;
 import com.sbm.application.business.abstracts.InsuranceService;
+import com.sbm.application.business.abstracts.RealEstateService;
 import com.sbm.application.business.abstracts.VehicleService;
+import com.sbm.application.core.helpers.DateHelper;
 import com.sbm.application.core.utilities.results.DataResult;
 import com.sbm.application.core.utilities.results.ErrorDataResult;
 import com.sbm.application.core.utilities.results.ErrorResult;
@@ -45,6 +47,8 @@ public class EstimationManager implements EstimationService {
 	private CustomerService customerService;
 	@Autowired
 	private CityService cityService;
+	@Autowired
+	private RealEstateService realEstateService;
 
 	@Override
 	public Result save(Estimation estimation) {
@@ -211,6 +215,8 @@ public class EstimationManager implements EstimationService {
 		List<EstimationDetailDTO> details = new ArrayList<EstimationDetailDTO>();
 		try {
 			estimationRepository.findKaskoDetails().doOnNext(details::add).blockLast(Duration.ofSeconds(5));
+			estimationRepository.findKonutDetails().doOnNext(details::add).blockLast(Duration.ofSeconds(5));
+			details.sort((EstimationDetailDTO detail1, EstimationDetailDTO detail2) -> OffsetDateTime.timeLineOrder().reversed().compare(detail1.getEstimationDate(),detail2.getEstimationDate()));
 			return new SuccessDataResult<List<EstimationDetailDTO>>(details, "Başarılı");
 		} catch (RuntimeException ex) {
 			logger.error(ExceptionUtils.getStackTrace(ex));
@@ -232,7 +238,7 @@ public class EstimationManager implements EstimationService {
 	}
 
 	@Override
-	public DataResult<List<EstimationDetailDTO>> getDetailsByVehicleId(int vehicleId) {
+	public DataResult<List<EstimationDetailDTO>> getKaskoDetailsByVehicleId(int vehicleId) {
 		List<EstimationDetailDTO> details = new ArrayList<EstimationDetailDTO>();
 		try {
 			estimationRepository.findKaskoDetailsByVehicleId(vehicleId).doOnNext(details::add)
@@ -274,5 +280,71 @@ public class EstimationManager implements EstimationService {
 		}
 		return new ErrorResult("%s onayı geri alınamadı".formatted(entityName));
 
+	}
+
+	@Override
+	public DataResult<List<EstimationDetailDTO>> estimateKonutAllCompanies(int realEstateId) {
+		List<Estimation> estimations = new ArrayList<Estimation>();
+		List<Integer> oldEstimationIds = new ArrayList<Integer>();
+		List<EstimationDetailDTO> details = new ArrayList<EstimationDetailDTO>();
+		var insurancesResult = insuranceService.getInsuranceDetailsByInsuranceTypeName("Konut");
+		if (!insurancesResult.isSuccess()) {
+			return new ErrorDataResult<List<EstimationDetailDTO>>(details, insurancesResult.getMessage());
+		}
+		for (InsuranceDetailDTO insurance : insurancesResult.getData()) {
+			var estimationResult = estimateKonut(insurance.getId(), realEstateId);
+			if (!estimationResult.isSuccess()) {
+				return new ErrorDataResult<List<EstimationDetailDTO>>(details, estimationResult.getMessage());
+			} else {
+				estimations.add(estimationResult.getData());
+			}
+		}
+		try {
+			estimationRepository.findKonutDetailsByRealEstateId(realEstateId).doOnNext(e-> oldEstimationIds.add(e.getId())).blockLast();
+			estimationRepository.deleteAllById(oldEstimationIds).block();
+			estimationRepository.saveAll(estimations).blockLast(Duration.ofSeconds(3));
+			for (Estimation estimation : estimations) {
+				estimationRepository.findKonutDetailById(estimation.getId()).doOnNext(details::add).block();
+			}
+		} catch (RuntimeException ex) {
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorDataResult<List<EstimationDetailDTO>>(details, "Beklenmeyen bir hatayla karşılaşıldı!");
+		}
+		return new SuccessDataResult<List<EstimationDetailDTO>>(details, "Başarılı");
+	}
+
+	@Override
+	public DataResult<Estimation> estimateKonut(int insuranceId, int realEstateId) {
+		Estimation estimation = new Estimation();
+		// Fiyat tahmini objesinin boş alanlarını doldur
+		estimation.setEstimationDate(OffsetDateTime.now());
+		estimation.setInsuranceId(insuranceId);
+		estimation.setParameterId(realEstateId);
+		estimation.setConfirmed(false);
+		var insurance = insuranceService.getById(insuranceId).getData();
+		var realEstateDetail = realEstateService.getDetailById(realEstateId).getData();
+		var customer = customerService.getCustomerDetailById(realEstateDetail.getCustomerId()).getData();
+		double price = insurance.getUnitPrice() * (realEstateDetail.getFloorArea()*realEstateDetail.getUnitConstructionCost() + realEstateDetail.getValue())/2;
+		price *= 1+realEstateDetail.getCityScaleFactor();
+		price *= realEstateDetail.isUrbanLocated()? 0.9d : 1.5d;
+		price *= 1 + (DateHelper.getYearDifferenceFromNow(realEstateDetail.getConstructionYear())*0.01d);
+		price *= 1 + ((35-customer.getAge())*0.01d);// 35 yaş altında her yaş için %1 sürprim üstündeyse indirim
+		price *= 1 + (customer.getProfessionScaleFactor());
+		price += realEstateDetail.getCityValueFactor() + customer.getProfessionValueFactor();
+		estimation.setPrice(price);
+		return new SuccessDataResult<Estimation>(estimation);
+	}
+
+	@Override
+	public DataResult<List<EstimationDetailDTO>> getKonutDetailsByRealEstateId(int realEstateId) {
+		List<EstimationDetailDTO> details = new ArrayList<EstimationDetailDTO>();
+		try {
+			estimationRepository.findKonutDetailsByRealEstateId(realEstateId).doOnNext(details::add)
+					.blockLast(Duration.ofSeconds(5));
+			return new SuccessDataResult<List<EstimationDetailDTO>>(details, "Başarılı");
+		} catch (RuntimeException ex) {
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorDataResult<List<EstimationDetailDTO>>(details, "Beklenmeyen bir hatayla karşılaşıldı!");
+		}
 	}
 }

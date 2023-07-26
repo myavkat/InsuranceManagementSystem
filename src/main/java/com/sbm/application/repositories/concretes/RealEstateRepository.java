@@ -68,5 +68,8 @@ public interface RealEstateRepository extends EntityRepository<RealEstate> {
 			  JOIN [InsuranceDB].[dbo].[Cities] city on city.Id = realEstate.CityId
 			  WHERE realEstate.[Id] = :id
 				""")
-		public Mono<RealEstateDetailDTO> findDetailById(int id);
+	public Mono<RealEstateDetailDTO> findDetailById(int id);
+	
+	@Query("SELECT * FROM RealEstates WHERE RealEstates.CustomerId = :customerId")
+	public Flux<RealEstate> findAllByCustomerId(int customerId);
 }

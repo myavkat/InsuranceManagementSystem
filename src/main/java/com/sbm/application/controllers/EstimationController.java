@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.sbm.application.business.abstracts.CustomerService;
 import com.sbm.application.business.abstracts.EstimationService;
+import com.sbm.application.business.abstracts.RealEstateService;
 import com.sbm.application.business.abstracts.VehicleService;
 import com.sbm.application.core.utilities.results.DataResult;
 import com.sbm.application.entities.dtos.EstimationDetailDTO;
@@ -30,6 +31,8 @@ public class EstimationController {
 	private CustomerService customerService;
 	@Autowired
 	private VehicleService vehicleService;
+	@Autowired
+	private RealEstateService realEstateService;
 
 	@GetMapping("/kasko")
 	public String estimateKasko(Model model, @RequestParam(required = false) Integer customerId,
@@ -68,7 +71,7 @@ public class EstimationController {
 			@RequestParam(required = false) Integer vehicleId) {
 		DataResult<List<EstimationDetailDTO>> estimationResult;
 		if (vehicleId != null) {
-			estimationResult = estimationService.getDetailsByVehicleId(vehicleId);
+			estimationResult = estimationService.getKaskoDetailsByVehicleId(vehicleId);
 		} else if (customerId != null) {
 			estimationResult = estimationService.getDetailsByCustomerId(customerId);
 		} else {
@@ -124,14 +127,59 @@ public class EstimationController {
 	
 	@PostMapping("/checkOldOffers")
 	@ResponseBody
-	// returns true if there is offers for vehicle
+	// returns true if there is kasko offers for vehicle
 	// false otherwise
 	public boolean checkOldOffers(@RequestBody int vehicleId) {
-		var result = estimationService.getDetailsByVehicleId(vehicleId);
+		var result = estimationService.getKaskoDetailsByVehicleId(vehicleId);
 		if(!result.isSuccess() || result.getData().size()>0) {
 			return true;
 		}
 		return false;
 	}
+	
+	@GetMapping("/konut")
+	public String estimateKonut(Model model, @RequestParam(required = false) Integer customerId,
+			@RequestParam(required = false) Integer realEstateId) {
+		model.addAttribute("controller", controllerName);
+		model.addAttribute("page", "konut");
+		if (customerId == null && realEstateId == null) {// Müşteri ve emlak seçilmemişse
+			model.addAttribute("customers", customerService.getCustomerDetails().getData());
+			return "app";
+		} else if (realEstateId == null) { // Sadece emlak seçilmemişse
+			model.addAttribute("customers", customerService.getCustomerDetails().getData());
+			model.addAttribute("realEstates", realEstateService.getAllByCustomerId(customerId).getData());
+			model.addAttribute("customerId", customerId);
+			return "app";
+		} else { // Emlak seçilmiş ama müşteri değiştirilmişse
+			var realEstateResult = realEstateService.getById(realEstateId);
+			if (realEstateResult.isSuccess() && realEstateResult.getData().getCustomerId() != customerId) {
+				model.addAttribute("customers", customerService.getCustomerDetails().getData());
+				model.addAttribute("realEstates", realEstateService.getAllByCustomerId(customerId).getData());
+				model.addAttribute("customerId", customerId);
+				return "app";
+			}
+		}
+		var result = estimationService.estimateKonutAllCompanies(realEstateId);
+		if (!result.isSuccess()) {
+			model.addAttribute("toastError", true);
+			model.addAttribute("toastMessage", result.getMessage());
+			return "app";
+		}
+		model.addAttribute("estimations", result.getData());
+		return "app";
+	}
+	
+	@PostMapping("/konut/checkOldOffers")
+	@ResponseBody
+	// returns true if there is konut offers for real estate
+	// false otherwise
+	public boolean checkOldOffersKonut(@RequestBody int realEstateId) {
+		var result = estimationService.getKonutDetailsByRealEstateId(realEstateId);
+		if(!result.isSuccess() || result.getData().size()>0) {
+			return true;
+		}
+		return false;
+	}
+
 
 }

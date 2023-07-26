@@ -20,6 +20,7 @@ import com.sbm.application.core.utilities.results.Result;
 import com.sbm.application.core.utilities.results.SuccessDataResult;
 import com.sbm.application.core.utilities.results.SuccessResult;
 import com.sbm.application.entities.concretes.RealEstate;
+import com.sbm.application.entities.dtos.CustomerDetailDTO;
 import com.sbm.application.entities.dtos.RealEstateDetailDTO;
 import com.sbm.application.repositories.concretes.RealEstateRepository;
 
@@ -141,6 +142,18 @@ public class RealEstateManager implements RealEstateService {
 			return new ErrorDataResult<RealEstateDetailDTO>(new RealEstateDetailDTO(), "%s Bulunamadı!".formatted(entityName));
 		}
 		return new SuccessDataResult<RealEstateDetailDTO>(detail, "Başarılı");
+	}
+
+	@Override
+	public DataResult<List<RealEstate>> getAllByCustomerId(int customerId) {
+		List<RealEstate> realEstates = new ArrayList<RealEstate>();
+		try {
+			realEstateRepository.findAllByCustomerId(customerId).doOnNext(realEstates::add).blockLast(Duration.ofSeconds(10));
+			return new SuccessDataResult<List<RealEstate>>(realEstates, "Başarılı");
+		} catch (RuntimeException ex) {
+			logger.error(ExceptionUtils.getStackTrace(ex));
+			return new ErrorDataResult<List<RealEstate>>(realEstates, "Beklenmeyen bir hatayla karşılaşıldı!");
+		}
 	}
 
 }
