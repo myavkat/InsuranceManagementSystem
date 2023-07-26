@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.sbm.application.core.utilities.results.DataResult;
 import com.sbm.application.entities.concretes.RealEstate;
-import com.sbm.application.entities.dtos.CustomerDetailDTO;
 import com.sbm.application.entities.dtos.RealEstateDetailDTO;
 
 public interface RealEstateService extends EntityService<RealEstate> {

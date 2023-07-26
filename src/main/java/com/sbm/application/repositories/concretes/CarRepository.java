@@ -21,9 +21,7 @@ public interface CarRepository extends EntityRepository<Car> {
 				  ,engineSize.Size as engine_size
 				  ,carType.Name as car_type_name
 				  ,carBrand.Name + ' ' + carModel.Name + ' ' +  carPackage.Name as car_name
-			      ,(car.[ValueFactor] + engine.ValueFactor + carPackage.ValueFactor + fuelType.ValueFactor + engineSize.ValueFactor + carModel.ValueFactor + carBrand.ValueFactor + carType.ValueFactor) as value_factor
-			      ,(car.[ScaleFactor] + engine.ScaleFactor + carPackage.ScaleFactor + fuelType.ScaleFactor + engineSize.ScaleFactor + carModel.ScaleFactor + carBrand.ScaleFactor + carType.ScaleFactor)/8 as scale_factor
-			      ,car.[CarEngineId] as car_engine_id
+				  ,car.[CarEngineId] as car_engine_id
 			      ,car.[CarPackageId] as car_package_id
 				  ,engine.CarEngineSizeId as car_engine_size_id
 				  ,engine.CarFuelTypeId as car_fuel_type_id
@@ -49,9 +47,7 @@ public interface CarRepository extends EntityRepository<Car> {
 				  ,engineSize.Size as engine_size
 				  ,carType.Name as car_type_name
 				  ,carBrand.Name + ' ' + carModel.Name + ' ' +  carPackage.Name as car_name
-			      ,(car.[ValueFactor] + engine.ValueFactor + carPackage.ValueFactor + fuelType.ValueFactor + engineSize.ValueFactor + carModel.ValueFactor + carBrand.ValueFactor + carType.ValueFactor) as value_factor
-			      ,(car.[ScaleFactor] + engine.ScaleFactor + carPackage.ScaleFactor + fuelType.ScaleFactor + engineSize.ScaleFactor + carModel.ScaleFactor + carBrand.ScaleFactor + carType.ScaleFactor)/8 as scale_factor
-			      ,car.[CarEngineId] as car_engine_id
+				  ,car.[CarEngineId] as car_engine_id
 			      ,car.[CarPackageId] as car_package_id
 				  ,engine.CarEngineSizeId as car_engine_size_id
 				  ,engine.CarFuelTypeId as car_fuel_type_id

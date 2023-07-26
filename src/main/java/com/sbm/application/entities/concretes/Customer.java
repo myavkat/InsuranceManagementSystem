@@ -1,13 +1,10 @@
 package com.sbm.application.entities.concretes;
 
-import java.time.LocalDate;
-import java.time.Period;
-
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import com.sbm.application.core.helpers.DateHelper;
-import com.sbm.application.entities.abstracts.Parameter;
+import com.sbm.application.entities.abstracts.Entity;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -18,7 +15,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Table("Customers")
-public class Customer extends Parameter {
+public class Customer extends Entity {
 
 	@NotNull(message = "Boş geçilemez!")
 	@Column("professionId")

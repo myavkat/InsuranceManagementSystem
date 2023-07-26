@@ -3,7 +3,7 @@ package com.sbm.application.entities.concretes;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
-import com.sbm.application.entities.abstracts.Parameter;
+import com.sbm.application.entities.abstracts.Entity;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -13,7 +13,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Table("Vehicles")
-public class Vehicle extends Parameter {
+public class Vehicle extends Entity {
 
 	@NotNull(message = "Boş geçilemez!")
 	@Column("CustomerId")
