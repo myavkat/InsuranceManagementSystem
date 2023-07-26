@@ -41,13 +41,12 @@ public class VehicleManager implements VehicleService {
 			vehicleRepository.findAllByLicensePlate(vehicle.getLicensePlate())
 					.doOnNext(vehicleWithSameIdentifierSet::add).blockLast();
 			vehicleRepository.findAllByVIN(vehicle.getVin()).doOnNext(vehicleWithSameIdentifierSet::add).blockLast();
+			vehicleWithSameIdentifierSet.removeIf(v -> v.getId()== vehicle.getId());
 			for (Vehicle vehicleWithSameIdentifier : vehicleWithSameIdentifierSet) {
-				if (vehicleWithSameIdentifier.getId() != vehicle.getId()) {
 					if (vehicleWithSameIdentifier.getVin().contentEquals(vehicle.getVin()))
 						return new ErrorResult("Bu şasi numarası ile kayıtlı %s var".formatted(entityName));
 					else if (vehicleWithSameIdentifier.getLicensePlate().contentEquals(vehicle.getLicensePlate()))
 						return new ErrorResult("Bu plaka ile kayıtlı %s var".formatted(entityName));
-				}
 			}
 
 			/*
