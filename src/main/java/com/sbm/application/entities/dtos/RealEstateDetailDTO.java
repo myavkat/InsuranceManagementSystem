@@ -4,20 +4,20 @@ import lombok.Data;
 
 @Data
 public class RealEstateDetailDTO {
-	public int id;
-	public String uavt;
-	public int unitConstructionCostId;
-	public double unitConstructionCost;
-	public String unitConstructionCostTag;
-	public int cityId;
-	public String cityName;
-	public double cityScaleFactor;
-	public double cityValueFactor;
-	public int customerId;
-	public String customerTag;
-	public double value;
-	public int floorArea;
-	public String constructionYear;
-	public String address;
-	public boolean urbanLocated;
+	private int id;
+	private String uavt;
+	private int unitConstructionCostId;
+	private double unitConstructionCost;
+	private String unitConstructionCostTag;
+	private int cityId;
+	private String cityName;
+	private double cityScaleFactor;
+	private double cityValueFactor;
+	private int customerId;
+	private String customerTag;
+	private double value;
+	private int floorArea;
+	private String constructionYear;
+	private String address;
+	private boolean urbanLocated;
 }
