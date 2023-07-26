@@ -15,7 +15,7 @@
 		<tbody>
 			<tr th:each="insurance : ${insurances}">
 				<th scope="row" th:text="${insurance.id}"></th>
-				<td th:text="${#numbers.formatDecimal(insurance.unitPrice, 1, 'POINT', 4, 'COMMA')} + ' TRY'"></td>
+				<td th:text="${insurance.unitPrice + ' TRY'}"></td>
 				<td th:text="${insurance.insuranceCompanyName}"></td>
 				<td th:text="${insurance.insuranceTypeName}"></td>
 				<td><a class="btn btn-warning"

@@ -22,10 +22,10 @@
 			<tr th:each="realEstateDetail : ${realEstateDetails}">
         <th scope="row" th:text="${realEstateDetail.id}"></th>
         <td scope="row" th:text="${realEstateDetail.uavt}"></td>
-        <td scope="row" th:text="${realEstateDetail.unitConstructionCostTag + ' ' + realEstateDetail.unitConstructionCost}"></td>
+        <td scope="row" th:text="${realEstateDetail.unitConstructionCostTag + ' ' + realEstateDetail.unitConstructionCost + ' TRY'}"></td>
         <td scope="row" th:text="${realEstateDetail.cityName}"></td>
 				<td scope="row" th:text="${realEstateDetail.customerTag}"></td>
-        <td scope="row" th:text="${realEstateDetail.value}"></td>
+        <td scope="row" th:text="${realEstateDetail.value + ' TRY'}"></td>
         <td scope="row" th:text="${realEstateDetail.floorArea}"></td>
         <td scope="row" th:text="${realEstateDetail.constructionYear}"></td>
         <td scope="row" th:text="${realEstateDetail.address}"></td>
