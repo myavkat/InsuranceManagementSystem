@@ -6,6 +6,7 @@ import java.time.Period;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
+import com.sbm.application.core.helpers.DateHelper;
 import com.sbm.application.entities.abstracts.Parameter;
 
 import jakarta.validation.constraints.NotNull;
@@ -51,12 +52,10 @@ public class Customer extends Parameter {
 	private String licenseObtainedAt;
 
 	public int getAge() {
-		LocalDate date = LocalDate.parse(birthDate);
-		return Period.between(date, LocalDate.now()).getYears();
+		return DateHelper.getYearDifferenceFromNow(birthDate);
 	}
 	public int getLicenseAge() {
-		LocalDate date = LocalDate.parse(licenseObtainedAt);
-		return Period.between(date, LocalDate.now()).getYears();
+		return DateHelper.getYearDifferenceFromNow(licenseObtainedAt);
 	}
 
 }
