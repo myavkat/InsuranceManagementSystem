@@ -230,6 +230,9 @@ public class EstimationManager implements EstimationService {
 		try {
 			estimationRepository.findKaskoDetailsByCustomerId(customerId).doOnNext(details::add)
 					.blockLast(Duration.ofSeconds(5));
+			estimationRepository.findKonutDetailsByCustomerId(customerId).doOnNext(details::add)
+			.blockLast(Duration.ofSeconds(5));
+			details.sort((EstimationDetailDTO detail1, EstimationDetailDTO detail2) -> OffsetDateTime.timeLineOrder().reversed().compare(detail1.getEstimationDate(),detail2.getEstimationDate()));
 			return new SuccessDataResult<List<EstimationDetailDTO>>(details, "Başarılı");
 		} catch (RuntimeException ex) {
 			logger.error(ExceptionUtils.getStackTrace(ex));
