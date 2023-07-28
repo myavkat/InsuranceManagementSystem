@@ -3,9 +3,13 @@ package com.sbm.application.entities.dtos;
 import java.time.LocalDate;
 import java.time.Period;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class CustomerDetailDTO {
 	private int id;
 	private int professionId;
