@@ -60,7 +60,7 @@ public class RealEstateController {
 	}
 
 	@PostMapping("/save/{id}")
-	public String saveForm(@Validated @ModelAttribute("realEstate") RealEstate realEstate, BindingResult bindingResult,
+	public String saveForm(@Validated @ModelAttribute RealEstate realEstate, BindingResult bindingResult,
 			Model model, @PathVariable int id) {
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("toastWarning", true);

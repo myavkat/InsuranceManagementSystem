@@ -51,7 +51,7 @@ public class ProfessionController {
 	
 	@GetMapping("/get")
 	@ResponseBody
-	public Mono<Profession> Get(@RequestParam(name="id", required=true)int id) {
+	public Mono<Profession> Get(@RequestParam(required=true)int id) {
 		return professionRepository.findById(id);
 	}
 	

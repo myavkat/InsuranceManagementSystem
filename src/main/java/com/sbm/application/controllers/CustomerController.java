@@ -54,7 +54,7 @@ public class CustomerController {
 	}
 
 	@PostMapping("/save/{id}")
-	public String saveForm(@Validated @ModelAttribute("customer") Customer customer, BindingResult bindingResult,
+	public String saveForm(@Validated @ModelAttribute Customer customer, BindingResult bindingResult,
 			Model model, @PathVariable int id) {
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("toastWarning", true);

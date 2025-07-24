@@ -55,7 +55,7 @@ public class VehicleController {
 	}
 
 	@PostMapping("/save/{id}")
-	public String saveForm(@Validated @ModelAttribute("vehicle") Vehicle vehicle, BindingResult bindingResult,
+	public String saveForm(@Validated @ModelAttribute Vehicle vehicle, BindingResult bindingResult,
 			Model model, @PathVariable int id) {
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("carDetails", carService.getCarDetails().getData());
