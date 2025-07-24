@@ -41,9 +41,9 @@ dependencies {
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	
 	compileOnly("org.webjars.npm:izitoast:1.4.0")
-	compileOnly("org.projectlombok:lombok:1.18.28")
+	compileOnly("org.projectlombok:lombok")
 	
-	annotationProcessor("org.projectlombok:lombok:1.18.28")
+	annotationProcessor("org.projectlombok:lombok")
 }
 
 tasks.withType<Test> {
