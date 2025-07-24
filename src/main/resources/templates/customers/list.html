@@ -29,14 +29,12 @@
 				<td th:text="${customerDetail.birthDate}"></td>
 				<td th:text="${customerDetail.licenseObtainedAt}"></td>
 				<td><a class="btn btn-success"
-					th:href="'/estimations/list?customerId=' + ${customerDetail.id}">Teklifler</a><a
-					class="btn btn-warning"
-					th:href="'/customers/edit/' + ${customerDetail.id}"> Düzenle </a>
+						th:href="'/estimations/list?customerId=' + ${customerDetail.id}">Teklifler</a><a
+						class="btn btn-warning" th:href="'/customers/edit/' + ${customerDetail.id}"> Düzenle </a>
 					<button type="button" class="btn btn-danger" data-bs-toggle="modal"
 						th:data-bs-target="'#deleteModal-' + ${customerDetail.id}">Sil
 					</button>
-					<div class="modal fade"
-						th:id="'deleteModal-' + ${customerDetail.id}" tabindex="-1">
+					<div class="modal fade" th:id="'deleteModal-' + ${customerDetail.id}" tabindex="-1">
 						<div class="modal-dialog">
 							<div class="modal-content">
 								<div class="modal-header">
@@ -57,7 +55,8 @@
 								</div>
 							</div>
 						</div>
-					</div></td>
+					</div>
+				</td>
 			</tr>
 		</tbody>
 	</table>

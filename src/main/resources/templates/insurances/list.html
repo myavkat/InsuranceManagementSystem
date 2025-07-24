@@ -18,14 +18,11 @@
 				<td th:text="${insurance.unitPrice + ' TRY'}"></td>
 				<td th:text="${insurance.insuranceCompanyName}"></td>
 				<td th:text="${insurance.insuranceTypeName}"></td>
-				<td><a class="btn btn-warning"
-					th:href="'/insurances/edit/' + ${insurance.id}"> Düzenle </a>
-					<button type="button" class="btn btn-primary"
-						data-bs-toggle="modal"
+				<td><a class="btn btn-warning" th:href="'/insurances/edit/' + ${insurance.id}"> Düzenle </a>
+					<button type="button" class="btn btn-primary" data-bs-toggle="modal"
 						th:data-bs-target="'#deleteModal-' + ${insurance.id}">Sil
 					</button>
-					<div class="modal fade" th:id="'deleteModal-' + ${insurance.id}"
-						tabindex="-1">
+					<div class="modal fade" th:id="'deleteModal-' + ${insurance.id}" tabindex="-1">
 						<div class="modal-dialog">
 							<div class="modal-content">
 								<div class="modal-header">
@@ -46,7 +43,8 @@
 								</div>
 							</div>
 						</div>
-					</div></td>
+					</div>
+				</td>
 			</tr>
 		</tbody>
 	</table>

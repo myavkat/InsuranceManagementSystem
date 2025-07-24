@@ -1,17 +1,19 @@
 <div class="row">
-  <div class="col-3 p-2" th:each="insuranceType : ${insuranceTypes}">
-    <div class="card text-center bg-warning">
-      <div class="card-body">
-        <h5 class="card-title text-truncate" th:text="${insuranceType.name} + ' Hesapla'"></h5>
-        <p class="card-text">
-          <a class="btn btn-primary" th:href="'/estimations/' + ${insuranceType.name.toLowerCase()}">
-          <i class="fa-solid fa-car-burst fa-2xl ms-2 my-3" th:if="${insuranceType.name == 'Kasko'}"></i>
-          <i class="fa-solid fa-traffic-light fa-2xl ms-2 my-3" th:if="${insuranceType.name == 'Trafik Sigortası'}"></i>
-          <i class="fa-solid fa-house-chimney-crack fa-2xl ms-2 my-3" th:if="${insuranceType.name == 'Dask'}"></i>
-          <i class="fa-solid fa-calculator fa-2xl m-3"></i>
-          </a>
-        </p>
-      </div>
-    </div>
-  </div>
+	<div class="col-3 p-2" th:each="insuranceType : ${insuranceTypes}">
+		<div class="card text-center bg-warning">
+			<div class="card-body">
+				<h5 class="card-title text-truncate" th:text="${insuranceType.name} + ' Hesapla'"></h5>
+				<p class="card-text">
+					<a class="btn btn-primary" th:href="'/estimations/' + ${insuranceType.name.toLowerCase()}">
+						<i class="fa-solid fa-car-burst fa-2xl ms-2 my-3" th:if="${insuranceType.name == 'Kasko'}"></i>
+						<i class="fa-solid fa-traffic-light fa-2xl ms-2 my-3"
+							th:if="${insuranceType.name == 'Trafik Sigortası'}"></i>
+						<i class="fa-solid fa-house-chimney-crack fa-2xl ms-2 my-3"
+							th:if="${insuranceType.name == 'Dask'}"></i>
+						<i class="fa-solid fa-calculator fa-2xl m-3"></i>
+					</a>
+				</p>
+			</div>
+		</div>
+	</div>
 </div>

@@ -13,22 +13,25 @@
 			</tr>
 		</thead>
 		<tbody>
-			<tr th:each="estimationDetail : ${estimationDetails}" th:class="${estimationDetail.confirmed?'table-success':''}" th:id="${estimationDetail.id}">
+			<tr th:each="estimationDetail : ${estimationDetails}"
+				th:class="${estimationDetail.confirmed?'table-success':''}" th:id="${estimationDetail.id}">
 				<th scope="row" th:text="${estimationDetail.id}"></th>
 				<td th:text="${estimationDetail.insuranceTypeName}"></td>
 				<td th:text="${estimationDetail.insuranceCompanyName}"></td>
 				<td th:text="${estimationDetail.parameterName}"></td>
 				<td th:text="${estimationDetail.price + ' TRY'}"></td>
-				<td	th:text="${#temporals.format(estimationDetail.estimationDate, 'dd MMMM yyyy HH:mm')}"></td>
+				<td th:text="${#temporals.format(estimationDetail.estimationDate, 'dd MMMM yyyy HH:mm')}"></td>
 				<td>
-					<button class="btn btn-success" type="button" onclick="confirmEstimation(this)" th:if="${!estimationDetail.confirmed}">
+					<button class="btn btn-success" type="button" onclick="confirmEstimation(this)"
+						th:if="${!estimationDetail.confirmed}">
 						<i class="fa-solid fa-check"></i>
 					</button>
-					<button class="btn btn-warning" onclick="revokeConfirmation(this)" th:if="${estimationDetail.confirmed}">
-					  <i class="fa-solid fa-rotate-left"></i>
+					<button class="btn btn-warning" onclick="revokeConfirmation(this)"
+						th:if="${estimationDetail.confirmed}">
+						<i class="fa-solid fa-rotate-left"></i>
 					</button>
 					<button class="btn btn-danger" onclick="deleteEstimation(this)">
-					  <i class="fa-solid fa-trash"></i>
+						<i class="fa-solid fa-trash"></i>
 					</button>
 				</td>
 			</tr>
@@ -36,40 +39,40 @@
 	</table>
 </div>
 <script>
-  function confirmEstimation(btn){
-	  var xhttp = new XMLHttpRequest();
-	  xhttp.onreadystatechange = function() {
-	    if (this.readyState == 4 && this.status == 200) {
-            window.location.reload();
-	    }
-	  }
-	  xhttp.open("POST", "/estimations/confirm", true);
-	  xhttp.setRequestHeader("Content-type",
-      "application/json");
-	  xhttp.send(parseInt(btn.parentElement.parentElement.id));
-  }
-  function revokeConfirmation(btn){
-	    var xhttp = new XMLHttpRequest();
-	    xhttp.onreadystatechange = function() {
-	      if (this.readyState == 4 && this.status == 200) {
-	          window.location.reload();
-	      }
-	    }
-	    xhttp.open("POST", "/estimations/revokeConfirmation", true);
-	    xhttp.setRequestHeader("Content-type",
-	      "application/json");
-	    xhttp.send(parseInt(btn.parentElement.parentElement.id));
-	  }
-  function deleteEstimation(btn){
-	    var xhttp = new XMLHttpRequest();
-	    xhttp.onreadystatechange = function() {
-	      if (this.readyState == 4 && this.status == 200) {
-	    	    window.location.reload();
-	      }
-	    }
-	    xhttp.open("POST", "/estimations/delete", true);
-	    xhttp.setRequestHeader("Content-type",
-	      "application/json");
-	    xhttp.send(parseInt(btn.parentElement.parentElement.id));
-	  }
+	function confirmEstimation(btn) {
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function () {
+			if (this.readyState == 4 && this.status == 200) {
+				window.location.reload();
+			}
+		}
+		xhttp.open("POST", "/estimations/confirm", true);
+		xhttp.setRequestHeader("Content-type",
+			"application/json");
+		xhttp.send(parseInt(btn.parentElement.parentElement.id));
+	}
+	function revokeConfirmation(btn) {
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function () {
+			if (this.readyState == 4 && this.status == 200) {
+				window.location.reload();
+			}
+		}
+		xhttp.open("POST", "/estimations/revokeConfirmation", true);
+		xhttp.setRequestHeader("Content-type",
+			"application/json");
+		xhttp.send(parseInt(btn.parentElement.parentElement.id));
+	}
+	function deleteEstimation(btn) {
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function () {
+			if (this.readyState == 4 && this.status == 200) {
+				window.location.reload();
+			}
+		}
+		xhttp.open("POST", "/estimations/delete", true);
+		xhttp.setRequestHeader("Content-type",
+			"application/json");
+		xhttp.send(parseInt(btn.parentElement.parentElement.id));
+	}
 </script>

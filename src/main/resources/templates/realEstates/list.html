@@ -8,37 +8,37 @@
 				<th scope="col">Id</th>
 				<th scope="col">UAVT Kodu</th>
 				<th scope="col">Birim İnşa Maliyeti</th>
-        <th scope="col">Şehir</th>
-        <th scope="col">Müşteri</th>
-        <th scope="col">Değeri</th>
-        <th scope="col">Yüz Ölçümü (m2)</th>
-        <th scope="col">Yapım Yılı</th>
-        <th scope="col">Adresi</th>
-        <th scope="col">Konumu</th>
+				<th scope="col">Şehir</th>
+				<th scope="col">Müşteri</th>
+				<th scope="col">Değeri</th>
+				<th scope="col">Yüz Ölçümü (m2)</th>
+				<th scope="col">Yapım Yılı</th>
+				<th scope="col">Adresi</th>
+				<th scope="col">Konumu</th>
 				<th scope="col">İşlemler</th>
 			</tr>
 		</thead>
 		<tbody>
 			<tr th:each="realEstateDetail : ${realEstateDetails}">
-        <th scope="row" th:text="${realEstateDetail.id}"></th>
-        <td scope="row" th:text="${realEstateDetail.uavt}"></td>
-        <td scope="row" th:text="${realEstateDetail.unitConstructionCostTag + ' ' + realEstateDetail.unitConstructionCost + ' TRY'}"></td>
-        <td scope="row" th:text="${realEstateDetail.cityName}"></td>
+				<th scope="row" th:text="${realEstateDetail.id}"></th>
+				<td scope="row" th:text="${realEstateDetail.uavt}"></td>
+				<td scope="row"
+					th:text="${realEstateDetail.unitConstructionCostTag + ' ' + realEstateDetail.unitConstructionCost + ' TRY'}">
+				</td>
+				<td scope="row" th:text="${realEstateDetail.cityName}"></td>
 				<td scope="row" th:text="${realEstateDetail.customerTag}"></td>
-        <td scope="row" th:text="${realEstateDetail.value + ' TRY'}"></td>
-        <td scope="row" th:text="${realEstateDetail.floorArea}"></td>
-        <td scope="row" th:text="${realEstateDetail.constructionYear}"></td>
-        <td scope="row" th:text="${realEstateDetail.address}"></td>
-        <td scope="row" th:text="${realEstateDetail.urbanLocated?'Merkezde':'Kırsalda'}"></td>
+				<td scope="row" th:text="${realEstateDetail.value + ' TRY'}"></td>
+				<td scope="row" th:text="${realEstateDetail.floorArea}"></td>
+				<td scope="row" th:text="${realEstateDetail.constructionYear}"></td>
+				<td scope="row" th:text="${realEstateDetail.address}"></td>
+				<td scope="row" th:text="${realEstateDetail.urbanLocated?'Merkezde':'Kırsalda'}"></td>
 
 				<td><a class="btn btn-success"
-					th:href="'/estimations/list?realEstateId=' + ${realEstateDetail.id}">Teklifler</a>
-					<a class="btn btn-warning"
-					th:href="'/realEstates/edit/' + ${realEstateDetail.id}"> Düzenle </a>
+						th:href="'/estimations/list?realEstateId=' + ${realEstateDetail.id}">Teklifler</a>
+					<a class="btn btn-warning" th:href="'/realEstates/edit/' + ${realEstateDetail.id}"> Düzenle </a>
 					<button type="button" class="btn btn-danger" data-bs-toggle="modal"
 						th:data-bs-target="'#deleteModal-' + ${realEstateDetail.id}">Sil</button>
-					<div class="modal fade" th:id="'deleteModal-' + ${realEstateDetail.id}"
-						tabindex="-1">
+					<div class="modal fade" th:id="'deleteModal-' + ${realEstateDetail.id}" tabindex="-1">
 						<div class="modal-dialog">
 							<div class="modal-content">
 								<div class="modal-header">
@@ -58,7 +58,8 @@
 								</div>
 							</div>
 						</div>
-					</div></td>
+					</div>
+				</td>
 			</tr>
 		</tbody>
 	</table>

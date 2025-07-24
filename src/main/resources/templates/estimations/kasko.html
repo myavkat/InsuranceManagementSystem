@@ -17,8 +17,7 @@
 	<div class="row align-items-center" th:if="${vehicles!=null}">
 		<div class="form-floating col-6 p-1">
 			<select id="vehicleSelect" class="form-select" th:name="vehicleId">
-				<option th:each="v : ${vehicles}" th:value="${v.id}"
-					th:text="${v.licensePlate}" />
+				<option th:each="v : ${vehicles}" th:value="${v.id}" th:text="${v.licensePlate}" />
 			</select> <label for="vehicleSelect">Araç Seçiniz:</label>
 		</div>
 		<div class="col-3 p-1">
@@ -29,67 +28,65 @@
 		</div>
 	</div>
 	<div class="modal fade" id="confirmationModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5" id="exampleModalToggleLabel">Onay</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        Bu sigortalananın eski tekliflerinin silinmesini ve yeni teklifler oluşturulmasını onaylıyor musunuz?
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-primary" type="button" onclick="estimate()">Evet</button>
-      </div>
-    </div>
-  </div>
-</div>
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h1 class="modal-title fs-5" id="exampleModalToggleLabel">Onay</h1>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+				<div class="modal-body">
+					Bu sigortalananın eski tekliflerinin silinmesini ve yeni teklifler oluşturulmasını onaylıyor
+					musunuz?
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-primary" type="button" onclick="estimate()">Evet</button>
+				</div>
+			</div>
+		</div>
+	</div>
 </form>
 <div class="row align-items-center" th:if="${estimations!=null}">
 	<div class="card col-3 m-2" th:each="estimation : ${estimations}">
 		<div class="card-body">
 			<h5 class="card-title" th:text="${estimation.insuranceCompanyName}"></h5>
-			<h6 class="card-subtitle mb-2 text-body-secondary"
-				th:text="${estimation.insuranceTypeName}"></h6>
-			<p class="card-text"
-				th:text="${'Fiyat: ' + estimation.price + ' TRY'}" />
+			<h6 class="card-subtitle mb-2 text-body-secondary" th:text="${estimation.insuranceTypeName}"></h6>
+			<p class="card-text" th:text="${'Fiyat: ' + estimation.price + ' TRY'}" />
 		</div>
 	</div>
 	<div class="col-12 row">
 		<span class="col-9 lead mt-3">Teklifler kaydedilmiştir. <a
-			th:href="'/estimations/list?vehicleId=' + ${vehicleId}">Teklifler</a> listesinden ulaşabilirsiniz.
-		</span> <a th:href="'/estimations/kasko'"
-			class="col-3 btn btn-secondary my-2">Yeni Fiyat Teklifi</a>
+				th:href="'/estimations/list?vehicleId=' + ${vehicleId}">Teklifler</a> listesinden ulaşabilirsiniz.
+		</span> <a th:href="'/estimations/kasko'" class="col-3 btn btn-secondary my-2">Yeni Fiyat Teklifi</a>
 	</div>
 </div>
 
 <script>
 	function checkOldOffers() {
 		var xhttp = new XMLHttpRequest();
-		xhttp.onreadystatechange = function() {
+		xhttp.onreadystatechange = function () {
 			if (this.readyState == 4 && this.status == 200) {
 				if (this.responseText == "true") {
 					const confirmationModal = new bootstrap.Modal(document
-							.getElementById('confirmationModal'), {
-						keyboard : true,
-						focus : true
+						.getElementById('confirmationModal'), {
+						keyboard: true,
+						focus: true
 					});
 					confirmationModal.toggle();
 				}
-				else if(this.responseText == "false"){
+				else if (this.responseText == "false") {
 					estimate();
 				}
 			}
 		};
 		xhttp.open("POST", "/estimations/checkOldOffers", true);
 		xhttp.setRequestHeader("Content-type",
-				"application/json");
+			"application/json");
 		xhttp.send(parseInt(document.getElementById("vehicleSelect").value));
 	}
-	function estimate(){
-		window.location.href = "/estimations/kasko?customerId="+
-				document.getElementById("customerSelect").value+
-				"&vehicleId="+
-				document.getElementById("vehicleSelect").value;
+	function estimate() {
+		window.location.href = "/estimations/kasko?customerId=" +
+			document.getElementById("customerSelect").value +
+			"&vehicleId=" +
+			document.getElementById("vehicleSelect").value;
 	}
 </script>

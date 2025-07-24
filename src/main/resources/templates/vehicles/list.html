@@ -17,25 +17,20 @@
 		<tbody>
 			<tr th:each="vehicle : ${vehicles}">
 				<th scope="row" th:text="${vehicle.id}"></th>
-				<td th:each="customerDetail : ${customerDetails}"
-					th:if="${customerDetail.id} == ${vehicle.customerId}"
+				<td th:each="customerDetail : ${customerDetails}" th:if="${customerDetail.id} == ${vehicle.customerId}"
 					th:text="${customerDetail.tc}"></td>
-				<td th:each="carDetail : ${carDetails}"
-					th:if="${carDetail.id} == ${vehicle.carId}"
+				<td th:each="carDetail : ${carDetails}" th:if="${carDetail.id} == ${vehicle.carId}"
 					th:text="${carDetail.carName}"></td>
 				<td th:if="${vehicle.damaged}" th:text="Hasarlı"></td>
 				<td th:if="${!vehicle.damaged}" th:text="Hasarsız"></td>
 				<td th:text="${vehicle.licensePlate}"></td>
 				<td th:text="${vehicle.vin}"></td>
 
-				<td><a class="btn btn-success"
-					th:href="'/estimations/list?vehicleId=' + ${vehicle.id}">Teklifler</a>
-					<a class="btn btn-warning"
-					th:href="'/vehicles/edit/' + ${vehicle.id}"> Düzenle </a>
+				<td><a class="btn btn-success" th:href="'/estimations/list?vehicleId=' + ${vehicle.id}">Teklifler</a>
+					<a class="btn btn-warning" th:href="'/vehicles/edit/' + ${vehicle.id}"> Düzenle </a>
 					<button type="button" class="btn btn-danger" data-bs-toggle="modal"
 						th:data-bs-target="'#deleteModal-' + ${vehicle.id}">Sil</button>
-					<div class="modal fade" th:id="'deleteModal-' + ${vehicle.id}"
-						tabindex="-1">
+					<div class="modal fade" th:id="'deleteModal-' + ${vehicle.id}" tabindex="-1">
 						<div class="modal-dialog">
 							<div class="modal-content">
 								<div class="modal-header">
@@ -50,12 +45,13 @@
 								<div class="modal-footer">
 									<button type="button" class="btn btn-secondary"
 										data-bs-dismiss="modal">İptal</button>
-									<a class="btn btn-primary"
-										th:href="'/vehicles/delete/' + ${vehicle.id}">Aracı Sil</a>
+									<a class="btn btn-primary" th:href="'/vehicles/delete/' + ${vehicle.id}">Aracı
+										Sil</a>
 								</div>
 							</div>
 						</div>
-					</div></td>
+					</div>
+				</td>
 			</tr>
 		</tbody>
 	</table>

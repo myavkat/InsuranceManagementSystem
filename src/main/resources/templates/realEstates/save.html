@@ -1,69 +1,69 @@
-<form class="row" action="#" th:action="'/realEstates/save/'+ ${realEstate.id}"
-  method="post" th:object="${realEstate}">
-  <div class="form-floating mb-3 col-6 p-1">
-    <input class="form-control" type="text" th:field="*{uavt}" id="uavtInput"/>
-    <label for="uavtInput">UAVT Kodu:</label> 
-    <div th:if="${#fields.hasErrors('uavt')}" th:errors="*{uavt}"></div>
-  </div>
-  <div class="form-floating col-3 p-1">
-    <select id="unitConstructionCostSelect" class="form-select" th:field="*{unitConstructionCostId}">
-      <option th:each="uCC : ${unitConstructionCosts}" th:value="${uCC.id}" th:text="${uCC.unitConstructionCostTag}"/>
-    </select>
-    <label for="unitConstructionCostSelect">Birim İnşa Maliyeti:</label>
-    <div th:if="${#fields.hasErrors('unitConstructionCostId')}" th:errors="*{unitConstructionCostId}"></div>
-  </div> 
-  <div class="form-floating col-3 p-1">
-    <select id="citySelect" class="form-select" th:field="*{cityId}">
-      <option th:each="c : ${cityDetails}" th:value="${c.id}" th:text="${c.name}" />
-    </select>
-    <label for="citySelect">Şehir:</label>
-    <div th:if="${#fields.hasErrors('cityId')}" th:errors="*{cityId}"></div>
-  </div>  
-  <div class="form-floating col-3 p-1">
-    <select id="customerSelect" class="form-select" th:field="*{customerId}">
-      <option th:each="c : ${customerDetails}" th:value="${c.id}" th:text="${c.tc}" />
-    </select>
-    <label for="customerSelect">Müşteri:</label>
-    <div th:if="${#fields.hasErrors('customerId')}" th:errors="*{customerId}"></div>
-  </div> 
-  <div class="form-floating mb-3 col-6 p-1">
-    <input class="form-control" type="text" th:field="*{value}" id="valueInput"/>
-    <label for="valueInput">Değeri:</label> 
-    <div th:if="${#fields.hasErrors('value')}" th:errors="*{value}"></div>
-  </div>
-  <div class="form-floating mb-3 col-6 p-1">
-    <input class="form-control" type="text" th:field="*{floorArea}" id="floorAreaInput"/>
-    <label for="floorAreaInput">Yüz Ölçümü:</label> 
-    <div th:if="${#fields.hasErrors('floorArea')}" th:errors="*{floorArea}"></div>
-  </div>
-  <div class="form-floating mb-3 col-6 p-1">
-    <input class="form-control" type="text" th:field="*{constructionYear}" id="constructionYearInput"/>
-    <label for="constructionYearInput">Yapım Yılı:</label> 
-    <div th:if="${#fields.hasErrors('constructionYear')}" th:errors="*{constructionYear}"></div>
-  </div>
-  <div class="form-floating mb-3 col-6 p-1">
-    <input class="form-control" type="text" th:field="*{address}" id="addressInput"/>
-    <label for="addressInput">Adres:</label> 
-    <div th:if="${#fields.hasErrors('address')}" th:errors="*{address}"></div>
-  </div>
-  <div class="col-3 mt-2">
-	  <div class="form-check">
-	    <input class="form-check-input" type="radio" th:field="*{urbanLocated}" 
-	      name="flexRadioDefault" id="urbanLocatedRadio" value="true">
-		  <label class="form-check-label" for="urbanLocatedRadio">
-		    Merkezde
-		  </label>
-	  </div>
-	  <div>
-	    <input class="form-check-input" type="radio" th:field="*{urbanLocated}" 
-	      name="flexRadioDefault" id="notUrbanLocatedRadio" value="false" checked>
-	    <label class="form-check-label" for="notUrbanLocatedRadio">
-	      Kırsalda
-	    </label>
-	  </div>
-    <div th:if="${#fields.hasErrors('urbanLocated')}" th:errors="*{urbanLocated}"></div>
-  </div>
-  <button class="btn btn-primary my-2" type="submit">
-    Emlağı Müşteriye Kaydet
-  </button>
+<form class="row" action="#" th:action="'/realEstates/save/'+ ${realEstate.id}" method="post" th:object="${realEstate}">
+	<div class="form-floating mb-3 col-6 p-1">
+		<input class="form-control" type="text" th:field="*{uavt}" id="uavtInput" />
+		<label for="uavtInput">UAVT Kodu:</label>
+		<div th:if="${#fields.hasErrors('uavt')}" th:errors="*{uavt}"></div>
+	</div>
+	<div class="form-floating col-3 p-1">
+		<select id="unitConstructionCostSelect" class="form-select" th:field="*{unitConstructionCostId}">
+			<option th:each="uCC : ${unitConstructionCosts}" th:value="${uCC.id}"
+				th:text="${uCC.unitConstructionCostTag}" />
+		</select>
+		<label for="unitConstructionCostSelect">Birim İnşa Maliyeti:</label>
+		<div th:if="${#fields.hasErrors('unitConstructionCostId')}" th:errors="*{unitConstructionCostId}"></div>
+	</div>
+	<div class="form-floating col-3 p-1">
+		<select id="citySelect" class="form-select" th:field="*{cityId}">
+			<option th:each="c : ${cityDetails}" th:value="${c.id}" th:text="${c.name}" />
+		</select>
+		<label for="citySelect">Şehir:</label>
+		<div th:if="${#fields.hasErrors('cityId')}" th:errors="*{cityId}"></div>
+	</div>
+	<div class="form-floating col-3 p-1">
+		<select id="customerSelect" class="form-select" th:field="*{customerId}">
+			<option th:each="c : ${customerDetails}" th:value="${c.id}" th:text="${c.tc}" />
+		</select>
+		<label for="customerSelect">Müşteri:</label>
+		<div th:if="${#fields.hasErrors('customerId')}" th:errors="*{customerId}"></div>
+	</div>
+	<div class="form-floating mb-3 col-6 p-1">
+		<input class="form-control" type="text" th:field="*{value}" id="valueInput" />
+		<label for="valueInput">Değeri:</label>
+		<div th:if="${#fields.hasErrors('value')}" th:errors="*{value}"></div>
+	</div>
+	<div class="form-floating mb-3 col-6 p-1">
+		<input class="form-control" type="text" th:field="*{floorArea}" id="floorAreaInput" />
+		<label for="floorAreaInput">Yüz Ölçümü:</label>
+		<div th:if="${#fields.hasErrors('floorArea')}" th:errors="*{floorArea}"></div>
+	</div>
+	<div class="form-floating mb-3 col-6 p-1">
+		<input class="form-control" type="text" th:field="*{constructionYear}" id="constructionYearInput" />
+		<label for="constructionYearInput">Yapım Yılı:</label>
+		<div th:if="${#fields.hasErrors('constructionYear')}" th:errors="*{constructionYear}"></div>
+	</div>
+	<div class="form-floating mb-3 col-6 p-1">
+		<input class="form-control" type="text" th:field="*{address}" id="addressInput" />
+		<label for="addressInput">Adres:</label>
+		<div th:if="${#fields.hasErrors('address')}" th:errors="*{address}"></div>
+	</div>
+	<div class="col-3 mt-2">
+		<div class="form-check">
+			<input class="form-check-input" type="radio" th:field="*{urbanLocated}" name="flexRadioDefault"
+				id="urbanLocatedRadio" value="true">
+			<label class="form-check-label" for="urbanLocatedRadio">
+				Merkezde
+			</label>
+		</div>
+		<div>
+			<input class="form-check-input" type="radio" th:field="*{urbanLocated}" name="flexRadioDefault"
+				id="notUrbanLocatedRadio" value="false" checked>
+			<label class="form-check-label" for="notUrbanLocatedRadio">
+				Kırsalda
+			</label>
+		</div>
+		<div th:if="${#fields.hasErrors('urbanLocated')}" th:errors="*{urbanLocated}"></div>
+	</div>
+	<button class="btn btn-primary my-2" type="submit">
+		Emlağı Müşteriye Kaydet
+	</button>
 </form>
