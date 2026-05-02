@@ -3,6 +3,8 @@ defineOptions({
   name: 'AppSidebar'
 })
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuth } from '../composables/useAuth'
 
 defineProps<{
   isOpen: boolean
@@ -11,6 +13,14 @@ defineProps<{
 const emit = defineEmits<{
   toggle: []
 }>()
+
+const router = useRouter()
+const { clearToken } = useAuth()
+
+function handleLogout() {
+  clearToken()
+  router.push('/login')
+}
 
 const menuItems = [
   {
@@ -131,7 +141,19 @@ const toggleDropdown = (label: string) => {
             </a>
           </template>
         </li>
-      </ul>
-    </nav>
-  </aside>
+</ul>
+      </nav>
+
+      <div v-if="isOpen" class="border-t border-gray-700 p-4">
+        <button
+          @click="handleLogout"
+          class="w-full flex items-center px-4 py-2 hover:bg-gray-700 transition-colors"
+        >
+          <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          <span>Sign Out</span>
+        </button>
+      </div>
+    </aside>
 </template>
