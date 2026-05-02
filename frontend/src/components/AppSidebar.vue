@@ -46,9 +46,13 @@ const menuItems = [
       { label: 'Add Client', path: '/clients/add' }
     ]
   },
-  { label: 'Claims', path: '/claims' },
-  { label: 'Users', path: '/users' },
-  { label: 'Settings', path: '/settings' }
+  {
+    label: 'Claims',
+    children: [
+      { label: 'All Claims', path: '/claims' },
+      { label: 'New Claim', path: '/claims/new' }
+    ]
+  }
 ]
 
 const openDropdowns = ref<Set<string>>(new Set())
@@ -60,6 +64,10 @@ const toggleDropdown = (label: string) => {
     openDropdowns.value.add(label)
   }
 }
+
+function goToDashboard() {
+  router.push('/dashboard')
+}
 </script>
 
 <template>
@@ -68,12 +76,14 @@ const toggleDropdown = (label: string) => {
     :class="isOpen ? 'w-64' : 'w-16'"
   >
     <div class="flex items-center justify-between p-4 border-b border-gray-700">
-      <img
-        v-if="isOpen"
-        src="/banner_logo.png"
-        alt="logo"
-        class="h-10"
-      />
+      <a @click="goToDashboard" class="cursor-pointer">
+        <img
+          v-if="isOpen"
+          src="/banner_logo.png"
+          alt="logo"
+          class="h-10"
+        />
+      </a>
       <button
         @click="emit('toggle')"
         class="p-1 hover:bg-gray-700 rounded transition-colors"
@@ -143,6 +153,21 @@ const toggleDropdown = (label: string) => {
         </li>
 </ul>
       </nav>
+
+      <div v-if="isOpen" class="border-t border-gray-700 p-4 space-y-1">
+        <a
+          href="/users"
+          class="block px-4 py-2 hover:bg-gray-700 transition-colors"
+        >
+          Users
+        </a>
+        <a
+          href="/settings"
+          class="block px-4 py-2 hover:bg-gray-700 transition-colors"
+        >
+          Settings
+        </a>
+      </div>
 
       <div v-if="isOpen" class="border-t border-gray-700 p-4">
         <button
