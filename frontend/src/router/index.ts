@@ -9,6 +9,7 @@ import CreatePolicyView from '../views/CreatePolicyView.vue'
 import RenewalsView from '../views/RenewalsView.vue'
 import ClientsView from '../views/ClientsView.vue'
 import AddClientView from '../views/AddClientView.vue'
+import ClientDetailView from '../views/ClientDetailView.vue'
 import ClaimsView from '../views/ClaimsView.vue'
 import NewClaimView from '../views/NewClaimView.vue'
 import UsersView from '../views/UsersView.vue'
@@ -69,6 +70,11 @@ const router = createRouter({
       path: '/clients/add',
       name: 'add-client',
       component: AddClientView,
+    },
+    {
+      path: '/clients/:id',
+      name: 'client-detail',
+      component: ClientDetailView,
     },
     {
       path: '/claims',
