@@ -15,11 +15,12 @@ const currentPage = ref(1)
 const limit = ref(10)
 const total = ref(0)
 const totalPages = ref(0)
+const searchQuery = ref('')
 
 async function fetchClients() {
   isLoading.value = true
   try {
-    const response = await getClients(currentPage.value, limit.value)
+    const response = await getClients(currentPage.value, limit.value, searchQuery.value || undefined)
     clients.value = response.clients
     total.value = response.total
     totalPages.value = response.totalPages
@@ -41,6 +42,11 @@ function viewClient(client: Client) {
   router.push(`/clients/${client.id}`)
 }
 
+function handleSearch() {
+  currentPage.value = 1
+  fetchClients()
+}
+
 onMounted(() => {
   fetchClients()
 })
@@ -48,7 +54,16 @@ onMounted(() => {
 
 <template>
   <div class="p-6">
-    <h1 class="text-2xl font-bold mb-6">Clients</h1>
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">Clients</h1>
+      <input
+        v-model="searchQuery"
+        @keyup.enter="handleSearch"
+        type="text"
+        placeholder="Search by name or TC number..."
+        class="px-4 py-2 border rounded-lg w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+    </div>
 
     <div class="bg-white rounded-lg shadow overflow-hidden">
       <div v-if="isLoading" class="p-8 text-center text-gray-500">

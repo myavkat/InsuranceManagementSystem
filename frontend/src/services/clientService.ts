@@ -38,7 +38,7 @@ export interface UpdateClientResponse {
 const maskedClients: Client[] = [
   {
     id: 1,
-    firstName: 'Ahmet',
+    firstName: 'Ahmet Mustafa',
     lastName: 'Yılmaz',
     tcNo: '12******901',
     phoneNumber: '+90 555 *** 4567',
@@ -146,20 +146,36 @@ const maskedClients: Client[] = [
 export async function getClients(
   page: number = 1,
   limit: number = 10,
+  search?: string,
 ): Promise<PaginatedClientsResponse> {
   await new Promise((resolve) => setTimeout(resolve, 300))
+
+  let filtered = maskedClients
+  if (search && search.trim()) {
+    const searchLower = search.toLowerCase()
+    const isDigits = /^\d+$/.test(search)
+    if (isDigits) {
+      filtered = maskedClients.filter((c) => c.tcNo.includes(search))
+    } else {
+      const searchParts = searchLower.split(/\s+/)
+      filtered = maskedClients.filter((c) => {
+        const fullName = `${c.firstName.toLowerCase()} ${c.lastName.toLowerCase()}`
+        return searchParts.every((part) => fullName.includes(part))
+      })
+    }
+  }
 
   const start = (page - 1) * limit
   const end = start + limit
 
-  const clients = maskedClients.slice(start, end)
+  const clients = filtered.slice(start, end)
 
   return {
     clients,
-    total: maskedClients.length,
+    total: filtered.length,
     page,
     limit,
-    totalPages: Math.ceil(maskedClients.length / limit),
+    totalPages: Math.ceil(filtered.length / limit),
   }
 }
 
