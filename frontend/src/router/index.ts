@@ -104,18 +104,18 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach(async (to, _from, next) => {
+router.beforeEach(async (to, _from) => {
   const { isLoggedIn } = useAuth()
 
   const requiresAuth = to.meta.requiresAuth !== false
   const loggedIn = await isLoggedIn()
 
   if (requiresAuth && !loggedIn) {
-    next('/login')
+    return '/login'
   } else if (to.path === '/login' && loggedIn) {
-    next('/dashboard')
+    return '/dashboard'
   } else {
-    next()
+    return true
   }
 })
 
