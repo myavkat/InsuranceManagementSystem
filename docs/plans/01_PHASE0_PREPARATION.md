@@ -130,7 +130,7 @@
   - [x] Topic name constants: `ESTIMATION_SAGA`, `CUSTOMER_EVENTS`, `VEHICLE_EVENTS`, `REALESTATE_EVENTS`, `INSURANCE_EVENTS`, `REFERENCE_DATA_EVENTS`.
   - [x] Event type name constants matching each event class.
 - [x] Create serialization/deserialization unit tests for every event type.
-- [ ] Create `common/common-message/build.gradle.kts` artifact publishing config (Maven local or composite build).
+- [x] Create `common/common-message/build.gradle.kts` artifact publishing config (Maven local or composite build).
 
 ---
 
@@ -143,7 +143,7 @@
     - `io.spring.dependency-management` plugin.
 - [x] Standardized API response envelope:
   - [x] `ApiResponse.java` — generic class with `success`, `message`, `data`, `timestamp`.
-  - [ ] `SuccessResponse.java`, `ErrorResponse.java` convenience builders (built into ApiResponse static methods).
+  - [x] `SuccessResponse.java`, `ErrorResponse.java` convenience builders (built into ApiResponse static methods).
 - [x] Global error handler:
   - [x] `GlobalExceptionHandler.java` — `@ControllerAdvice` handling `MethodArgumentNotValidException`, `EntityNotFoundException`, generic `Exception` → returns standardized `ApiResponse`.
 - [x] Sample entity + JPA repository + service + controller:
@@ -157,7 +157,7 @@
   - [x] Sample event consumer `@Bean` `Consumer<String>` with logging.
 - [x] RabbitMQ binder integration:
   - [x] `application.yml` with RabbitMQ configuration.
-  - [ ] Sample RPC publisher/reply pattern.
+  - [x] Sample RPC publisher/reply pattern.
 - [x] `application.yml` with:
   - [x] Datasource: `jdbc:postgresql://localhost:5432/skeleton_db`.
   - [x] JPA: `hibernate.ddl-auto=validate`, `show-sql=true`.
@@ -167,16 +167,16 @@
 - [x] `Dockerfile` — multi-stage build: Gradle build → JRE 25 runtime.
 - [x] Integration test with Testcontainers:
   - [x] `@SpringBootTest` + `@Testcontainers` PostgreSQL + Kafka.
-  - [ ] Test: create entity via REST → verify in DB → verify event published.
-- [ ] Verify: `./gradlew build` passes, `./gradlew test` passes.
+  - [x] Test: create entity via REST → verify in DB → verify event published.
+- [x] Verify: `./gradlew build` passes, `./gradlew test` passes.
 
 ---
 
 ## Verification
 
-- [ ] `docker compose up -d` — all 12 containers healthy (requires Docker).
-- [ ] All 8 `init.sql` scripts apply without errors (verified on disk).
-- [ ] `frontend-next` → `npm run dev` starts on `localhost:3000` (requires manual check).
-- [ ] `reference-skeleton` → `./gradlew bootRun` starts on port 9999 (requires Gradle wrapper).
-- [ ] `common-message` → `./gradlew build` + `./gradlew test` passes (requires Gradle wrapper).
+- [x] `docker compose up -d` — all 11 containers healthy (KRaft mode, no Zookeeper).
+- [x] All 8 `init.sql` scripts apply without errors (verified on disk).
+- [x] `frontend-next` → `npm run dev` starts on `localhost:3000`.
+- [x] `reference-skeleton` → `./gradlew bootRun` starts on port 9999.
+- [x] `common-message` → `./gradlew build` + `./gradlew test` passes.
 - [x] Monorepo structure committed with `docs/` plans, outlines, stories, tasks.
