@@ -3,16 +3,18 @@ package com.insurancemanagementsystem.skeleton;
 import com.insurancemanagementsystem.skeleton.dto.ApiResponse;
 import com.insurancemanagementsystem.skeleton.entity.SampleEntity;
 import com.insurancemanagementsystem.skeleton.repository.SampleRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.KafkaContainer;
-import org.testcontainers.containers.PostgreSQLContainer;
+import org.springframework.web.client.RestTemplate;
+import org.testcontainers.kafka.ConfluentKafkaContainer;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
@@ -22,25 +24,29 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
+)
 @Testcontainers
 class SkeletonApplicationTests {
 
     @Container
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16")
+    static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:16")
             .withDatabaseName("testdb")
             .withUsername("test")
             .withPassword("test");
 
     @Container
-    static KafkaContainer kafka = new KafkaContainer(
-            DockerImageName.parse("confluentinc/cp-kafka:latest"));
+    static ConfluentKafkaContainer kafka = new ConfluentKafkaContainer(
+            DockerImageName.parse("confluentinc/cp-kafka:7.6.0"));
 
-    @Autowired
-    private TestRestTemplate restTemplate;
+    @LocalServerPort
+    private int port;
 
     @Autowired
     private SampleRepository sampleRepository;
+
+    private RestTemplate restTemplate;
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
@@ -48,6 +54,12 @@ class SkeletonApplicationTests {
         registry.add("spring.datasource.username", postgres::getUsername);
         registry.add("spring.datasource.password", postgres::getPassword);
         registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
+        registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop");
+    }
+
+    @BeforeEach
+    void setUp() {
+        restTemplate = new RestTemplate();
     }
 
     @Test
@@ -57,10 +69,12 @@ class SkeletonApplicationTests {
     @SuppressWarnings("unchecked")
     @Test
     void createEntityViaRest_verifyInDb() {
+        String baseUrl = "http://localhost:" + port;
+
         // Create entity via REST
         Map<String, String> request = Map.of("name", "Test Sample");
         ResponseEntity<ApiResponse> response = restTemplate.postForEntity(
-                "/api/samples",
+                baseUrl + "/api/samples",
                 request,
                 ApiResponse.class);
 
@@ -84,7 +98,7 @@ class SkeletonApplicationTests {
 
         // Fetch via REST and verify
         ResponseEntity<ApiResponse> getResponse = restTemplate.getForEntity(
-                "/api/samples/" + id,
+                baseUrl + "/api/samples/" + id,
                 ApiResponse.class);
         assertEquals(HttpStatus.OK, getResponse.getStatusCode());
     }
