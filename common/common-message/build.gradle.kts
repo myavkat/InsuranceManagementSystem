@@ -1,6 +1,7 @@
 plugins {
     java
     `java-library`
+    `maven-publish`
     id("org.springframework.boot") version "4.0.6" apply false
     id("io.spring.dependency-management") version "1.1.7"
 }
@@ -12,6 +13,10 @@ java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(25))
     }
+}
+
+repositories {
+    mavenCentral()
 }
 
 dependencyManagement {
@@ -33,4 +38,12 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+        }
+    }
 }
