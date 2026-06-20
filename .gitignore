@@ -18,7 +18,7 @@ out/
 .classpath
 *.sublime-*
 
-## Java / Gradle (services/)
+## Java / Gradle
 *.class
 *.jar
 *.war
@@ -27,6 +27,11 @@ build/
 .gradle/
 bin/
 !gradle/wrapper/gradle-wrapper.jar
+
+# Sub-module Gradle wrappers (root wrapper manages all)
+services/*/gradlew
+services/*/gradlew.bat
+services/*/gradle/
 
 ## Node / Next.js (frontend-next/)
 node_modules/
