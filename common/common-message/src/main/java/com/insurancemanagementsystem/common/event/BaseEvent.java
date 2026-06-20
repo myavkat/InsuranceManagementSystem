@@ -1,5 +1,6 @@
 package com.insurancemanagementsystem.common.event;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -14,6 +15,7 @@ public abstract class BaseEvent {
             .addModule(new JavaTimeModule())
             .build();
 
+    @JsonIgnore
     public abstract String getEventType();
 
     public EventEnvelope toEnvelope(UUID sagaId, UUID traceId) {
