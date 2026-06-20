@@ -4,13 +4,13 @@
 
 ### Context Precedence
 When working on features, prioritize guidelines in this order:
-1. Local Constraints (`AGENTS.LOCAL.md` - if present in active memory)
+1. Local Constraints @AGENTS.LOCAL.md - if present in active memory)
 2. Project Constraints (This file)
-3. Workspace Context & Workflow Handling (`docs/AGENTS.md`)
+3. Workspace Context & Workflow Handling @docs/AGENTS.md
 
 ### Operational Rules
 - ALWAYS look into `docs/plans/` for the active feature plan before writing code.
-- BEFORE executing any workspace actions, read and adhere to the directory workflow defined in `@docs/agents.md`.
+- BEFORE executing any workspace actions, read and adhere to the directory workflow defined in docs/AGENTS.md.
 - If a model swap occurred, verify state by cross-referencing code against the active plan file.
 - DO NOT invent dependencies or refactor out-of-scope modules.
 
