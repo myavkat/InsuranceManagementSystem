@@ -29,6 +29,16 @@ You must use and reference the directories under `docs/` according to these stri
 
 ---
 
+## Git Branching Rule
+
+Before any code or doc change:
+1. **Branch off `main`** — never commit directly on `main`.
+2. **Branch name** — use the plan or task name in lowercase with hyphens (e.g., `phase0-preparation`, `sprint1-customer-service`). For unplanned work, pick a concise descriptive name.
+3. **Commit periodically** — commit as you complete each logical step or checkbox item to track progress.
+4. **Never push to remote** unless the user explicitly asks. Work remains local.
+
+---
+
 ## Operational Protocol for Model Handovers
 
 If you have just been initialized or swapped into this project:
