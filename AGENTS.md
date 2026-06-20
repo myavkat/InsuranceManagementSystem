@@ -27,11 +27,24 @@ When working on features, prioritize guidelines in this order:
   - `reference-data-service/` — Reference data (cities, professions, lookups)
   - `api-gateway/` — Spring Cloud Gateway, routing, auth, rate limiting
   - `auth-service/` — Authentication & JWT issuance/validation
+  - `reference-skeleton/` — Reference/template Spring Boot service (CRUD, Kafka, RabbitMQ)
 
   All target services: **Spring Boot MVC + Spring Data JPA (Hibernate)** + **PostgreSQL**.
   Each service has its own dedicated database (Database per Service pattern).
 
 - `frontend-next/` — **Target** Next.js SSR (App Router) + Tailwind CSS + shadcn/ui frontend.
+
+- `common/` — Shared libraries:
+  - `common-message/` — Event schemas (SAGA + domain events), serialization, constants
+  - `common-test/` — Shared test utilities
+
+- `infra/` — Infrastructure artifacts:
+  - `infra/docker/` — Docker Compose, `.env`, override configs
+  - `infra/sql/` — Database init scripts per service (mounted by Docker Compose)
+  - `infra/k8s/` — Kubernetes manifests (future)
+
+- Root `settings.gradle.kts` — Unified Gradle multi-project build (all services + common modules)
+- Root `.env.template` — Placeholder template for environment variables
 
 ## SAGA Pattern — Choreography
 
@@ -100,8 +113,11 @@ cd services/<service-name>
 
 ### Infrastructure (Docker Compose)
 ```bash
-docker compose up -d         # Start PostgreSQL, Kafka, RabbitMQ
-docker compose down          # Stop all infra services
+# From repo root:
+docker compose -f infra/docker/docker-compose.yml up -d
+# With local dev overrides:
+docker compose -f infra/docker/docker-compose.yml -f infra/docker/docker-compose.override.yml up -d
+docker compose -f infra/docker/docker-compose.yml down
 ```
 
 ## Order Matters
