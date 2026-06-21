@@ -2,15 +2,13 @@ package com.insurancemanagementsystem.common.event.saga;
 
 import com.insurancemanagementsystem.common.event.BaseEvent;
 import com.insurancemanagementsystem.common.event.EventConstants;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.UUID;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Builder
 @NoArgsConstructor

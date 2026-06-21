@@ -2,11 +2,9 @@ package com.insurancemanagementsystem.common.event.saga;
 
 import com.insurancemanagementsystem.common.event.BaseEvent;
 import com.insurancemanagementsystem.common.event.EventConstants;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Builder
 @NoArgsConstructor
