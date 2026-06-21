@@ -8,7 +8,7 @@ include(
 // Future services (uncomment when build files are created):
 // include("common:common-test")
 // include("services:auth-service")
-// include("services:customer-service")
+include("services:customer-service")
 // include("services:vehicle-service")
 // include("services:realestate-service")
 // include("services:insurance-service")
