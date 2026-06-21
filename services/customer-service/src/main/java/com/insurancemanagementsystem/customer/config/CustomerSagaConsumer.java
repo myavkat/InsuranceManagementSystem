@@ -34,9 +34,9 @@ public class CustomerSagaConsumer {
     private final DeduplicationStore deduplicationStore;
 
     @Bean
-    public Consumer<String> customerSagaConsumer() {
+    public Consumer<String> processCustomerSaga() {
         return message -> {
-            EventEnvelope envelope = null;
+            EventEnvelope envelope;
             try {
                 envelope = MAPPER.readValue(message, EventEnvelope.class);
 

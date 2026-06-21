@@ -155,7 +155,7 @@
 
 ## 9. Integration Tests
 
-- [ ] 9.1 Create `src/test/java/com/insurancemanagementsystem/customer/CustomerServiceApplicationTests.java`:
+- [x] 9.1 Create `src/test/java/com/insurancemanagementsystem/customer/CustomerServiceApplicationTests.java`:
   - `@SpringBootTest(webEnvironment = RANDOM_PORT)`
   - `@Testcontainers` — PostgreSQL 16 + Kafka containers
   - `@DynamicPropertySource` for datasource, Kafka bootstrap, JPA ddl-auto=create-drop
@@ -164,7 +164,7 @@
   - Test: `searchCustomers` — create 2 customers, GET with search → both match
   - Test: `softDeleteCustomer` — DELETE → 200, GET by ID → 404
   - Test: `updateCustomer` — PUT → 200, verify updated fields
-- [ ] 9.2 Create `src/test/java/com/insurancemanagementsystem/customer/saga/CustomerSagaConsumerTest.java`:
+- [x] 9.2 Create `src/test/java/com/insurancemanagementsystem/customer/saga/CustomerSagaConsumerTest.java`:
   - `@SpringBootTest` with Kafka test support
   - Test: consume `EstimationRequested` with valid customerId → `CustomerValidated` published
   - Test: consume `EstimationRequested` with invalid customerId → `CustomerInvalidated` published

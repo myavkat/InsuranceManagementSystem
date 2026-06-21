@@ -263,8 +263,8 @@ class CustomerServiceTest {
         // Assert
         assertThat(result).isNotEmpty();
         assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getContent().get(0).getFirstName()).isEqualTo(FIRST_NAME);
-        assertThat(result.getContent().get(0).getLastName()).isEqualTo(LAST_NAME);
+        assertThat(result.getContent().getFirst().getFirstName()).isEqualTo(FIRST_NAME);
+        assertThat(result.getContent().getFirst().getLastName()).isEqualTo(LAST_NAME);
 
         verify(customerRepository).findByNameSearch("Doe", pageable);
         verify(customerRepository, never()).findByNationalIdContaining(anyString(), any(Pageable.class));
@@ -288,7 +288,7 @@ class CustomerServiceTest {
         // Assert
         assertThat(result).isNotEmpty();
         assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getContent().get(0).getNationalId()).isEqualTo(NATIONAL_ID);
+        assertThat(result.getContent().getFirst().getNationalId()).isEqualTo(NATIONAL_ID);
 
         verify(customerRepository).findByNationalIdContaining(NATIONAL_ID, pageable);
         verify(customerRepository, never()).findByNameSearch(anyString(), any(Pageable.class));

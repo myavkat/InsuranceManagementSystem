@@ -23,7 +23,7 @@ spring:
       default-binder: kafka
       dynamicDestinations: estimation.saga,customer.events
       bindings:
-        customerSagaConsumer-in-0:
+        processCustomerSaga-in-0:
           destination: estimation.saga
           group: customer-service-group
         customerEvents-out-0:

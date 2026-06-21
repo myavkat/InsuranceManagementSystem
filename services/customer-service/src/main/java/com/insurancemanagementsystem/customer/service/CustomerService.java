@@ -57,7 +57,7 @@ public class CustomerService {
     @Transactional
     public CustomerResponse create(CustomerRequest request) {
         customerRepository.findByNationalId(request.getNationalId().trim())
-                .ifPresent(c -> {
+                .ifPresent(_ -> {
                     throw new IllegalArgumentException(
                             "Customer with national ID " + request.getNationalId() + " already exists");
                 });
@@ -91,7 +91,7 @@ public class CustomerService {
 
         if (!customer.getNationalId().equals(request.getNationalId().trim())) {
             customerRepository.findByNationalId(request.getNationalId().trim())
-                    .ifPresent(c -> {
+                    .ifPresent(_ -> {
                         throw new IllegalArgumentException(
                                 "Customer with national ID " + request.getNationalId() + " already exists");
                     });
