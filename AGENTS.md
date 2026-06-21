@@ -154,6 +154,7 @@ docker compose -f infra/docker/docker-compose.yml down
 - **Domain-driven microservices** — each service owns its domain data and logic. No shared database.
 - **Spring Boot MVC + JPA** — imperative controllers (`@RestController`), Spring Data JPA repositories, Hibernate ORM.
 - **Database per service** — each service has a dedicated PostgreSQL database.
+- **Datetime convention** — timestamps (createdAt, updatedAt, deletedAt, etc.) use `java.time.Instant`; date-only fields (birthDate, policyStartDate, etc.) use `java.time.LocalDate`.
 - **Inter-service communication** — **no direct REST calls**. All communication via message brokers:
   - **Kafka** — SAGA events, domain events (audit, analytics, eventual consistency). Topics: `estimation.saga`, `*.events`.
   - **RabbitMQ** — Synchronous RPC calls (e.g., fetch reference data), dead-letter handling.

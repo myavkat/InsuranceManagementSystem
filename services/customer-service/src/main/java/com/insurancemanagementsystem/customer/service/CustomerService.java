@@ -12,7 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Service
@@ -34,7 +34,7 @@ public class CustomerService {
         boolean hasNationalId = nationalId != null && !nationalId.isBlank();
 
         if (hasName) {
-            return customerRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(name, name, pageable)
+            return customerRepository.findByNameSearch(name, pageable)
                     .map(CustomerResponse::fromEntity);
         } else if (hasNationalId) {
             return customerRepository.findByNationalIdContaining(nationalId, pageable)
@@ -115,7 +115,7 @@ public class CustomerService {
         // TODO: Check for active estimations before soft-delete when Estimation Service exists
         log.warn("Active estimation check skipped — Estimation Service not yet available");
 
-        customer.setDeletedAt(LocalDateTime.now());
+        customer.setDeletedAt(Instant.now());
         Customer savedCustomer = customerRepository.save(customer);
         log.info("Customer soft-deleted with id: {}", savedCustomer.getId());
         return CustomerResponse.fromEntity(savedCustomer);
