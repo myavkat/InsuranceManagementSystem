@@ -10,44 +10,44 @@
 
 ## 0. Git Branch
 
-- [ ] Create branch `sprint1-customer-service` from `main`
+- [x] Create branch `sprint1-customer-service` from `main`
 
 ---
 
 ## 1. Scaffold Customer Service from Reference Skeleton
 
-- [ ] 1.1 Uncomment `services:customer-service` in root `settings.gradle.kts` line 10
-- [ ] 1.2 Create `services/customer-service/build.gradle.kts` — mirror reference-skeleton, add:
+- [x] 1.1 Uncomment `services:customer-service` in root `settings.gradle.kts` line 10
+- [x] 1.2 Create `services/customer-service/build.gradle.kts` — mirror reference-skeleton, add:
   - Dependency on `common:common-message` project
-- [ ] 1.3 Create `services/customer-service/settings.gradle.kts` with `rootProject.name = "customer-service"`
-- [ ] 1.4 Create `services/customer-service/Dockerfile` (mirror reference-skeleton, expose port 8081)
-- [ ] 1.5 Create package directories:
+- [x] 1.3 Create `services/customer-service/settings.gradle.kts` with `rootProject.name = "customer-service"`
+- [x] 1.4 Create `services/customer-service/Dockerfile` (mirror reference-skeleton, expose port 8081)
+- [x] 1.5 Create package directories:
   - `src/main/java/com/insurancemanagementsystem/customer/`
   - Sub-packages: `entity/`, `repository/`, `service/`, `controller/`, `dto/`, `config/`, `exception/`
   - `src/main/resources/`
   - `src/test/java/com/insurancemanagementsystem/customer/`
-- [ ] 1.6 Create `CustomerServiceApplication.java` — `@SpringBootApplication` main class
-- [ ] 1.7 Create `application.yml` — PostgreSQL datasource (`customer_db` on `localhost:5432`), Kafka/RabbitMQ config, server port `8081`, JPA `ddl-auto=validate`, structured JSON logging
-- [ ] 1.8 Copy `ApiResponse.java` → `dto/ApiResponse.java` (update package)
-- [ ] 1.9 Copy `GlobalExceptionHandler.java` → `exception/GlobalExceptionHandler.java` (update package)
+- [x] 1.6 Create `CustomerServiceApplication.java` — `@SpringBootApplication` main class
+- [x] 1.7 Create `application.yml` — PostgreSQL datasource (`customer_db` on `localhost:5432`), Kafka/RabbitMQ config, server port `8081`, JPA `ddl-auto=validate`, structured JSON logging
+- [x] 1.8 Copy `ApiResponse.java` → `dto/ApiResponse.java` (update package)
+- [x] 1.9 Copy `GlobalExceptionHandler.java` → `exception/GlobalExceptionHandler.java` (update package)
 
 ---
 
 ## 2. Customer Domain Layer
 
-- [ ] 2.1 Create `entity/Customer.java` — JPA `@Entity`, table `customers`:
+- [x] 2.1 Create `entity/Customer.java` — JPA `@Entity`, table `customers`:
   - `id` (UUID, `@GeneratedValue(UUID)`)
   - `firstName`, `lastName`, `nationalId` (unique, max 11), `email`, `phone`, `birthDate` (LocalDate)
   - `address` (TEXT), `cityId` (Integer), `professionId` (Integer)
   - `createdAt`, `updatedAt` (LocalDateTime, auto-managed via `@PrePersist`/`@PreUpdate`)
   - `deletedAt` (LocalDateTime, nullable — soft-delete marker)
   - Lombok `@Data`, `@Builder`, `@NoArgsConstructor`, `@AllArgsConstructor`
-- [ ] 2.2 Create `repository/CustomerRepository.java` — `JpaRepository<Customer, UUID>`:
+- [x] 2.2 Create `repository/CustomerRepository.java` — `JpaRepository<Customer, UUID>`:
   - `findByDeletedAtIsNull(Pageable)` — active customers, paginated
   - `findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(String fn, String ln, Pageable)`
   - `findByNationalIdContaining(String nationalId, Pageable)`
   - `findByNationalId(String nationalId)` — exact lookup for uniqueness validation
-- [ ] 2.3 Create `service/CustomerService.java`:
+- [x] 2.3 Create `service/CustomerService.java`:
   - `findAll(Pageable)` — returns active (non-deleted) page
   - `search(String name, String nationalId, Pageable)` — combined search
   - `findById(UUID)` — throws `EntityNotFoundException` if not found or soft-deleted
@@ -55,21 +55,21 @@
   - `update(UUID, CustomerRequest)` — finds existing, updates fields, saves
   - `softDelete(UUID)` — sets `deletedAt = now()` instead of hard delete
   - Business rules from story: national ID format validation (11 chars), email format, phone format, active estimation check before delete (stub — will be implemented when Estimation Service exists)
-  - Injection: `CustomerRepository`, `MessagePublisher`
+  - Injection: `CustomerRepository` (MessagePublisher will be wired in Section 5)
 
 ---
 
 ## 3. CRUD API Layer
 
-- [ ] 3.1 Create `dto/CustomerRequest.java` — create/update DTO with Jakarta validation:
+- [x] 3.1 Create `dto/CustomerRequest.java` — create/update DTO with Jakarta validation:
   - `@NotBlank` firstName, lastName, nationalId
   - `@Size(max=11)` nationalId
   - `@Email` email, `@Pattern` phone, `@NotNull` birthDate
   - `cityId`, `professionId` (nullable — reference data not yet available)
   - `address` (optional)
-- [ ] 3.2 Create `dto/CustomerResponse.java` — read DTO (all fields, no `deletedAt`)
+- [x] 3.2 Create `dto/CustomerResponse.java` — read DTO (all fields, no `deletedAt`)
   - Static factory `fromEntity(Customer)` for clean controller mapping
-- [ ] 3.3 Create `controller/CustomerController.java` — `@RestController`, `@RequestMapping("/api/customers")`:
+- [x] 3.3 Create `controller/CustomerController.java` — `@RestController`, `@RequestMapping("/api/customers")`:
   - `GET /` — paginated list with optional `search` query param (searches name + nationalId)
   - `GET /{id}` — single customer detail
   - `POST /` — create, returns 201 with created customer
@@ -82,10 +82,10 @@
 
 ## 4. Database Verification
 
-- [ ] 4.1 Run `docker compose -f infra/docker/docker-compose.yml up -d customer-db`
-- [ ] 4.2 Verify `customer_db` container is healthy
-- [ ] 4.3 Verify `customers` table exists with correct schema (UUID PK, indexes on `national_id`, `last_name`, `email`, `deleted_at` column)
-- [ ] 4.4 No seed data required for customer service (customers are created by users)
+- [x] 4.1 Run `docker compose -f infra/docker/docker-compose.yml up -d customer-db`
+- [x] 4.2 Verify `customer_db` container is healthy
+- [x] 4.3 Verify `customers` table exists with correct schema (UUID PK, indexes on `national_id`, `last_name`, `email`, `deleted_at` column)
+- [x] 4.4 No seed data required for customer service (customers are created by users)
 
 ---
 
