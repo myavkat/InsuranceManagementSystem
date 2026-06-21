@@ -1,5 +1,6 @@
 package com.insurancemanagementsystem.customer.service;
 
+import com.insurancemanagementsystem.customer.config.CustomerEventPublisher;
 import com.insurancemanagementsystem.customer.dto.CustomerRequest;
 import com.insurancemanagementsystem.customer.dto.CustomerResponse;
 import com.insurancemanagementsystem.customer.entity.Customer;
@@ -21,6 +22,7 @@ import java.util.UUID;
 public class CustomerService {
 
     private final CustomerRepository customerRepository;
+    private final CustomerEventPublisher customerEventPublisher;
 
     @Transactional(readOnly = true)
     public Page<CustomerResponse> findAll(Pageable pageable) {
@@ -74,6 +76,7 @@ public class CustomerService {
 
         Customer savedCustomer = customerRepository.save(customer);
         log.info("Customer created with id: {} and nationalId: {}", savedCustomer.getId(), savedCustomer.getNationalId());
+        customerEventPublisher.publishCustomerCreated(savedCustomer);
         return CustomerResponse.fromEntity(savedCustomer);
     }
 
@@ -103,6 +106,7 @@ public class CustomerService {
 
         Customer savedCustomer = customerRepository.save(customer);
         log.info("Customer updated with id: {}", savedCustomer.getId());
+        customerEventPublisher.publishCustomerUpdated(savedCustomer);
         return CustomerResponse.fromEntity(savedCustomer);
     }
 

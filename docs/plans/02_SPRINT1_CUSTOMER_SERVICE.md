@@ -91,22 +91,23 @@
 
 ## 5. Messaging Infrastructure
 
-- [ ] 5.1 Create `config/MessagePublisher.java` — `StreamBridge` wrapper (copy from skeleton, update package)
-- [ ] 5.2 Create `config/CustomerEventPublisher.java`:
+- [x] 5.1 Create `config/MessagePublisher.java` — `StreamBridge` wrapper (copy from skeleton, update package)
+- [x] 5.2 Create `config/CustomerEventPublisher.java`:
   - `publishCustomerCreated(Customer)` — builds `CustomerCreatedEvent`, publishes to `customer.events`
   - `publishCustomerUpdated(Customer)` — builds `CustomerUpdatedEvent`, publishes to `customer.events`
   - Uses `MessagePublisher` and `EventEnvelope`/`BaseEvent.toEnvelope()`
-- [ ] 5.3 Wire `CustomerEventPublisher` into `CustomerService` — publish on create and update
-- [ ] 5.4 Add Spring Cloud Stream function bindings in `application.yml`:
+- [x] 5.3 Wire `CustomerEventPublisher` into `CustomerService` — publish on create and update
+- [x] 5.4 Add Spring Cloud Stream function bindings in `application.yml`:
   - `spring.cloud.stream.bindings.customerSagaConsumer-in-0.destination: estimation.saga`
   - `spring.cloud.stream.bindings.customerSagaConsumer-in-0.group: customer-service-group`
   - `spring.cloud.stream.bindings.customerEvents-out-0.destination: customer.events`
+  - Added `spring.cloud.stream.dynamicDestinations: estimation.saga,customer.events` for StreamBridge dynamic routing
 
 ---
 
 ## 6. SAGA Consumer
 
-- [ ] 6.1 Create `config/CustomerSagaConsumer.java` — `@Configuration` with `@Bean` `Consumer<String>`:
+- [x] 6.1 Create `config/CustomerSagaConsumer.java` — `@Configuration` with `@Bean` `Consumer<String>`:
   - Bean name: `customerSagaConsumer`
   - Deserializes `EventEnvelope` from JSON string
   - If `eventType == "EstimationRequested"`:
@@ -117,7 +118,7 @@
   - If `eventType == "EstimationFailed"`:
     - Log only (no reversible action for read-only validation per outline)
   - Log structured with `traceId` + `sagaId` from MDC/event envelope
-- [ ] 6.2 Create in-memory dedup store — `ConcurrentHashMap<String, Instant>` with periodic cleanup via `ScheduledExecutorService` (or simple LRU)
+- [x] 6.2 Create in-memory dedup store — `ConcurrentHashMap<String, Instant>` with periodic cleanup via `ScheduledExecutorService` (or simple LRU)
 
 ---
 

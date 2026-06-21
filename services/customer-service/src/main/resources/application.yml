@@ -21,6 +21,7 @@ spring:
   cloud:
     stream:
       default-binder: kafka
+      dynamicDestinations: estimation.saga,customer.events
       bindings:
         customerSagaConsumer-in-0:
           destination: estimation.saga
