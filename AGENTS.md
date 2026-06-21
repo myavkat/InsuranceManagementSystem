@@ -163,6 +163,14 @@ docker compose -f infra/docker/docker-compose.yml down
 - **Idempotency** — consumers deduplicate events using `sagaId` + event type.
 - **Result pattern** — services use standardized API response envelope.
 
+### Testing Conventions (Spring Boot 4)
+
+- **HTTP client for tests** — always use `RestTestClient`, never `TestRestTemplate` or raw `RestTemplate`.
+- **Slice tests** (controller-only, mocked services) — use `@WebMvcTest` + `@Autowired MockMvc`, then wrap: `RestTestClient.bindTo(mockMvc).build()` in `@BeforeEach`. This gives the fluent API without a real server.
+- **Integration tests** (full context, real DB/messaging) — use `@SpringBootTest(RANDOM_PORT)` + `@AutoConfigureRestTestClient` + `@Autowired RestTestClient`. No `@LocalServerPort`, no manual URL-building.
+- **Assertions** — prefer `.jsonPath("$...").isEqualTo(...)` via `RestTestClient.expectBody()` for HTTP responses. Use AssertJ (`assertThat`) for domain-level checks (DB state, entity fields). Avoid Hamcrest matchers in test assertions.
+- **Database isolation** — each integration test class cleans shared state via `@BeforeEach` or `@DirtiesContext`. Never rely on test order to produce a clean database.
+
 ### Target Frontend (Next.js SSR)
 
 - **App Router (SSR)** — all pages are server components by default, client components where interactivity is needed.

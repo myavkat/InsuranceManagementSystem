@@ -1,18 +1,16 @@
 package com.insurancemanagementsystem.skeleton;
 
-import com.insurancemanagementsystem.skeleton.dto.ApiResponse;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.insurancemanagementsystem.skeleton.entity.SampleEntity;
 import com.insurancemanagementsystem.skeleton.repository.SampleRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.test.web.servlet.client.RestTestClient;
 import org.testcontainers.kafka.ConfluentKafkaContainer;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -20,13 +18,15 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
+@AutoConfigureRestTestClient
 @Testcontainers
 class SkeletonApplicationTests {
 
@@ -40,13 +40,13 @@ class SkeletonApplicationTests {
     static ConfluentKafkaContainer kafka = new ConfluentKafkaContainer(
             DockerImageName.parse("confluentinc/cp-kafka:7.6.0"));
 
-    @LocalServerPort
-    private int port;
+    @Autowired
+    private RestTestClient restTestClient;
 
     @Autowired
     private SampleRepository sampleRepository;
 
-    private RestTemplate restTemplate;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
@@ -57,49 +57,46 @@ class SkeletonApplicationTests {
         registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop");
     }
 
-    @BeforeEach
-    void setUp() {
-        restTemplate = new RestTemplate();
-    }
-
     @Test
     void contextLoads() {
     }
 
-    @SuppressWarnings("unchecked")
     @Test
-    void createEntityViaRest_verifyInDb() {
-        String baseUrl = "http://localhost:" + port;
-
+    void createEntityViaRest_verifyInDb() throws Exception {
         // Create entity via REST
-        Map<String, String> request = Map.of("name", "Test Sample");
-        ResponseEntity<ApiResponse> response = restTemplate.postForEntity(
-                baseUrl + "/api/samples",
-                request,
-                ApiResponse.class);
+        byte[] responseBody = restTestClient.post()
+                .uri("/api/samples")
+                .body(Map.of("name", "Test Sample"))
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody()
+                .returnResult()
+                .getResponseBodyContent();
 
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertTrue(response.getBody().isSuccess());
+        assertThat(responseBody).isNotNull();
 
-        // Extract the created entity ID from response (data is a LinkedHashMap)
-        Map<String, Object> data = (Map<String, Object>) response.getBody().getData();
-        assertNotNull(data);
-        String idStr = (String) data.get("id");
-        assertNotNull(idStr);
+        JsonNode json = objectMapper.readTree(responseBody);
+        assertThat(json.get("success").asBoolean()).isTrue();
+
+        // Extract the created entity ID from response
+        JsonNode data = json.get("data");
+        assertThat(data).isNotNull();
+        String idStr = data.get("id").asText();
+        assertThat(idStr).isNotNull();
         UUID id = UUID.fromString(idStr);
 
         // Verify entity exists in database
-        assertTrue(sampleRepository.existsById(id));
-        SampleEntity saved = sampleRepository.findById(id).orElseThrow();
-        assertEquals("Test Sample", saved.getName());
-        assertNotNull(saved.getCreatedAt());
-        assertNotNull(saved.getUpdatedAt());
+        assertThat(sampleRepository.existsById(id)).isTrue();
+        Optional<SampleEntity> found = sampleRepository.findById(id);
+        assertThat(found).isPresent();
+        assertThat(found.get().getName()).isEqualTo("Test Sample");
+        assertThat(found.get().getCreatedAt()).isNotNull();
+        assertThat(found.get().getUpdatedAt()).isNotNull();
 
         // Fetch via REST and verify
-        ResponseEntity<ApiResponse> getResponse = restTemplate.getForEntity(
-                baseUrl + "/api/samples/" + id,
-                ApiResponse.class);
-        assertEquals(HttpStatus.OK, getResponse.getStatusCode());
+        restTestClient.get()
+                .uri("/api/samples/{id}", id)
+                .exchange()
+                .expectStatus().isOk();
     }
 }
