@@ -1,15 +1,16 @@
 package com.insurancemanagementsystem.skeleton.controller;
 
 import com.insurancemanagementsystem.skeleton.dto.ApiResponse;
+import com.insurancemanagementsystem.skeleton.dto.SampleRequest;
 import com.insurancemanagementsystem.skeleton.entity.SampleEntity;
 import com.insurancemanagementsystem.skeleton.service.SampleService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -30,8 +31,8 @@ public class SampleController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<SampleEntity>> create(@RequestBody Map<String, String> body) {
-        SampleEntity created = service.create(body.get("name"));
+    public ResponseEntity<ApiResponse<SampleEntity>> create(@Valid @RequestBody SampleRequest request) {
+        SampleEntity created = service.create(request.getName());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Sample created successfully", created));
     }
@@ -39,9 +40,9 @@ public class SampleController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<SampleEntity>> update(
             @PathVariable UUID id,
-            @RequestBody Map<String, String> body) {
+            @Valid @RequestBody SampleRequest request) {
         return ResponseEntity.ok(ApiResponse.success("Sample updated successfully",
-                service.update(id, body.get("name"))));
+                service.update(id, request.getName())));
     }
 
     @DeleteMapping("/{id}")

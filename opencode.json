@@ -16,6 +16,7 @@
   ],
   "permission": {
     "edit": "ask",
-    "bash": "ask"
+    "bash": "ask",
+    "doom_loop": "ask"
   }
 }

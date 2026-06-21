@@ -41,18 +41,18 @@ INSERT INTO insurance_companies (id, name, rating, is_active) VALUES
 
 -- Seed insurance products
 INSERT INTO insurances (name, description, type_id, company_id, base_premium, is_active)
-SELECT 'Zorunlu Trafik SigortasÄ±', 'Legal required traffic insurance', 1, id, 1250.00, TRUE FROM insurance_companies WHERE name = 'Anadolu Sigorta';
+SELECT 'Zorunlu Trafik Sigortası', 'Legal required traffic insurance', 1, id, 1250.00, TRUE FROM insurance_companies WHERE name = 'Anadolu Sigorta';
 INSERT INTO insurances (name, description, type_id, company_id, base_premium, is_active)
-SELECT 'KapsamlÄ± Kasko', 'Full comprehensive insurance', 2, id, 3500.00, TRUE FROM insurance_companies WHERE name = 'Anadolu Sigorta';
+SELECT 'Kapsamlı Kasko', 'Full comprehensive insurance', 2, id, 3500.00, TRUE FROM insurance_companies WHERE name = 'Anadolu Sigorta';
 INSERT INTO insurances (name, description, type_id, company_id, base_premium, is_active)
-SELECT 'DoÄŸal Afet SigortasÄ± (DASK)', 'Earthquake insurance', 3, id, 450.00, TRUE FROM insurance_companies WHERE name = 'Anadolu Sigorta';
+SELECT 'Doğal Afet Sigortası (DASK)', 'Earthquake insurance', 3, id, 450.00, TRUE FROM insurance_companies WHERE name = 'Anadolu Sigorta';
 INSERT INTO insurances (name, description, type_id, company_id, base_premium, is_active)
-SELECT 'TamamlayÄ±cÄ± SaÄŸlÄ±k SigortasÄ±', 'Complementary health insurance', 4, id, 2800.00, TRUE FROM insurance_companies WHERE name = 'Anadolu Sigorta';
+SELECT 'Tamamlayıcı Sağlık Sigortası', 'Complementary health insurance', 4, id, 2800.00, TRUE FROM insurance_companies WHERE name = 'Anadolu Sigorta';
 INSERT INTO insurances (name, description, type_id, company_id, base_premium, is_active)
-SELECT 'Zorunlu Trafik SigortasÄ±', 'Legal required traffic insurance', 1, id, 1200.00, TRUE FROM insurance_companies WHERE name = 'Ak Sigorta';
+SELECT 'Zorunlu Trafik Sigortası', 'Legal required traffic insurance', 1, id, 1200.00, TRUE FROM insurance_companies WHERE name = 'Ak Sigorta';
 INSERT INTO insurances (name, description, type_id, company_id, base_premium, is_active)
-SELECT 'Kasko SigortasÄ±', 'Vehicle comprehensive insurance', 2, id, 3200.00, TRUE FROM insurance_companies WHERE name = 'Ak Sigorta';
+SELECT 'Kasko Sigortası', 'Vehicle comprehensive insurance', 2, id, 3200.00, TRUE FROM insurance_companies WHERE name = 'Ak Sigorta';
 INSERT INTO insurances (name, description, type_id, company_id, base_premium, is_active)
 SELECT 'Premium Kasko', 'Premium comprehensive insurance', 2, id, 4500.00, TRUE FROM insurance_companies WHERE name = 'Allianz';
 INSERT INTO insurances (name, description, type_id, company_id, base_premium, is_active)
-SELECT 'Hayat SigortasÄ±', 'Life insurance', 5, id, 1500.00, TRUE FROM insurance_companies WHERE name = 'Allianz';
+SELECT 'Hayat Sigortası', 'Life insurance', 5, id, 1500.00, TRUE FROM insurance_companies WHERE name = 'Allianz';

@@ -81,8 +81,11 @@ class EventSerializationTest {
         EventEnvelope envelope = payload.toEnvelope(UUID.randomUUID(), UUID.randomUUID());
 
         String json = mapper.writeValueAsString(envelope);
-        assertTrue(json.contains("\"eventType\":\"EstimationRequested\""));
-        assertTrue(json.contains("\"sagaId\""));
+        EventEnvelope deserialized = mapper.readValue(json, EventEnvelope.class);
+        assertEquals("EstimationRequested", deserialized.getEventType());
+        assertNotNull(deserialized.getSagaId());
+        assertNotNull(deserialized.getTimestamp());
+        assertNotNull(deserialized.getTraceId());
     }
 
     @Test

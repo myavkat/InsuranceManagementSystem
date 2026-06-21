@@ -39,7 +39,7 @@ public class SampleService {
     public SampleEntity update(UUID id, String name) {
         SampleEntity entity = findById(id);
         entity.setName(name);
-        return repository.save(entity);
+        return entity;  // Hibernate dirty checking persists the change automatically
     }
 
     @Transactional
