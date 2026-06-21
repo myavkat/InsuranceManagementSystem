@@ -1,0 +1,25 @@
+services:
+  auth-db:
+    ports:
+      - "5432:5432"
+  customer-db:
+    ports:
+      - "5433:5432"
+  vehicle-db:
+    ports:
+      - "5434:5432"
+  realestate-db:
+    ports:
+      - "5435:5432"
+  insurance-db:
+    ports:
+      - "5436:5432"
+  estimation-db:
+    ports:
+      - "5437:5432"
+  reference-data-db:
+    ports:
+      - "5438:5432"
+  gateway-db:
+    ports:
+      - "5439:5432"

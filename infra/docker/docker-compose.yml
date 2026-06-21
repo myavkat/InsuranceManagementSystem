@@ -1,0 +1,230 @@
+
+networks:
+  insurance-net:
+    driver: bridge
+
+services:
+  # ============================================================
+  # PostgreSQL Databases (one per microservice)
+  # ============================================================
+  auth-db:
+    image: postgres:16
+    container_name: auth-db
+    env_file: .env
+    environment:
+      POSTGRES_DB: auth_db
+    volumes:
+      - auth-db-data:/var/lib/postgresql/data
+      - ./../sql/auth_db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - insurance-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d auth_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  customer-db:
+    image: postgres:16
+    container_name: customer-db
+    env_file: .env
+    environment:
+      POSTGRES_DB: customer_db
+    volumes:
+      - customer-db-data:/var/lib/postgresql/data
+      - ./../sql/customer_db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - insurance-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d customer_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  vehicle-db:
+    image: postgres:16
+    container_name: vehicle-db
+    env_file: .env
+    environment:
+      POSTGRES_DB: vehicle_db
+    volumes:
+      - vehicle-db-data:/var/lib/postgresql/data
+      - ./../sql/vehicle_db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - insurance-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d vehicle_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  realestate-db:
+    image: postgres:16
+    container_name: realestate-db
+    env_file: .env
+    environment:
+      POSTGRES_DB: realestate_db
+    volumes:
+      - realestate-db-data:/var/lib/postgresql/data
+      - ./../sql/realestate_db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - insurance-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d realestate_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  insurance-db:
+    image: postgres:16
+    container_name: insurance-db
+    env_file: .env
+    environment:
+      POSTGRES_DB: insurance_db
+    volumes:
+      - insurance-db-data:/var/lib/postgresql/data
+      - ./../sql/insurance_db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - insurance-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d insurance_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  estimation-db:
+    image: postgres:16
+    container_name: estimation-db
+    env_file: .env
+    environment:
+      POSTGRES_DB: estimation_db
+    volumes:
+      - estimation-db-data:/var/lib/postgresql/data
+      - ./../sql/estimation_db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - insurance-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d estimation_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  reference-data-db:
+    image: postgres:16
+    container_name: reference-data-db
+    env_file: .env
+    environment:
+      POSTGRES_DB: reference_data_db
+    volumes:
+      - reference-data-db-data:/var/lib/postgresql/data
+      - ./../sql/reference_data_db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - insurance-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d reference_data_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  gateway-db:
+    image: postgres:16
+    container_name: gateway-db
+    env_file: .env
+    environment:
+      POSTGRES_DB: gateway_db
+    volumes:
+      - gateway-db-data:/var/lib/postgresql/data
+      - ./../sql/gateway_db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - insurance-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d gateway_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ============================================================
+  # Kafka (SAGA events, domain events, audit) — KRaft mode
+  # ============================================================
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_CLUSTER_ID: MUtjVk5sU1NpZ0dDcEFUcQ==
+    networks:
+      - insurance-net
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:9092 > /dev/null 2>&1 || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # ============================================================
+  # RabbitMQ (RPC calls, dead-letter handling)
+  # ============================================================
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - insurance-net
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ============================================================
+  # Redis (API Gateway rate limiting)
+  # ============================================================
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - insurance-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+# ============================================================
+# Named Volumes
+# ============================================================
+volumes:
+  auth-db-data:
+  customer-db-data:
+  vehicle-db-data:
+  realestate-db-data:
+  insurance-db-data:
+  estimation-db-data:
+  reference-data-db-data:
+  gateway-db-data:

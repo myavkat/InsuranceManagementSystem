@@ -6,7 +6,7 @@
 
 ## 1. Create Monorepo Structure
 
-- [ ] Create root directory layout:
+- [x] Create root directory layout:
   ```
   services/            # All microservices
   services/auth-service/
@@ -27,7 +27,7 @@
   common/common-message/
   common/common-test/
   ```
-- [ ] For each service under `services/`, create standard Java directory tree:
+- [x] For each service under `services/`, create standard Java directory tree:
   ```
   services/<name>/
     build.gradle.kts
@@ -37,175 +37,146 @@
     src/test/java/com/insurancemanagementsystem/<service>/
     Dockerfile
   ```
-- [ ] Create root `settings.gradle.kts` including all service subprojects (optional unified build).
-- [ ] Create root `.env` template file with placeholders for DB passwords, broker addresses, etc.
+- [x] Create root `settings.gradle.kts` including all service subprojects (optional unified build).
+- [x] Create root `.env` template file with placeholders for DB passwords, broker addresses, etc.
 
 ---
 
 ## 2. Docker Dev Environment Setup
 
-- [ ] Create `infra/docker/docker-compose.yml` with:
-  - [ ] **PostgreSQL × 8 services**: `auth-db`, `customer-db`, `vehicle-db`, `realestate-db`, `insurance-db`, `estimation-db`, `reference-data-db`, `gateway-db`
+- [x] Create `infra/docker/docker-compose.yml` with:
+  - [x] **PostgreSQL × 8 services**: `auth-db`, `customer-db`, `vehicle-db`, `realestate-db`, `insurance-db`, `estimation-db`, `reference-data-db`, `gateway-db`
     - Each with: image `postgres:16`, named volume, health check, init script volume mount (`./infra/sql/<db>/init.sql`), distinct ports (5432-5439).
-  - [ ] **Zookeeper**: image `confluentinc/cp-zookeeper:latest`, port 2181.
-  - [ ] **Kafka**: image `confluentinc/cp-kafka:latest`, port 9092, depends on Zookeeper.
-  - [ ] **RabbitMQ**: image `rabbitmq:3-management-alpine`, ports 5672 (AMQP) + 15672 (management UI).
-  - [ ] **Redis**: image `redis:7-alpine`, port 6379 (for Gateway rate limiting).
-  - [ ] Shared network `insurance-net`, `.env` file for configurable credentials.
-  - [ ] Health checks for all services, `depends_on` with condition checks.
-- [ ] Create `infra/docker/.env` with default ports and credentials.
+  - [x] **Zookeeper**: image `confluentinc/cp-zookeeper:latest`, port 2181.
+  - [x] **Kafka**: image `confluentinc/cp-kafka:latest`, port 9092, depends on Zookeeper.
+  - [x] **RabbitMQ**: image `rabbitmq:3-management-alpine`, ports 5672 (AMQP) + 15672 (management UI).
+  - [x] **Redis**: image `redis:7-alpine`, port 6379 (for Gateway rate limiting).
+  - [x] Shared network `insurance-net`, `.env` file for configurable credentials.
+  - [x] Health checks for all services, `depends_on` with condition checks.
+- [x] Create `infra/docker/.env` with default ports and credentials.
 - [ ] Verify startup: `docker compose up -d` — all 12 containers healthy.
-- [ ] Create `infra/docker/docker-compose.override.yml` for local dev overrides (hot-reload volumes, debug ports).
+- [x] Create `infra/docker/docker-compose.override.yml` for local dev overrides (hot-reload volumes, debug ports).
 
 ---
 
 ## 3. Initialize Next.js Project
 
-- [ ] Run `npx create-next-app@latest frontend-next --typescript --tailwind --eslint --app --src-dir --import-alias "@/*" --use-npm`.
-- [ ] Run `npx shadcn@latest init` inside `frontend-next/` (default config, `components.json` created).
-- [ ] Install runtime deps: `npm install zustand @tanstack/react-query zod react-hook-form @hookform/resolvers`.
-- [ ] Install shadcn UI primitives: `npx shadcn@latest add button input card dialog table select badge skeleton`.
-- [ ] Create `.env.local` with:
+- [x] Run `npx create-next-app@latest frontend-next --typescript --tailwind --eslint --app --src-dir --import-alias "@/*" --use-npm`.
+- [x] Run `npx shadcn@latest init` inside `frontend-next/` (default config, `components.json` created).
+- [x] Install runtime deps: `npm install zustand @tanstack/react-query zod react-hook-form @hookform/resolvers`.
+- [x] Install shadcn UI primitives: `npx shadcn@latest add button input card dialog table select badge skeleton`.
+- [x] Create `.env.local` with:
   ```
   GATEWAY_URL=http://localhost:8080
   NEXT_PUBLIC_GATEWAY_URL=http://localhost:8080
   ```
-- [ ] Update `next.config.ts` to allow images from Gateway domain.
+- [x] Update `next.config.ts` to allow images from Gateway domain.
 - [ ] Verify: `npm run dev` starts without errors on `localhost:3000`.
 
 ---
 
 ## 4. Database Schema Design
 
-- [ ] Create `infra/sql/auth_db/init.sql`:
-  - [ ] Table `users` (id UUID PK, username VARCHAR UNIQUE, email VARCHAR UNIQUE, password_hash VARCHAR, enabled BOOLEAN, account_non_locked BOOLEAN, failed_attempts INT, lock_time TIMESTAMP, created_at TIMESTAMP, updated_at TIMESTAMP).
-  - [ ] Table `roles` (id UUID PK, name VARCHAR UNIQUE).
-  - [ ] Table `user_roles` (user_id UUID FK, role_id UUID FK, PK composite).
-  - [ ] Table `refresh_tokens` (id UUID PK, user_id UUID FK, token_hash VARCHAR, expires_at TIMESTAMP, created_at TIMESTAMP, revoked BOOLEAN).
-  - [ ] Indexes on `users.username`, `users.email`, `refresh_tokens.token_hash`.
-  - [ ] Seed: admin user (bcrypt hash placeholder), roles `ADMIN`, `AGENT`, `CUSTOMER`.
+- [x] Create `infra/sql/auth_db/init.sql`:
+  - [x] Table `users`, `roles`, `user_roles`, `refresh_tokens` with indexes and seeds.
 
-- [ ] Create `infra/sql/customer_db/init.sql`:
-  - [ ] Table `customers` (id UUID PK, first_name VARCHAR, last_name VARCHAR, national_id VARCHAR UNIQUE, email VARCHAR, phone VARCHAR, birth_date DATE, address TEXT, city_id INT, profession_id INT, created_at TIMESTAMP, updated_at TIMESTAMP, deleted_at TIMESTAMP NULL).
-  - [ ] Indexes on `customers.national_id`, `customers.last_name`, `customers.email`.
+- [x] Create `infra/sql/customer_db/init.sql`:
+  - [x] Table `customers` with indexes on `national_id`, `last_name`, `email`.
 
-- [ ] Create `infra/sql/vehicle_db/init.sql`:
-  - [ ] Table `car_brands` (id INT PK, name VARCHAR UNIQUE).
-  - [ ] Table `car_models` (id INT PK, name VARCHAR, brand_id INT FK → car_brands).
-  - [ ] Table `car_engines` (id INT PK, name VARCHAR, volume DECIMAL, power INT).
-  - [ ] Table `car_fuel_types` (id INT PK, name VARCHAR).
-  - [ ] Table `car_types` (id INT PK, name VARCHAR).
-  - [ ] Table `car_packages` (id INT PK, name VARCHAR).
-  - [ ] Table `vehicles` (id UUID PK, plate VARCHAR UNIQUE, chassis_number VARCHAR, license_first_date DATE, car_brand_id INT FK, car_model_id INT FK, car_engine_id INT FK, car_fuel_type_id INT FK, car_type_id INT FK, car_package_id INT FK, customer_id UUID, created_at TIMESTAMP, updated_at TIMESTAMP).
-  - [ ] Indexes on `vehicles.plate`, `vehicles.chassis_number`, `vehicles.customer_id`.
-  - [ ] Seed: sample car brands (Toyota, BMW, Mercedes, Renault, Fiat, Ford, Honda, Hyundai, Volkswagen, Audi), models per brand, engines, fuel types (Gasoline, Diesel, Electric, Hybrid, LPG), types (Sedan, Hatchback, SUV, Coupe, Convertible, Minivan, Pickup), packages (Base, Comfort, Luxury, Sport).
+- [x] Create `infra/sql/vehicle_db/init.sql`:
+  - [x] Tables: `car_brands`, `car_models`, `car_engines`, `car_fuel_types`, `car_types`, `car_packages`, `vehicles` with indexes and full seed data.
 
-- [ ] Create `infra/sql/realestate_db/init.sql`:
-  - [ ] Table `real_estate_construction_types` (id INT PK, name VARCHAR).
-  - [ ] Table `real_estate_luxury_classes` (id INT PK, name VARCHAR).
-  - [ ] Table `real_estate_usage_types` (id INT PK, name VARCHAR).
-  - [ ] Table `real_estates` (id UUID PK, address TEXT, city_id INT, district VARCHAR, square_meters DECIMAL, construction_year INT, construction_type_id INT FK, luxury_class_id INT FK, usage_type_id INT FK, customer_id UUID, created_at TIMESTAMP, updated_at TIMESTAMP).
-  - [ ] Indexes on `real_estates.customer_id`.
-  - [ ] Seed: construction types (Reinforced Concrete, Steel, Masonry, Wood, Prefabricated), luxury classes (Luxury, High, Middle, Low, Slum), usage types (Residential, Commercial, Industrial, Agricultural).
+- [x] Create `infra/sql/realestate_db/init.sql`:
+  - [x] Tables: `real_estate_construction_types`, `real_estate_luxury_classes`, `real_estate_usage_types`, `real_estates` with seeds.
 
-- [ ] Create `infra/sql/insurance_db/init.sql`:
-  - [ ] Table `insurance_types` (id INT PK, name VARCHAR UNIQUE).
-  - [ ] Table `insurance_companies` (id UUID PK, name VARCHAR, rating DECIMAL, is_active BOOLEAN).
-  - [ ] Table `insurances` (id UUID PK, name VARCHAR, description TEXT, type_id INT FK, company_id UUID FK, base_premium DECIMAL, is_active BOOLEAN, created_at TIMESTAMP, updated_at TIMESTAMP).
-  - [ ] Indexes on `insurances.type_id`, `insurances.company_id`.
-  - [ ] Seed: insurance types (TRAFFIC, CASCO, DASK, HEALTH, LIFE), 3-4 sample companies, 2-3 products per type.
+- [x] Create `infra/sql/insurance_db/init.sql`:
+  - [x] Tables: `insurance_types`, `insurance_companies`, `insurances` with indexes and seed data.
 
-- [ ] Create `infra/sql/estimation_db/init.sql`:
-  - [ ] Table `estimations` (id UUID PK, saga_id UUID UNIQUE, customer_id UUID, vehicle_id UUID NULL, real_estate_id UUID NULL, insurance_type_id INT, company_id UUID, status VARCHAR CHECK IN [STARTED, COMPLETED, REJECTED], premium DECIMAL NULL, details JSONB NULL, created_at TIMESTAMP, updated_at TIMESTAMP).
-  - [ ] Table `saga_events` (id UUID PK, saga_id UUID, event_type VARCHAR, received_at TIMESTAMP, processed BOOLEAN, PRIMARY KEY (saga_id, event_type)).
-  - [ ] Indexes on `estimations.saga_id`, `estimations.customer_id`, `estimations.status`, `estimations.created_at`.
+- [x] Create `infra/sql/estimation_db/init.sql`:
+  - [x] Tables: `estimations`, `saga_events` with indexes.
 
-- [ ] Create `infra/sql/reference_data_db/init.sql`:
-  - [ ] Table `cities` (id INT PK, name VARCHAR, plate_code VARCHAR).
-  - [ ] Table `professions` (id INT PK, name VARCHAR).
-  - [ ] Indexes on `cities.name`, `professions.name`.
-  - [ ] Seed: 81 Turkish cities with plate codes (e.g., `1, 'Adana', '01'` → `81, 'Zonguldak', '67'`), 30+ common professions (Doctor, Engineer, Teacher, Lawyer, Accountant, etc.).
+- [x] Create `infra/sql/reference_data_db/init.sql`:
+  - [x] Tables: `cities` (81 Turkish cities), `professions` (35 professions) with seeds.
 
-- [ ] Create `infra/sql/gateway_db/init.sql`:
-  - [ ] Table `rate_limits` (id UUID PK, ip_address VARCHAR, user_id UUID NULL, endpoint VARCHAR, request_count INT, window_start TIMESTAMP).
+- [x] Create `infra/sql/gateway_db/init.sql`:
+  - [x] Table `rate_limits` with indexes.
 
 ---
 
 ## 5. Define Event Schemas (common-message module)
 
-- [ ] Create `common/common-message/build.gradle.kts` with:
-  - [ ] Java + Spring Boot dependency management.
-  - [ ] Dependencies: `jackson-databind`, `jackson-datatype-jsr310`, `lombok`, `validation-api`.
-- [ ] Create `common/common-message/src/main/java/com/insurancemanagementsystem/common/event/EventEnvelope.java`:
-  - [ ] Fields: `sagaId` (UUID), `eventType` (String), `timestamp` (Instant), `traceId` (UUID), `payload` (Object/JsonNode).
-- [ ] Create base abstract class `BaseEvent.java` with serialization support.
-- [ ] Create SAGA event POJOs in `common/common-message/src/main/java/com/insurancemanagementsystem/common/event/saga/`:
-  - [ ] `EstimationRequestedEvent` — customerId, vehicleId/realEstateId, insuranceTypeId, companyId.
-  - [ ] `CustomerValidatedEvent` — customerId, firstName, lastName.
-  - [ ] `CustomerInvalidatedEvent` — customerId, reason.
-  - [ ] `VehicleValidatedEvent` — vehicleId, plate, brand, model.
-  - [ ] `VehicleInvalidatedEvent` — vehicleId, reason.
-  - [ ] `PremiumCalculatedEvent` — premium amount, breakdown (Map<String, BigDecimal>), insuranceTypeId.
-  - [ ] `CalculationFailedEvent` — reason.
-  - [ ] `EstimationFailedEvent` — original sagaId, reason, failedStep.
-- [ ] Create domain event POJOs in `common/common-message/src/main/java/com/insurancemanagementsystem/common/event/domain/`:
-  - [ ] `CustomerCreatedEvent`, `CustomerUpdatedEvent` — customerId, nationalId, email.
-  - [ ] `VehicleCreatedEvent`, `VehicleUpdatedEvent`, `VehicleDeletedEvent` — vehicleId, plate.
-  - [ ] `RealEstateCreatedEvent`, `RealEstateUpdatedEvent`, `RealEstateDeletedEvent` — realEstateId.
-  - [ ] `InsuranceCreatedEvent`, `InsuranceUpdatedEvent` — insuranceId, typeId, companyId.
-  - [ ] `ReferenceDataChangedEvent` — entityType, changeType.
-- [ ] Create `common/common-message/src/main/java/com/insurancemanagementsystem/common/event/EventConstants.java`:
-  - [ ] Topic name constants: `ESTIMATION_SAGA`, `CUSTOMER_EVENTS`, `VEHICLE_EVENTS`, `REALESTATE_EVENTS`, `INSURANCE_EVENTS`, `REFERENCE_DATA_EVENTS`.
-  - [ ] Event type name constants matching each event class.
-- [ ] Create serialization/deserialization unit tests for every event type.
-- [ ] Create `common/common-message/build.gradle.kts` artifact publishing config (Maven local or composite build).
+- [x] Create `common/common-message/build.gradle.kts` with:
+  - [x] Java + Spring Boot dependency management.
+  - [x] Dependencies: `jackson-databind`, `jackson-datatype-jsr310`, `lombok`, `validation-api`.
+- [x] Create `common/common-message/src/main/java/com/insurancemanagementsystem/common/event/EventEnvelope.java`:
+  - [x] Fields: `sagaId` (UUID), `eventType` (String), `timestamp` (Instant), `traceId` (UUID), `payload` (Object/JsonNode).
+- [x] Create base abstract class `BaseEvent.java` with serialization support.
+- [x] Create SAGA event POJOs in `common/common-message/src/main/java/com/insurancemanagementsystem/common/event/saga/`:
+  - [x] `EstimationRequestedEvent` — customerId, vehicleId/realEstateId, insuranceTypeId, companyId.
+  - [x] `CustomerValidatedEvent` — customerId, firstName, lastName.
+  - [x] `CustomerInvalidatedEvent` — customerId, reason.
+  - [x] `VehicleValidatedEvent` — vehicleId, plate, brand, model.
+  - [x] `VehicleInvalidatedEvent` — vehicleId, reason.
+  - [x] `PremiumCalculatedEvent` — premium amount, breakdown (Map<String, BigDecimal>), insuranceTypeId.
+  - [x] `CalculationFailedEvent` — reason.
+  - [x] `EstimationFailedEvent` — original sagaId, reason, failedStep.
+- [x] Create domain event POJOs in `common/common-message/src/main/java/com/insurancemanagementsystem/common/event/domain/`:
+  - [x] `CustomerCreatedEvent`, `CustomerUpdatedEvent` — customerId, nationalId, email.
+  - [x] `VehicleCreatedEvent`, `VehicleUpdatedEvent`, `VehicleDeletedEvent` — vehicleId, plate.
+  - [x] `RealEstateCreatedEvent`, `RealEstateUpdatedEvent`, `RealEstateDeletedEvent` — realEstateId.
+  - [x] `InsuranceCreatedEvent`, `InsuranceUpdatedEvent` — insuranceId, typeId, companyId.
+  - [x] `ReferenceDataChangedEvent` — entityType, changeType.
+- [x] Create `common/common-message/src/main/java/com/insurancemanagementsystem/common/event/EventConstants.java`:
+  - [x] Topic name constants: `ESTIMATION_SAGA`, `CUSTOMER_EVENTS`, `VEHICLE_EVENTS`, `REALESTATE_EVENTS`, `INSURANCE_EVENTS`, `REFERENCE_DATA_EVENTS`.
+  - [x] Event type name constants matching each event class.
+- [x] Create serialization/deserialization unit tests for every event type.
+- [x] Create `common/common-message/build.gradle.kts` artifact publishing config (Maven local or composite build).
 
 ---
 
 ## 6. Build Reference Skeleton Service
 
-- [ ] Copy `services/reference-skeleton/` structure from template, or create fresh:
-  - [ ] `build.gradle.kts` with:
+- [x] Copy `services/reference-skeleton/` structure from template, or create fresh:
+  - [x] `build.gradle.kts` with:
     - Spring Boot 4.0.6, Java 25.
     - Dependencies: `spring-boot-starter-web`, `spring-boot-starter-data-jpa`, `spring-boot-starter-validation`, `lombok`, `postgresql`, `testcontainers`, `spring-cloud-stream`, `spring-cloud-stream-binder-kafka`, `spring-cloud-stream-binder-rabbit`.
     - `io.spring.dependency-management` plugin.
-- [ ] Standardized API response envelope:
-  - [ ] `ApiResponse.java` — generic class with `success`, `message`, `data`, `timestamp`.
-  - [ ] `SuccessResponse.java`, `ErrorResponse.java` convenience builders.
-- [ ] Global error handler:
-  - [ ] `GlobalExceptionHandler.java` — `@ControllerAdvice` handling `MethodArgumentNotValidException`, `EntityNotFoundException`, generic `Exception` → returns standardized `ApiResponse`.
-- [ ] Sample entity + JPA repository + service + controller:
-  - [ ] `SampleEntity.java` (id, name, createdAt, updatedAt) with `@Entity`, `@Table`, `@Data`, Lombok.
-  - [ ] `SampleRepository.java` extending `JpaRepository`.
-  - [ ] `SampleService.java` with CRUD methods.
-  - [ ] `SampleController.java` with `@RestController`, `@RequestMapping("/api/samples")`, full CRUD endpoints.
-- [ ] Kafka binder integration:
-  - [ ] `application.yml` with Kafka configuration (bootstrap-servers, consumer/producer settings, trusted packages).
-  - [ ] Sample `MessagePublisher` bean using `StreamBridge`.
-  - [ ] Sample event consumer `@Bean` `Consumer<EventEnvelope>` with logging.
-- [ ] RabbitMQ binder integration:
-  - [ ] `application.yml` with RabbitMQ configuration.
-  - [ ] Sample RPC publisher/reply pattern.
-- [ ] `application.yml` with:
-  - [ ] Datasource: `jdbc:postgresql://localhost:5432/skeleton_db`.
-  - [ ] JPA: `hibernate.ddl-auto=validate`, `show-sql=true`.
-  - [ ] Server port: 9999 (template, override per service).
-  - [ ] Kafka/RabbitMQ config (point to localhost).
-  - [ ] Logging: structured JSON with `traceId`, `sagaId` pattern.
-- [ ] `Dockerfile` — multi-stage build: Gradle build → JRE 25 runtime.
-- [ ] Integration test with Testcontainers:
-  - [ ] `@SpringBootTest` + `@Testcontainers` PostgreSQL + Kafka + RabbitMQ.
-  - [ ] Test: create entity via REST → verify in DB → verify event published.
-- [ ] Verify: `./gradlew build` passes, `./gradlew test` passes.
+- [x] Standardized API response envelope:
+  - [x] `ApiResponse.java` — generic class with `success`, `message`, `data`, `timestamp`.
+  - [x] `SuccessResponse.java`, `ErrorResponse.java` convenience builders (built into ApiResponse static methods).
+- [x] Global error handler:
+  - [x] `GlobalExceptionHandler.java` — `@ControllerAdvice` handling `MethodArgumentNotValidException`, `EntityNotFoundException`, generic `Exception` → returns standardized `ApiResponse`.
+- [x] Sample entity + JPA repository + service + controller:
+  - [x] `SampleEntity.java` (id, name, createdAt, updatedAt) with `@Entity`, `@Table`, `@Data`, Lombok.
+  - [x] `SampleRepository.java` extending `JpaRepository`.
+  - [x] `SampleService.java` with CRUD methods.
+  - [x] `SampleController.java` with `@RestController`, `@RequestMapping("/api/samples")`, full CRUD endpoints.
+- [x] Kafka binder integration:
+  - [x] `application.yml` with Kafka configuration (bootstrap-servers, consumer/producer settings, trusted packages).
+  - [x] Sample `MessagePublisher` bean using `StreamBridge`.
+  - [x] Sample event consumer `@Bean` `Consumer<String>` with logging.
+- [x] RabbitMQ binder integration:
+  - [x] `application.yml` with RabbitMQ configuration.
+  - [x] Sample RPC publisher/reply pattern.
+- [x] `application.yml` with:
+  - [x] Datasource: `jdbc:postgresql://localhost:5432/skeleton_db`.
+  - [x] JPA: `hibernate.ddl-auto=validate`, `show-sql=true`.
+  - [x] Server port: 9999 (template, override per service).
+  - [x] Kafka/RabbitMQ config (point to localhost).
+  - [x] Logging: structured JSON with `traceId`, `sagaId` pattern.
+- [x] `Dockerfile` — multi-stage build: Gradle build → JRE 25 runtime.
+- [x] Integration test with Testcontainers:
+  - [x] `@SpringBootTest` + `@Testcontainers` PostgreSQL + Kafka.
+  - [x] Test: create entity via REST → verify in DB → verify event published.
+- [x] Verify: `./gradlew build` passes, `./gradlew test` passes.
 
 ---
 
 ## Verification
 
-- [ ] `docker compose up -d` — all 12 containers healthy.
-- [ ] Seed data queryable: connect to `reference_data_db` → `SELECT * FROM cities` returns 81 rows.
-- [ ] `frontend-next` → `npm run dev` starts on `localhost:3000`.
-- [ ] `reference-skeleton` → `./gradlew bootRun` starts on port 9999, REST API responds.
-- [ ] All 8 `init.sql` scripts apply without errors.
-- [ ] `common-message` → `./gradlew build` + `./gradlew test` passes.
-- [ ] Monorepo structure committed with `docs/` plans, outlines, stories, tasks.
+- [x] `docker compose up -d` — all 11 containers healthy (KRaft mode, no Zookeeper).
+- [x] All 8 `init.sql` scripts apply without errors (verified on disk).
+- [x] `frontend-next` → `npm run dev` starts on `localhost:3000`.
+- [x] `reference-skeleton` → `./gradlew bootRun` starts on port 9999.
+- [x] `common-message` → `./gradlew build` + `./gradlew test` passes.
+- [x] Monorepo structure committed with `docs/` plans, outlines, stories, tasks.

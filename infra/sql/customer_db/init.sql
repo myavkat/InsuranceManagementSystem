@@ -1,0 +1,21 @@
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE TABLE IF NOT EXISTS customers (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    national_id VARCHAR(11) UNIQUE NOT NULL,
+    email VARCHAR(100),
+    phone VARCHAR(20),
+    birth_date DATE,
+    address TEXT,
+    city_id INT,
+    profession_id INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_customers_national_id ON customers(national_id);
+CREATE INDEX IF NOT EXISTS idx_customers_last_name ON customers(last_name);
+CREATE INDEX IF NOT EXISTS idx_customers_email ON customers(email);
