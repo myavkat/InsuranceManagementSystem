@@ -124,7 +124,7 @@
 
 ## 7. Unit Tests (Service Layer)
 
-- [ ] 7.1 Create `src/test/java/com/insurancemanagementsystem/customer/service/CustomerServiceTest.java`:
+- [x] 7.1 Create `src/test/java/com/insurancemanagementsystem/customer/service/CustomerServiceTest.java`:
   - Mock `CustomerRepository`, verify `CustomerService` logic
   - Test: create customer with valid data → returns saved entity
   - Test: create customer with duplicate nationalId → throws `IllegalArgumentException`
@@ -140,7 +140,7 @@
 
 ## 8. Unit Tests (Controller Layer)
 
-- [ ] 8.1 Create `src/test/java/com/insurancemanagementsystem/customer/controller/CustomerControllerTest.java`:
+- [x] 8.1 Create `src/test/java/com/insurancemanagementsystem/customer/controller/CustomerControllerTest.java`:
   - `@WebMvcTest(CustomerController.class)`, mock `CustomerService`
   - Test: `GET /api/customers` → 200 with paginated response
   - Test: `GET /api/customers?search=Doe` → 200 with filtered results
@@ -196,3 +196,4 @@
 - **Reference data (cityId, professionId)** — stored as plain integers for now; will integrate with Reference Data Service RPC in a later phase
 - **Active estimation check before delete** — stub for now (will query Estimation Service via event when available)
 - **Dedup store** — in-memory `ConcurrentHashMap` with TTL-based cleanup; can be replaced with Redis/DB later
+- **Controller tests** required adding `testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")` in `build.gradle.kts` for `@WebMvcTest` support (Spring Boot 4.0.6 uses `.webmvc.test.autoconfigure` package instead of the classic `.test.autoconfigure.web.servlet`)
