@@ -1,12 +1,15 @@
 package com.insurancemanagementsystem.customer.config;
 
 import com.insurancemanagementsystem.common.event.EventConstants;
+import com.insurancemanagementsystem.common.event.EventEnvelope;
 import com.insurancemanagementsystem.common.event.domain.CustomerCreatedEvent;
 import com.insurancemanagementsystem.common.event.domain.CustomerUpdatedEvent;
 import com.insurancemanagementsystem.customer.entity.Customer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -22,7 +25,8 @@ public class CustomerEventPublisher {
                 .email(customer.getEmail())
                 .build();
 
-        messagePublisher.publish(EventConstants.CUSTOMER_EVENTS, event);
+        EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
+        messagePublisher.publish(EventConstants.CUSTOMER_EVENTS, envelope);
         log.info("Published CustomerCreated event for customer id: {}", customer.getId());
     }
 
@@ -33,7 +37,8 @@ public class CustomerEventPublisher {
                 .email(customer.getEmail())
                 .build();
 
-        messagePublisher.publish(EventConstants.CUSTOMER_EVENTS, event);
+        EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
+        messagePublisher.publish(EventConstants.CUSTOMER_EVENTS, envelope);
         log.info("Published CustomerUpdated event for customer id: {}", customer.getId());
     }
 }

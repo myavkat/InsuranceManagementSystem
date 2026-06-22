@@ -24,7 +24,8 @@ public class CustomerRequest {
     private String lastName;
 
     @NotBlank(message = "National ID is required")
-    @Size(max = 11, message = "National ID must be at most 11 characters")
+    @Size(min = 11, max = 11, message = "National ID must be exactly 11 characters")
+    @Pattern(regexp = "\\d{11}", message = "National ID must contain only digits")
     private String nationalId;
 
     @Email(message = "Invalid email format")

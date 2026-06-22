@@ -26,8 +26,6 @@ spring:
         processCustomerSaga-in-0:
           destination: estimation.saga
           group: customer-service-group
-        customerEvents-out-0:
-          destination: customer.events
       kafka:
         binder:
           brokers: localhost:9092
