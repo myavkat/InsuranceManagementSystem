@@ -20,11 +20,10 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -48,7 +47,7 @@ import static org.mockito.Mockito.*;
 class InsuranceSagaConsumerTest {
 
     @Container
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine")
+    static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:16-alpine")
             .withDatabaseName("test_insurance_db")
             .withUsername("test")
             .withPassword("test");
@@ -78,9 +77,7 @@ class InsuranceSagaConsumerTest {
 
     private final List<EventEnvelope> capturedEnvelopes = new ArrayList<>();
 
-    private static final JsonMapper MAPPER = JsonMapper.builder()
-            .addModule(new JavaTimeModule())
-            .build();
+    private static final JsonMapper MAPPER = new JsonMapper();
 
     private UUID sagaId;
     private UUID traceId;

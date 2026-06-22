@@ -1,5 +1,6 @@
 package com.insurancemanagementsystem.insurance.config;
 
+import com.insurancemanagementsystem.common.event.EventConstants;
 import com.insurancemanagementsystem.common.event.EventEnvelope;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
@@ -41,9 +42,9 @@ public class SagaAggregationStore {
         SagaState state = store.computeIfAbsent(sagaId, k -> new SagaState());
 
         switch (eventType) {
-            case "EstimationRequested" -> state.setEstimationRequest(envelope);
-            case "CustomerValidated" -> state.setCustomerValidated(envelope);
-            case "VehicleValidated" -> state.setVehicleValidated(envelope);
+            case EventConstants.ESTIMATION_REQUESTED -> state.setEstimationRequest(envelope);
+            case EventConstants.CUSTOMER_VALIDATED -> state.setCustomerValidated(envelope);
+            case EventConstants.VEHICLE_VALIDATED -> state.setVehicleValidated(envelope);
         }
 
         boolean ready = state.isComplete();

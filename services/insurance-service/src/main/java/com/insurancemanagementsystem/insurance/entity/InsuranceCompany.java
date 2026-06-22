@@ -10,12 +10,12 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Entity
-    @Table(name = "insurance_companies")
-    public class InsuranceCompany {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Table(name = "insurance_companies")
+public class InsuranceCompany {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

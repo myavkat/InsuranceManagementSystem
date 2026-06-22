@@ -1,7 +1,6 @@
 package com.insurancemanagementsystem.insurance;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import tools.jackson.databind.ObjectMapper;
 import com.insurancemanagementsystem.insurance.dto.InsuranceCompanyRequest;
 import com.insurancemanagementsystem.insurance.dto.InsuranceRequest;
 import com.insurancemanagementsystem.insurance.entity.Insurance;
@@ -68,8 +67,7 @@ class InsuranceServiceApplicationTests {
     @Autowired
     private InsuranceTypeRepository insuranceTypeRepository;
 
-    private final ObjectMapper objectMapper = new ObjectMapper()
-            .registerModule(new JavaTimeModule());
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private UUID testCompanyId;
 
