@@ -1,8 +1,5 @@
 package com.insurancemanagementsystem.customer.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.insurancemanagementsystem.common.event.EventConstants;
 import com.insurancemanagementsystem.common.event.EventEnvelope;
 import com.insurancemanagementsystem.common.event.saga.CustomerInvalidatedEvent;
@@ -15,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -25,20 +23,16 @@ import java.util.function.Consumer;
 @Slf4j
 public class CustomerSagaConsumer {
 
-    private static final ObjectMapper MAPPER = JsonMapper.builder()
-            .addModule(new JavaTimeModule())
-            .build();
-
     private final CustomerRepository customerRepository;
     private final MessagePublisher messagePublisher;
     private final DeduplicationStore deduplicationStore;
 
     @Bean
-    public Consumer<String> processCustomerSaga() {
+    public Consumer<String> processCustomerSaga(JsonMapper jsonMapper) {
         return message -> {
             EventEnvelope envelope;
             try {
-                envelope = MAPPER.readValue(message, EventEnvelope.class);
+                envelope = jsonMapper.readValue(message, EventEnvelope.class);
 
                 UUID sagaId = envelope.getSagaId();
                 UUID traceId = envelope.getTraceId();
@@ -51,7 +45,7 @@ public class CustomerSagaConsumer {
 
                 switch (eventType) {
                     case EventConstants.ESTIMATION_REQUESTED ->
-                        handleEstimationRequested(envelope, sagaId, traceId);
+                        handleEstimationRequested(envelope, sagaId, traceId, jsonMapper);
                     case EventConstants.ESTIMATION_FAILED ->
                         handleEstimationFailed(envelope);
                     default ->
@@ -65,11 +59,11 @@ public class CustomerSagaConsumer {
         };
     }
 
-    private void handleEstimationRequested(EventEnvelope envelope, UUID sagaId, UUID traceId) {
+    private void handleEstimationRequested(EventEnvelope envelope, UUID sagaId, UUID traceId, JsonMapper jsonMapper) {
         String eventType = envelope.getEventType();
 
         // Convert the envelope payload to the typed event
-        EstimationRequestedEvent requestEvent = MAPPER.convertValue(
+        EstimationRequestedEvent requestEvent = jsonMapper.convertValue(
                 envelope.getPayload(), EstimationRequestedEvent.class);
         UUID customerId = requestEvent.getCustomerId();
 
