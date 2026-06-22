@@ -21,7 +21,6 @@ spring:
   cloud:
     stream:
       default-binder: kafka
-      dynamicDestinations: estimation.saga,insurance.events
       bindings:
         processInsuranceSaga-in-0:
           destination: estimation.saga
@@ -29,7 +28,6 @@ spring:
       kafka:
         binder:
           brokers: localhost:9092
-          defaultBrokerPort: 9092
   kafka:
     consumer:
       group-id: insurance-service-group
