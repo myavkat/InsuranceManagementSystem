@@ -10,9 +10,7 @@
   },
   "instructions": [
     "AGENTS.md",
-    "docs/AGENTS.md",
-    "docs/outlines/*.md",
-    "docs/plans/*.md"
+    "docs/AGENTS.md"
   ],
   "permission": {
     "edit": "ask",
