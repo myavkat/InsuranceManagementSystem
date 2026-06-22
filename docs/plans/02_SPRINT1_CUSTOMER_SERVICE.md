@@ -175,17 +175,17 @@
 
 ## 10. Build & Verification
 
-- [ ] 10.1 Run `./gradlew :services:customer-service:build` — compile, test, package all pass
-- [ ] 10.2 Run `./gradlew :services:customer-service:test` — all tests green
-- [ ] 10.3 Run `./gradlew :services:customer-service:bootRun` — starts on port 8081, connects to customer-db
-- [ ] 10.4 Manual smoke test (curl or RestTemplate):
-  - `POST /api/customers` with valid JSON → 201
-  - `GET /api/customers` → 200 with created customer
-  - `GET /api/customers/{id}` → 200
-  - `PUT /api/customers/{id}` → 200
-  - `DELETE /api/customers/{id}` → 200
-  - `GET /api/customers/{id}` after delete → 404
-- [ ] 10.5 Commit: `feat(customer-service): implement Customer Service CRUD, domain events, SAGA consumer`
+- [x] 10.1 Run `./gradlew :services:customer-service:build` — compile, test, package all pass
+- [x] 10.2 Run `./gradlew :services:customer-service:test` — all tests green (27/27)
+- [x] 10.3 Run `./gradlew :services:customer-service:bootRun` — starts on port 8081, connects to customer-db
+- [x] 10.4 Manual smoke test (curl or RestTemplate):
+  - `POST /api/customers` with valid JSON → 201 ✓
+  - `GET /api/customers` → 200 with created customer ✓
+  - `GET /api/customers/{id}` → 200 ✓
+  - `PUT /api/customers/{id}` → 200 ✓
+  - `DELETE /api/customers/{id}` → 200 ✓
+  - `GET /api/customers/{id}` after delete → 404 ✓
+- [x] 10.5 Commit: `fix(customer-service): correct DB connection config for Docker Compose infra` (CRUD, domain events, SAGA consumer code already committed incrementally in prior commits)
 
 ---
 
