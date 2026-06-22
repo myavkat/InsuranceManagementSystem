@@ -2,7 +2,7 @@ package com.insurancemanagementsystem.customer.controller;
 
 import com.insurancemanagementsystem.customer.dto.CustomerRequest;
 import com.insurancemanagementsystem.customer.dto.CustomerResponse;
-import com.insurancemanagementsystem.customer.exception.GlobalExceptionHandler;
+import com.insurancemanagementsystem.common.web.exception.GlobalExceptionHandler;
 import com.insurancemanagementsystem.customer.service.CustomerService;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;

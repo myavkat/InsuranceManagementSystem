@@ -1,4 +1,4 @@
-package com.insurancemanagementsystem.customer.dto;
+package com.insurancemanagementsystem.common.web.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

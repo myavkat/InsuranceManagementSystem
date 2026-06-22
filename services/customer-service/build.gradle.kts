@@ -25,6 +25,7 @@ repositories {
 
 dependencies {
     implementation(project(":common:common-message"))
+    implementation(project(":common:common-web"))
 
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-webmvc")

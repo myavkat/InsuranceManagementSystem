@@ -1,6 +1,6 @@
 package com.insurancemanagementsystem.customer.controller;
 
-import com.insurancemanagementsystem.customer.dto.ApiResponse;
+import com.insurancemanagementsystem.common.web.dto.ApiResponse;
 import com.insurancemanagementsystem.customer.dto.CustomerRequest;
 import com.insurancemanagementsystem.customer.dto.CustomerResponse;
 import com.insurancemanagementsystem.customer.service.CustomerService;
