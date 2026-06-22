@@ -39,8 +39,8 @@
   - `id` (UUID, `@GeneratedValue(UUID)`)
   - `firstName`, `lastName`, `nationalId` (unique, max 11), `email`, `phone`, `birthDate` (LocalDate)
   - `address` (TEXT), `cityId` (Integer), `professionId` (Integer)
-  - `createdAt`, `updatedAt` (LocalDateTime, auto-managed via `@PrePersist`/`@PreUpdate`)
-  - `deletedAt` (LocalDateTime, nullable — soft-delete marker)
+  - `createdAt`, `updatedAt` (Instant, auto-managed via `@PrePersist`/`@PreUpdate`)
+  - `deletedAt` (Instant, nullable — soft-delete marker)
   - Lombok `@Data`, `@Builder`, `@NoArgsConstructor`, `@AllArgsConstructor`
 - [x] 2.2 Create `repository/CustomerRepository.java` — `JpaRepository<Customer, UUID>`:
   - `findByDeletedAtIsNull(Pageable)` — active customers, paginated
