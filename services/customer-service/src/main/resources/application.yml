@@ -7,9 +7,9 @@ spring:
   profiles:
     active: dev
   datasource:
-    url: jdbc:postgresql://localhost:5432/customer_db
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://localhost:5433/customer_db
+    username: ims_user
+    password: ims_password
   jpa:
     hibernate:
       ddl-auto: validate
