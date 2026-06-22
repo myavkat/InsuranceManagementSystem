@@ -63,4 +63,4 @@ The legacy `frontend/` is a **Vue 3 + Vite + TypeScript + TailwindCSS 4** SPA. I
 
 ## Preservation Rule
 
-Do **not** modify the legacy frontend unless explicitly directed for maintenance. It remains operational on `app.legacy.example.com` during migration.
+See [`01_SYSTEM_ARCHITECTURE.md`](./01_SYSTEM_ARCHITECTURE.md) rule #6. Do **not** modify the legacy frontend unless explicitly directed for maintenance.

@@ -18,9 +18,7 @@ Non-obvious environment-specific details that affect development and troubleshoo
 
 ### Legacy Backend (Monolith)
 
-- Connection: `r2dbc:pool:mssql://localhost/InsuranceDB`
-- Credentials: `sa` / `123456`
-- Configured in: `backend/src/main/resources/application.properties`
+See [`08_LEGACY_BACKEND.md`](./08_LEGACY_BACKEND.md) for legacy connection details.
 
 ### Target Services
 
@@ -61,13 +59,12 @@ docker compose -f infra/docker/docker-compose.yml ps
 
 ## Legacy Stack Coexistence
 
-During incremental migration:
+During incremental migration (see [`01_SYSTEM_ARCHITECTURE.md`](./01_SYSTEM_ARCHITECTURE.md) rule #6):
 
 - **Legacy Vue app** → served from `app.legacy.example.com`
 - **New Next.js app** → served from `app.example.com`
 - **API Gateway** routes traffic by `Host` header or migration cookie
 - **Legacy monolith `backend/`** → remains on its own subdomain/port
-- **Do not modify the legacy stack** unless explicitly directed for maintenance
 
 ---
 

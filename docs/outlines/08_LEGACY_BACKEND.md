@@ -83,4 +83,4 @@ Services return `Result` / `DataResult<T>` with `success + message` (Turkish toa
 
 ## Preservation Rule
 
-Do **not** modify the legacy backend unless explicitly directed for maintenance. It remains operational on a separate subdomain during migration.
+See [`01_SYSTEM_ARCHITECTURE.md`](./01_SYSTEM_ARCHITECTURE.md) rule #6. Do **not** modify the legacy backend unless explicitly directed for maintenance.

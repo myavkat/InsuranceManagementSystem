@@ -37,30 +37,9 @@ InsuranceManagementSystem/
 
 ---
 
-## Technology Stack Per Layer
-
-| Layer | Legacy | Target |
-|-------|--------|--------|
-| Backend | Java Spring Boot WebFlux (monolith) | Java 25, Spring Boot MVC, Spring Data JPA (Hibernate) |
-| Frontend | Vue 3 + Vite + TypeScript + TailwindCSS 4 | Next.js 15+ (App Router, SSR), TypeScript, Tailwind CSS |
-| UI Library | TailwindCSS (raw) | shadcn/ui (Radix primitives + Tailwind CSS) |
-| Database | MS SQL Server (R2DBC) | PostgreSQL 16+ (database per service) |
-| Messaging | — | Kafka (SAGA/events), RabbitMQ (RPC) |
-| API Gateway | — | Spring Cloud Gateway |
-| Auth | Dummy (any credentials accepted) | Dedicated Auth Service (JWT) |
-| State Mgmt | Pinia | Zustand + React Query |
-| Build | Gradle (backend), Vite (frontend) | Gradle (all services), Next.js (frontend-next) |
-
----
-
-## Target Service Conventions
-
-All target services under `services/` share:
-
-- **Spring Boot MVC + Spring Data JPA (Hibernate)** + **PostgreSQL**
-- Each service has its own dedicated database (Database per Service pattern)
-- Package root: `com.insurancemanagementsystem.<service-name>/`
-- See [`01_SYSTEM_ARCHITECTURE.md`](./01_SYSTEM_ARCHITECTURE.md) for full architectural rules
+> **Technology stack:** See [`01_SYSTEM_ARCHITECTURE.md`](./01_SYSTEM_ARCHITECTURE.md) for target stack, [`08_LEGACY_BACKEND.md`](./08_LEGACY_BACKEND.md) and [`09_LEGACY_FRONTEND.md`](./09_LEGACY_FRONTEND.md) for legacy stack.
+>
+> **Service conventions:** See [`01_SYSTEM_ARCHITECTURE.md`](./01_SYSTEM_ARCHITECTURE.md) for architectural rules and [`02_MICROSERVICES_SPECIFICATIONS.md`](./02_MICROSERVICES_SPECIFICATIONS.md) for per-service specs.
 
 ---
 
@@ -78,6 +57,4 @@ Reference Data → Auth → Customer/Vehicle/RealEstate → Insurance → Estima
 
 ---
 
-## Legacy Preservation Rule
-
-The legacy monolith `backend/` and Vue `frontend/` are **preserved as-is** during incremental migration. Never modify the legacy stack unless explicitly directed for maintenance.
+> **Legacy preservation:** See [`01_SYSTEM_ARCHITECTURE.md`](./01_SYSTEM_ARCHITECTURE.md) rule #6.
