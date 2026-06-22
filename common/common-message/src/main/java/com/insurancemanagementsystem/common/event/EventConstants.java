@@ -25,6 +25,7 @@ public final class EventConstants {
     // Domain event types
     public static final String CUSTOMER_CREATED = "CustomerCreated";
     public static final String CUSTOMER_UPDATED = "CustomerUpdated";
+    public static final String CUSTOMER_DELETED = "CustomerDeleted";
     public static final String VEHICLE_CREATED = "VehicleCreated";
     public static final String VEHICLE_UPDATED = "VehicleUpdated";
     public static final String VEHICLE_DELETED = "VehicleDeleted";

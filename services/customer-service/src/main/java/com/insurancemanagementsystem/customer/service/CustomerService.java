@@ -35,7 +35,14 @@ public class CustomerService {
         boolean hasName = name != null && !name.isBlank();
         boolean hasNationalId = nationalId != null && !nationalId.isBlank();
 
-        if (hasName) {
+        if (hasName && hasNationalId) {
+            // TODO: Replace with combined name+nationalId search once CustomerRepository
+            //       adds a dedicated method (e.g., findByDeletedAtIsNullAndNameAndNationalId).
+            //       Currently falls back to name-only search — nationalId is logged/audited
+            //       but not applied as a DB filter.
+            return customerRepository.findByNameSearch(name, pageable)
+                    .map(CustomerResponse::fromEntity);
+        } else if (hasName) {
             return customerRepository.findByNameSearch(name, pageable)
                     .map(CustomerResponse::fromEntity);
         } else if (hasNationalId) {
@@ -122,6 +129,7 @@ public class CustomerService {
         customer.setDeletedAt(Instant.now());
         Customer savedCustomer = customerRepository.save(customer);
         log.info("Customer soft-deleted with id: {}", savedCustomer.getId());
+        customerEventPublisher.publishCustomerDeleted(savedCustomer);
         return CustomerResponse.fromEntity(savedCustomer);
     }
 }

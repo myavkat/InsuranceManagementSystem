@@ -3,6 +3,7 @@ package com.insurancemanagementsystem.customer.config;
 import com.insurancemanagementsystem.common.event.EventConstants;
 import com.insurancemanagementsystem.common.event.EventEnvelope;
 import com.insurancemanagementsystem.common.event.domain.CustomerCreatedEvent;
+import com.insurancemanagementsystem.common.event.domain.CustomerDeletedEvent;
 import com.insurancemanagementsystem.common.event.domain.CustomerUpdatedEvent;
 import com.insurancemanagementsystem.customer.entity.Customer;
 import lombok.RequiredArgsConstructor;
@@ -40,5 +41,16 @@ public class CustomerEventPublisher {
         EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
         messagePublisher.publish(EventConstants.CUSTOMER_EVENTS, envelope);
         log.info("Published CustomerUpdated event for customer id: {}", customer.getId());
+    }
+
+    public void publishCustomerDeleted(Customer customer) {
+        CustomerDeletedEvent event = CustomerDeletedEvent.builder()
+                .customerId(customer.getId())
+                .nationalId(customer.getNationalId())
+                .build();
+
+        EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
+        messagePublisher.publish(EventConstants.CUSTOMER_EVENTS, envelope);
+        log.info("Published CustomerDeleted event for customer id: {}", customer.getId());
     }
 }
