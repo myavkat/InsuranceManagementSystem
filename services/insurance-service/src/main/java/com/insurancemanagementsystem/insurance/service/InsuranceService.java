@@ -1,5 +1,6 @@
 package com.insurancemanagementsystem.insurance.service;
 
+import com.insurancemanagementsystem.insurance.config.InsuranceEventPublisher;
 import com.insurancemanagementsystem.insurance.dto.InsuranceCompanyRequest;
 import com.insurancemanagementsystem.insurance.dto.InsuranceCompanyResponse;
 import com.insurancemanagementsystem.insurance.dto.InsuranceRequest;
@@ -29,6 +30,7 @@ public class InsuranceService {
     private final InsuranceRepository insuranceRepository;
     private final InsuranceTypeRepository insuranceTypeRepository;
     private final InsuranceCompanyRepository insuranceCompanyRepository;
+    private final InsuranceEventPublisher insuranceEventPublisher;
 
     // ============================================================
     // Insurance CRUD
@@ -94,6 +96,7 @@ public class InsuranceService {
 
         Insurance saved = insuranceRepository.save(insurance);
         log.info("Insurance created: id={}, name={}, typeId={}", saved.getId(), saved.getName(), saved.getTypeId());
+        insuranceEventPublisher.publishInsuranceCreated(saved);
         return InsuranceResponse.fromEntity(saved);
     }
 
@@ -132,6 +135,7 @@ public class InsuranceService {
 
         Insurance saved = insuranceRepository.save(insurance);
         log.info("Insurance updated: id={}, name={}", saved.getId(), saved.getName());
+        insuranceEventPublisher.publishInsuranceUpdated(saved);
         return InsuranceResponse.fromEntity(saved);
     }
 
