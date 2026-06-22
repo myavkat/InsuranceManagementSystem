@@ -1,6 +1,5 @@
 package com.insurancemanagementsystem.customer;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.insurancemanagementsystem.customer.dto.CustomerRequest;
@@ -74,23 +73,20 @@ class CustomerServiceApplicationTests {
     void createCustomerViaRest_verifyInDb() throws Exception {
         CustomerRequest request = createValidRequest();
 
-        byte[] responseBody = restTestClient.post()
+        var result = restTestClient.post()
                 .uri("/api/customers")
                 .body(request)
                 .exchange()
                 .expectStatus().isCreated()
                 .expectBody()
-                .returnResult()
-                .getResponseBodyContent();
+                .jsonPath("$.success").isEqualTo(true)
+                .jsonPath("$.message").isEqualTo("Customer created successfully")
+                .jsonPath("$.data.firstName").isEqualTo("John")
+                .returnResult();
 
-        JsonNode json = objectMapper.readTree(responseBody);
-        assertThat(json.get("success").asBoolean()).isTrue();
-        assertThat(json.get("message").asText()).isEqualTo("Customer created successfully");
-
-        JsonNode data = json.get("data");
-        UUID customerId = UUID.fromString(data.get("id").asText());
-        assertThat(customerId).isNotNull();
-        assertThat(data.get("firstName").asText()).isEqualTo("John");
+        // Extract ID for DB verification
+        UUID customerId = UUID.fromString(
+                objectMapper.readTree(result.getResponseBodyContent()).get("data").get("id").asText());
 
         // Verify entity persisted in DB
         Optional<Customer> found = customerRepository.findById(customerId);
@@ -119,31 +115,25 @@ class CustomerServiceApplicationTests {
         restTestClient.post().uri("/api/customers").body(c2).exchange().expectStatus().isCreated();
 
         // Search matching 1 customer
-        byte[] searchBody = restTestClient.get().uri("/api/customers?search=Doe")
+        restTestClient.get().uri("/api/customers?search=Doe")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
-                .returnResult()
-                .getResponseBodyContent();
-        assertThat(objectMapper.readTree(searchBody).get("data").get("totalElements").asInt()).isEqualTo(1);
+                .jsonPath("$.data.totalElements").isEqualTo(1);
 
         // Search matching both (both names contain "e")
-        byte[] allBody = restTestClient.get().uri("/api/customers?search=e")
+        restTestClient.get().uri("/api/customers?search=e")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
-                .returnResult()
-                .getResponseBodyContent();
-        assertThat(objectMapper.readTree(allBody).get("data").get("totalElements").asInt()).isEqualTo(2);
+                .jsonPath("$.data.totalElements").isEqualTo(2);
 
         // No search param — returns all
-        byte[] plainBody = restTestClient.get().uri("/api/customers")
+        restTestClient.get().uri("/api/customers")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
-                .returnResult()
-                .getResponseBodyContent();
-        assertThat(objectMapper.readTree(plainBody).get("data").get("totalElements").asInt()).isEqualTo(2);
+                .jsonPath("$.data.totalElements").isEqualTo(2);
     }
 
     @Test
