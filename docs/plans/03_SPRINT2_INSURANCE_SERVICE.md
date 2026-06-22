@@ -32,10 +32,10 @@
 
 ## 2. CRUD API — see `03_SPRINT2_INSURANCE_02_CRUD_API.md`
 
-- [ ] 2.1 Create DTOs: `InsuranceRequest`, `InsuranceResponse`, `InsuranceCompanyRequest`, `InsuranceCompanyResponse`
-- [ ] 2.2 Create `InsuranceService` — business logic for all CRUD operations
-- [ ] 2.3 Create `InsuranceController` — all REST endpoints
-- [ ] 2.4 Verify all endpoints via manual smoke test
+- [x] 2.1 Create DTOs: `InsuranceRequest`, `InsuranceResponse`, `InsuranceCompanyRequest`, `InsuranceCompanyResponse`
+- [x] 2.2 Create `InsuranceService` — business logic for all CRUD operations
+- [x] 2.3 Create `InsuranceController` — all REST endpoints
+- [x] 2.4 Verify all endpoints via manual smoke test
 
 ---
 
