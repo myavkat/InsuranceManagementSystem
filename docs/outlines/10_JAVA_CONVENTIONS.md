@@ -82,3 +82,27 @@ public class Customer { ... }
 ```
 
 The order is: `@Data`, `@Builder`, `@NoArgsConstructor`, `@AllArgsConstructor`, then JPA annotations.
+
+---
+
+## Jackson 3 Migration Notes
+
+### Annotations Stay at `com.fasterxml.jackson.annotation`
+
+Jackson 3 kept annotations backward compatible: `@JsonInclude`, `@JsonIgnore`, `@JsonProperty`, `@JsonIgnoreProperties`, `@JsonAlias`, etc. all remain under the original `com.fasterxml.jackson.annotation` package. No import migration is needed for annotations.
+
+```java
+// ✅ These are correct — unchanged in Jackson 3
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+```
+
+### What Changed
+
+Only the runtime/databind artifacts moved to `tools.jackson`:
+- `ObjectMapper` → `tools.jackson.databind.ObjectMapper`
+- `JsonNode`, `JsonMapper` → `tools.jackson.databind.*`
+- `@JsonSerialize`, `@JsonDeserialize` (custom serializer/deserializer classes referenced by these must be `tools.jackson`-aware)
+
+**Rule:** Annotations from `com.fasterxml.jackson.annotation.*` remain valid with Jackson 3. Only programmatic API classes (`ObjectMapper`, `JsonNode`, `Module`, etc.) need the `tools.jackson` import migration.

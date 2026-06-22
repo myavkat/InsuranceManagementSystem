@@ -1,8 +1,7 @@
 package com.insurancemanagementsystem.common.event;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.insurancemanagementsystem.common.event.saga.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,9 +18,7 @@ class EventSerializationTest {
 
     @BeforeEach
     void setUp() {
-        mapper = JsonMapper.builder()
-                .addModule(new JavaTimeModule())
-                .build();
+        mapper = new JsonMapper();
     }
 
     @Test
