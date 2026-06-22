@@ -1,8 +1,7 @@
 package com.insurancemanagementsystem.customer.saga;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.insurancemanagementsystem.common.event.EventConstants;
 import com.insurancemanagementsystem.common.event.EventEnvelope;
 import com.insurancemanagementsystem.common.event.saga.CustomerInvalidatedEvent;
@@ -72,9 +71,7 @@ class CustomerSagaConsumerTest {
 
     private final List<EventEnvelope> capturedEnvelopes = new ArrayList<>();
 
-    private static final ObjectMapper MAPPER = JsonMapper.builder()
-            .addModule(new JavaTimeModule())
-            .build();
+    private static final ObjectMapper MAPPER = new JsonMapper();
 
     private UUID sagaId;
     private UUID traceId;

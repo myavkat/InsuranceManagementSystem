@@ -1,7 +1,6 @@
 package com.insurancemanagementsystem.customer;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import tools.jackson.databind.ObjectMapper;
 import com.insurancemanagementsystem.customer.dto.CustomerRequest;
 import com.insurancemanagementsystem.customer.entity.Customer;
 import com.insurancemanagementsystem.customer.repository.CustomerRepository;
@@ -56,8 +55,7 @@ class CustomerServiceApplicationTests {
     @Autowired
     private CustomerRepository customerRepository;
 
-    private final ObjectMapper objectMapper = new ObjectMapper()
-            .registerModule(new JavaTimeModule());
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     void cleanUp() {
