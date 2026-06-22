@@ -13,6 +13,7 @@ When working on features, prioritize guidelines in this order:
 - BEFORE executing any workspace actions, read and adhere to the directory workflow defined in docs/AGENTS.md.
 - If a model swap occurred, verify state by cross-referencing code against the active plan file.
 - DO NOT invent dependencies or refactor out-of-scope modules.
+- **Commit message convention:** Use descriptive, topic-based commit headers with conventional commit prefixes (e.g., `feat(scope):`, `fix(scope):`, `docs:`, `test(scope):`, `refactor(scope):`, `chore:`). Never use opaque codenames, section numbers, or ticket IDs alone as the commit subject — the header must describe what changed, not reference external tracking. Commit each logical topic separately (topic-by-topic), not as a batch of unrelated changes.
 
 ## Project Structure
 
@@ -72,20 +73,7 @@ Services collaborate exclusively via events; no central orchestrator.
 
 ## Developer Commands
 
-### Legacy Frontend (Vue 3)
-```bash
-cd frontend
-npm run dev                  # Vite dev server at localhost:5173
-npm run build                # npm-run-all2 parallel: type-check + build-only
-npm run preview              # Vite preview of production build
-npm run type-check           # vue-tsc --build (incremental)
-npm run lint                 # oxlint --fix THEN eslint --fix (sequential via run-s)
-npm run format               # Prettier (--write src/)
-npm run test:unit            # Vitest (jsdom env, excludes e2e/)
-npm run test:e2e             # Playwright (npx playwright install first)
-```
-
-### Target Frontend (Next.js)
+### Frontend (Next.js)
 ```bash
 cd frontend-next
 npm run dev                  # Next.js dev server at localhost:3000
@@ -95,20 +83,11 @@ npm run lint                 # ESLint
 npm run test                 # Jest / Vitest
 ```
 
-### Legacy Backend (Monolith)
-```bash
-cd backend
-./gradlew bootRun            # Dev server (needs MSSQL with InsuranceDB)
-./gradlew test               # JUnit 5 + Spring Boot test slice support
-./gradlew clean build        # Full build (packages as JAR)
-```
-
 ### Target Microservice (any service under services/)
 ```bash
-cd services/<service-name>
-./gradlew bootRun            # Dev server (needs local PostgreSQL)
-./gradlew test               # JUnit 5 + testcontainers
-./gradlew clean build        # Full build (packages as JAR)
+.\gradlew.bat :services:<service-name>:bootRun            # Dev server (needs local PostgreSQL)
+.\gradlew.bat :services:<service-name>:test               # JUnit 5 + testcontainers
+.\gradlew.bat :services:<service-name>:clean build        # Full build (packages as JAR)
 ```
 
 ### Infrastructure (Docker Compose)
@@ -121,8 +100,6 @@ docker compose -f infra/docker/docker-compose.yml down
 ```
 
 ## Order Matters
-
-- **Legacy code path:** Frontend before commit: `lint -> type-check -> test:unit` must all pass.
 - **Target code path:** Changes affecting multiple services must be implemented bottom-up (no circular dependencies). Reference Data → Auth → Customer/Vehicle/RealEstate → Insurance → Estimation → API Gateway. Frontend-next depends only on API Gateway contracts.
 
 ## Architecture
@@ -154,6 +131,7 @@ docker compose -f infra/docker/docker-compose.yml down
 - **Domain-driven microservices** — each service owns its domain data and logic. No shared database.
 - **Spring Boot MVC + JPA** — imperative controllers (`@RestController`), Spring Data JPA repositories, Hibernate ORM.
 - **Database per service** — each service has a dedicated PostgreSQL database.
+- **Datetime convention** — timestamps (createdAt, updatedAt, deletedAt, etc.) use `java.time.Instant`; date-only fields (birthDate, policyStartDate, etc.) use `java.time.LocalDate`.
 - **Inter-service communication** — **no direct REST calls**. All communication via message brokers:
   - **Kafka** — SAGA events, domain events (audit, analytics, eventual consistency). Topics: `estimation.saga`, `*.events`.
   - **RabbitMQ** — Synchronous RPC calls (e.g., fetch reference data), dead-letter handling.
@@ -161,6 +139,18 @@ docker compose -f infra/docker/docker-compose.yml down
 - **Auth Service** — dedicated service for JWT issuance and validation (no more dummy auth).
 - **Idempotency** — consumers deduplicate events using `sagaId` + event type.
 - **Result pattern** — services use standardized API response envelope.
+
+### Java Version Convention
+
+- **Java 21+ relaxed `main` method** — the `public` modifier on `main(String[])` is no longer required by the JVM specification. All services may omit `public` on the application entry point for conciseness. This is valid for Java 25 (the project target) and all Java 21+ runtimes.
+
+### Testing Conventions (Spring Boot 4)
+
+- **HTTP client for tests** — always use `RestTestClient`, never `TestRestTemplate` or raw `RestTemplate`.
+- **Slice tests** (controller-only, mocked services) — use `@WebMvcTest` + `@Autowired MockMvc`, then wrap: `RestTestClient.bindTo(mockMvc).build()` in `@BeforeEach`. This gives the fluent API without a real server.
+- **Integration tests** (full context, real DB/messaging) — use `@SpringBootTest(RANDOM_PORT)` + `@AutoConfigureRestTestClient` + `@Autowired RestTestClient`. No `@LocalServerPort`, no manual URL-building.
+- **Assertions** — use `.jsonPath("$...").isEqualTo(...)` via `RestTestClient.expectBody()` for HTTP response validation. Never use `objectMapper.readTree() + assertThat()` for HTTP assertions when `jsonPath()` covers the same check. Use AssertJ (`assertThat`) for domain-level checks (DB state, entity fields). `readTree()` is acceptable only for extracting values from the response body (e.g. an entity ID) needed for subsequent DB verification. Avoid Hamcrest matchers in test assertions.
+- **Database isolation** — each integration test class cleans shared state via `@BeforeEach` or `@DirtiesContext`. Never rely on test order to produce a clean database.
 
 ### Target Frontend (Next.js SSR)
 

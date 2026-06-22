@@ -1,0 +1,55 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: customer-service
+  profiles:
+    active: dev
+  datasource:
+    url: jdbc:postgresql://localhost:5433/customer_db
+    username: ims_user
+    password: ims_password
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  cloud:
+    stream:
+      default-binder: kafka
+      dynamicDestinations: estimation.saga,customer.events
+      bindings:
+        processCustomerSaga-in-0:
+          destination: estimation.saga
+          group: customer-service-group
+      kafka:
+        binder:
+          brokers: localhost:9092
+          defaultBrokerPort: 9092
+  kafka:
+    consumer:
+      group-id: customer-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.insurancemanagementsystem.*"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} [%X{traceId:-},%X{sagaId:-}] - %msg%n"
+  level:
+    com.insurancemanagementsystem: DEBUG
