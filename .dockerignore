@@ -1,0 +1,29 @@
+# OS artifacts
+.git/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Java / Gradle build output
+build/
+.gradle/
+*.class
+
+# Node / Frontends (not needed for backend service build)
+node_modules/
+frontend/
+frontend-next/
+.next/
+dist/
+dist-ssr/
+
+# Environment & secrets
+.env
+.env.local
+
+# Logs & test output
+*.log
+coverage/
+test-results/

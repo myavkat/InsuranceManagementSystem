@@ -163,6 +163,10 @@ docker compose -f infra/docker/docker-compose.yml down
 - **Idempotency** — consumers deduplicate events using `sagaId` + event type.
 - **Result pattern** — services use standardized API response envelope.
 
+### Java Version Convention
+
+- **Java 21+ relaxed `main` method** — the `public` modifier on `main(String[])` is no longer required by the JVM specification. All services may omit `public` on the application entry point for conciseness. This is valid for Java 25 (the project target) and all Java 21+ runtimes.
+
 ### Testing Conventions (Spring Boot 4)
 
 - **HTTP client for tests** — always use `RestTestClient`, never `TestRestTemplate` or raw `RestTemplate`.

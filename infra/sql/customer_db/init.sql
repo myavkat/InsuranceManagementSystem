@@ -11,11 +11,12 @@ CREATE TABLE IF NOT EXISTS customers (
     address TEXT,
     city_id INT,
     profession_id INT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP NULL
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMPTZ NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_customers_national_id ON customers(national_id);
 CREATE INDEX IF NOT EXISTS idx_customers_last_name ON customers(last_name);
 CREATE INDEX IF NOT EXISTS idx_customers_email ON customers(email);
+CREATE INDEX IF NOT EXISTS idx_customers_deleted_at ON customers(deleted_at);
