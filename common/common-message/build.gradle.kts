@@ -1,5 +1,6 @@
 plugins {
     java
+    jacoco
     `java-library`
     `maven-publish`
     id("org.springframework.boot") version "4.0.6" apply false
@@ -26,8 +27,7 @@ dependencyManagement {
 }
 
 dependencies {
-    implementation("com.fasterxml.jackson.core:jackson-databind")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+    implementation("tools.jackson.core:jackson-databind")
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
     implementation("jakarta.validation:jakarta.validation-api")
