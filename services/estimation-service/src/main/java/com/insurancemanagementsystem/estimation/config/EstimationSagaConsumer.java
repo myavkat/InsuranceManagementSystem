@@ -134,7 +134,7 @@ public class EstimationSagaConsumer {
             estimation.setStatus(Estimation.Status.COMPLETED);
             estimation.setPremium(event.getPremium());
             if (event.getBreakdown() != null) {
-                estimation.setDetails(event.getBreakdown().toString());
+                estimation.setDetails(jsonMapper.writeValueAsString(event.getBreakdown()));
             }
             estimationRepository.save(estimation);
             log.info("Estimation {} completed for sagaId={}: premium={}",

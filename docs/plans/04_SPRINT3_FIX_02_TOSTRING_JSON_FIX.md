@@ -119,6 +119,14 @@ The integration test `EstimationServiceApplicationTests` uses Testcontainers wit
 - `services/estimation-service/src/main/java/com/insurancemanagementsystem/estimation/config/EstimationSagaConsumer.java` — Line 137: `toString()` → `jsonMapper.writeValueAsString()`
 - `services/estimation-service/src/test/java/com/insurancemanagementsystem/estimation/config/EstimationSagaConsumerTest.java` — Update assertions to verify valid JSON output
 
+## Execution Checklist
+
+- [x] Fix `EstimationSagaConsumer.java:137` — `toString()` → `jsonMapper.writeValueAsString()`
+- [x] Update test assertions in `EstimationSagaConsumerTest.java` to verify valid JSON
+- [x] Compilation clean
+- [x] Unit tests pass (15/15)
+- [x] Integration tests pass (with Testcontainers PostgreSQL)
+
 ### Risk Assessment
 - **Risk:** LOW. The `jsonMapper` is already in scope. The fix is a one-line change.
 - **Regression risk:** None — the old behavior was broken (produced invalid JSON for PostgreSQL). The fix makes it correct.

@@ -119,7 +119,8 @@ class EstimationSagaConsumerTest {
 
         assertThat(estimation.getStatus()).isEqualTo(Estimation.Status.COMPLETED);
         assertThat(estimation.getPremium()).isEqualByComparingTo(premium);
-        assertThat(estimation.getDetails()).contains("1500");
+        assertThat(estimation.getDetails()).startsWith("{").endsWith("}");
+        assertThat(estimation.getDetails()).contains("\"base\"");
         verify(estimationRepository).save(estimation);
         verify(deduplicationStore).markProcessed(sagaId.toString(), EventConstants.PREMIUM_CALCULATED);
     }
