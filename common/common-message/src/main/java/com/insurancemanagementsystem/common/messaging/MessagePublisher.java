@@ -1,4 +1,4 @@
-package com.insurancemanagementsystem.insurance.config;
+package com.insurancemanagementsystem.common.messaging;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

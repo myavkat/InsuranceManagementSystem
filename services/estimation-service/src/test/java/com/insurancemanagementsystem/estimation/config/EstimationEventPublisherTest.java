@@ -1,5 +1,6 @@
 package com.insurancemanagementsystem.estimation.config;
 
+import com.insurancemanagementsystem.common.messaging.MessagePublisher;
 import com.insurancemanagementsystem.common.event.EventConstants;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

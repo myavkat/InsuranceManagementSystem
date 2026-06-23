@@ -23,6 +23,7 @@ repositories {
 dependencyManagement {
     imports {
         mavenBom(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:2025.1.2")
     }
 }
 
@@ -31,6 +32,7 @@ dependencies {
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
     implementation("jakarta.validation:jakarta.validation-api")
+    compileOnly("org.springframework.cloud:spring-cloud-stream")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.junit.jupiter:junit-jupiter")

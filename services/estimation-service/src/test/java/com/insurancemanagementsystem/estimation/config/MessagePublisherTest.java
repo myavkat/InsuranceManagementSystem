@@ -1,5 +1,6 @@
 package com.insurancemanagementsystem.estimation.config;
 
+import com.insurancemanagementsystem.common.messaging.MessagePublisher;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;

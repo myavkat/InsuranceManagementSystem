@@ -7,6 +7,7 @@ import com.insurancemanagementsystem.common.event.saga.CustomerValidatedEvent;
 import com.insurancemanagementsystem.common.event.saga.EstimationRequestedEvent;
 import com.insurancemanagementsystem.customer.entity.Customer;
 import com.insurancemanagementsystem.customer.repository.CustomerRepository;
+import com.insurancemanagementsystem.common.messaging.MessagePublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;

@@ -3,7 +3,7 @@ package com.insurancemanagementsystem.insurance.saga;
 import com.insurancemanagementsystem.common.event.EventConstants;
 import com.insurancemanagementsystem.common.event.EventEnvelope;
 import com.insurancemanagementsystem.common.event.saga.*;
-import com.insurancemanagementsystem.insurance.config.MessagePublisher;
+import com.insurancemanagementsystem.common.messaging.MessagePublisher;
 import com.insurancemanagementsystem.insurance.entity.Insurance;
 import com.insurancemanagementsystem.insurance.entity.InsuranceCompany;
 import com.insurancemanagementsystem.insurance.entity.InsuranceType;

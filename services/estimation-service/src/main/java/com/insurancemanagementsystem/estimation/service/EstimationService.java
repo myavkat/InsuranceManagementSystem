@@ -3,7 +3,7 @@ package com.insurancemanagementsystem.estimation.service;
 import com.insurancemanagementsystem.common.event.EventConstants;
 import com.insurancemanagementsystem.common.event.EventEnvelope;
 import com.insurancemanagementsystem.common.event.saga.EstimationRequestedEvent;
-import com.insurancemanagementsystem.estimation.config.MessagePublisher;
+import com.insurancemanagementsystem.common.messaging.MessagePublisher;
 import com.insurancemanagementsystem.estimation.dto.EstimationRequest;
 import com.insurancemanagementsystem.estimation.dto.EstimationResponse;
 import com.insurancemanagementsystem.estimation.entity.Estimation;

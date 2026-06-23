@@ -4,6 +4,7 @@ import com.insurancemanagementsystem.common.event.EventConstants;
 import com.insurancemanagementsystem.common.event.EventEnvelope;
 import com.insurancemanagementsystem.common.event.saga.*;
 import com.insurancemanagementsystem.insurance.entity.Insurance;
+import com.insurancemanagementsystem.common.messaging.MessagePublisher;
 import com.insurancemanagementsystem.insurance.repository.InsuranceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

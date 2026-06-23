@@ -7,7 +7,7 @@ import com.insurancemanagementsystem.common.event.EventEnvelope;
 import com.insurancemanagementsystem.common.event.saga.CustomerInvalidatedEvent;
 import com.insurancemanagementsystem.common.event.saga.CustomerValidatedEvent;
 import com.insurancemanagementsystem.common.event.saga.EstimationRequestedEvent;
-import com.insurancemanagementsystem.customer.config.MessagePublisher;
+import com.insurancemanagementsystem.common.messaging.MessagePublisher;
 import com.insurancemanagementsystem.customer.entity.Customer;
 import com.insurancemanagementsystem.customer.repository.CustomerRepository;
 import org.junit.jupiter.api.BeforeEach;

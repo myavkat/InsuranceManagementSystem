@@ -3,6 +3,7 @@ package com.insurancemanagementsystem.estimation.config;
 import com.insurancemanagementsystem.common.event.EventConstants;
 import com.insurancemanagementsystem.common.event.EventEnvelope;
 import com.insurancemanagementsystem.common.event.saga.EstimationFailedEvent;
+import com.insurancemanagementsystem.common.messaging.MessagePublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

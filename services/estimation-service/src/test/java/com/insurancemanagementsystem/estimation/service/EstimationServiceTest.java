@@ -1,6 +1,6 @@
 package com.insurancemanagementsystem.estimation.service;
 
-import com.insurancemanagementsystem.estimation.config.MessagePublisher;
+import com.insurancemanagementsystem.common.messaging.MessagePublisher;
 import com.insurancemanagementsystem.estimation.dto.EstimationRequest;
 import com.insurancemanagementsystem.estimation.dto.EstimationResponse;
 import com.insurancemanagementsystem.estimation.entity.Estimation;
