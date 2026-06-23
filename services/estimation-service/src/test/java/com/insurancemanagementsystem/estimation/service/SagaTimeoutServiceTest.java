@@ -1,0 +1,165 @@
+package com.insurancemanagementsystem.estimation.service;
+
+import com.insurancemanagementsystem.estimation.config.EstimationEventPublisher;
+import com.insurancemanagementsystem.estimation.entity.Estimation;
+import com.insurancemanagementsystem.estimation.repository.EstimationRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class SagaTimeoutServiceTest {
+
+    @Mock
+    private EstimationRepository estimationRepository;
+
+    @Mock
+    private EstimationEventPublisher estimationEventPublisher;
+
+    @InjectMocks
+    private SagaTimeoutService timeoutService;
+
+    @Captor
+    private ArgumentCaptor<Instant> cutoffCaptor;
+
+    @BeforeEach
+    void setUp() {
+        // @Value fields are not injected by Mockito — set manually
+        ReflectionTestUtils.setField(timeoutService, "timeoutMinutes", 5);
+    }
+
+    // ---------------------------------------------------------------
+    // Helper: create a stale estimation
+    // ---------------------------------------------------------------
+    private Estimation createStaleEstimation(UUID sagaId) {
+        return Estimation.builder()
+                .id(UUID.randomUUID())
+                .sagaId(sagaId)
+                .status(Estimation.Status.STARTED)
+                .createdAt(Instant.now().minus(10, ChronoUnit.MINUTES))
+                .build();
+    }
+
+    // ---------------------------------------------------------------
+    // 1. No stale estimations → no changes, no events published
+    // ---------------------------------------------------------------
+    @Test
+    void noStaleEstimations_noChanges() {
+        when(estimationRepository.findByStatusAndCreatedAtBefore(any(), any()))
+                .thenReturn(List.of());
+
+        timeoutService.checkForTimedOutSagas();
+
+        verify(estimationRepository).findByStatusAndCreatedAtBefore(
+                eq(Estimation.Status.STARTED), any(Instant.class));
+        verify(estimationRepository, never()).save(any());
+        verify(estimationEventPublisher, never()).publishEstimationFailed(any(), any(), any(), any());
+    }
+
+    // ---------------------------------------------------------------
+    // 2. Found stale estimations → each is rejected + EstimationFailed published
+    // ---------------------------------------------------------------
+    @Test
+    void staleEstimations_areRejected() {
+        UUID sagaId = UUID.randomUUID();
+        Estimation stale = createStaleEstimation(sagaId);
+
+        when(estimationRepository.findByStatusAndCreatedAtBefore(any(), any()))
+                .thenReturn(List.of(stale));
+
+        timeoutService.checkForTimedOutSagas();
+
+        assertThat(stale.getStatus()).isEqualTo(Estimation.Status.REJECTED);
+        assertThat(stale.getDetails()).contains("timed out");
+
+        verify(estimationRepository).save(stale);
+        verify(estimationEventPublisher).publishEstimationFailed(
+                eq(sagaId),
+                isNull(),
+                contains("timed out"),
+                eq("SagaTimeoutService"));
+    }
+
+    // ---------------------------------------------------------------
+    // 3. Multiple stale estimations → all processed
+    // ---------------------------------------------------------------
+    @Test
+    void multipleStaleEstimations_allProcessed() {
+        UUID sagaId1 = UUID.randomUUID();
+        UUID sagaId2 = UUID.randomUUID();
+        Estimation stale1 = createStaleEstimation(sagaId1);
+        Estimation stale2 = createStaleEstimation(sagaId2);
+
+        when(estimationRepository.findByStatusAndCreatedAtBefore(any(), any()))
+                .thenReturn(List.of(stale1, stale2));
+
+        timeoutService.checkForTimedOutSagas();
+
+        assertThat(stale1.getStatus()).isEqualTo(Estimation.Status.REJECTED);
+        assertThat(stale2.getStatus()).isEqualTo(Estimation.Status.REJECTED);
+        verify(estimationRepository, times(2)).save(any());
+        verify(estimationEventPublisher, times(2)).publishEstimationFailed(any(), any(), any(), any());
+    }
+
+    // ---------------------------------------------------------------
+    // 4. Exception during processing one → others still processed
+    // ---------------------------------------------------------------
+    @Test
+    void exceptionDuringProcessing_otherEstimationsStillProcessed() {
+        UUID sagaId1 = UUID.randomUUID();
+        UUID sagaId2 = UUID.randomUUID();
+        Estimation stale1 = createStaleEstimation(sagaId1);
+        Estimation stale2 = createStaleEstimation(sagaId2);
+
+        when(estimationRepository.findByStatusAndCreatedAtBefore(any(), any()))
+                .thenReturn(List.of(stale1, stale2));
+
+        // First save throws, second succeeds
+        when(estimationRepository.save(stale1)).thenThrow(new RuntimeException("DB error"));
+        when(estimationRepository.save(stale2)).thenReturn(stale2);
+
+        timeoutService.checkForTimedOutSagas();
+
+        // stale2 should still be processed despite stale1 failing
+        assertThat(stale2.getStatus()).isEqualTo(Estimation.Status.REJECTED);
+        verify(estimationRepository).save(stale2);
+        // publishEstimationFailed should still be called for stale2
+        verify(estimationEventPublisher).publishEstimationFailed(
+                eq(sagaId2), isNull(), anyString(), anyString());
+    }
+
+    // ---------------------------------------------------------------
+    // 5. Correct cutoff time calculation (based on timeoutMinutes config)
+    // ---------------------------------------------------------------
+    @Test
+    void usesCorrectCutoffTime() {
+        when(estimationRepository.findByStatusAndCreatedAtBefore(any(), any()))
+                .thenReturn(List.of());
+
+        timeoutService.checkForTimedOutSagas();
+
+        verify(estimationRepository).findByStatusAndCreatedAtBefore(
+                eq(Estimation.Status.STARTED), cutoffCaptor.capture());
+
+        Instant cutoff = cutoffCaptor.getValue();
+        Instant expectedCutoff = Instant.now().minus(5, ChronoUnit.MINUTES);
+        assertThat(cutoff).isCloseTo(expectedCutoff, within(1, ChronoUnit.SECONDS));
+    }
+}
