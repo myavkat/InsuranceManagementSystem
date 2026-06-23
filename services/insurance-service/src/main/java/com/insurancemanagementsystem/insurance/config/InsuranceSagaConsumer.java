@@ -14,6 +14,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Pageable;
 import tools.jackson.databind.json.JsonMapper;
 
+import com.insurancemanagementsystem.insurance.entity.SagaEvent;
+import com.insurancemanagementsystem.insurance.repository.SagaEventRepository;
+import org.springframework.dao.DataIntegrityViolationException;
+
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -28,8 +32,22 @@ public class InsuranceSagaConsumer {
 
     private final InsuranceRepository insuranceRepository;
     private final MessagePublisher messagePublisher;
-    private final DeduplicationStore deduplicationStore;
+    private final SagaEventRepository sagaEventRepository;
     private final SagaAggregationStore aggregationStore;
+
+    private boolean isDuplicateSagaEvent(UUID sagaId, String eventType) {
+        SagaEvent dedup = SagaEvent.builder()
+                .sagaId(sagaId)
+                .eventType(eventType)
+                .build();
+        try {
+            sagaEventRepository.save(dedup);
+            return false;
+        } catch (DataIntegrityViolationException e) {
+            log.info("Duplicate event: sagaId={}, eventType={} — skipping", sagaId, eventType);
+            return true;
+        }
+    }
 
     @Bean
     public Consumer<String> processInsuranceSaga(JsonMapper jsonMapper) {
@@ -77,11 +95,9 @@ public class InsuranceSagaConsumer {
     private void handleEstimationRequested(EventEnvelope envelope, UUID sagaId, UUID traceId, JsonMapper jsonMapper) {
         String eventType = envelope.getEventType();
 
-        if (deduplicationStore.isDuplicate(sagaId.toString(), eventType)) {
-            log.info("Duplicate event: sagaId={}, eventType={} — skipping", sagaId, eventType);
+        if (isDuplicateSagaEvent(sagaId, eventType)) {
             return;
         }
-        deduplicationStore.markProcessed(sagaId.toString(), eventType);
 
         // Store in aggregation — will check if complete
         boolean ready = aggregationStore.storeAndCheckReady(sagaId.toString(), eventType, envelope);
@@ -96,11 +112,9 @@ public class InsuranceSagaConsumer {
     private void handleCustomerValidated(EventEnvelope envelope, UUID sagaId, UUID traceId, JsonMapper jsonMapper) {
         String eventType = envelope.getEventType();
 
-        if (deduplicationStore.isDuplicate(sagaId.toString(), eventType)) {
-            log.info("Duplicate event: sagaId={}, eventType={} — skipping", sagaId, eventType);
+        if (isDuplicateSagaEvent(sagaId, eventType)) {
             return;
         }
-        deduplicationStore.markProcessed(sagaId.toString(), eventType);
 
         boolean ready = aggregationStore.storeAndCheckReady(sagaId.toString(), eventType, envelope);
         if (ready) {
@@ -114,11 +128,9 @@ public class InsuranceSagaConsumer {
     private void handleVehicleValidated(EventEnvelope envelope, UUID sagaId, UUID traceId, JsonMapper jsonMapper) {
         String eventType = envelope.getEventType();
 
-        if (deduplicationStore.isDuplicate(sagaId.toString(), eventType)) {
-            log.info("Duplicate event: sagaId={}, eventType={} — skipping", sagaId, eventType);
+        if (isDuplicateSagaEvent(sagaId, eventType)) {
             return;
         }
-        deduplicationStore.markProcessed(sagaId.toString(), eventType);
 
         boolean ready = aggregationStore.storeAndCheckReady(sagaId.toString(), eventType, envelope);
         if (ready) {
@@ -147,11 +159,9 @@ public class InsuranceSagaConsumer {
         UUID sagaId = envelope.getSagaId();
         String eventType = envelope.getEventType();
 
-        if (deduplicationStore.isDuplicate(sagaId.toString(), eventType)) {
-            log.info("Duplicate event: sagaId={}, eventType={} — skipping", sagaId, eventType);
+        if (isDuplicateSagaEvent(sagaId, eventType)) {
             return;
         }
-        deduplicationStore.markProcessed(sagaId.toString(), eventType);
 
         log.warn("Estimation failed for saga: {} — no compensation needed (calculation is stateless)", sagaId);
     }
