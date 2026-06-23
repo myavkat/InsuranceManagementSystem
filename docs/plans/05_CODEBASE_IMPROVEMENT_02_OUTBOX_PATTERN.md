@@ -610,21 +610,21 @@ Create unit tests for `OutboxRelay.processOutbox()`:
 
 ## Execution Checklist
 
-- [ ] Read context files
-- [ ] Create `OutboxEvent.java` entity
-- [ ] Create `OutboxEventRepository.java`
-- [ ] Create `OutboxRelay.java` (scheduled relay)
-- [ ] Modify `EstimationService.java` — replace afterCommit with outbox insert
-- [ ] Modify `SagaTimeoutService.java` — replace afterCommit with outbox insert
-- [ ] Modify `EstimationSagaConsumer.java` `handleFailed()` — add outbox insert
-- [ ] Edit `infra/sql/estimation_db/init.sql` — add outbox_events table
-- [ ] Edit `application.yml` — add outbox config
-- [ ] Update `EstimationServiceTest.java` — remove sync init, add outbox verification
-- [ ] Update `SagaTimeoutServiceTest.java` — remove sync init, add outbox verification
-- [ ] Update `EstimationSagaConsumerTest.java` — verify outbox for handleFailed
-- [ ] Create `OutboxRelayTest.java`
-- [ ] Compile: `BUILD SUCCESSFUL`
-- [ ] All tests pass
+- [x] Read context files
+- [x] Create `OutboxEvent.java` entity
+- [x] Create `OutboxEventRepository.java`
+- [x] Create `OutboxRelay.java` (scheduled relay)
+- [x] Modify `EstimationService.java` — replace afterCommit with outbox insert
+- [x] Modify `SagaTimeoutService.java` — replace afterCommit with outbox insert
+- [x] Modify `EstimationSagaConsumer.java` `handleFailed()` — add outbox insert
+- [x] Edit `infra/sql/estimation_db/init.sql` — add outbox_events table
+- [x] Edit `application.yml` — add outbox config
+- [x] Update `EstimationServiceTest.java` — remove sync init, add outbox verification
+- [x] Update `SagaTimeoutServiceTest.java` — remove sync init, add outbox verification
+- [x] Update `EstimationSagaConsumerTest.java` — verify outbox for handleFailed
+- [x] Create `OutboxRelayTest.java`
+- [x] Compile: `BUILD SUCCESSFUL`
+- [x] All tests pass
 
 ## Future Work (Not in Scope)
 
