@@ -56,3 +56,4 @@ logging:
 estimation:
   saga:
     timeout-minutes: 5
+    poll-interval-ms: 30000
