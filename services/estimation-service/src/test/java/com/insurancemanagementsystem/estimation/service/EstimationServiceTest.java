@@ -256,4 +256,35 @@ class EstimationServiceTest {
         verify(estimationRepository, never()).findAll(any(Pageable.class));
         verify(estimationRepository, never()).findByCustomerId(any(UUID.class), any(Pageable.class));
     }
+
+    // ---------------------------------------------------------------
+    // 8. findAll — with invalid status → throws IllegalArgumentException
+    // ---------------------------------------------------------------
+    @Test
+    void findAll_withInvalidStatus_throwsIllegalArgumentException() {
+        Pageable pageable = PageRequest.of(0, 20);
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> estimationService.findAll(null, "INVALID", pageable));
+        assertThat(exception.getMessage()).contains("Invalid status");
+        assertThat(exception.getMessage()).contains("INVALID");
+
+        verify(estimationRepository, never()).findAll(any(Pageable.class));
+        verify(estimationRepository, never()).findByStatus(any(Estimation.Status.class), any(Pageable.class));
+    }
+
+    // ---------------------------------------------------------------
+    // 9. findAll — with customerId + invalid status
+    // ---------------------------------------------------------------
+    @Test
+    void findAll_withCustomerIdAndInvalidStatus_throwsIllegalArgumentException() {
+        Pageable pageable = PageRequest.of(0, 20);
+        UUID customerId = UUID.randomUUID();
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> estimationService.findAll(customerId, "INVALID", pageable));
+        assertThat(exception.getMessage()).contains("Invalid status");
+
+        verify(estimationRepository, never()).findByCustomerIdAndStatus(any(), any(), any(Pageable.class));
+    }
 }

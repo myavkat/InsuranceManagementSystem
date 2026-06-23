@@ -224,4 +224,20 @@ class EstimationControllerTest {
 
         verify(estimationService).findAll(isNull(), eq("STARTED"), any(Pageable.class));
     }
+
+    // ---------------------------------------------------------------
+    // 9. GET /api/estimations?status=INVALID → 400 BAD_REQUEST
+    // ---------------------------------------------------------------
+    @Test
+    void getAll_WithInvalidStatus_Returns400() {
+        given(estimationService.findAll(isNull(), eq("INVALID"), any(Pageable.class)))
+                .willThrow(new IllegalArgumentException("Invalid status: 'INVALID'. Valid values: STARTED, COMPLETED, REJECTED"));
+
+        restTestClient.get().uri("/api/estimations?status=INVALID")
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody()
+                .jsonPath("$.success").isEqualTo(false)
+                .jsonPath("$.message").isEqualTo("Invalid status: 'INVALID'. Valid values: STARTED, COMPLETED, REJECTED");
+    }
 }
