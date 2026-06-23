@@ -1,5 +1,12 @@
 # Plan: Fix 12 — Extract `afterCommit` Utility to Eliminate Duplication
 
+> **Status update (2026-06-24):** The codebase had already evolved past the original duplication before this plan was executed. Both `EstimationService` and `SagaTimeoutService` now use an **outbox pattern** (`OutboxEvent` table within the same DB transaction), which is more reliable than the `TransactionSynchronization` hook. No refactoring of those services was needed.
+>
+> **What was done:**
+> - Added `publishAfterCommit()` to `MessagePublisher` as a reusable utility for future use cases
+> - Added `spring-tx` dependency to `common-message`'s `build.gradle.kts`
+> - Services were not modified as they already use the superior outbox pattern
+
 ## Objective
 
 Extract the `TransactionSynchronizationManager.registerSynchronization()` pattern currently duplicated in `EstimationService` and `SagaTimeoutService` into a shared utility method, eliminating the duplicated `TransactionSynchronization` anonymous class creation.
@@ -330,21 +337,29 @@ verify(messagePublisher).publishAfterCommit(anyString(), any());
 
 ## Execution Checklist
 
-- [ ] Read context files
-- [ ] Edit `MessagePublisher.java` — add `publishAfterCommit()` method
-- [ ] Compile `common:common-message` — `BUILD SUCCESSFUL`
-- [ ] Edit `EstimationService.java` — replace `scheduleSagaEventPublish()` with `messagePublisher.publishAfterCommit()`
-- [ ] Remove unused `TransactionSynchronization` imports from `EstimationService.java`
-- [ ] Edit `SagaTimeoutService.java` — replace anonymous `TransactionSynchronization` with `messagePublisher.publishAfterCommit()`
-- [ ] Remove unused `TransactionSynchronization` imports from `SagaTimeoutService.java`
-- [ ] Update `EstimationServiceTest.java` — verify `publishAfterCommit()` instead of not verifying publish
-- [ ] Update `SagaTimeoutServiceTest.java` — verify `publishAfterCommit()` instead of not verifying
-- [ ] Compile: `BUILD SUCCESSFUL`
-- [ ] All tests pass
+- [x] Read context files
+- [x] Edit `MessagePublisher.java` — add `publishAfterCommit()` method
+- [x] Add `spring-tx` dependency to `common-message/build.gradle.kts`
+- [x] Compile `common:common-message` — `BUILD SUCCESSFUL`
+- [ ] <strike>Edit `EstimationService.java` — replace `scheduleSagaEventPublish()` with `messagePublisher.publishAfterCommit()`</strike>
+  **CANCELLED:** Code already uses outbox pattern, which is superior. No `afterCommit` duplication exists.
+- [ ] <strike>Remove unused `TransactionSynchronization` imports from `EstimationService.java`</strike>
+  **CANCELLED:** No such imports exist in the current code.
+- [ ] <strike>Edit `SagaTimeoutService.java` — replace anonymous `TransactionSynchronization` with `messagePublisher.publishAfterCommit()`</strike>
+  **CANCELLED:** Code already uses outbox pattern.
+- [ ] <strike>Remove unused `TransactionSynchronization` imports from `SagaTimeoutService.java`</strike>
+  **CANCELLED:** No such imports exist.
+- [ ] <strike>Update `EstimationServiceTest.java` — verify `publishAfterCommit()` instead of not verifying publish</strike>
+  **CANCELLED:** Tests already verify outbox events.
+- [ ] <strike>Update `SagaTimeoutServiceTest.java` — verify `publishAfterCommit()` instead of not verifying</strike>
+  **CANCELLED:** Tests already verify outbox events.
+- [x] Compile estimation-service: `BUILD SUCCESSFUL`
+- [x] All tests pass
 
 ## Risk Assessment
 
-- **Risk:** LOW. The `publishAfterCommit()` method in `MessagePublisher` is a direct extraction of the existing pattern — no new behavior, just centralized code.
-- **Existing behavior preserved:** When a transaction is active, the publish is deferred to `afterCommit`. When no transaction is active (e.g., in consumers), it publishes immediately. This matches both use cases currently in the codebase.
+- **Risk:** VERY LOW. The `publishAfterCommit()` method in `MessagePublisher` is a new utility with no consumers yet — it adds capability without changing any existing behavior.
+- **Existing behavior preserved:** No existing code was modified. The outbox pattern in `EstimationService` and `SagaTimeoutService` remains untouched.
 - **Thread safety:** `TransactionSynchronizationManager` is thread-local (uses `ThreadLocal`). The `afterCommit` callback runs in the same thread, so no thread-safety concerns.
-- **Dependency addition:** `MessagePublisher` now depends on `spring-tx` (via `TransactionSynchronizationManager`). This is already a transitive dependency via `spring-data-jpa` in all services. `common-message` already has `compileOnly("org.springframework.cloud:spring-cloud-stream")` — adding `spring-tx` is also `compileOnly` scope if needed, but it's already available at runtime.
+- **Dependency addition:** Added `implementation("org.springframework:spring-tx")` to `common-message/build.gradle.kts`. This is lightweight (already a transitive dependency of downstream services via `spring-data-jpa`).
+- **Outbox vs afterCommit:** Note that the services use the **outbox pattern** (`OutboxEvent` table), not the `afterCommit` hook. The outbox pattern is more reliable (guarantees delivery even if the application crashes after transaction commit but before the message is sent). The `publishAfterCommit()` utility is a lighter-weight alternative for future use cases where the outbox pattern is overkill.
