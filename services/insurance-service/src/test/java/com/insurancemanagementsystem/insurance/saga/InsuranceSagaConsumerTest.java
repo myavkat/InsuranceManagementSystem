@@ -364,4 +364,62 @@ class InsuranceSagaConsumerTest {
         assertThat(payload.getCustomerId()).isEqualTo(estimationEvent.getCustomerId());
         assertThat(payload.getVehicleId()).isEqualTo(estimationEvent.getVehicleId());
     }
+
+    @Test
+    void estimationFailedEvent_handlesDuplicates() throws Exception {
+        // Use a fresh sagaId for this test
+        UUID failSagaId = UUID.randomUUID();
+
+        EstimationFailedEvent failEvent = EstimationFailedEvent.builder()
+                .originalSagaId(failSagaId)
+                .reason("Calculation timeout")
+                .failedStep("PremiumCalculation")
+                .build();
+        EventEnvelope failEnvelope = failEvent.toEnvelope(failSagaId, traceId);
+        String failMessage = MAPPER.writeValueAsString(failEnvelope);
+
+        // Send first ESTIMATION_FAILED
+        kafkaTemplate.send("estimation.saga", failMessage).get(10, TimeUnit.SECONDS);
+
+        // Send duplicate ESTIMATION_FAILED with same sagaId
+        kafkaTemplate.send("estimation.saga", failMessage).get(10, TimeUnit.SECONDS);
+
+        // Wait for both messages to be consumed
+        Thread.sleep(5000);
+
+        // Now send a valid ESTIMATION_REQUESTED with the SAME sagaId to verify
+        // the dedup doesn't block other event types for the same saga
+        EstimationRequestedEvent estimationEvent = EstimationRequestedEvent.builder()
+                .customerId(UUID.randomUUID())
+                .vehicleId(UUID.randomUUID())
+                .insuranceTypeId(1)
+                .companyId(companyId)
+                .build();
+        kafkaTemplate.send("estimation.saga",
+                        MAPPER.writeValueAsString(estimationEvent.toEnvelope(failSagaId, traceId)))
+                .get(10, TimeUnit.SECONDS);
+
+        CustomerValidatedEvent customerEvent = CustomerValidatedEvent.builder()
+                .customerId(UUID.randomUUID())
+                .firstName("John")
+                .lastName("Doe")
+                .build();
+        kafkaTemplate.send("estimation.saga",
+                        MAPPER.writeValueAsString(customerEvent.toEnvelope(failSagaId, traceId)))
+                .get(10, TimeUnit.SECONDS);
+
+        VehicleValidatedEvent vehicleEvent = VehicleValidatedEvent.builder()
+                .vehicleId(UUID.randomUUID())
+                .plate("34ABC123")
+                .brand("Toyota")
+                .model("Corolla")
+                .build();
+        kafkaTemplate.send("estimation.saga",
+                        MAPPER.writeValueAsString(vehicleEvent.toEnvelope(failSagaId, traceId)))
+                .get(10, TimeUnit.SECONDS);
+
+        // The 3 events should trigger premium calculation (valid saga, no duplicate)
+        verify(messagePublisher, timeout(15000).times(1))
+                .publish(anyString(), any(EventEnvelope.class));
+    }
 }

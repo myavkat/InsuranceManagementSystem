@@ -6,6 +6,7 @@ import com.insurancemanagementsystem.common.event.EventConstants;
 import com.insurancemanagementsystem.common.event.EventEnvelope;
 import com.insurancemanagementsystem.common.event.saga.CustomerInvalidatedEvent;
 import com.insurancemanagementsystem.common.event.saga.CustomerValidatedEvent;
+import com.insurancemanagementsystem.common.event.saga.EstimationFailedEvent;
 import com.insurancemanagementsystem.common.event.saga.EstimationRequestedEvent;
 import com.insurancemanagementsystem.common.messaging.MessagePublisher;
 import com.insurancemanagementsystem.customer.entity.Customer;
@@ -172,6 +173,50 @@ class CustomerSagaConsumerTest {
         CustomerInvalidatedEvent payload = MAPPER.convertValue(published.getPayload(), CustomerInvalidatedEvent.class);
         assertThat(payload.getCustomerId()).isEqualTo(customer.getId());
         assertThat(payload.getReason()).containsIgnoringCase("not found");
+    }
+
+    @Test
+    void duplicateEstimationFailed_isIdempotent() throws Exception {
+        // Use a fresh sagaId for this test
+        UUID failSagaId = UUID.randomUUID();
+
+        EstimationFailedEvent failEvent = EstimationFailedEvent.builder()
+                .originalSagaId(failSagaId)
+                .reason("Calculation timeout")
+                .failedStep("InsuranceService")
+                .build();
+        EventEnvelope failEnvelope = failEvent.toEnvelope(failSagaId, traceId);
+        String failMessage = MAPPER.writeValueAsString(failEnvelope);
+
+        // Send first ESTIMATION_FAILED
+        kafkaTemplate.send("estimation.saga", failMessage).get(10, TimeUnit.SECONDS);
+
+        // Send duplicate ESTIMATION_FAILED
+        kafkaTemplate.send("estimation.saga", failMessage).get(10, TimeUnit.SECONDS);
+
+        // Wait for both messages to be consumed
+        Thread.sleep(5000);
+
+        // Now verify that the DuplicateEventStore prevented duplicate processing
+        // by sending a valid ESTIMATION_REQUESTED with the SAME sagaId
+        Customer customer = customerRepository.save(Customer.builder()
+                .firstName("John")
+                .lastName("Doe")
+                .nationalId("12345678901")
+                .birthDate(java.time.LocalDate.of(1990, 1, 15))
+                .build());
+
+        EstimationRequestedEvent requestEvent = EstimationRequestedEvent.builder()
+                .customerId(customer.getId())
+                .build();
+        EventEnvelope requestEnvelope = requestEvent.toEnvelope(failSagaId, traceId);
+        String requestMessage = MAPPER.writeValueAsString(requestEnvelope);
+
+        kafkaTemplate.send("estimation.saga", requestMessage).get(10, TimeUnit.SECONDS);
+
+        // The ESTIMATION_REQUESTED should still be processed normally (dedup scoped by eventType + sagaId)
+        verify(messagePublisher, timeout(15000).times(1))
+                .publish(anyString(), any(EventEnvelope.class));
     }
 
     @Test

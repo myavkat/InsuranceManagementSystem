@@ -144,8 +144,16 @@ public class InsuranceSagaConsumer {
     // EstimationFailed — log only (no reversible action)
     // ---------------------------------------------------------------
     private void handleEstimationFailed(EventEnvelope envelope) {
-        log.warn("Estimation failed for saga: {} — no compensation needed (calculation is stateless)",
-                envelope.getSagaId());
+        UUID sagaId = envelope.getSagaId();
+        String eventType = envelope.getEventType();
+
+        if (deduplicationStore.isDuplicate(sagaId.toString(), eventType)) {
+            log.info("Duplicate event: sagaId={}, eventType={} — skipping", sagaId, eventType);
+            return;
+        }
+        deduplicationStore.markProcessed(sagaId.toString(), eventType);
+
+        log.warn("Estimation failed for saga: {} — no compensation needed (calculation is stateless)", sagaId);
     }
 
     // ---------------------------------------------------------------

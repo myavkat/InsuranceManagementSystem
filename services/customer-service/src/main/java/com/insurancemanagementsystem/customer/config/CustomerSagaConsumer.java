@@ -107,8 +107,16 @@ public class CustomerSagaConsumer {
     }
 
     private void handleEstimationFailed(EventEnvelope envelope) {
-        // Log only — no reversible action for read-only validation per architecture outline
-        log.warn("Estimation failed for saga: {} — no compensation needed (read-only validation)",
-                envelope.getSagaId());
+        UUID sagaId = envelope.getSagaId();
+        String eventType = envelope.getEventType();
+        String sagaIdStr = sagaId.toString();
+
+        if (deduplicationStore.isDuplicate(sagaIdStr, eventType)) {
+            log.info("Duplicate event: sagaId={}, eventType={} — skipping", sagaId, eventType);
+            return;
+        }
+        deduplicationStore.markProcessed(sagaIdStr, eventType);
+
+        log.warn("Estimation failed for saga: {} — no compensation needed (read-only validation)", sagaId);
     }
 }

@@ -203,6 +203,12 @@ public class EstimationSagaConsumer {
     // EstimationFailed — log only (no reversible action for read-only services)
     // ---------------------------------------------------------------
     private void handleEstimationFailed(EventEnvelope envelope, UUID sagaId) {
+        String eventType = envelope.getEventType();
+
+        if (isDuplicateSagaEvent(sagaId, eventType)) {
+            return;
+        }
+
         log.warn("Estimation failed for saga: {} — no compensation needed (estimation state updated)", sagaId);
     }
 

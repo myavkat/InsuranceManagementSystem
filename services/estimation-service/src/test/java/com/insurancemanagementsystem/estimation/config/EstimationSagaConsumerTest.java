@@ -353,9 +353,12 @@ class EstimationSagaConsumerTest {
 
         consumer.processEstimationSaga(jsonMapper).accept(buildEventJson(event, sagaId));
 
+        verify(sagaEventRepository).save(sagaEventCaptor.capture());
+        assertThat(sagaEventCaptor.getValue().getSagaId()).isEqualTo(sagaId);
+        assertThat(sagaEventCaptor.getValue().getEventType()).isEqualTo(EventConstants.ESTIMATION_FAILED);
         verifyNoInteractions(estimationRepository);
 
-        // Deduplication is not checked for EstimationFailed in the code
+        // Deduplication is now checked for EstimationFailed
     }
 
     // ---------------------------------------------------------------
@@ -429,5 +432,37 @@ class EstimationSagaConsumerTest {
         assertThat(sagaEventCaptor.getValue().getEventType()).isEqualTo(EventConstants.CUSTOMER_INVALIDATED);
         // Should NOT persist outbox event because no transition actually occurred
         verify(outboxEventRepository, never()).save(any());
+    }
+
+    // ---------------------------------------------------------------
+    // 16. Duplicate EstimationFailed event — skipped
+    // ---------------------------------------------------------------
+    @Test
+    void duplicateEstimationFailedEvent_skipped() {
+        UUID sagaId = UUID.randomUUID();
+        EstimationFailedEvent event = EstimationFailedEvent.builder()
+                .originalSagaId(sagaId)
+                .reason("Customer validation failed")
+                .failedStep("CUSTOMER_INVALIDATED")
+                .build();
+
+        String eventJson = buildEventJson(event, sagaId);
+        var consumerFunc = consumer.processEstimationSaga(jsonMapper);
+
+        // First call — insert succeeds (not duplicate)
+        when(sagaEventRepository.save(any(SagaEvent.class)))
+                .thenReturn(null);
+
+        consumerFunc.accept(eventJson);
+
+        // Second call — throws DataIntegrityViolationException (duplicate)
+        when(sagaEventRepository.save(any(SagaEvent.class)))
+                .thenThrow(new DataIntegrityViolationException("duplicate"));
+
+        consumerFunc.accept(eventJson);
+
+        // Verify save was called twice (once for each call, second is duplicate)
+        verify(sagaEventRepository, times(2)).save(any(SagaEvent.class));
+        verifyNoInteractions(estimationRepository);
     }
 }

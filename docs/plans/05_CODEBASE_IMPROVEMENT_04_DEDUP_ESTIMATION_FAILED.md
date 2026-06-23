@@ -253,15 +253,15 @@ Add test verifying that duplicate `ESTIMATION_FAILED` is skipped. Reference the 
 
 ## Execution Checklist
 
-- [ ] Read context files for all 3 services
-- [ ] Edit `EstimationSagaConsumer.java` — add `isDuplicateSagaEvent()` call to `handleEstimationFailed()`
-- [ ] Edit `CustomerSagaConsumer.java` — add `deduplicationStore.isDuplicate()`/`markProcessed()` to `handleEstimationFailed()`
-- [ ] Edit `InsuranceSagaConsumer.java` — add `deduplicationStore.isDuplicate()`/`markProcessed()` to `handleEstimationFailed()`
-- [ ] Update `EstimationSagaConsumerTest.java` — add duplicate test for EstimationFailed
-- [ ] Update `CustomerSagaConsumerTest.java` — add duplicate test for EstimationFailed
-- [ ] Update `InsuranceSagaConsumerTest.java` — add duplicate test for EstimationFailed
-- [ ] Compile all 3 services
-- [ ] All tests pass
+- [x] Read context files for all 3 services
+- [x] Edit `EstimationSagaConsumer.java` — add `isDuplicateSagaEvent()` call to `handleEstimationFailed()`
+- [x] Edit `CustomerSagaConsumer.java` — add `deduplicationStore.isDuplicate()`/`markProcessed()` to `handleEstimationFailed()`
+- [x] Edit `InsuranceSagaConsumer.java` — add `deduplicationStore.isDuplicate()`/`markProcessed()` to `handleEstimationFailed()`
+- [x] Update `EstimationSagaConsumerTest.java` — add duplicate test for EstimationFailed
+- [x] Update `CustomerSagaConsumerTest.java` — add duplicate test for EstimationFailed
+- [x] Update `InsuranceSagaConsumerTest.java` — add duplicate test for EstimationFailed
+- [x] Compile all 3 services
+- [x] All tests pass
 
 ## Risk Assessment
 
