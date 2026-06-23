@@ -24,6 +24,11 @@ public class MessagePublisher {
      * If no transaction is active, publishes immediately.
      * This prevents the "dual-write" problem where the DB is updated
      * but the message is lost (e.g., if the message broker is unavailable).
+     *
+     * <strong>Prefer the outbox pattern for critical data.</strong> This method uses an in-memory
+     * callback that is lost if the application crashes between transaction commit and
+     * callback execution. For saga coordination and other data-integrity-sensitive flows,
+     * use the {@code OutboxEvent} table pattern instead.
      */
     public void publishAfterCommit(String topic, Object message) {
         if (TransactionSynchronizationManager.isSynchronizationActive()) {
