@@ -48,9 +48,7 @@ class EstimationServiceApplicationTests {
         registry.add("spring.datasource.password", postgres::getPassword);
         registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
         registry.add("spring.cloud.stream.kafka.binder.brokers", kafka::getBootstrapServers);
-        registry.add("spring.jpa.hibernate.ddl-auto", () -> "none");
-        registry.add("spring.sql.init.mode", () -> "always");
-        registry.add("spring.jpa.defer-datasource-initialization", () -> "true");
+        registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop");
         registry.add("spring.kafka.consumer.properties.spring.json.trusted.packages", () -> "*");
     }
 

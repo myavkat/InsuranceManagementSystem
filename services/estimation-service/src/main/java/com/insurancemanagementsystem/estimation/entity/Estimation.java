@@ -14,6 +14,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -60,7 +62,8 @@ public class Estimation {
     @Column(name = "premium", precision = 12, scale = 2)
     private BigDecimal premium;
 
-    @Column(name = "details", columnDefinition = "JSONB")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "details")
     private String details;
 
     @Column(name = "created_at", updatable = false)
