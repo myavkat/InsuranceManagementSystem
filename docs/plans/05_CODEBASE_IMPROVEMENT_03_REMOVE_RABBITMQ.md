@@ -105,20 +105,20 @@ All compilations must succeed. All tests must pass.
 
 ## Execution Checklist
 
-- [ ] Read `services/estimation-service/build.gradle.kts` — confirm rabbit line
-- [ ] Read `services/estimation-service/src/main/resources/application.yml` — confirm rabbit block
-- [ ] Read `services/customer-service/build.gradle.kts` — confirm rabbit line
-- [ ] Read `services/customer-service/src/main/resources/application.yml` — confirm rabbit block
-- [ ] Read `services/insurance-service/build.gradle.kts` — confirm rabbit line
-- [ ] Read `services/insurance-service/src/main/resources/application.yml` — confirm rabbit block
-- [ ] Edit estimation-service `build.gradle.kts` — remove rabbit binder
-- [ ] Edit estimation-service `application.yml` — remove rabbit block
-- [ ] Edit customer-service `build.gradle.kts` — remove rabbit binder
-- [ ] Edit customer-service `application.yml` — remove rabbit block
-- [ ] Edit insurance-service `build.gradle.kts` — remove rabbit binder
-- [ ] Edit insurance-service `application.yml` — remove rabbit block
-- [ ] Compile all 3 services — all `BUILD SUCCESSFUL`
-- [ ] All tests pass
+- [x] Read `services/estimation-service/build.gradle.kts` — confirm rabbit line
+- [x] Read `services/estimation-service/src/main/resources/application.yml` — confirm rabbit block
+- [x] Read `services/customer-service/build.gradle.kts` — confirm rabbit line
+- [x] Read `services/customer-service/src/main/resources/application.yml` — confirm rabbit block
+- [x] Read `services/insurance-service/build.gradle.kts` — confirm rabbit line
+- [x] Read `services/insurance-service/src/main/resources/application.yml` — confirm rabbit block
+- [x] Edit estimation-service `build.gradle.kts` — remove rabbit binder
+- [x] Edit estimation-service `application.yml` — remove rabbit block
+- [x] Edit customer-service `build.gradle.kts` — remove rabbit binder
+- [x] Edit customer-service `application.yml` — remove rabbit block
+- [x] Edit insurance-service `build.gradle.kts` — remove rabbit binder
+- [x] Edit insurance-service `application.yml` — remove rabbit block
+- [x] Compile all 3 services — all `BUILD SUCCESSFUL`
+- [x] All tests pass
 
 ## Risk Assessment
 
