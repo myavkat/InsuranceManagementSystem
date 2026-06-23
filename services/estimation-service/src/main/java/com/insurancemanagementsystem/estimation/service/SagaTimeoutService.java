@@ -1,16 +1,18 @@
 package com.insurancemanagementsystem.estimation.service;
 
-import com.insurancemanagementsystem.estimation.config.EstimationEventPublisher;
+import com.insurancemanagementsystem.common.event.EventEnvelope;
+import com.insurancemanagementsystem.common.event.saga.EstimationFailedEvent;
 import com.insurancemanagementsystem.estimation.entity.Estimation;
+import com.insurancemanagementsystem.estimation.entity.OutboxEvent;
 import com.insurancemanagementsystem.estimation.repository.EstimationRepository;
+import com.insurancemanagementsystem.estimation.repository.OutboxEventRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -23,7 +25,8 @@ import java.util.UUID;
 public class SagaTimeoutService {
 
     private final EstimationRepository estimationRepository;
-    private final EstimationEventPublisher estimationEventPublisher;
+    private final OutboxEventRepository outboxEventRepository;
+    private final JsonMapper jsonMapper;
 
     @Value("${estimation.saga.timeout-minutes:5}")
     private int timeoutMinutes;
@@ -58,23 +61,37 @@ public class SagaTimeoutService {
                 estimation.setDetails("{\"reason\":\"SAGA timed out after " + timeoutMinutes + " minutes\"}");
                 estimationRepository.save(estimation);
 
-                // Defer publish until after DB transaction commits (atomicity)
-                UUID capturedSagaId = sagaId;
-                int capturedTimeout = timeoutMinutes;
-                TransactionSynchronizationManager.registerSynchronization(
-                    new TransactionSynchronization() {
-                        @Override
-                        public void afterCommit() {
-                            estimationEventPublisher.publishEstimationFailed(
-                                    capturedSagaId,
-                                    null,
-                                    "{\"reason\":\"SAGA timed out after " + capturedTimeout + " minutes\"}",
-                                    "SagaTimeoutService");
-                        }
-                    });
+                // Insert outbox event instead of direct publish
+                saveOutboxEvent(sagaId, "SAGA timed out after " + timeoutMinutes + " minutes", "SagaTimeoutService");
             } catch (Exception e) {
                 log.error("Failed to process timeout for estimation id={}", estimation.getId(), e);
             }
         }
+    }
+
+    private void saveOutboxEvent(UUID sagaId, String reason, String failedStep) {
+        EstimationFailedEvent event = EstimationFailedEvent.builder()
+                .originalSagaId(sagaId)
+                .reason(reason)
+                .failedStep(failedStep)
+                .build();
+        EventEnvelope envelope = event.toEnvelope(sagaId, UUID.randomUUID());
+
+        String payloadJson;
+        try {
+            payloadJson = jsonMapper.writeValueAsString(envelope);
+        } catch (Exception e) {
+            log.error("Failed to serialize outbox payload for sagaId={}", sagaId, e);
+            return; // Acceptable — timeout will retry on next cycle
+        }
+
+        OutboxEvent outboxEvent = OutboxEvent.builder()
+                .sagaId(sagaId)
+                .topic("estimation.saga")
+                .payload(payloadJson)
+                .status(OutboxEvent.Status.PENDING)
+                .build();
+        outboxEventRepository.save(outboxEvent);
+        log.info("Saved outbox event for sagaId={} — timeout rejection", sagaId);
     }
 }

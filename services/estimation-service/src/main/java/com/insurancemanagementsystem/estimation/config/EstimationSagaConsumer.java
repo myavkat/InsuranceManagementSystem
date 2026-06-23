@@ -18,6 +18,9 @@ import tools.jackson.databind.json.JsonMapper;
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.UUID;
+import com.insurancemanagementsystem.estimation.entity.OutboxEvent;
+import com.insurancemanagementsystem.estimation.repository.OutboxEventRepository;
+
 import java.util.function.Consumer;
 
 @Configuration
@@ -27,7 +30,7 @@ public class EstimationSagaConsumer {
 
     private final EstimationRepository estimationRepository;
     private final SagaEventRepository sagaEventRepository;
-    private final EstimationEventPublisher estimationEventPublisher;
+    private final OutboxEventRepository outboxEventRepository;
 
     /**
      * Returns true if this event was already processed (duplicate).
@@ -191,8 +194,8 @@ public class EstimationSagaConsumer {
             estimationRepository.save(estimation);
             log.info("Estimation {} rejected for sagaId={}: {}", estimation.getId(), sagaId, reason);
 
-            // Publish EstimationFailed for compensation in other services
-            estimationEventPublisher.publishEstimationFailed(sagaId, traceId, reason, eventType);
+            // Insert outbox event for atomic delivery
+            saveOutboxEvent(jsonMapper, sagaId, reason, eventType);
         }, () -> log.warn("No estimation found for sagaId={}", sagaId));
     }
 
@@ -201,5 +204,34 @@ public class EstimationSagaConsumer {
     // ---------------------------------------------------------------
     private void handleEstimationFailed(EventEnvelope envelope, UUID sagaId) {
         log.warn("Estimation failed for saga: {} — no compensation needed (estimation state updated)", sagaId);
+    }
+
+    // ---------------------------------------------------------------
+    // Outbox persistence helper — inserts EstimationFailed as outbox event
+    // ---------------------------------------------------------------
+    private void saveOutboxEvent(JsonMapper jsonMapper, UUID sagaId, String reason, String failedStep) {
+        EstimationFailedEvent event = EstimationFailedEvent.builder()
+                .originalSagaId(sagaId)
+                .reason(reason)
+                .failedStep(failedStep)
+                .build();
+        EventEnvelope envelope = event.toEnvelope(sagaId, UUID.randomUUID());
+
+        String payloadJson;
+        try {
+            payloadJson = jsonMapper.writeValueAsString(envelope);
+        } catch (Exception e) {
+            log.error("Failed to serialize outbox payload for sagaId={}", sagaId, e);
+            return;
+        }
+
+        OutboxEvent outboxEvent = OutboxEvent.builder()
+                .sagaId(sagaId)
+                .topic(EventConstants.ESTIMATION_SAGA)
+                .payload(payloadJson)
+                .status(OutboxEvent.Status.PENDING)
+                .build();
+        outboxEventRepository.save(outboxEvent);
+        log.info("Saved outbox event for sagaId={} to topic={}", sagaId, EventConstants.ESTIMATION_SAGA);
     }
 }
