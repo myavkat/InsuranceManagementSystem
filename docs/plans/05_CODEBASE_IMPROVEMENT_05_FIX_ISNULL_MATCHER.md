@@ -165,11 +165,11 @@ verify(estimationService).findAll(isNull(UUID.class), eq("STARTED"), any(Pageabl
 
 ## Execution Checklist
 
-- [ ] Read `EstimationControllerTest.java` — identify all 8 `isNull()` usages
-- [ ] Edit file — replace `import static org.mockito.ArgumentMatchers.*;` with specific imports
-- [ ] Edit file — replace all 8 deprecated `isNull()` calls with typed variants
-- [ ] Compile test: `BUILD SUCCESSFUL`
-- [ ] All controller tests pass
+- [x] Read `EstimationControllerTest.java` — identify all 8 `isNull()` usages
+- [x] Edit file — replace `import static org.mockito.ArgumentMatchers.*;` with specific imports
+- [x] Edit file — replace all 8 deprecated `isNull()` calls with typed variants
+- [x] Compile test: `BUILD SUCCESSFUL`
+- [x] All controller tests pass
 
 ## Risk Assessment
 
