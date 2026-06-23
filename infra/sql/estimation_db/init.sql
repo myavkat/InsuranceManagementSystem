@@ -19,7 +19,8 @@ CREATE TABLE IF NOT EXISTS saga_events (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     saga_id UUID NOT NULL,
     event_type VARCHAR(50) NOT NULL,
-    received_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    received_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(saga_id, event_type)
 );
 
 CREATE INDEX IF NOT EXISTS idx_estimations_saga ON estimations(saga_id);

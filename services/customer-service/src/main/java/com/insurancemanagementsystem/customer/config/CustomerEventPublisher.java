@@ -6,6 +6,7 @@ import com.insurancemanagementsystem.common.event.domain.CustomerCreatedEvent;
 import com.insurancemanagementsystem.common.event.domain.CustomerDeletedEvent;
 import com.insurancemanagementsystem.common.event.domain.CustomerUpdatedEvent;
 import com.insurancemanagementsystem.customer.entity.Customer;
+import com.insurancemanagementsystem.common.messaging.MessagePublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
