@@ -5,13 +5,17 @@ import com.insurancemanagementsystem.common.event.EventConstants;
 import com.insurancemanagementsystem.common.event.EventEnvelope;
 import com.insurancemanagementsystem.common.event.saga.*;
 import com.insurancemanagementsystem.estimation.entity.Estimation;
+import com.insurancemanagementsystem.estimation.entity.SagaEvent;
 import com.insurancemanagementsystem.estimation.repository.EstimationRepository;
-import org.junit.jupiter.api.BeforeEach;
+import com.insurancemanagementsystem.estimation.repository.SagaEventRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.math.BigDecimal;
@@ -30,7 +34,10 @@ class EstimationSagaConsumerTest {
     private EstimationRepository estimationRepository;
 
     @Mock
-    private DeduplicationStore deduplicationStore;
+    private SagaEventRepository sagaEventRepository;
+
+    @Captor
+    private ArgumentCaptor<SagaEvent> sagaEventCaptor;
 
     @Mock
     private EstimationEventPublisher estimationEventPublisher;
@@ -39,12 +46,6 @@ class EstimationSagaConsumerTest {
     private EstimationSagaConsumer consumer;
 
     private final JsonMapper jsonMapper = new JsonMapper();
-
-    @BeforeEach
-    void setUp() {
-        // Default: events are not duplicates
-        lenient().when(deduplicationStore.isDuplicate(anyString(), anyString())).thenReturn(false);
-    }
 
     // ---------------------------------------------------------------
     // Helper: build JSON string from a BaseEvent + sagaId
@@ -72,7 +73,9 @@ class EstimationSagaConsumerTest {
 
         consumer.processEstimationSaga(jsonMapper).accept(buildEventJson(event, sagaId));
 
-        verify(deduplicationStore).markProcessed(sagaId.toString(), EventConstants.CUSTOMER_VALIDATED);
+        verify(sagaEventRepository).save(sagaEventCaptor.capture());
+        assertThat(sagaEventCaptor.getValue().getSagaId()).isEqualTo(sagaId);
+        assertThat(sagaEventCaptor.getValue().getEventType()).isEqualTo(EventConstants.CUSTOMER_VALIDATED);
         verifyNoInteractions(estimationRepository);
         verifyNoInteractions(estimationEventPublisher);
     }
@@ -90,7 +93,9 @@ class EstimationSagaConsumerTest {
 
         consumer.processEstimationSaga(jsonMapper).accept(buildEventJson(event, sagaId));
 
-        verify(deduplicationStore).markProcessed(sagaId.toString(), EventConstants.VEHICLE_VALIDATED);
+        verify(sagaEventRepository).save(sagaEventCaptor.capture());
+        assertThat(sagaEventCaptor.getValue().getSagaId()).isEqualTo(sagaId);
+        assertThat(sagaEventCaptor.getValue().getEventType()).isEqualTo(EventConstants.VEHICLE_VALIDATED);
         verifyNoInteractions(estimationRepository);
         verifyNoInteractions(estimationEventPublisher);
     }
@@ -122,7 +127,10 @@ class EstimationSagaConsumerTest {
         assertThat(estimation.getDetails()).startsWith("{").endsWith("}");
         assertThat(estimation.getDetails()).contains("\"base\"");
         verify(estimationRepository).save(estimation);
-        verify(deduplicationStore).markProcessed(sagaId.toString(), EventConstants.PREMIUM_CALCULATED);
+        verify(sagaEventRepository).save(sagaEventCaptor.capture());
+        SagaEvent saved = sagaEventCaptor.getValue();
+        assertThat(saved.getSagaId()).isEqualTo(sagaId);
+        assertThat(saved.getEventType()).isEqualTo(EventConstants.PREMIUM_CALCULATED);
     }
 
     // ---------------------------------------------------------------
@@ -142,7 +150,9 @@ class EstimationSagaConsumerTest {
 
         verify(estimationRepository).findBySagaId(sagaId);
         verify(estimationRepository, never()).save(any());
-        verify(deduplicationStore).markProcessed(sagaId.toString(), EventConstants.PREMIUM_CALCULATED);
+        verify(sagaEventRepository).save(sagaEventCaptor.capture());
+        assertThat(sagaEventCaptor.getValue().getSagaId()).isEqualTo(sagaId);
+        assertThat(sagaEventCaptor.getValue().getEventType()).isEqualTo(EventConstants.PREMIUM_CALCULATED);
     }
 
     // ---------------------------------------------------------------
@@ -171,7 +181,9 @@ class EstimationSagaConsumerTest {
         verify(estimationRepository).save(estimation);
         verify(estimationEventPublisher).publishEstimationFailed(
                 eq(sagaId), any(UUID.class), eq("Customer validation failed"), eq(EventConstants.CUSTOMER_INVALIDATED));
-        verify(deduplicationStore).markProcessed(sagaId.toString(), EventConstants.CUSTOMER_INVALIDATED);
+        verify(sagaEventRepository).save(sagaEventCaptor.capture());
+        assertThat(sagaEventCaptor.getValue().getSagaId()).isEqualTo(sagaId);
+        assertThat(sagaEventCaptor.getValue().getEventType()).isEqualTo(EventConstants.CUSTOMER_INVALIDATED);
     }
 
     // ---------------------------------------------------------------
@@ -200,7 +212,9 @@ class EstimationSagaConsumerTest {
         verify(estimationRepository).save(estimation);
         verify(estimationEventPublisher).publishEstimationFailed(
                 eq(sagaId), any(UUID.class), eq("Vehicle validation failed"), eq(EventConstants.VEHICLE_INVALIDATED));
-        verify(deduplicationStore).markProcessed(sagaId.toString(), EventConstants.VEHICLE_INVALIDATED);
+        verify(sagaEventRepository).save(sagaEventCaptor.capture());
+        assertThat(sagaEventCaptor.getValue().getSagaId()).isEqualTo(sagaId);
+        assertThat(sagaEventCaptor.getValue().getEventType()).isEqualTo(EventConstants.VEHICLE_INVALIDATED);
     }
 
     // ---------------------------------------------------------------
@@ -228,7 +242,9 @@ class EstimationSagaConsumerTest {
         verify(estimationRepository).save(estimation);
         verify(estimationEventPublisher).publishEstimationFailed(
                 eq(sagaId), any(UUID.class), eq("Premium calculation failed"), eq(EventConstants.CALCULATION_FAILED));
-        verify(deduplicationStore).markProcessed(sagaId.toString(), EventConstants.CALCULATION_FAILED);
+        verify(sagaEventRepository).save(sagaEventCaptor.capture());
+        assertThat(sagaEventCaptor.getValue().getSagaId()).isEqualTo(sagaId);
+        assertThat(sagaEventCaptor.getValue().getEventType()).isEqualTo(EventConstants.CALCULATION_FAILED);
     }
 
     // ---------------------------------------------------------------
@@ -237,8 +253,8 @@ class EstimationSagaConsumerTest {
     @Test
     void duplicateEvent_isSkipped() {
         UUID sagaId = UUID.randomUUID();
-        lenient().when(deduplicationStore.isDuplicate(sagaId.toString(), EventConstants.CUSTOMER_VALIDATED))
-                .thenReturn(true);
+        lenient().when(sagaEventRepository.save(any(SagaEvent.class)))
+                .thenThrow(new DataIntegrityViolationException("unique constraint violation"));
 
         CustomerValidatedEvent event = CustomerValidatedEvent.builder()
                 .customerId(UUID.randomUUID())
@@ -247,7 +263,7 @@ class EstimationSagaConsumerTest {
 
         consumer.processEstimationSaga(jsonMapper).accept(buildEventJson(event, sagaId));
 
-        verify(deduplicationStore, never()).markProcessed(anyString(), anyString());
+        verify(sagaEventRepository).save(any(SagaEvent.class));
         verifyNoInteractions(estimationRepository);
         verifyNoInteractions(estimationEventPublisher);
     }
@@ -258,8 +274,8 @@ class EstimationSagaConsumerTest {
     @Test
     void duplicatePremiumCalculated_isSkipped() {
         UUID sagaId = UUID.randomUUID();
-        lenient().when(deduplicationStore.isDuplicate(sagaId.toString(), EventConstants.PREMIUM_CALCULATED))
-                .thenReturn(true);
+        lenient().when(sagaEventRepository.save(any(SagaEvent.class)))
+                .thenThrow(new DataIntegrityViolationException("unique constraint violation"));
 
         PremiumCalculatedEvent event = PremiumCalculatedEvent.builder()
                 .premium(new BigDecimal("1500.00"))
@@ -267,7 +283,7 @@ class EstimationSagaConsumerTest {
 
         consumer.processEstimationSaga(jsonMapper).accept(buildEventJson(event, sagaId));
 
-        verify(deduplicationStore, never()).markProcessed(anyString(), anyString());
+        verify(sagaEventRepository).save(any(SagaEvent.class));
         verifyNoInteractions(estimationRepository);
         verifyNoInteractions(estimationEventPublisher);
     }
@@ -278,8 +294,8 @@ class EstimationSagaConsumerTest {
     @Test
     void duplicateFailedEvent_isSkipped() {
         UUID sagaId = UUID.randomUUID();
-        lenient().when(deduplicationStore.isDuplicate(sagaId.toString(), EventConstants.CUSTOMER_INVALIDATED))
-                .thenReturn(true);
+        lenient().when(sagaEventRepository.save(any(SagaEvent.class)))
+                .thenThrow(new DataIntegrityViolationException("unique constraint violation"));
 
         CustomerInvalidatedEvent event = CustomerInvalidatedEvent.builder()
                 .customerId(UUID.randomUUID())
@@ -288,7 +304,7 @@ class EstimationSagaConsumerTest {
 
         consumer.processEstimationSaga(jsonMapper).accept(buildEventJson(event, sagaId));
 
-        verify(deduplicationStore, never()).markProcessed(anyString(), anyString());
+        verify(sagaEventRepository).save(any(SagaEvent.class));
         verifyNoInteractions(estimationRepository);
         verifyNoInteractions(estimationEventPublisher);
     }
@@ -318,7 +334,7 @@ class EstimationSagaConsumerTest {
 
         verifyNoInteractions(estimationRepository);
         verifyNoInteractions(estimationEventPublisher);
-        verifyNoInteractions(deduplicationStore);
+        verifyNoInteractions(sagaEventRepository);
     }
 
     // ---------------------------------------------------------------
@@ -377,7 +393,9 @@ class EstimationSagaConsumerTest {
         assertThat(alreadyCompleted.getStatus()).isEqualTo(Estimation.Status.COMPLETED);
         assertThat(alreadyCompleted.getPremium()).isEqualByComparingTo(new BigDecimal("2000.00"));
         verify(estimationRepository, never()).save(any());
-        verify(deduplicationStore).markProcessed(sagaId.toString(), EventConstants.PREMIUM_CALCULATED);
+        verify(sagaEventRepository).save(sagaEventCaptor.capture());
+        assertThat(sagaEventCaptor.getValue().getSagaId()).isEqualTo(sagaId);
+        assertThat(sagaEventCaptor.getValue().getEventType()).isEqualTo(EventConstants.PREMIUM_CALCULATED);
     }
 
     // ---------------------------------------------------------------
@@ -404,7 +422,9 @@ class EstimationSagaConsumerTest {
         // Should NOT change status
         assertThat(alreadyRejected.getStatus()).isEqualTo(Estimation.Status.REJECTED);
         verify(estimationRepository, never()).save(any());
-        verify(deduplicationStore).markProcessed(sagaId.toString(), EventConstants.CUSTOMER_INVALIDATED);
+        verify(sagaEventRepository).save(sagaEventCaptor.capture());
+        assertThat(sagaEventCaptor.getValue().getSagaId()).isEqualTo(sagaId);
+        assertThat(sagaEventCaptor.getValue().getEventType()).isEqualTo(EventConstants.CUSTOMER_INVALIDATED);
         // Should NOT publish because no transition actually occurred
         verify(estimationEventPublisher, never()).publishEstimationFailed(any(), any(), any(), any());
     }

@@ -4,8 +4,11 @@ import com.insurancemanagementsystem.common.event.EventConstants;
 import com.insurancemanagementsystem.common.event.EventEnvelope;
 import com.insurancemanagementsystem.common.event.saga.*;
 import com.insurancemanagementsystem.estimation.entity.Estimation;
+import com.insurancemanagementsystem.estimation.entity.SagaEvent;
 import com.insurancemanagementsystem.estimation.repository.EstimationRepository;
+import com.insurancemanagementsystem.estimation.repository.SagaEventRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.context.annotation.Bean;
@@ -22,8 +25,29 @@ import java.util.function.Consumer;
 public class EstimationSagaConsumer {
 
     private final EstimationRepository estimationRepository;
-    private final DeduplicationStore deduplicationStore;
+    private final SagaEventRepository sagaEventRepository;
     private final EstimationEventPublisher estimationEventPublisher;
+
+    /**
+     * Returns true if this event was already processed (duplicate).
+     * Inserts a dedup record via SagaEventRepository; if a unique constraint
+     * violation occurs, the event is a duplicate.
+     *
+     * @return true if duplicate (caller should skip processing)
+     */
+    private boolean isDuplicateSagaEvent(UUID sagaId, String eventType) {
+        SagaEvent dedup = SagaEvent.builder()
+                .sagaId(sagaId)
+                .eventType(eventType)
+                .build();
+        try {
+            sagaEventRepository.save(dedup);
+            return false; // Successfully inserted → not a duplicate
+        } catch (DataIntegrityViolationException e) {
+            log.info("Duplicate event: sagaId={}, eventType={} — skipping", sagaId, eventType);
+            return true;
+        }
+    }
 
     @Bean
     public Consumer<String> processEstimationSaga(JsonMapper jsonMapper) {
@@ -75,11 +99,9 @@ public class EstimationSagaConsumer {
     private void handleCustomerValidated(EventEnvelope envelope, UUID sagaId, UUID traceId, JsonMapper jsonMapper) {
         String eventType = envelope.getEventType();
 
-        if (deduplicationStore.isDuplicate(sagaId.toString(), eventType)) {
-            log.info("Duplicate event: sagaId={}, eventType={} — skipping", sagaId, eventType);
+        if (isDuplicateSagaEvent(sagaId, eventType)) {
             return;
         }
-        deduplicationStore.markProcessed(sagaId.toString(), eventType);
 
         // Convert to typed event for logging
         CustomerValidatedEvent event = jsonMapper.convertValue(
@@ -94,11 +116,9 @@ public class EstimationSagaConsumer {
     private void handleVehicleValidated(EventEnvelope envelope, UUID sagaId, UUID traceId, JsonMapper jsonMapper) {
         String eventType = envelope.getEventType();
 
-        if (deduplicationStore.isDuplicate(sagaId.toString(), eventType)) {
-            log.info("Duplicate event: sagaId={}, eventType={} — skipping", sagaId, eventType);
+        if (isDuplicateSagaEvent(sagaId, eventType)) {
             return;
         }
-        deduplicationStore.markProcessed(sagaId.toString(), eventType);
 
         // Convert to typed event for logging
         VehicleValidatedEvent event = jsonMapper.convertValue(
@@ -112,11 +132,9 @@ public class EstimationSagaConsumer {
     private void handlePremiumCalculated(EventEnvelope envelope, UUID sagaId, UUID traceId, JsonMapper jsonMapper) {
         String eventType = envelope.getEventType();
 
-        if (deduplicationStore.isDuplicate(sagaId.toString(), eventType)) {
-            log.info("Duplicate event: sagaId={}, eventType={} — skipping", sagaId, eventType);
+        if (isDuplicateSagaEvent(sagaId, eventType)) {
             return;
         }
-        deduplicationStore.markProcessed(sagaId.toString(), eventType);
 
         // Convert payload
         PremiumCalculatedEvent event = jsonMapper.convertValue(
@@ -148,11 +166,9 @@ public class EstimationSagaConsumer {
     private void handleFailed(EventEnvelope envelope, UUID sagaId, UUID traceId, String reason) {
         String eventType = envelope.getEventType();
 
-        if (deduplicationStore.isDuplicate(sagaId.toString(), eventType)) {
-            log.info("Duplicate event: sagaId={}, eventType={} — skipping", sagaId, eventType);
+        if (isDuplicateSagaEvent(sagaId, eventType)) {
             return;
         }
-        deduplicationStore.markProcessed(sagaId.toString(), eventType);
 
         log.warn("SAGA failed for sagaId={}: eventType={}, reason={}", sagaId, eventType, reason);
 
