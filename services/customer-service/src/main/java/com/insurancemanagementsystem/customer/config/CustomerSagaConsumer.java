@@ -7,10 +7,13 @@ import com.insurancemanagementsystem.common.event.saga.CustomerValidatedEvent;
 import com.insurancemanagementsystem.common.event.saga.EstimationRequestedEvent;
 import com.insurancemanagementsystem.customer.entity.Customer;
 import com.insurancemanagementsystem.customer.repository.CustomerRepository;
+import com.insurancemanagementsystem.customer.entity.SagaEvent;
+import com.insurancemanagementsystem.customer.repository.SagaEventRepository;
 import com.insurancemanagementsystem.common.messaging.MessagePublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import tools.jackson.databind.json.JsonMapper;
@@ -26,7 +29,21 @@ public class CustomerSagaConsumer {
 
     private final CustomerRepository customerRepository;
     private final MessagePublisher messagePublisher;
-    private final DeduplicationStore deduplicationStore;
+    private final SagaEventRepository sagaEventRepository;
+
+    private boolean isDuplicateSagaEvent(UUID sagaId, String eventType) {
+        SagaEvent dedup = SagaEvent.builder()
+                .sagaId(sagaId)
+                .eventType(eventType)
+                .build();
+        try {
+            sagaEventRepository.save(dedup);
+            return false;
+        } catch (DataIntegrityViolationException e) {
+            log.info("Duplicate event: sagaId={}, eventType={} — skipping", sagaId, eventType);
+            return true;
+        }
+    }
 
     @Bean
     public Consumer<String> processCustomerSaga(JsonMapper jsonMapper) {
@@ -69,12 +86,9 @@ public class CustomerSagaConsumer {
         UUID customerId = requestEvent.getCustomerId();
 
         // Idempotency check: skip if already processed
-        String sagaIdStr = sagaId.toString();
-        if (deduplicationStore.isDuplicate(sagaIdStr, eventType)) {
-            log.info("Duplicate event detected: sagaId={}, eventType={} — skipping", sagaId, eventType);
+        if (isDuplicateSagaEvent(sagaId, eventType)) {
             return;
         }
-        deduplicationStore.markProcessed(sagaIdStr, eventType);
 
         // Validate customer: must exist and not be soft-deleted
         Optional<Customer> customerOpt = customerRepository.findById(customerId)
@@ -109,13 +123,9 @@ public class CustomerSagaConsumer {
     private void handleEstimationFailed(EventEnvelope envelope) {
         UUID sagaId = envelope.getSagaId();
         String eventType = envelope.getEventType();
-        String sagaIdStr = sagaId.toString();
-
-        if (deduplicationStore.isDuplicate(sagaIdStr, eventType)) {
-            log.info("Duplicate event: sagaId={}, eventType={} — skipping", sagaId, eventType);
+        if (isDuplicateSagaEvent(sagaId, eventType)) {
             return;
         }
-        deduplicationStore.markProcessed(sagaIdStr, eventType);
 
         log.warn("Estimation failed for saga: {} — no compensation needed (read-only validation)", sagaId);
     }
