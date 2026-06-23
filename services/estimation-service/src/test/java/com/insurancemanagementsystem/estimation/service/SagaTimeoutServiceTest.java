@@ -95,7 +95,7 @@ class SagaTimeoutServiceTest {
         timeoutService.checkForTimedOutSagas();
 
         assertThat(stale.getStatus()).isEqualTo(Estimation.Status.REJECTED);
-        assertThat(stale.getDetails()).contains("timed out");
+        assertThat(stale.getDetails()).isEqualTo("{\"reason\":\"SAGA timed out after 5 minutes\"}");
 
         verify(estimationRepository).save(stale);
         // publishEstimationFailed is now deferred to TransactionSynchronization.afterCommit() —
@@ -119,6 +119,8 @@ class SagaTimeoutServiceTest {
 
         assertThat(stale1.getStatus()).isEqualTo(Estimation.Status.REJECTED);
         assertThat(stale2.getStatus()).isEqualTo(Estimation.Status.REJECTED);
+        assertThat(stale1.getDetails()).isEqualTo("{\"reason\":\"SAGA timed out after 5 minutes\"}");
+        assertThat(stale2.getDetails()).isEqualTo("{\"reason\":\"SAGA timed out after 5 minutes\"}");
         verify(estimationRepository, times(2)).save(any());
         // publishEstimationFailed is now deferred to TransactionSynchronization.afterCommit() —
         // verified by integration tests with Testcontainers

@@ -55,7 +55,7 @@ public class SagaTimeoutService {
 
                 // Transition to REJECTED
                 estimation.setStatus(Estimation.Status.REJECTED);
-                estimation.setDetails("SAGA timed out after " + timeoutMinutes + " minutes");
+                estimation.setDetails("{\"reason\":\"SAGA timed out after " + timeoutMinutes + " minutes\"}");
                 estimationRepository.save(estimation);
 
                 // Defer publish until after DB transaction commits (atomicity)
@@ -68,7 +68,7 @@ public class SagaTimeoutService {
                             estimationEventPublisher.publishEstimationFailed(
                                     capturedSagaId,
                                     null,
-                                    "SAGA timed out after " + capturedTimeout + " minutes",
+                                    "{\"reason\":\"SAGA timed out after " + capturedTimeout + " minutes\"}",
                                     "SagaTimeoutService");
                         }
                     });

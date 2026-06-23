@@ -177,7 +177,8 @@ class EstimationSagaConsumerTest {
         consumer.processEstimationSaga(jsonMapper).accept(buildEventJson(event, sagaId));
 
         assertThat(estimation.getStatus()).isEqualTo(Estimation.Status.REJECTED);
-        assertThat(estimation.getDetails()).isEqualTo("Customer validation failed");
+        assertThat(estimation.getDetails()).contains("reason");
+        assertThat(estimation.getDetails()).contains("Customer validation failed");
         verify(estimationRepository).save(estimation);
         verify(estimationEventPublisher).publishEstimationFailed(
                 eq(sagaId), any(UUID.class), eq("Customer validation failed"), eq(EventConstants.CUSTOMER_INVALIDATED));
@@ -208,7 +209,8 @@ class EstimationSagaConsumerTest {
         consumer.processEstimationSaga(jsonMapper).accept(buildEventJson(event, sagaId));
 
         assertThat(estimation.getStatus()).isEqualTo(Estimation.Status.REJECTED);
-        assertThat(estimation.getDetails()).isEqualTo("Vehicle validation failed");
+        assertThat(estimation.getDetails()).contains("reason");
+        assertThat(estimation.getDetails()).contains("Vehicle validation failed");
         verify(estimationRepository).save(estimation);
         verify(estimationEventPublisher).publishEstimationFailed(
                 eq(sagaId), any(UUID.class), eq("Vehicle validation failed"), eq(EventConstants.VEHICLE_INVALIDATED));
@@ -238,7 +240,8 @@ class EstimationSagaConsumerTest {
         consumer.processEstimationSaga(jsonMapper).accept(buildEventJson(event, sagaId));
 
         assertThat(estimation.getStatus()).isEqualTo(Estimation.Status.REJECTED);
-        assertThat(estimation.getDetails()).isEqualTo("Premium calculation failed");
+        assertThat(estimation.getDetails()).contains("reason");
+        assertThat(estimation.getDetails()).contains("Premium calculation failed");
         verify(estimationRepository).save(estimation);
         verify(estimationEventPublisher).publishEstimationFailed(
                 eq(sagaId), any(UUID.class), eq("Premium calculation failed"), eq(EventConstants.CALCULATION_FAILED));

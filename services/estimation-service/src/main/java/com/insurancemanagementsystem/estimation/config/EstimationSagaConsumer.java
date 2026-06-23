@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Configuration;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.math.BigDecimal;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -73,11 +74,11 @@ public class EstimationSagaConsumer {
                     case EventConstants.VEHICLE_VALIDATED ->
                         handleVehicleValidated(envelope, sagaId, traceId, jsonMapper);
                     case EventConstants.CUSTOMER_INVALIDATED ->
-                        handleFailed(envelope, sagaId, traceId, "Customer validation failed");
+                        handleFailed(envelope, sagaId, traceId, "Customer validation failed", jsonMapper);
                     case EventConstants.VEHICLE_INVALIDATED ->
-                        handleFailed(envelope, sagaId, traceId, "Vehicle validation failed");
+                        handleFailed(envelope, sagaId, traceId, "Vehicle validation failed", jsonMapper);
                     case EventConstants.CALCULATION_FAILED ->
-                        handleFailed(envelope, sagaId, traceId, "Premium calculation failed");
+                        handleFailed(envelope, sagaId, traceId, "Premium calculation failed", jsonMapper);
                     case EventConstants.PREMIUM_CALCULATED ->
                         handlePremiumCalculated(envelope, sagaId, traceId, jsonMapper);
                     case EventConstants.ESTIMATION_FAILED ->
@@ -163,7 +164,7 @@ public class EstimationSagaConsumer {
     // ---------------------------------------------------------------
     // Failed events — transition estimation to REJECTED, publish EstimationFailed
     // ---------------------------------------------------------------
-    private void handleFailed(EventEnvelope envelope, UUID sagaId, UUID traceId, String reason) {
+    private void handleFailed(EventEnvelope envelope, UUID sagaId, UUID traceId, String reason, JsonMapper jsonMapper) {
         String eventType = envelope.getEventType();
 
         if (isDuplicateSagaEvent(sagaId, eventType)) {
@@ -181,7 +182,12 @@ public class EstimationSagaConsumer {
             }
 
             estimation.setStatus(Estimation.Status.REJECTED);
-            estimation.setDetails(reason);
+            try {
+                estimation.setDetails(jsonMapper.writeValueAsString(Map.of("reason", reason)));
+            } catch (Exception e) {
+                log.warn("Failed to serialize rejection details for sagaId={}", sagaId, e);
+                estimation.setDetails("{\"reason\":\"" + reason + "\"}"); // fallback
+            }
             estimationRepository.save(estimation);
             log.info("Estimation {} rejected for sagaId={}: {}", estimation.getId(), sagaId, reason);
 

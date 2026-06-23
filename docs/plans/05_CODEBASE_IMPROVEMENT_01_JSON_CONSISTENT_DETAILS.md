@@ -166,13 +166,13 @@ Also update test `multipleStaleEstimations_allProcessed()` — add assertion for
 
 ## Execution Checklist
 
-- [ ] Read context files
-- [ ] Fix `EstimationSagaConsumer.java:184` — use `jsonMapper.writeValueAsString(Map.of("reason", reason))`
-- [ ] Fix `SagaTimeoutService.java:58` — use manual JSON string with `{"reason":...}`
-- [ ] Update consumer test assertions for JSON format
-- [ ] Update timeout test assertions for JSON format
-- [ ] Compile: `BUILD SUCCESSFUL`
-- [ ] All tests pass
+- [x] Read context files
+- [x] Fix `EstimationSagaConsumer.java:184` — use `jsonMapper.writeValueAsString(Map.of("reason", reason))`
+- [x] Fix `SagaTimeoutService.java:58` — use manual JSON string with `{"reason":...}`
+- [x] Update consumer test assertions for JSON format
+- [x] Update timeout test assertions for JSON format
+- [x] Compile: `BUILD SUCCESSFUL`
+- [x] All tests pass
 
 ## Risk Assessment
 
