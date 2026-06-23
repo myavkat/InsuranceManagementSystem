@@ -1,9 +1,9 @@
 package com.insurancemanagementsystem.estimation.service;
 
-import com.insurancemanagementsystem.estimation.config.EstimationEventPublisher;
 import com.insurancemanagementsystem.estimation.entity.Estimation;
+import com.insurancemanagementsystem.estimation.entity.OutboxEvent;
 import com.insurancemanagementsystem.estimation.repository.EstimationRepository;
-import org.junit.jupiter.api.AfterEach;
+import com.insurancemanagementsystem.estimation.repository.OutboxEventRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,7 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -33,7 +33,10 @@ class SagaTimeoutServiceTest {
     private EstimationRepository estimationRepository;
 
     @Mock
-    private EstimationEventPublisher estimationEventPublisher;
+    private OutboxEventRepository outboxEventRepository;
+
+    @Mock
+    private JsonMapper jsonMapper;
 
     @InjectMocks
     private SagaTimeoutService timeoutService;
@@ -45,12 +48,7 @@ class SagaTimeoutServiceTest {
     void setUp() {
         // @Value fields are not injected by Mockito — set manually
         ReflectionTestUtils.setField(timeoutService, "timeoutMinutes", 5);
-        TransactionSynchronizationManager.initSynchronization();
-    }
-
-    @AfterEach
-    void tearDown() {
-        TransactionSynchronizationManager.clearSynchronization();
+        lenient().when(jsonMapper.writeValueAsString(any())).thenReturn("{}");
     }
 
     // ---------------------------------------------------------------
@@ -78,7 +76,7 @@ class SagaTimeoutServiceTest {
         verify(estimationRepository).findByStatusAndCreatedAtBefore(
                 eq(Estimation.Status.STARTED), any(Instant.class));
         verify(estimationRepository, never()).save(any());
-        verify(estimationEventPublisher, never()).publishEstimationFailed(any(), any(), any(), any());
+        verify(outboxEventRepository, never()).save(any());
     }
 
     // ---------------------------------------------------------------
@@ -98,8 +96,7 @@ class SagaTimeoutServiceTest {
         assertThat(stale.getDetails()).isEqualTo("{\"reason\":\"SAGA timed out after 5 minutes\"}");
 
         verify(estimationRepository).save(stale);
-        // publishEstimationFailed is now deferred to TransactionSynchronization.afterCommit() —
-        // verified by integration tests with Testcontainers
+        verify(outboxEventRepository).save(any(OutboxEvent.class));
     }
 
     // ---------------------------------------------------------------
@@ -122,8 +119,7 @@ class SagaTimeoutServiceTest {
         assertThat(stale1.getDetails()).isEqualTo("{\"reason\":\"SAGA timed out after 5 minutes\"}");
         assertThat(stale2.getDetails()).isEqualTo("{\"reason\":\"SAGA timed out after 5 minutes\"}");
         verify(estimationRepository, times(2)).save(any());
-        // publishEstimationFailed is now deferred to TransactionSynchronization.afterCommit() —
-        // verified by integration tests with Testcontainers
+        verify(outboxEventRepository, times(2)).save(any(OutboxEvent.class));
     }
 
     // ---------------------------------------------------------------
@@ -148,8 +144,7 @@ class SagaTimeoutServiceTest {
         // stale2 should still be processed despite stale1 failing
         assertThat(stale2.getStatus()).isEqualTo(Estimation.Status.REJECTED);
         verify(estimationRepository).save(stale2);
-        // publishEstimationFailed is now deferred to TransactionSynchronization.afterCommit() —
-        // verified by integration tests with Testcontainers
+        verify(outboxEventRepository).save(any(OutboxEvent.class));
     }
 
     // ---------------------------------------------------------------

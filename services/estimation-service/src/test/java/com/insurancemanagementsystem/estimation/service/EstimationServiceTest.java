@@ -1,13 +1,12 @@
 package com.insurancemanagementsystem.estimation.service;
 
-import com.insurancemanagementsystem.common.messaging.MessagePublisher;
 import com.insurancemanagementsystem.estimation.dto.EstimationRequest;
 import com.insurancemanagementsystem.estimation.dto.EstimationResponse;
 import com.insurancemanagementsystem.estimation.entity.Estimation;
+import com.insurancemanagementsystem.estimation.entity.OutboxEvent;
 import com.insurancemanagementsystem.estimation.repository.EstimationRepository;
+import com.insurancemanagementsystem.estimation.repository.OutboxEventRepository;
 import jakarta.persistence.EntityNotFoundException;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -16,10 +15,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.time.Instant;
 import java.util.List;
@@ -38,7 +37,10 @@ class EstimationServiceTest {
     private EstimationRepository estimationRepository;
 
     @Mock
-    private MessagePublisher messagePublisher;
+    private OutboxEventRepository outboxEventRepository;
+
+    @Mock
+    private JsonMapper jsonMapper;
 
     @InjectMocks
     private EstimationService estimationService;
@@ -47,17 +49,6 @@ class EstimationServiceTest {
     private ArgumentCaptor<Estimation> estimationCaptor;
 
     private final UUID testId = UUID.randomUUID();
-
-    @BeforeEach
-    void initTransactionSync() {
-        TransactionSynchronizationManager.initSynchronization();
-    }
-
-    @AfterEach
-    void clearTransactionSync() {
-        TransactionSynchronizationManager.clearSynchronization();
-    }
-
 
     private final UUID customerId = UUID.randomUUID();
     private final UUID companyId = UUID.randomUUID();
@@ -101,6 +92,7 @@ class EstimationServiceTest {
         Estimation savedEntity = createSampleEntity();
 
         when(estimationRepository.save(any(Estimation.class))).thenReturn(savedEntity);
+        when(jsonMapper.writeValueAsString(any())).thenReturn("{}");
 
         // Act
         EstimationResponse response = estimationService.create(request);
@@ -120,8 +112,7 @@ class EstimationServiceTest {
         assertThat(saved.getStatus()).isEqualTo(Estimation.Status.STARTED);
         assertThat(saved.getSagaId()).isNotNull();
 
-        // Publish is now deferred to TransactionSynchronization.afterCommit() — 
-        // verified by integration tests (Testcontainers)
+        verify(outboxEventRepository).save(any(OutboxEvent.class));
     }
 
     // ---------------------------------------------------------------
@@ -142,7 +133,7 @@ class EstimationServiceTest {
         assertThat(exception.getMessage()).contains("Either vehicleId or realEstateId must be provided");
 
         verify(estimationRepository, never()).save(any(Estimation.class));
-        verify(messagePublisher, never()).publish(anyString(), any());
+        verify(outboxEventRepository, never()).save(any());
     }
 
     // ---------------------------------------------------------------

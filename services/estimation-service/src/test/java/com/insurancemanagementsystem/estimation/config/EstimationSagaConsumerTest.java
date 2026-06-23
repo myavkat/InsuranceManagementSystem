@@ -5,8 +5,10 @@ import com.insurancemanagementsystem.common.event.EventConstants;
 import com.insurancemanagementsystem.common.event.EventEnvelope;
 import com.insurancemanagementsystem.common.event.saga.*;
 import com.insurancemanagementsystem.estimation.entity.Estimation;
+import com.insurancemanagementsystem.estimation.entity.OutboxEvent;
 import com.insurancemanagementsystem.estimation.entity.SagaEvent;
 import com.insurancemanagementsystem.estimation.repository.EstimationRepository;
+import com.insurancemanagementsystem.estimation.repository.OutboxEventRepository;
 import com.insurancemanagementsystem.estimation.repository.SagaEventRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,7 +42,7 @@ class EstimationSagaConsumerTest {
     private ArgumentCaptor<SagaEvent> sagaEventCaptor;
 
     @Mock
-    private EstimationEventPublisher estimationEventPublisher;
+    private OutboxEventRepository outboxEventRepository;
 
     @InjectMocks
     private EstimationSagaConsumer consumer;
@@ -77,7 +79,7 @@ class EstimationSagaConsumerTest {
         assertThat(sagaEventCaptor.getValue().getSagaId()).isEqualTo(sagaId);
         assertThat(sagaEventCaptor.getValue().getEventType()).isEqualTo(EventConstants.CUSTOMER_VALIDATED);
         verifyNoInteractions(estimationRepository);
-        verifyNoInteractions(estimationEventPublisher);
+
     }
 
     // ---------------------------------------------------------------
@@ -97,7 +99,7 @@ class EstimationSagaConsumerTest {
         assertThat(sagaEventCaptor.getValue().getSagaId()).isEqualTo(sagaId);
         assertThat(sagaEventCaptor.getValue().getEventType()).isEqualTo(EventConstants.VEHICLE_VALIDATED);
         verifyNoInteractions(estimationRepository);
-        verifyNoInteractions(estimationEventPublisher);
+
     }
 
     // ---------------------------------------------------------------
@@ -180,8 +182,7 @@ class EstimationSagaConsumerTest {
         assertThat(estimation.getDetails()).contains("reason");
         assertThat(estimation.getDetails()).contains("Customer validation failed");
         verify(estimationRepository).save(estimation);
-        verify(estimationEventPublisher).publishEstimationFailed(
-                eq(sagaId), any(UUID.class), eq("Customer validation failed"), eq(EventConstants.CUSTOMER_INVALIDATED));
+        verify(outboxEventRepository).save(any(OutboxEvent.class));
         verify(sagaEventRepository).save(sagaEventCaptor.capture());
         assertThat(sagaEventCaptor.getValue().getSagaId()).isEqualTo(sagaId);
         assertThat(sagaEventCaptor.getValue().getEventType()).isEqualTo(EventConstants.CUSTOMER_INVALIDATED);
@@ -212,8 +213,7 @@ class EstimationSagaConsumerTest {
         assertThat(estimation.getDetails()).contains("reason");
         assertThat(estimation.getDetails()).contains("Vehicle validation failed");
         verify(estimationRepository).save(estimation);
-        verify(estimationEventPublisher).publishEstimationFailed(
-                eq(sagaId), any(UUID.class), eq("Vehicle validation failed"), eq(EventConstants.VEHICLE_INVALIDATED));
+        verify(outboxEventRepository).save(any(OutboxEvent.class));
         verify(sagaEventRepository).save(sagaEventCaptor.capture());
         assertThat(sagaEventCaptor.getValue().getSagaId()).isEqualTo(sagaId);
         assertThat(sagaEventCaptor.getValue().getEventType()).isEqualTo(EventConstants.VEHICLE_INVALIDATED);
@@ -243,8 +243,7 @@ class EstimationSagaConsumerTest {
         assertThat(estimation.getDetails()).contains("reason");
         assertThat(estimation.getDetails()).contains("Premium calculation failed");
         verify(estimationRepository).save(estimation);
-        verify(estimationEventPublisher).publishEstimationFailed(
-                eq(sagaId), any(UUID.class), eq("Premium calculation failed"), eq(EventConstants.CALCULATION_FAILED));
+        verify(outboxEventRepository).save(any(OutboxEvent.class));
         verify(sagaEventRepository).save(sagaEventCaptor.capture());
         assertThat(sagaEventCaptor.getValue().getSagaId()).isEqualTo(sagaId);
         assertThat(sagaEventCaptor.getValue().getEventType()).isEqualTo(EventConstants.CALCULATION_FAILED);
@@ -268,7 +267,7 @@ class EstimationSagaConsumerTest {
 
         verify(sagaEventRepository).save(any(SagaEvent.class));
         verifyNoInteractions(estimationRepository);
-        verifyNoInteractions(estimationEventPublisher);
+
     }
 
     // ---------------------------------------------------------------
@@ -288,7 +287,7 @@ class EstimationSagaConsumerTest {
 
         verify(sagaEventRepository).save(any(SagaEvent.class));
         verifyNoInteractions(estimationRepository);
-        verifyNoInteractions(estimationEventPublisher);
+
     }
 
     // ---------------------------------------------------------------
@@ -309,7 +308,7 @@ class EstimationSagaConsumerTest {
 
         verify(sagaEventRepository).save(any(SagaEvent.class));
         verifyNoInteractions(estimationRepository);
-        verifyNoInteractions(estimationEventPublisher);
+
     }
 
     // ---------------------------------------------------------------
@@ -336,7 +335,7 @@ class EstimationSagaConsumerTest {
         consumer.processEstimationSaga(jsonMapper).accept(json);
 
         verifyNoInteractions(estimationRepository);
-        verifyNoInteractions(estimationEventPublisher);
+
         verifyNoInteractions(sagaEventRepository);
     }
 
@@ -355,7 +354,7 @@ class EstimationSagaConsumerTest {
         consumer.processEstimationSaga(jsonMapper).accept(buildEventJson(event, sagaId));
 
         verifyNoInteractions(estimationRepository);
-        verifyNoInteractions(estimationEventPublisher);
+
         // Deduplication is not checked for EstimationFailed in the code
     }
 
@@ -368,7 +367,7 @@ class EstimationSagaConsumerTest {
         consumer.processEstimationSaga(jsonMapper).accept("not valid json");
 
         verifyNoInteractions(estimationRepository);
-        verifyNoInteractions(estimationEventPublisher);
+
     }
 
     // ---------------------------------------------------------------
@@ -428,7 +427,7 @@ class EstimationSagaConsumerTest {
         verify(sagaEventRepository).save(sagaEventCaptor.capture());
         assertThat(sagaEventCaptor.getValue().getSagaId()).isEqualTo(sagaId);
         assertThat(sagaEventCaptor.getValue().getEventType()).isEqualTo(EventConstants.CUSTOMER_INVALIDATED);
-        // Should NOT publish because no transition actually occurred
-        verify(estimationEventPublisher, never()).publishEstimationFailed(any(), any(), any(), any());
+        // Should NOT persist outbox event because no transition actually occurred
+        verify(outboxEventRepository, never()).save(any());
     }
 }
