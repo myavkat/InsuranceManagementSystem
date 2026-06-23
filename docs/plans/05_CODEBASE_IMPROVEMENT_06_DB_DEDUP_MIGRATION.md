@@ -359,25 +359,26 @@ Apply identical changes.
 
 ## Execution Checklist
 
-- [ ] Read reference files (estimation-service SagaEvent entity/repository/consumer)
-- [ ] Create `SagaEvent.java` in customer-service
-- [ ] Create `SagaEventRepository.java` in customer-service
-- [ ] Create `SagaEvent.java` in insurance-service
-- [ ] Create `SagaEventRepository.java` in insurance-service
-- [ ] Edit `infra/sql/customer_db/init.sql` — add `saga_events` table
-- [ ] Edit `infra/sql/insurance_db/init.sql` — add `saga_events` table
-- [ ] Modify `CustomerSagaConsumer.java` — replace DeduplicationStore with `isDuplicateSagaEvent()`
-- [ ] Modify `InsuranceSagaConsumer.java` — replace DeduplicationStore with `isDuplicateSagaEvent()`
-- [ ] Delete `DeduplicationStore.java` from customer-service
-- [ ] Delete `DeduplicationStore.java` from insurance-service
-- [ ] Delete `DeduplicationStoreTest.java` from customer-service
-- [ ] Delete `DeduplicationStoreTest.java` from insurance-service
-- [ ] Update `CustomerSagaConsumerTest.java` — replace mocks
-- [ ] Update `InsuranceSagaConsumerTest.java` — replace mocks
-- [ ] Compile customer-service: `BUILD SUCCESSFUL`
-- [ ] Customer-service tests: ALL PASS
-- [ ] Compile insurance-service: `BUILD SUCCESSFUL`
-- [ ] Insurance-service tests: ALL PASS
+- [x] Read reference files (estimation-service SagaEvent entity/repository/consumer)
+- [x] Create `SagaEvent.java` in customer-service
+- [x] Create `SagaEventRepository.java` in customer-service
+- [x] Create `SagaEvent.java` in insurance-service
+- [x] Create `SagaEventRepository.java` in insurance-service
+- [x] Edit `infra/sql/customer_db/init.sql` — add `saga_events` table
+- [x] Edit `infra/sql/insurance_db/init.sql` — add `saga_events` table
+- [x] Modify `CustomerSagaConsumer.java` — replace DeduplicationStore with `isDuplicateSagaEvent()`
+- [x] Modify `InsuranceSagaConsumer.java` — replace DeduplicationStore with `isDuplicateSagaEvent()`
+- [x] Delete `DeduplicationStore.java` from customer-service
+- [x] Delete `DeduplicationStore.java` from insurance-service
+- [x] ~~Delete `DeduplicationStoreTest.java` from customer-service~~ (no such file existed)
+- [x] ~~Delete `DeduplicationStoreTest.java` from insurance-service~~ (no such file existed)
+- [x] ~~Update `CustomerSagaConsumerTest.java` — replace mocks~~ (integration test, no mocks to replace)
+- [x] ~~Update `InsuranceSagaConsumerTest.java` — replace mocks~~ (integration test, no mocks to replace)
+- [x] Compile customer-service: `BUILD SUCCESSFUL`
+- [x] Customer-service tests: ALL PASS
+- [x] Compile insurance-service: `BUILD SUCCESSFUL` (second run after Docker contention)
+- [x] Insurance-service tests: ALL PASS
+- [x] Estimation-service tests: ALL PASS (no regression)
 
 ## Risk Assessment
 
