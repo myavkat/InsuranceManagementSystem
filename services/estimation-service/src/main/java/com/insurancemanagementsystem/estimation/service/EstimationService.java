@@ -1,5 +1,9 @@
 package com.insurancemanagementsystem.estimation.service;
 
+import com.insurancemanagementsystem.common.event.EventConstants;
+import com.insurancemanagementsystem.common.event.EventEnvelope;
+import com.insurancemanagementsystem.common.event.saga.EstimationRequestedEvent;
+import com.insurancemanagementsystem.estimation.config.MessagePublisher;
 import com.insurancemanagementsystem.estimation.dto.EstimationRequest;
 import com.insurancemanagementsystem.estimation.dto.EstimationResponse;
 import com.insurancemanagementsystem.estimation.entity.Estimation;
@@ -20,6 +24,7 @@ import java.util.UUID;
 public class EstimationService {
 
     private final EstimationRepository estimationRepository;
+    private final MessagePublisher messagePublisher;
 
     @Transactional(readOnly = true)
     public EstimationResponse findById(UUID id) {
@@ -68,16 +73,18 @@ public class EstimationService {
         estimation = estimationRepository.save(estimation);
         log.info("Created estimation id={} with sagaId={}", estimation.getId(), sagaId);
 
-        // TODO: In Step 4/5 — publish EstimationRequested event to estimation.saga topic
-        // EstimationRequestedEvent event = EstimationRequestedEvent.builder()
-        //         .customerId(request.getCustomerId())
-        //         .vehicleId(request.getVehicleId())
-        //         .realEstateId(request.getRealEstateId())
-        //         .insuranceTypeId(request.getInsuranceTypeId())
-        //         .companyId(request.getCompanyId())
-        //         .build();
-        // EventEnvelope envelope = event.toEnvelope(sagaId, UUID.randomUUID());
-        // messagePublisher.publish(EventConstants.ESTIMATION_SAGA, envelope);
+        // Publish EstimationRequested to estimation.saga to start SAGA choreography
+        EstimationRequestedEvent event = EstimationRequestedEvent.builder()
+                .customerId(request.getCustomerId())
+                .vehicleId(request.getVehicleId())
+                .realEstateId(request.getRealEstateId())
+                .insuranceTypeId(request.getInsuranceTypeId())
+                .companyId(request.getCompanyId())
+                .build();
+
+        EventEnvelope envelope = event.toEnvelope(sagaId, UUID.randomUUID());
+        messagePublisher.publish(EventConstants.ESTIMATION_SAGA, envelope);
+        log.info("Published EstimationRequested for sagaId={}", sagaId);
 
         return EstimationResponse.fromEntity(estimation);
     }
