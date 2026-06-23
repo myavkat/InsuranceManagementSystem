@@ -53,6 +53,43 @@ class CustomerServiceApplicationTests {
 
 ---
 
+## Key Import Paths (Spring Boot 4)
+
+The project uses Spring Boot 4 with Jackson 3. Key import paths differ from Spring Boot 3:
+
+| Annotation / Class | Import Path |
+|---|---|
+| `@WebMvcTest` | `org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest` |
+| `@AutoConfigureRestTestClient` | `org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient` |
+| `@MockitoBean` | `org.springframework.test.context.bean.override.mockito.MockitoBean` |
+| `ObjectMapper` (Jackson 3) | `tools.jackson.databind.ObjectMapper` |
+| `JsonMapper` (Jackson 3) | `tools.jackson.databind.json.JsonMapper` |
+| `@ExtendWith(MockitoExtension.class)` | `org.mockito.junit.jupiter.MockitoExtension` |
+
+---
+
+## Hibernate 6+ JSON(B) Mapping in Tests
+
+Entities using `@Column(columnDefinition = "JSONB")` fail in integration tests with Hibernate's `create-drop` DDL — PostgreSQL rejects String→JSONB inserts. **Replace `columnDefinition` with Hibernate 6+'s built-in `@JdbcTypeCode(SqlTypes.JSON)`:**
+
+```java
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
+// Before (fails with create-drop in tests):
+@Column(name = "details", columnDefinition = "JSONB")
+private String details;
+
+// After (works with both create-drop and validate):
+@JdbcTypeCode(SqlTypes.JSON)
+@Column(name = "details")
+private String details;
+```
+
+Hibernate 6+ handles JSON serialization natively — no additional Hibernate Types library needed. The annotation works for `String`, `Map<String, ?>`, and `Serializable` custom types.
+
+---
+
 ## Assertion Rules
 
 ### HTTP Response Assertions → `.jsonPath()`
