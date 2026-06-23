@@ -1,43 +1,3 @@
-# Plan: Sprint 3 — Estimation Service — Step 5: SAGA Choreography Handler
-
-## Objective
-Create the `EstimationSagaConsumer` — the core SAGA state machine that listens for terminal events on `estimation.saga`, transitions estimation status, and handles failure/compensation.
-
-This is the most complex component. It must:
-1. Receive `CustomerValidated` / `VehicleValidated` — log progress, persist correlation
-2. Receive `CustomerInvalidated` / `VehicleInvalidated` / `CalculationFailed` — transition to `REJECTED`, publish `EstimationFailed`
-3. Receive `PremiumCalculated` — transition to `COMPLETED` with premium and details
-4. Maintain state machine in DB (status transitions: STARTED → COMPLETED or REJECTED)
-5. Use idempotency (DeduplicationStore) to skip duplicate events
-
-## SAGA Event Flow Diagram
-
-```
-Estimation Service produces: EstimationRequested
-Estimation Service consumes:
-  ├── CustomerValidated    → log, no state change yet
-  ├── VehicleValidated     → log, no state change yet
-  ├── CustomerInvalidated  → REJECTED + publish EstimationFailed
-  ├── VehicleInvalidated   → REJECTED + publish EstimationFailed
-  ├── CalculationFailed    → REJECTED + publish EstimationFailed
-  ├── PremiumCalculated    → COMPLETED (update premium + details)
-  └── (EstimationFailed from self on timeout)
-```
-
-## Context Files to Read First
-1. **`services/insurance-service/src/main/java/.../config/InsuranceSagaConsumer.java`** — The consumer pattern to follow exactly (JsonMapper, EventEnvelope, try/catch, MDC, switch on eventType, DeduplicationStore)
-2. **`services/customer-service/src/main/java/.../config/CustomerSagaConsumer.java`** — Simpler consumer example
-3. **`common/common-message/src/main/java/.../event/EventEnvelope.java`** — Envelope structure
-4. **`common/common-message/src/main/java/.../event/EventConstants.java`** — Event type constants
-5. **`common/common-message/src/main/java/.../event/saga/*.java`** — All SAGA event POJOs (CustomerValidatedEvent, CustomerInvalidatedEvent, VehicleValidatedEvent, VehicleInvalidatedEvent, PremiumCalculatedEvent, CalculationFailedEvent, EstimationFailedEvent)
-6. **`docs/outlines/03_SAGA_PATTERN.md`** — SAGA flow, event catalog, idempotency rules
-7. **`docs/outlines/02_MICROSERVICES_SPECIFICATIONS.md`** — Estimation service SAGA producers/consumers (section 6)
-
-## File to Create
-
-### `services/estimation-service/src/main/java/com/insurancemanagementsystem/estimation/config/EstimationSagaConsumer.java`
-
-```java
 package com.insurancemanagementsystem.estimation.config;
 
 import com.insurancemanagementsystem.common.event.EventConstants;
@@ -221,34 +181,3 @@ public class EstimationSagaConsumer {
         log.warn("Estimation failed for saga: {} — no compensation needed (estimation state updated)", sagaId);
     }
 }
-```
-
-## How This Works
-
-1. **`@Bean` consumer function** — Spring Cloud Stream binds `processEstimationSaga-in-0` (from `application.yml`) to the `estimation.saga` Kafka topic. The function is called for each message.
-
-2. **JsonMapper** — Jackson 3's `tools.jackson.databind.json.JsonMapper` is auto-configured by Spring Boot 4 and injected as a parameter.
-
-3. **Idempotency** — Every handler checks `DeduplicationStore` before processing, using `(sagaId, eventType)` as the dedup key.
-
-4. **State machine** — Only `PremiumCalculated` (→ COMPLETED) and failure events (→ REJECTED) write to the DB estimation status. `CustomerValidated` and `VehicleValidated` are logged but don't change estimation state — they're intermediate steps.
-
-5. **Compensation** — When any failure event arrives, `EstimationFailed` is published to `estimation.saga` so all participating services can perform their local compensation.
-
-## Verification
-
-```bash
-.\gradlew.bat :services:estimation-service:compileJava
-```
-
-## Summary
-- `services/estimation-service/src/main/java/com/insurancemanagementsystem/estimation/config/EstimationSagaConsumer.java` ✅
-
-## Results
-- Created `EstimationSagaConsumer.java` — listens on `estimation.saga` topic via Spring Cloud Stream function `processEstimationSaga`
-- Handles all 8 SAGA event types with idempotency checks through `DeduplicationStore`
-- `CustomerValidated` / `VehicleValidated` — log progress only
-- `PremiumCalculated` → transitions estimation status from `STARTED` → `COMPLETED` with premium and breakdown
-- `CustomerInvalidated` / `VehicleInvalidated` / `CalculationFailed` → transitions to `REJECTED` + publishes `EstimationFailed`
-- `EstimationFailed` — log only (no reversible action needed per architecture)
-- Compilation verified: `BUILD SUCCESSFUL in 3s`
