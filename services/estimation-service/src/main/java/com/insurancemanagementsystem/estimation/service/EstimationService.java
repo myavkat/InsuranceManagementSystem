@@ -40,12 +40,12 @@ public class EstimationService {
         Page<Estimation> estimations;
 
         if (customerId != null && status != null) {
-            Estimation.Status statusEnum = Estimation.Status.valueOf(status.toUpperCase());
+            Estimation.Status statusEnum = parseStatus(status);
             estimations = estimationRepository.findByCustomerIdAndStatus(customerId, statusEnum, pageable);
         } else if (customerId != null) {
             estimations = estimationRepository.findByCustomerId(customerId, pageable);
         } else if (status != null) {
-            Estimation.Status statusEnum = Estimation.Status.valueOf(status.toUpperCase());
+            Estimation.Status statusEnum = parseStatus(status);
             estimations = estimationRepository.findByStatus(statusEnum, pageable);
         } else {
             estimations = estimationRepository.findAll(pageable);
@@ -101,5 +101,14 @@ public class EstimationService {
                     log.info("Published EstimationRequested for sagaId={}", sagaId);
                 }
             });
+    }
+
+    private Estimation.Status parseStatus(String status) {
+        try {
+            return Estimation.Status.valueOf(status.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(
+                    "Invalid status: '" + status + "'. Valid values: STARTED, COMPLETED, REJECTED");
+        }
     }
 }
