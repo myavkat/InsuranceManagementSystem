@@ -57,3 +57,8 @@ estimation:
   saga:
     timeout-minutes: 5
     poll-interval-ms: 30000
+  outbox:
+    poll-interval-ms: 1000
+    batch-size: 10
+    max-retries: 3
+    failed-ttl-minutes: 60

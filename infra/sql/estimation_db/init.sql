@@ -27,3 +27,18 @@ CREATE INDEX IF NOT EXISTS idx_estimations_saga ON estimations(saga_id);
 CREATE INDEX IF NOT EXISTS idx_estimations_customer ON estimations(customer_id);
 CREATE INDEX IF NOT EXISTS idx_estimations_status ON estimations(status);
 CREATE INDEX IF NOT EXISTS idx_estimations_created ON estimations(created_at);
+
+CREATE TABLE IF NOT EXISTS outbox_events (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    saga_id UUID,
+    topic VARCHAR(100) NOT NULL,
+    payload JSONB NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    retry_count INT DEFAULT 0,
+    max_retries INT DEFAULT 3,
+    last_error TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_outbox_status_created ON outbox_events(status, created_at);
