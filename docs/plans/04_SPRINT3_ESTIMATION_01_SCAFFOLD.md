@@ -250,10 +250,16 @@ Find the line `// include("services:estimation-service")` and uncomment it (remo
 
 The build should succeed (compile, package JAR, JaCoCo report tasks run — tests will be skipped here, no test files exist yet).
 
-## Files Written So Far
+## Files Written
 - `services/estimation-service/build.gradle.kts` ✅
 - `services/estimation-service/settings.gradle.kts` ✅
 - `services/estimation-service/Dockerfile` ✅
 - `services/estimation-service/src/main/resources/application.yml` ✅
 - `services/estimation-service/src/main/java/com/insurancemanagementsystem/estimation/EstimationServiceApplication.java` ✅
 - Root `settings.gradle.kts` — uncommented `estimation-service` ✅
+
+## Verification
+```bash
+.\gradlew.bat :services:estimation-service:build -x test
+```
+✅ BUILD SUCCESSFUL in 5s — 9 actionable tasks: 5 executed, 4 up-to-date.
