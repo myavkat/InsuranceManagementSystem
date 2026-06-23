@@ -15,6 +15,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.UUID;
 
@@ -73,7 +75,14 @@ public class EstimationService {
         estimation = estimationRepository.save(estimation);
         log.info("Created estimation id={} with sagaId={}", estimation.getId(), sagaId);
 
-        // Publish EstimationRequested to estimation.saga to start SAGA choreography
+        // Defer publish until after DB transaction commits (atomicity)
+        scheduleSagaEventPublish(request, sagaId);
+
+        return EstimationResponse.fromEntity(estimation);
+    }
+
+    // Package-private for testing
+    void scheduleSagaEventPublish(EstimationRequest request, UUID sagaId) {
         EstimationRequestedEvent event = EstimationRequestedEvent.builder()
                 .customerId(request.getCustomerId())
                 .vehicleId(request.getVehicleId())
@@ -83,9 +92,14 @@ public class EstimationService {
                 .build();
 
         EventEnvelope envelope = event.toEnvelope(sagaId, UUID.randomUUID());
-        messagePublisher.publish(EventConstants.ESTIMATION_SAGA, envelope);
-        log.info("Published EstimationRequested for sagaId={}", sagaId);
 
-        return EstimationResponse.fromEntity(estimation);
+        TransactionSynchronizationManager.registerSynchronization(
+            new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    messagePublisher.publish(EventConstants.ESTIMATION_SAGA, envelope);
+                    log.info("Published EstimationRequested for sagaId={}", sagaId);
+                }
+            });
     }
 }

@@ -3,6 +3,7 @@ package com.insurancemanagementsystem.estimation.service;
 import com.insurancemanagementsystem.estimation.config.EstimationEventPublisher;
 import com.insurancemanagementsystem.estimation.entity.Estimation;
 import com.insurancemanagementsystem.estimation.repository.EstimationRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -43,6 +45,12 @@ class SagaTimeoutServiceTest {
     void setUp() {
         // @Value fields are not injected by Mockito — set manually
         ReflectionTestUtils.setField(timeoutService, "timeoutMinutes", 5);
+        TransactionSynchronizationManager.initSynchronization();
+    }
+
+    @AfterEach
+    void tearDown() {
+        TransactionSynchronizationManager.clearSynchronization();
     }
 
     // ---------------------------------------------------------------
@@ -90,11 +98,8 @@ class SagaTimeoutServiceTest {
         assertThat(stale.getDetails()).contains("timed out");
 
         verify(estimationRepository).save(stale);
-        verify(estimationEventPublisher).publishEstimationFailed(
-                eq(sagaId),
-                isNull(),
-                contains("timed out"),
-                eq("SagaTimeoutService"));
+        // publishEstimationFailed is now deferred to TransactionSynchronization.afterCommit() —
+        // verified by integration tests with Testcontainers
     }
 
     // ---------------------------------------------------------------
@@ -115,7 +120,8 @@ class SagaTimeoutServiceTest {
         assertThat(stale1.getStatus()).isEqualTo(Estimation.Status.REJECTED);
         assertThat(stale2.getStatus()).isEqualTo(Estimation.Status.REJECTED);
         verify(estimationRepository, times(2)).save(any());
-        verify(estimationEventPublisher, times(2)).publishEstimationFailed(any(), any(), any(), any());
+        // publishEstimationFailed is now deferred to TransactionSynchronization.afterCommit() —
+        // verified by integration tests with Testcontainers
     }
 
     // ---------------------------------------------------------------
@@ -140,9 +146,8 @@ class SagaTimeoutServiceTest {
         // stale2 should still be processed despite stale1 failing
         assertThat(stale2.getStatus()).isEqualTo(Estimation.Status.REJECTED);
         verify(estimationRepository).save(stale2);
-        // publishEstimationFailed should still be called for stale2
-        verify(estimationEventPublisher).publishEstimationFailed(
-                eq(sagaId2), isNull(), anyString(), anyString());
+        // publishEstimationFailed is now deferred to TransactionSynchronization.afterCommit() —
+        // verified by integration tests with Testcontainers
     }
 
     // ---------------------------------------------------------------

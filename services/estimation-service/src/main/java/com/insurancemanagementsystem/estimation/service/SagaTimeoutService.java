@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -56,12 +58,20 @@ public class SagaTimeoutService {
                 estimation.setDetails("SAGA timed out after " + timeoutMinutes + " minutes");
                 estimationRepository.save(estimation);
 
-                // Publish compensation event
-                estimationEventPublisher.publishEstimationFailed(
-                        sagaId,
-                        null,
-                        "SAGA timed out after " + timeoutMinutes + " minutes",
-                        "SagaTimeoutService");
+                // Defer publish until after DB transaction commits (atomicity)
+                UUID capturedSagaId = sagaId;
+                int capturedTimeout = timeoutMinutes;
+                TransactionSynchronizationManager.registerSynchronization(
+                    new TransactionSynchronization() {
+                        @Override
+                        public void afterCommit() {
+                            estimationEventPublisher.publishEstimationFailed(
+                                    capturedSagaId,
+                                    null,
+                                    "SAGA timed out after " + capturedTimeout + " minutes",
+                                    "SagaTimeoutService");
+                        }
+                    });
             } catch (Exception e) {
                 log.error("Failed to process timeout for estimation id={}", estimation.getId(), e);
             }
