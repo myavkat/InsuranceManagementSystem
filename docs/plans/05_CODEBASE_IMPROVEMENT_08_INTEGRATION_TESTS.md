@@ -347,16 +347,16 @@ void createEstimationViaRest_publishesEvent() {
 
 ## Execution Checklist
 
-- [ ] Read existing integration test files
-- [ ] Read estimation service code to identify all afterCommit paths
-- [ ] Verify Testcontainers dependencies exist in `build.gradle.kts`
-- [ ] Create `EstimationServiceIntegrationTest.java` with Testcontainers config
-- [ ] Add test for `create()` afterCommit → event published to Kafka
-- [ ] Add test for creating with `realEstateId` (alternative path)
-- [ ] Consider rollback scenario (documentation or implementation)
-- [ ] Add REST API end-to-end integration test
-- [ ] Run unit tests: ALL PASS
-- [ ] Run integration tests: ALL PASS (or gracefully skipped)
+- [x] Read existing integration test files
+- [x] Read estimation service code to identify all afterCommit paths
+- [x] Verify Testcontainers dependencies exist in `build.gradle.kts`
+- [x] Create `EstimationServiceIntegrationTest.java` with Testcontainers config
+- [x] Add test for `create()` afterCommit → event published to Kafka
+- [x] Add test for creating with `realEstateId` (alternative path)
+- [x] Consider rollback scenario (documentation or implementation)
+- [x] Add REST API end-to-end integration test
+- [x] Run unit tests: ALL PASS
+- [x] Run integration tests: ALL PASS (or gracefully skipped)
 
 ## Test Scenarios Summary
 

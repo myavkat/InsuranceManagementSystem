@@ -1,0 +1,12 @@
+estimation:
+  saga:
+    timeout-minutes: 30
+    poll-interval-ms: 600000  # Very long poll interval — prevent interference in tests
+  outbox:
+    poll-interval-ms: 600000  # Prevent background OutboxRelay from interfering
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
