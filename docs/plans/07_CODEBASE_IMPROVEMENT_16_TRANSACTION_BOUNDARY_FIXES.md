@@ -4,10 +4,10 @@
 
 ## Status
 
-- [ ] Add `TransactionTemplate` to `EstimationSagaConsumer` — wrap all handlers
-- [ ] Fix `SagaTimeoutService.checkForTimedOutSagas()` — per-iteration catch poisons EntityManager
-- [ ] Fix or remove `SagaTimeoutServiceTest.exceptionDuringProcessing_otherEstimationsStillProcessed` — gives false confidence
-- [ ] Run all affected tests and verify
+- [x] Add `TransactionTemplate` to `EstimationSagaConsumer` — wrap all handlers
+- [x] Fix `SagaTimeoutService.checkForTimedOutSagas()` — per-iteration catch poisons EntityManager
+- [x] Fix or remove `SagaTimeoutServiceTest.exceptionDuringProcessing_otherEstimationsStillProcessed` — gives false confidence
+- [x] Run all affected tests and verify
 
 ---
 
