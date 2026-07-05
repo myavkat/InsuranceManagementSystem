@@ -15,6 +15,14 @@ public interface SagaEventRepository extends JpaRepository<SagaEvent, UUID> {
 
     /**
      * Atomically inserts a dedup marker.
+     * <p>
+     * Uses {@code saveAndFlush} so the INSERT executes immediately and the
+     * {@link DataIntegrityViolationException} is caught inside this method's
+     * try-catch even when called within an existing transaction (e.g. inside
+     * {@code TransactionTemplate.executeWithoutResult}).  Using plain {@code save}
+     * would only queue the insert until flush/commit time, letting the exception
+     * escape this method and silently corrupt the surrounding transaction.
+     *
      * @return true if this event was already processed (duplicate), false if new.
      */
     default boolean tryInsertDedup(UUID sagaId, String eventType) {
@@ -23,7 +31,7 @@ public interface SagaEventRepository extends JpaRepository<SagaEvent, UUID> {
                 .eventType(eventType)
                 .build();
         try {
-            save(dedup);
+            saveAndFlush(dedup);
             return false;
         } catch (DataIntegrityViolationException e) {
             return true;
