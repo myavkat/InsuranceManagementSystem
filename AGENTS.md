@@ -16,6 +16,19 @@ When working on features, prioritize guidelines in this order:
 - **Commit message convention:** Use descriptive, topic-based commit headers with conventional commit prefixes (e.g., `feat(scope):`, `fix(scope):`, `docs:`, `test(scope):`, `refactor(scope):`, `chore:`). Never use opaque codenames, section numbers, or ticket IDs alone as the commit subject — the header must describe what changed, not reference external tracking. Commit each logical topic separately (topic-by-topic), not as a batch of unrelated changes.
 - **No auto-attribution:** Never include `Co-Authored-By` trailers or any other auto-attribution lines in commit messages. Only the actual human author's identity belongs in commits.
 
+### SAGA Consumer Rules
+- **Transaction boundaries:** Every SAGA consumer handler that performs more than one database write MUST wrap all writes in a single `TransactionTemplate.executeWithoutResult()` (or `@Transactional`). Never rely on `JpaRepository` implicit transactions — they commit independently and break atomicity between business state and outbox event persistence.
+- **Atomic dedup:** ALWAYS use `SagaEventRepository.tryInsertDedup()` for idempotency. Never use `existsBySagaIdAndEventType()` followed by `save()` — it has a TOCTOU race under concurrent Kafka delivery. The `tryInsertDedup()` method (atomic INSERT with UNIQUE-constraint catch) is the single canonical pattern.
+- **In-memory state discipline:** Any in-memory state that must stay consistent with a DB transaction MUST be mutated only AFTER the DB transaction commits (use `TransactionSynchronization.afterCommit()`), or be stored in the DB itself. Never call a destructive in-memory operation (`remove`, `clear`, `retrieve`) inside a `TransactionTemplate` callback — a rollback cannot undo it.
+
+### Outbox & Messaging Rules
+- **Check send results:** Always check the boolean return value of `StreamBridge.send()`. A `false` return means the message was NOT accepted by the broker. Throw an exception so the outbox retry mechanism can handle it.
+- **JSON via ObjectMapper only:** Never build JSON strings via concatenation (`"{\\"key\\":\\"" + value + "\\"}"`). Always use `jsonMapper.writeValueAsString()`. If serialization can fail, catch and use a properly-escaped fallback.
+
+### Cross-Service Code Sharing
+- **Extract before triplicating:** Before adding the same class to a 3rd service module, extract it to `common-message`. If it already exists in 2 services, the next change must be extraction, not copy-paste.
+- **Propagate trace context:** All outbound SAGA events must carry the original `traceId` from the triggering `EventEnvelope`. Never generate a fresh `UUID.randomUUID()` for outbound traceId — it breaks end-to-end observability.
+
 ## Architecture & Convention Index
 
 All technical decisions and conventions live in `docs/outlines/`. Consult the relevant outline before implementing any feature.

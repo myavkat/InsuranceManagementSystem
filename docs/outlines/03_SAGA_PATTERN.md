@@ -78,11 +78,109 @@ Each service-specific payload carries the data needed for the next step (e.g., `
 
 ---
 
+## Consumer Implementation Rules
+
+These rules apply to ALL SAGA consumer handlers across all services. Violating any of them introduces data-loss or data-corruption bugs.
+
+### Transaction Boundaries
+
+Every consumer handler that performs more than one database write MUST wrap all operations in a single transaction using `TransactionTemplate.executeWithoutResult()`:
+
+```java
+// ✅ Correct — single TX boundary for dedup + business logic + outbox save
+transactionTemplate.executeWithoutResult(status -> {
+    if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
+        return; // duplicate
+    }
+    // ... business logic (entity reads/writes) ...
+    outboxEventRepository.save(buildOutboxEvent(sagaId, outcome, topic));
+});
+```
+
+```java
+// ❌ Wrong — each repository call commits in its own implicit TX.
+// If outboxEventRepository.save() fails, the entity state change is already committed.
+estimationRepository.save(estimation);     // implicit TX commits
+outboxEventRepository.save(outboxEvent);   // may fail → ACID gap
+```
+
+### Idempotency
+
+**ALWAYS use `SagaEventRepository.tryInsertDedup()`** — the atomic INSERT-with-UNIQUE-constraint-catch pattern:
+
+```java
+// ✅ Correct — atomic INSERT, catches DataIntegrityViolationException if duplicate
+if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
+    log.info("Duplicate event: sagaId={}, eventType={} — skipping", sagaId, eventType);
+    return;
+}
+```
+
+```java
+// ❌ Wrong — TOCTOU race under concurrent Kafka delivery.
+// Two threads can both pass existsBy...() before either INSERTs.
+if (sagaEventRepository.existsBySagaIdAndEventType(sagaId, eventType)) { return; }
+sagaEventRepository.save(SagaEvent.builder().sagaId(sagaId).eventType(eventType).build());
+```
+
+The dedup marker is stored in the `saga_events` table (entity: `SagaEvent`), which has a `UNIQUE(saga_id, event_type)` constraint. The `tryInsertDedup()` default method on `SagaEventRepository` performs the INSERT and catches `DataIntegrityViolationException` to detect duplicates atomically. `existsBySagaIdAndEventType()` exists only for read-only queries in tests and operational tooling — never use it in production handler code.
+
+### In-Memory State Discipline
+
+Any in-memory state that must stay consistent with a DB transaction MUST be mutated only AFTER the DB transaction commits. Use `TransactionSynchronization.afterCommit()`:
+
+```java
+// ✅ Correct — defer in-memory mutation until after DB commit
+transactionTemplate.executeWithoutResult(status -> {
+    // ... DB writes ...
+    TransactionSynchronizationManager.registerSynchronization(
+        new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                aggregationStore.remove(sagaId.toString());
+            }
+        });
+});
+```
+
+```java
+// ❌ Wrong — in-memory state removed before DB commit.
+// If the transaction rolls back, the in-memory state is permanently lost.
+SagaState state = aggregationStore.retrieve(sagaId.toString()); // ConcurrentHashMap.remove()
+// ... if outbox save fails below, state is already destroyed ...
+outboxEventRepository.save(outboxEvent);
+```
+
+### Trace Propagation
+
+All outbound SAGA events must carry the original `traceId` from the triggering `EventEnvelope`. Never generate a fresh `UUID.randomUUID()` for outbound traceId — it breaks end-to-end observability:
+
+```java
+// ✅ Correct — propagate the original traceId
+EventEnvelope envelope = event.toEnvelope(sagaId, traceId);
+
+// ❌ Wrong — fresh random traceId breaks the tracing chain
+EventEnvelope envelope = event.toEnvelope(sagaId, UUID.randomUUID());
+```
+
+### JSON Serialization
+
+Never build JSON strings via string concatenation. Always use `jsonMapper.writeValueAsString()`:
+
+```java
+// ✅ Correct
+estimation.setDetails(jsonMapper.writeValueAsString(Map.of("reason", reason)));
+
+// ❌ Wrong — malformed JSON when reason contains " or \
+estimation.setDetails("{\"reason\":\"" + reason + "\"}");
+```
+
 ## Idempotency
 
-- Every consumer maintains a **deduplication table** (or in-memory set with TTL) keyed by `(sagaId, eventType)`.
+- Every consumer deduplicates via the **`saga_events` database table** (entity: `SagaEvent`) keyed by `UNIQUE(saga_id, event_type)`.
+- Use `SagaEventRepository.tryInsertDedup()` — the atomic INSERT-with-UNIQUE-catch pattern. See Consumer Implementation Rules above.
 - If a duplicate event arrives, the consumer logs it and skips processing.
-- Kafka's log compaction ensures at-least-once delivery; the consumer handles dedup.
+- Kafka's at-least-once delivery means duplicates are expected; the DB UNIQUE constraint provides the atomic guard.
 
 ---
 
