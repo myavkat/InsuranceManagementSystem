@@ -422,15 +422,15 @@ Unit test now tests `OutboxProcessor`, not `OutboxRelay`:
 
 ## Execution Checklist
 
-- [ ] Read all 6 context files
-- [ ] Edit `OutboxEvent.java` — add `PUBLISHED` to Status enum
-- [ ] Edit `OutboxEventRepository.java` — remove `@Lock(PESSIMISTIC_WRITE)`
-- [ ] Create `OutboxProcessor.java` with `processOutbox()` and `cleanupEvents()`
-- [ ] Refactor `OutboxRelay.java` — thin wrapper calling `outboxProcessor`
-- [ ] Rename/rewrite `OutboxRelayTest.java` → `OutboxProcessorTest.java`
-- [ ] Update `EstimationServiceIntegrationTest.java` — new flow assertions
-- [ ] Compile: `BUILD SUCCESSFUL`
-- [ ] All tests pass
+- [x] Read all 6 context files
+- [x] Edit `OutboxEvent.java` — add `PUBLISHED` to Status enum
+- [x] Edit `OutboxEventRepository.java` — remove `@Lock(PESSIMISTIC_WRITE)`
+- [x] Create `OutboxProcessor.java` with `processOutbox()` and `cleanupEvents()`
+- [x] Refactor `OutboxRelay.java` — thin wrapper calling `outboxProcessor`
+- [x] Rename/rewrite `OutboxRelayTest.java` → `OutboxProcessorTest.java`
+- [x] Update `EstimationServiceIntegrationTest.java` — new flow assertions
+- [x] Compile: `BUILD SUCCESSFUL`
+- [x] All tests pass
 
 ---
 
