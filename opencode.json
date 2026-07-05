@@ -1,5 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "formatter": true,
   "lsp": {
     "jdtls": {
       "command": ["jdtls"],
@@ -8,10 +9,7 @@
       }
     }
   },
-  "instructions": [
-    "AGENTS.md",
-    "docs/AGENTS.md"
-  ],
+  "instructions": ["AGENTS.md", "docs/AGENTS.md"],
   "permission": {
     "edit": "ask",
     "bash": "ask",
