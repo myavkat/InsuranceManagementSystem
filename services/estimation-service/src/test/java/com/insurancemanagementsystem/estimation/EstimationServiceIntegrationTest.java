@@ -1,5 +1,6 @@
 package com.insurancemanagementsystem.estimation;
 
+import com.insurancemanagementsystem.estimation.config.OutboxProcessor;
 import com.insurancemanagementsystem.estimation.config.OutboxRelay;
 import com.insurancemanagementsystem.estimation.dto.EstimationRequest;
 import com.insurancemanagementsystem.estimation.dto.EstimationResponse;
@@ -104,6 +105,9 @@ class EstimationServiceIntegrationTest {
     private OutboxRelay outboxRelay;
 
     @Autowired
+    private OutboxProcessor outboxProcessor;
+
+    @Autowired
     private RestTestClient restTestClient;
 
     private final ObjectMapper objectMapper = new JsonMapper();
@@ -154,10 +158,10 @@ class EstimationServiceIntegrationTest {
         EstimationRequest request = createValidRequest();
         EstimationResponse response = estimationService.create(request);
 
-        // Manually trigger the outbox relay to process the pending event.
-        // In production this runs on a background thread; here we call it
-        // directly for deterministic test behavior.
-        outboxRelay.processOutbox();
+        // Manually trigger the outbox processor to process the pending event.
+        // In production this runs on a background thread via OutboxRelay; here
+        // we call it directly for deterministic test behavior.
+        outboxProcessor.processOutbox();
 
         // Poll Kafka for the published event
         List<ConsumerRecord<String, String>> records = pollForRecords(consumer, Duration.ofSeconds(5));
@@ -171,6 +175,11 @@ class EstimationServiceIntegrationTest {
                 .contains("EstimationRequested");
 
         consumer.close();
+
+        // Verify the outbox event transitioned to PUBLISHED
+        List<OutboxEvent> eventsAfterProcessing = outboxEventRepository.findAll();
+        assertThat(eventsAfterProcessing).hasSize(1);
+        assertThat(eventsAfterProcessing.getFirst().getStatus()).isEqualTo(OutboxEvent.Status.PUBLISHED);
     }
 
     // ---------------------------------------------------------------
@@ -196,7 +205,7 @@ class EstimationServiceIntegrationTest {
         assertThat(response.getVehicleId()).isNull();
         assertThat(response.getRealEstateId()).isNotNull();
 
-        outboxRelay.processOutbox();
+        outboxProcessor.processOutbox();
 
         List<ConsumerRecord<String, String>> records = pollForRecords(consumer, Duration.ofSeconds(5));
         assertThat(records).isNotEmpty();
@@ -224,7 +233,7 @@ class EstimationServiceIntegrationTest {
                 .expectBody()
                 .jsonPath("$.success").isEqualTo(true);
 
-        outboxRelay.processOutbox();
+        outboxProcessor.processOutbox();
 
         List<ConsumerRecord<String, String>> records = pollForRecords(consumer, Duration.ofSeconds(5));
         assertThat(records).isNotEmpty();

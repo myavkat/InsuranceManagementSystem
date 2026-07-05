@@ -3,26 +3,24 @@ package com.insurancemanagementsystem.estimation.config;
 import com.insurancemanagementsystem.common.messaging.MessagePublisher;
 import com.insurancemanagementsystem.estimation.entity.OutboxEvent;
 import com.insurancemanagementsystem.estimation.repository.OutboxEventRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class OutboxRelayTest {
+class OutboxProcessorTest {
 
     @Mock
     private OutboxEventRepository outboxEventRepository;
@@ -30,18 +28,22 @@ class OutboxRelayTest {
     @Mock
     private MessagePublisher messagePublisher;
 
+    @Mock
+    private TransactionTemplate transactionTemplate;
+
     @InjectMocks
-    private OutboxRelay outboxRelay;
+    private OutboxProcessor outboxProcessor;
 
-    @Captor
-    private ArgumentCaptor<OutboxEvent> outboxEventCaptor;
-
-    @BeforeEach
-    void setUp() {
-        ReflectionTestUtils.setField(outboxRelay, "pollIntervalMs", 1000);
-        ReflectionTestUtils.setField(outboxRelay, "batchSize", 10);
-        ReflectionTestUtils.setField(outboxRelay, "maxRetries", 3);
-        ReflectionTestUtils.setField(outboxRelay, "failedTtlMinutes", 60);
+    /**
+     * Helper: make transactionTemplate.executeWithoutResult() execute the callback immediately.
+     * Must be called at the start of every test that exercises processOutbox or cleanupEvents.
+     */
+    private void mockTransaction() {
+        doAnswer(invocation -> {
+            Consumer<?> action = invocation.getArgument(0);
+            action.accept(null);
+            return null;
+        }).when(transactionTemplate).executeWithoutResult(any());
     }
 
     private OutboxEvent createPendingEvent() {
@@ -62,34 +64,36 @@ class OutboxRelayTest {
     // ---------------------------------------------------------------
     @Test
     void noPendingEvents_doesNothing() {
+        mockTransaction();
         when(outboxEventRepository.findTop10ByStatusOrderByCreatedAtAsc(OutboxEvent.Status.PENDING))
                 .thenReturn(List.of());
 
-        outboxRelay.processOutbox();
+        outboxProcessor.processOutbox();
 
         verify(outboxEventRepository).findTop10ByStatusOrderByCreatedAtAsc(OutboxEvent.Status.PENDING);
-        verifyNoMoreInteractions(outboxEventRepository);
+        verify(outboxEventRepository, never()).save(any());
         verifyNoInteractions(messagePublisher);
     }
 
     // ---------------------------------------------------------------
-    // 2. Pending event published → save(PUBLISHING), publish, delete
+    // 2. Pending event published → save*2 → publish → final status PUBLISHED
     // ---------------------------------------------------------------
     @Test
-    void pendingEvent_publishedSuccessfully_deleted() {
+    void pendingEvent_publishedSuccessfully() {
+        mockTransaction();
         OutboxEvent pending = createPendingEvent();
         when(outboxEventRepository.findTop10ByStatusOrderByCreatedAtAsc(OutboxEvent.Status.PENDING))
                 .thenReturn(List.of(pending));
 
-        outboxRelay.processOutbox();
+        outboxProcessor.processOutbox();
 
-        // Save called once with PUBLISHING status
-        verify(outboxEventRepository).save(outboxEventCaptor.capture());
-        assertThat(outboxEventCaptor.getValue().getStatus()).isEqualTo(OutboxEvent.Status.PUBLISHING);
-
-        // Published and deleted
+        // save called twice (PUBLISHING + PUBLISHED)
+        verify(outboxEventRepository, times(2)).save(same(pending));
         verify(messagePublisher).publish(pending.getTopic(), pending.getPayload());
-        verify(outboxEventRepository).delete(pending);
+        verify(outboxEventRepository, never()).delete(any());
+
+        // Final state on the entity is PUBLISHED
+        assertThat(pending.getStatus()).isEqualTo(OutboxEvent.Status.PUBLISHED);
     }
 
     // ---------------------------------------------------------------
@@ -97,17 +101,23 @@ class OutboxRelayTest {
     // ---------------------------------------------------------------
     @Test
     void publishFails_savesTwiceAndRetries() {
+        mockTransaction();
         OutboxEvent pending = createPendingEvent();
         when(outboxEventRepository.findTop10ByStatusOrderByCreatedAtAsc(OutboxEvent.Status.PENDING))
                 .thenReturn(List.of(pending));
         doThrow(new RuntimeException("Kafka down"))
                 .when(messagePublisher).publish(anyString(), any());
 
-        outboxRelay.processOutbox();
+        outboxProcessor.processOutbox();
 
         // save called twice (PUBLISHING then PENDING for retry)
-        verify(outboxEventRepository, times(2)).save(any(OutboxEvent.class));
+        verify(outboxEventRepository, times(2)).save(same(pending));
         verify(outboxEventRepository, never()).delete(any());
+
+        // Entity was reset to PENDING for retry (retryCount=1 < maxRetries=3)
+        assertThat(pending.getStatus()).isEqualTo(OutboxEvent.Status.PENDING);
+        assertThat(pending.getRetryCount()).isEqualTo(1);
+        assertThat(pending.getLastError()).contains("Kafka down");
     }
 
     // ---------------------------------------------------------------
@@ -115,6 +125,8 @@ class OutboxRelayTest {
     // ---------------------------------------------------------------
     @Test
     void maxRetriesReached_staysFailed() {
+        mockTransaction();
+        outboxProcessor.setMaxRetries(3);
         OutboxEvent pending = createPendingEvent();
         pending.setRetryCount(2); // One more attempt = maxRetries (3)
         when(outboxEventRepository.findTop10ByStatusOrderByCreatedAtAsc(OutboxEvent.Status.PENDING))
@@ -122,11 +134,14 @@ class OutboxRelayTest {
         doThrow(new RuntimeException("Kafka still down"))
                 .when(messagePublisher).publish(anyString(), any());
 
-        outboxRelay.processOutbox();
+        outboxProcessor.processOutbox();
 
         // save called twice (PUBLISHING then FAILED)
-        verify(outboxEventRepository, times(2)).save(any(OutboxEvent.class));
-        // Log confirms: "Outbox event id=... reached max retries (3). Giving up."
+        verify(outboxEventRepository, times(2)).save(same(pending));
         verify(outboxEventRepository, never()).delete(any());
+
+        // Entity stays FAILED (max retries reached)
+        assertThat(pending.getStatus()).isEqualTo(OutboxEvent.Status.FAILED);
+        assertThat(pending.getRetryCount()).isEqualTo(3);
     }
 }

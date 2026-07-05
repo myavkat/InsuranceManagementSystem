@@ -54,7 +54,7 @@ public class OutboxEvent {
     private Instant updatedAt;
 
     public enum Status {
-        PENDING, PUBLISHING, FAILED
+        PENDING, PUBLISHING, PUBLISHED, FAILED
     }
 
     @PrePersist
