@@ -12,10 +12,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -26,6 +28,7 @@ public class SagaTimeoutService {
     private final EstimationRepository estimationRepository;
     private final OutboxEventRepository outboxEventRepository;
     private final OutboxEventSerializer outboxEventSerializer;
+    private final JsonMapper jsonMapper;
 
     @Value("${estimation.saga.timeout-minutes:5}")
     private int timeoutMinutes;
@@ -59,11 +62,16 @@ public class SagaTimeoutService {
             // Serialize outbox event FIRST — if serialization fails, exception propagates
             // and @Transactional rolls back the transaction, keeping estimation as STARTED
             OutboxEvent outboxEvent = outboxEventSerializer.buildEstimationFailedOutboxEvent(
-                    sagaId, reason, "SagaTimeoutService", EventConstants.ESTIMATION_SAGA);
+                    sagaId, sagaId, reason, "SagaTimeoutService", EventConstants.ESTIMATION_SAGA);
 
             // Transition to REJECTED
             estimation.setStatus(Estimation.Status.REJECTED);
-            estimation.setDetails("{\"reason\":\"" + reason + "\"}");
+            try {
+                estimation.setDetails(jsonMapper.writeValueAsString(Map.of("reason", reason)));
+            } catch (Exception e) {
+                log.warn("Failed to serialize timeout details for sagaId={}", sagaId, e);
+                estimation.setDetails("{\"reason\":\"" + reason.replace("\"", "\\\"") + "\"}");
+            }
             estimationRepository.save(estimation);
             outboxEventRepository.save(outboxEvent);
 

@@ -174,7 +174,7 @@ public class EstimationSagaConsumer {
                 // Serialize outbox event FIRST — if serialization fails, exception propagates
                 // and the estimation stays STARTED
                 OutboxEvent outboxEvent = outboxEventSerializer.buildEstimationFailedOutboxEvent(
-                        sagaId, reason, eventType, EventConstants.ESTIMATION_SAGA);
+                        sagaId, traceId, reason, eventType, EventConstants.ESTIMATION_SAGA);
 
                 estimation.setStatus(Estimation.Status.REJECTED);
                 try {

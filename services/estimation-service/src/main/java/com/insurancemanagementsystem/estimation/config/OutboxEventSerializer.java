@@ -19,10 +19,11 @@ public class OutboxEventSerializer {
 
     /**
      * Build and serialize an EstimationFailed outbox event.
+     * Uses the propagated traceId to preserve end-to-end distributed tracing.
      * Throws RuntimeException if serialization fails — caller must handle.
      */
     public OutboxEvent buildEstimationFailedOutboxEvent(
-            UUID sagaId, String reason, String failedStep, String topic) {
+            UUID sagaId, UUID traceId, String reason, String failedStep, String topic) {
 
         EstimationFailedEvent event = EstimationFailedEvent.builder()
                 .originalSagaId(sagaId)
@@ -30,7 +31,7 @@ public class OutboxEventSerializer {
                 .failedStep(failedStep)
                 .build();
 
-        EventEnvelope envelope = event.toEnvelope(sagaId, UUID.randomUUID());
+        EventEnvelope envelope = event.toEnvelope(sagaId, traceId);
 
         String payloadJson;
         try {

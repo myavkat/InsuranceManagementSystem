@@ -14,11 +14,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,6 +40,9 @@ class SagaTimeoutServiceTest {
     @Mock
     private OutboxEventSerializer outboxEventSerializer;
 
+    @Mock
+    private JsonMapper jsonMapper;
+
     @InjectMocks
     private SagaTimeoutService timeoutService;
 
@@ -49,7 +54,10 @@ class SagaTimeoutServiceTest {
         // @Value fields are not injected by Mockito — set manually
         ReflectionTestUtils.setField(timeoutService, "timeoutMinutes", 5);
         lenient().when(outboxEventSerializer.buildEstimationFailedOutboxEvent(
-                any(), any(), any(), any())).thenReturn(OutboxEvent.builder().build());
+                any(), any(), any(), any(), any())).thenReturn(OutboxEvent.builder().build());
+
+        lenient().when(jsonMapper.writeValueAsString(any(Map.class)))
+                .thenReturn("{\"reason\":\"SAGA timed out after 5 minutes\"}");
     }
 
     // ---------------------------------------------------------------

@@ -61,7 +61,7 @@ class EstimationSagaConsumerTest {
         }).when(transactionTemplate).executeWithoutResult(any());
 
         lenient().when(outboxEventSerializer.buildEstimationFailedOutboxEvent(
-                any(), any(), any(), any())).thenReturn(OutboxEvent.builder().build());
+                any(), any(), any(), any(), any())).thenReturn(OutboxEvent.builder().build());
     }
 
     // ---------------------------------------------------------------
@@ -479,7 +479,7 @@ class EstimationSagaConsumerTest {
 
         when(estimationRepository.findBySagaId(sagaId)).thenReturn(Optional.of(estimation));
         when(outboxEventSerializer.buildEstimationFailedOutboxEvent(
-                any(), any(), any(), any())).thenThrow(new RuntimeException("Serialization failed"));
+                any(), any(), any(), any(), any())).thenThrow(new RuntimeException("Serialization failed"));
 
         consumer.processEstimationSaga(jsonMapper).accept(buildEventJson(event, sagaId));
 
