@@ -58,7 +58,21 @@ public class SagaAggregationStore {
     }
 
     /**
+     * Peek at aggregation state without removing it (safe within a transaction — state
+     * survives rollback for retry). Use this inside transaction callbacks; call
+     * {@link #remove(String)} only after the transaction commits.
+     */
+    public SagaState peek(String sagaId) {
+        SagaState state = store.get(sagaId);
+        log.debug("Peeked SAGA state for sagaId={} (found={})", sagaId, state != null);
+        return state;
+    }
+
+    /**
      * Retrieve and remove aggregation state (one-shot consumption — state consumed once).
+     * WARNING: This performs an irreversible in-memory {@code remove()} that does NOT
+     * roll back if the enclosing DB transaction fails. Prefer {@link #peek(String)} +
+     * deferred {@link #remove(String)} after commit for transactional call sites.
      */
     public SagaState retrieve(String sagaId) {
         SagaState state = store.remove(sagaId);
