@@ -48,6 +48,11 @@ customer:
     max-retries: 3
     failed-ttl-minutes: 60
 
+outbox:
+  poll-interval-ms: ${customer.outbox.poll-interval-ms:1000}
+  max-retries: ${customer.outbox.max-retries:3}
+  failed-ttl-minutes: ${customer.outbox.failed-ttl-minutes:60}
+
 logging:
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} [%X{traceId:-},%X{sagaId:-}] - %msg%n"

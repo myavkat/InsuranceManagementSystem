@@ -56,3 +56,8 @@ estimation:
     batch-size: 10
     max-retries: 3
     failed-ttl-minutes: 60
+
+outbox:
+  poll-interval-ms: ${estimation.outbox.poll-interval-ms:1000}
+  max-retries: ${estimation.outbox.max-retries:3}
+  failed-ttl-minutes: ${estimation.outbox.failed-ttl-minutes:60}

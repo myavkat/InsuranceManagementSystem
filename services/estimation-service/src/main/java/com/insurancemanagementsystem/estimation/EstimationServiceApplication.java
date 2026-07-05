@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-@SpringBootApplication(scanBasePackages = {"com.insurancemanagementsystem.estimation", "com.insurancemanagementsystem.common.web", "com.insurancemanagementsystem.common.messaging"})
+@SpringBootApplication(scanBasePackages = {"com.insurancemanagementsystem.estimation", "com.insurancemanagementsystem.common.web", "com.insurancemanagementsystem.common.messaging", "com.insurancemanagementsystem.common.config"})
 @EntityScan(basePackages = {
     "com.insurancemanagementsystem.estimation.entity",
     "com.insurancemanagementsystem.common.entity"

@@ -2,8 +2,8 @@ package com.insurancemanagementsystem.estimation;
 
 import com.insurancemanagementsystem.common.entity.OutboxEvent;
 import com.insurancemanagementsystem.common.repository.OutboxEventRepository;
-import com.insurancemanagementsystem.estimation.config.OutboxProcessor;
-import com.insurancemanagementsystem.estimation.config.OutboxRelay;
+import com.insurancemanagementsystem.common.config.OutboxProcessor;
+import com.insurancemanagementsystem.common.config.OutboxRelay;
 import com.insurancemanagementsystem.estimation.dto.EstimationRequest;
 import com.insurancemanagementsystem.estimation.dto.EstimationResponse;
 import com.insurancemanagementsystem.estimation.repository.EstimationRepository;

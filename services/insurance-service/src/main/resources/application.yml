@@ -47,6 +47,11 @@ insurance:
     max-retries: 3
     failed-ttl-minutes: 60
 
+outbox:
+  poll-interval-ms: ${insurance.outbox.poll-interval-ms:1000}
+  max-retries: ${insurance.outbox.max-retries:3}
+  failed-ttl-minutes: ${insurance.outbox.failed-ttl-minutes:60}
+
 logging:
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} [%X{traceId:-},%X{sagaId:-}] - %msg%n"
