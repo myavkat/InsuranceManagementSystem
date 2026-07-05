@@ -1,12 +1,12 @@
 package com.insurancemanagementsystem.estimation;
 
+import com.insurancemanagementsystem.common.entity.OutboxEvent;
+import com.insurancemanagementsystem.common.repository.OutboxEventRepository;
 import com.insurancemanagementsystem.estimation.config.OutboxProcessor;
 import com.insurancemanagementsystem.estimation.config.OutboxRelay;
 import com.insurancemanagementsystem.estimation.dto.EstimationRequest;
 import com.insurancemanagementsystem.estimation.dto.EstimationResponse;
-import com.insurancemanagementsystem.estimation.entity.OutboxEvent;
 import com.insurancemanagementsystem.estimation.repository.EstimationRepository;
-import com.insurancemanagementsystem.estimation.repository.OutboxEventRepository;
 import com.insurancemanagementsystem.estimation.service.EstimationService;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;

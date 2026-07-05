@@ -1,4 +1,4 @@
-package com.insurancemanagementsystem.customer.entity;
+package com.insurancemanagementsystem.common.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

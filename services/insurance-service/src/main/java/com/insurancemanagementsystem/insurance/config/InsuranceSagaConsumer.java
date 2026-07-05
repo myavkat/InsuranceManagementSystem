@@ -3,6 +3,10 @@ package com.insurancemanagementsystem.insurance.config;
 import com.insurancemanagementsystem.common.event.EventConstants;
 import com.insurancemanagementsystem.common.event.EventEnvelope;
 import com.insurancemanagementsystem.common.event.saga.*;
+import com.insurancemanagementsystem.common.entity.OutboxEvent;
+import com.insurancemanagementsystem.common.entity.SagaEvent;
+import com.insurancemanagementsystem.common.repository.OutboxEventRepository;
+import com.insurancemanagementsystem.common.repository.SagaEventRepository;
 import com.insurancemanagementsystem.insurance.entity.Insurance;
 import com.insurancemanagementsystem.insurance.repository.InsuranceRepository;
 import lombok.RequiredArgsConstructor;
@@ -10,15 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.support.TransactionTemplate;
 import tools.jackson.databind.json.JsonMapper;
-
-import com.insurancemanagementsystem.insurance.entity.OutboxEvent;
-import com.insurancemanagementsystem.insurance.entity.SagaEvent;
-import com.insurancemanagementsystem.insurance.repository.OutboxEventRepository;
-import com.insurancemanagementsystem.insurance.repository.SagaEventRepository;
 
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
@@ -38,23 +36,6 @@ public class InsuranceSagaConsumer {
     private final SagaAggregationStore aggregationStore;
     private final TransactionTemplate transactionTemplate;
     private final JsonMapper jsonMapper;
-
-    /**
-     * Idempotency guard used by log-only handlers that do not need transactional wrapping.
-     */
-    private boolean isDuplicateSagaEvent(UUID sagaId, String eventType) {
-        SagaEvent dedup = SagaEvent.builder()
-                .sagaId(sagaId)
-                .eventType(eventType)
-                .build();
-        try {
-            sagaEventRepository.save(dedup);
-            return false;
-        } catch (DataIntegrityViolationException e) {
-            log.info("Duplicate event: sagaId={}, eventType={} — skipping", sagaId, eventType);
-            return true;
-        }
-    }
 
     @Bean
     public Consumer<String> processInsuranceSaga(JsonMapper jsonMapper) {
@@ -191,7 +172,7 @@ public class InsuranceSagaConsumer {
         UUID sagaId = envelope.getSagaId();
         String eventType = envelope.getEventType();
 
-        if (isDuplicateSagaEvent(sagaId, eventType)) {
+        if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
             return;
         }
 

@@ -1,11 +1,11 @@
 package com.insurancemanagementsystem.estimation.service;
 
 import com.insurancemanagementsystem.common.event.EventConstants;
+import com.insurancemanagementsystem.common.entity.OutboxEvent;
+import com.insurancemanagementsystem.common.repository.OutboxEventRepository;
 import com.insurancemanagementsystem.estimation.config.OutboxEventSerializer;
 import com.insurancemanagementsystem.estimation.entity.Estimation;
-import com.insurancemanagementsystem.estimation.entity.OutboxEvent;
 import com.insurancemanagementsystem.estimation.repository.EstimationRepository;
-import com.insurancemanagementsystem.estimation.repository.OutboxEventRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

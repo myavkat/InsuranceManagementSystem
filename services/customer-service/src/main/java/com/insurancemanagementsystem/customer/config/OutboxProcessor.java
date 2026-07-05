@@ -1,8 +1,8 @@
 package com.insurancemanagementsystem.customer.config;
 
+import com.insurancemanagementsystem.common.entity.OutboxEvent;
+import com.insurancemanagementsystem.common.repository.OutboxEventRepository;
 import com.insurancemanagementsystem.common.messaging.MessagePublisher;
-import com.insurancemanagementsystem.customer.entity.OutboxEvent;
-import com.insurancemanagementsystem.customer.repository.OutboxEventRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

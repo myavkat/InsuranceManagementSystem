@@ -1,10 +1,10 @@
 package com.insurancemanagementsystem.estimation.service;
 
+import com.insurancemanagementsystem.common.entity.OutboxEvent;
+import com.insurancemanagementsystem.common.repository.OutboxEventRepository;
 import com.insurancemanagementsystem.estimation.config.OutboxEventSerializer;
 import com.insurancemanagementsystem.estimation.entity.Estimation;
-import com.insurancemanagementsystem.estimation.entity.OutboxEvent;
 import com.insurancemanagementsystem.estimation.repository.EstimationRepository;
-import com.insurancemanagementsystem.estimation.repository.OutboxEventRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

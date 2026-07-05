@@ -3,12 +3,12 @@ package com.insurancemanagementsystem.estimation.config;
 import com.insurancemanagementsystem.common.event.EventConstants;
 import com.insurancemanagementsystem.common.event.EventEnvelope;
 import com.insurancemanagementsystem.common.event.saga.*;
+import com.insurancemanagementsystem.common.entity.OutboxEvent;
+import com.insurancemanagementsystem.common.repository.OutboxEventRepository;
+import com.insurancemanagementsystem.common.repository.SagaEventRepository;
 import com.insurancemanagementsystem.estimation.entity.Estimation;
-import com.insurancemanagementsystem.estimation.entity.SagaEvent;
 import com.insurancemanagementsystem.estimation.repository.EstimationRepository;
-import com.insurancemanagementsystem.estimation.repository.SagaEventRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.context.annotation.Bean;
@@ -18,8 +18,6 @@ import tools.jackson.databind.json.JsonMapper;
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.UUID;
-import com.insurancemanagementsystem.estimation.entity.OutboxEvent;
-import com.insurancemanagementsystem.estimation.repository.OutboxEventRepository;
 
 import java.util.function.Consumer;
 
@@ -32,27 +30,6 @@ public class EstimationSagaConsumer {
     private final SagaEventRepository sagaEventRepository;
     private final OutboxEventRepository outboxEventRepository;
     private final OutboxEventSerializer outboxEventSerializer;
-
-    /**
-     * Returns true if this event was already processed (duplicate).
-     * Inserts a dedup record via SagaEventRepository; if a unique constraint
-     * violation occurs, the event is a duplicate.
-     *
-     * @return true if duplicate (caller should skip processing)
-     */
-    private boolean isDuplicateSagaEvent(UUID sagaId, String eventType) {
-        SagaEvent dedup = SagaEvent.builder()
-                .sagaId(sagaId)
-                .eventType(eventType)
-                .build();
-        try {
-            sagaEventRepository.save(dedup);
-            return false; // Successfully inserted → not a duplicate
-        } catch (DataIntegrityViolationException e) {
-            log.info("Duplicate event: sagaId={}, eventType={} — skipping", sagaId, eventType);
-            return true;
-        }
-    }
 
     @Bean
     public Consumer<String> processEstimationSaga(JsonMapper jsonMapper) {
@@ -104,7 +81,7 @@ public class EstimationSagaConsumer {
     private void handleCustomerValidated(EventEnvelope envelope, UUID sagaId, UUID traceId, JsonMapper jsonMapper) {
         String eventType = envelope.getEventType();
 
-        if (isDuplicateSagaEvent(sagaId, eventType)) {
+        if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
             return;
         }
 
@@ -121,7 +98,7 @@ public class EstimationSagaConsumer {
     private void handleVehicleValidated(EventEnvelope envelope, UUID sagaId, UUID traceId, JsonMapper jsonMapper) {
         String eventType = envelope.getEventType();
 
-        if (isDuplicateSagaEvent(sagaId, eventType)) {
+        if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
             return;
         }
 
@@ -137,7 +114,7 @@ public class EstimationSagaConsumer {
     private void handlePremiumCalculated(EventEnvelope envelope, UUID sagaId, UUID traceId, JsonMapper jsonMapper) {
         String eventType = envelope.getEventType();
 
-        if (isDuplicateSagaEvent(sagaId, eventType)) {
+        if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
             return;
         }
 
@@ -171,7 +148,7 @@ public class EstimationSagaConsumer {
     private void handleFailed(EventEnvelope envelope, UUID sagaId, UUID traceId, String reason, JsonMapper jsonMapper) {
         String eventType = envelope.getEventType();
 
-        if (isDuplicateSagaEvent(sagaId, eventType)) {
+        if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
             return;
         }
 
@@ -210,7 +187,7 @@ public class EstimationSagaConsumer {
     private void handleEstimationFailed(EventEnvelope envelope, UUID sagaId) {
         String eventType = envelope.getEventType();
 
-        if (isDuplicateSagaEvent(sagaId, eventType)) {
+        if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
             return;
         }
 

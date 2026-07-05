@@ -1,6 +1,6 @@
-package com.insurancemanagementsystem.insurance.repository;
+package com.insurancemanagementsystem.common.repository;
 
-import com.insurancemanagementsystem.insurance.entity.OutboxEvent;
+import com.insurancemanagementsystem.common.entity.OutboxEvent;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

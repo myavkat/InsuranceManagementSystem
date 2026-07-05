@@ -2,6 +2,8 @@ package com.insurancemanagementsystem.customer.saga;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
+import com.insurancemanagementsystem.common.entity.OutboxEvent;
+import com.insurancemanagementsystem.common.repository.OutboxEventRepository;
 import com.insurancemanagementsystem.common.event.EventConstants;
 import com.insurancemanagementsystem.common.event.EventEnvelope;
 import com.insurancemanagementsystem.common.event.saga.CustomerInvalidatedEvent;
@@ -9,9 +11,7 @@ import com.insurancemanagementsystem.common.event.saga.CustomerValidatedEvent;
 import com.insurancemanagementsystem.common.event.saga.EstimationFailedEvent;
 import com.insurancemanagementsystem.common.event.saga.EstimationRequestedEvent;
 import com.insurancemanagementsystem.customer.entity.Customer;
-import com.insurancemanagementsystem.customer.entity.OutboxEvent;
 import com.insurancemanagementsystem.customer.repository.CustomerRepository;
-import com.insurancemanagementsystem.customer.repository.OutboxEventRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

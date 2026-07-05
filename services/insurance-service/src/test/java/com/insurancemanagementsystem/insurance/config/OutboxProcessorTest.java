@@ -1,8 +1,8 @@
 package com.insurancemanagementsystem.insurance.config;
 
+import com.insurancemanagementsystem.common.entity.OutboxEvent;
+import com.insurancemanagementsystem.common.repository.OutboxEventRepository;
 import com.insurancemanagementsystem.common.messaging.MessagePublisher;
-import com.insurancemanagementsystem.insurance.entity.OutboxEvent;
-import com.insurancemanagementsystem.insurance.repository.OutboxEventRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

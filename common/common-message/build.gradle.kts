@@ -34,6 +34,7 @@ dependencies {
     implementation("jakarta.validation:jakarta.validation-api")
     compileOnly("org.springframework.cloud:spring-cloud-stream")
     implementation("org.springframework:spring-tx")
+    api("org.springframework.boot:spring-boot-starter-data-jpa")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.junit.jupiter:junit-jupiter")

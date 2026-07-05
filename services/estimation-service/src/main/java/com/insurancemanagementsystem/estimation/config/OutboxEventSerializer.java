@@ -2,7 +2,7 @@ package com.insurancemanagementsystem.estimation.config;
 
 import com.insurancemanagementsystem.common.event.EventEnvelope;
 import com.insurancemanagementsystem.common.event.saga.EstimationFailedEvent;
-import com.insurancemanagementsystem.estimation.entity.OutboxEvent;
+import com.insurancemanagementsystem.common.entity.OutboxEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
