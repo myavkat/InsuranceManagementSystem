@@ -10,6 +10,7 @@ import com.insurancemanagementsystem.estimation.entity.SagaEvent;
 import com.insurancemanagementsystem.estimation.repository.EstimationRepository;
 import com.insurancemanagementsystem.estimation.repository.OutboxEventRepository;
 import com.insurancemanagementsystem.estimation.repository.SagaEventRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -44,10 +45,19 @@ class EstimationSagaConsumerTest {
     @Mock
     private OutboxEventRepository outboxEventRepository;
 
+    @Mock
+    private OutboxEventSerializer outboxEventSerializer;
+
     @InjectMocks
     private EstimationSagaConsumer consumer;
 
     private final JsonMapper jsonMapper = new JsonMapper();
+
+    @BeforeEach
+    void setUp() {
+        lenient().when(outboxEventSerializer.buildEstimationFailedOutboxEvent(
+                any(), any(), any(), any())).thenReturn(OutboxEvent.builder().build());
+    }
 
     // ---------------------------------------------------------------
     // Helper: build JSON string from a BaseEvent + sagaId
@@ -464,5 +474,34 @@ class EstimationSagaConsumerTest {
         // Verify save was called twice (once for each call, second is duplicate)
         verify(sagaEventRepository, times(2)).save(any(SagaEvent.class));
         verifyNoInteractions(estimationRepository);
+    }
+
+    // ---------------------------------------------------------------
+    // 17. Serialization failure during handleFailed → rollback, estimation stays STARTED
+    // ---------------------------------------------------------------
+    @Test
+    void serializationFailure_doesNotTransitionEstimation() {
+        UUID sagaId = UUID.randomUUID();
+        CustomerInvalidatedEvent event = CustomerInvalidatedEvent.builder()
+                .customerId(UUID.randomUUID())
+                .reason("Customer not found")
+                .build();
+
+        Estimation estimation = Estimation.builder()
+                .id(UUID.randomUUID())
+                .sagaId(sagaId)
+                .status(Estimation.Status.STARTED)
+                .build();
+
+        when(estimationRepository.findBySagaId(sagaId)).thenReturn(Optional.of(estimation));
+        when(outboxEventSerializer.buildEstimationFailedOutboxEvent(
+                any(), any(), any(), any())).thenThrow(new RuntimeException("Serialization failed"));
+
+        consumer.processEstimationSaga(jsonMapper).accept(buildEventJson(event, sagaId));
+
+        // Estimation should remain STARTED — no state mutation occurred
+        assertThat(estimation.getStatus()).isEqualTo(Estimation.Status.STARTED);
+        verify(estimationRepository, never()).save(any());
+        verify(outboxEventRepository, never()).save(any());
     }
 }

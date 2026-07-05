@@ -14,6 +14,7 @@ When working on features, prioritize guidelines in this order:
 - If a model swap occurred, verify state by cross-referencing code against the active plan file.
 - DO NOT invent dependencies or refactor out-of-scope modules.
 - **Commit message convention:** Use descriptive, topic-based commit headers with conventional commit prefixes (e.g., `feat(scope):`, `fix(scope):`, `docs:`, `test(scope):`, `refactor(scope):`, `chore:`). Never use opaque codenames, section numbers, or ticket IDs alone as the commit subject — the header must describe what changed, not reference external tracking. Commit each logical topic separately (topic-by-topic), not as a batch of unrelated changes.
+- **No auto-attribution:** Never include `Co-Authored-By` trailers or any other auto-attribution lines in commit messages. Only the actual human author's identity belongs in commits.
 
 ## Architecture & Convention Index
 

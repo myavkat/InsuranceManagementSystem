@@ -1,5 +1,6 @@
 package com.insurancemanagementsystem.estimation.service;
 
+import com.insurancemanagementsystem.estimation.config.OutboxEventSerializer;
 import com.insurancemanagementsystem.estimation.entity.Estimation;
 import com.insurancemanagementsystem.estimation.entity.OutboxEvent;
 import com.insurancemanagementsystem.estimation.repository.EstimationRepository;
@@ -13,7 +14,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
-import tools.jackson.databind.json.JsonMapper;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -36,7 +36,7 @@ class SagaTimeoutServiceTest {
     private OutboxEventRepository outboxEventRepository;
 
     @Mock
-    private JsonMapper jsonMapper;
+    private OutboxEventSerializer outboxEventSerializer;
 
     @InjectMocks
     private SagaTimeoutService timeoutService;
@@ -48,7 +48,8 @@ class SagaTimeoutServiceTest {
     void setUp() {
         // @Value fields are not injected by Mockito — set manually
         ReflectionTestUtils.setField(timeoutService, "timeoutMinutes", 5);
-        lenient().when(jsonMapper.writeValueAsString(any())).thenReturn("{}");
+        lenient().when(outboxEventSerializer.buildEstimationFailedOutboxEvent(
+                any(), any(), any(), any())).thenReturn(OutboxEvent.builder().build());
     }
 
     // ---------------------------------------------------------------

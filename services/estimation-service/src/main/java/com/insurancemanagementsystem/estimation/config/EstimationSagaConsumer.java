@@ -31,6 +31,7 @@ public class EstimationSagaConsumer {
     private final EstimationRepository estimationRepository;
     private final SagaEventRepository sagaEventRepository;
     private final OutboxEventRepository outboxEventRepository;
+    private final OutboxEventSerializer outboxEventSerializer;
 
     /**
      * Returns true if this event was already processed (duplicate).
@@ -184,6 +185,11 @@ public class EstimationSagaConsumer {
                 return;
             }
 
+            // Serialize outbox event FIRST — if serialization fails, exception propagates
+            // and the estimation stays STARTED
+            OutboxEvent outboxEvent = outboxEventSerializer.buildEstimationFailedOutboxEvent(
+                    sagaId, reason, eventType, EventConstants.ESTIMATION_SAGA);
+
             estimation.setStatus(Estimation.Status.REJECTED);
             try {
                 estimation.setDetails(jsonMapper.writeValueAsString(Map.of("reason", reason)));
@@ -192,10 +198,9 @@ public class EstimationSagaConsumer {
                 estimation.setDetails("{\"reason\":\"" + reason + "\"}"); // fallback
             }
             estimationRepository.save(estimation);
-            log.info("Estimation {} rejected for sagaId={}: {}", estimation.getId(), sagaId, reason);
+            outboxEventRepository.save(outboxEvent);
 
-            // Insert outbox event for atomic delivery
-            saveOutboxEvent(jsonMapper, sagaId, reason, eventType);
+            log.info("Estimation {} rejected for sagaId={}: {}", estimation.getId(), sagaId, reason);
         }, () -> log.warn("No estimation found for sagaId={}", sagaId));
     }
 
@@ -210,34 +215,5 @@ public class EstimationSagaConsumer {
         }
 
         log.warn("Estimation failed for saga: {} — no compensation needed (estimation state updated)", sagaId);
-    }
-
-    // ---------------------------------------------------------------
-    // Outbox persistence helper — inserts EstimationFailed as outbox event
-    // ---------------------------------------------------------------
-    private void saveOutboxEvent(JsonMapper jsonMapper, UUID sagaId, String reason, String failedStep) {
-        EstimationFailedEvent event = EstimationFailedEvent.builder()
-                .originalSagaId(sagaId)
-                .reason(reason)
-                .failedStep(failedStep)
-                .build();
-        EventEnvelope envelope = event.toEnvelope(sagaId, UUID.randomUUID());
-
-        String payloadJson;
-        try {
-            payloadJson = jsonMapper.writeValueAsString(envelope);
-        } catch (Exception e) {
-            log.error("Failed to serialize outbox payload for sagaId={}", sagaId, e);
-            return;
-        }
-
-        OutboxEvent outboxEvent = OutboxEvent.builder()
-                .sagaId(sagaId)
-                .topic(EventConstants.ESTIMATION_SAGA)
-                .payload(payloadJson)
-                .status(OutboxEvent.Status.PENDING)
-                .build();
-        outboxEventRepository.save(outboxEvent);
-        log.info("Saved outbox event for sagaId={} to topic={}", sagaId, EventConstants.ESTIMATION_SAGA);
     }
 }
