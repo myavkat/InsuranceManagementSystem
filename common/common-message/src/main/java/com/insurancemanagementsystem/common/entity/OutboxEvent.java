@@ -40,10 +40,6 @@ public class OutboxEvent {
     @Builder.Default
     private int retryCount = 0;
 
-    @Column(name = "max_retries")
-    @Builder.Default
-    private int maxRetries = 3;
-
     @Column(name = "last_error", columnDefinition = "TEXT")
     private String lastError;
 

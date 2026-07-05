@@ -54,7 +54,6 @@ class OutboxProcessorTest {
                 .payload("{}")
                 .status(status)
                 .retryCount(0)
-                .maxRetries(3)
                 .createdAt(Instant.now().minusSeconds(600))
                 .build();
     }

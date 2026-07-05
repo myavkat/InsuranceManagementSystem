@@ -72,7 +72,6 @@ CREATE TABLE IF NOT EXISTS outbox_events (
     payload JSONB NOT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
     retry_count INT DEFAULT 0,
-    max_retries INT DEFAULT 3,
     last_error TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

@@ -204,25 +204,27 @@ After removing the field, any test that set `maxRetries` on an `OutboxEvent` via
 ## Execution Checklist
 
 ### Issue 1 — PUBLISHING zombie recovery
-- [ ] Add zombie recovery logic to `OutboxProcessor.cleanupEvents()`
-- [ ] Add test for `stalePublishingEvents_areRecoveredToPending()`
-- [ ] Verify `findByStatusAndCreatedAtBefore` works for `PUBLISHING` status
+- [x] Add zombie recovery logic to `OutboxProcessor.cleanupEvents()`
+- [x] Add test for `stalePublishingEvents_areRecoveredToPending()`
+- [x] Verify `findByStatusAndCreatedAtBefore` works for `PUBLISHING` status
 
 ### Issue 2 — Remove dead `maxRetries` field
-- [ ] Delete `maxRetries` field from `OutboxEvent.java`
-- [ ] Remove `max_retries` column from `infra/sql/estimation_db/init.sql`
-- [ ] Update all test builders that set `.maxRetries(...)` — remove the call
-- [ ] Verify no code references `event.getMaxRetries()` or `event.setMaxRetries()`
+- [x] Delete `maxRetries` field from `OutboxEvent.java`
+- [x] Remove `max_retries` column from `infra/sql/estimation_db/init.sql`
+- [x] Remove `max_retries` column from `infra/sql/customer_db/init.sql`
+- [x] Remove `max_retries` column from `infra/sql/insurance_db/init.sql`
+- [x] Update all test builders that set `.maxRetries(...)` — remove the call
+- [x] Verify no code references `event.getMaxRetries()` or `event.setMaxRetries()`
 
 ### Issue 3 — `deleteAll` → `deleteAllInBatch`
-- [ ] Replace `deleteAll()` with `deleteAllInBatch()` in `OutboxProcessor.cleanupEvents()`
-- [ ] Add test verifying batch delete is used
-- [ ] Remove any `verify(outboxEventRepository).deleteAll(stalePublished)` assertions from tests
+- [x] Replace `deleteAll()` with `deleteAllInBatch()` in `OutboxProcessor.cleanupEvents()`
+- [x] Add test verifying batch delete is used
+- [x] Remove any `verify(outboxEventRepository).deleteAll(stalePublished)` assertions from tests
 
 ### Final
-- [ ] Compile estimation-service: SUCCESS
-- [ ] All tests pass
-- [ ] Apply same fixes to customer-service and insurance-service `OutboxProcessor.java` if they exist (post-Plan 11)
+- [x] Compile estimation-service: SUCCESS
+- [x] All tests pass
+- [x] Apply same fixes to customer-service and insurance-service `OutboxProcessor.java` if they exist (post-Plan 11)
 
 ---
 
