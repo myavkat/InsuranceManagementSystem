@@ -4,7 +4,6 @@ import com.insurancemanagementsystem.common.event.EventConstants;
 import com.insurancemanagementsystem.common.event.EventEnvelope;
 import com.insurancemanagementsystem.common.event.saga.*;
 import com.insurancemanagementsystem.common.entity.OutboxEvent;
-import com.insurancemanagementsystem.common.entity.SagaEvent;
 import com.insurancemanagementsystem.common.repository.OutboxEventRepository;
 import com.insurancemanagementsystem.common.repository.SagaEventRepository;
 import com.insurancemanagementsystem.insurance.entity.Insurance;
@@ -84,15 +83,10 @@ public class InsuranceSagaConsumer {
         String eventType = envelope.getEventType();
 
         transactionTemplate.executeWithoutResult(status -> {
-            if (sagaEventRepository.existsBySagaIdAndEventType(sagaId, eventType)) {
+            if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
                 log.info("Duplicate event: sagaId={}, eventType={} — skipping", sagaId, eventType);
                 return;
             }
-
-            sagaEventRepository.save(SagaEvent.builder()
-                    .sagaId(sagaId)
-                    .eventType(eventType)
-                    .build());
 
             boolean ready = aggregationStore.storeAndCheckReady(sagaId.toString(), eventType, envelope);
             if (ready) {
@@ -108,15 +102,10 @@ public class InsuranceSagaConsumer {
         String eventType = envelope.getEventType();
 
         transactionTemplate.executeWithoutResult(status -> {
-            if (sagaEventRepository.existsBySagaIdAndEventType(sagaId, eventType)) {
+            if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
                 log.info("Duplicate event: sagaId={}, eventType={} — skipping", sagaId, eventType);
                 return;
             }
-
-            sagaEventRepository.save(SagaEvent.builder()
-                    .sagaId(sagaId)
-                    .eventType(eventType)
-                    .build());
 
             boolean ready = aggregationStore.storeAndCheckReady(sagaId.toString(), eventType, envelope);
             if (ready) {
@@ -132,15 +121,10 @@ public class InsuranceSagaConsumer {
         String eventType = envelope.getEventType();
 
         transactionTemplate.executeWithoutResult(status -> {
-            if (sagaEventRepository.existsBySagaIdAndEventType(sagaId, eventType)) {
+            if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
                 log.info("Duplicate event: sagaId={}, eventType={} — skipping", sagaId, eventType);
                 return;
             }
-
-            sagaEventRepository.save(SagaEvent.builder()
-                    .sagaId(sagaId)
-                    .eventType(eventType)
-                    .build());
 
             boolean ready = aggregationStore.storeAndCheckReady(sagaId.toString(), eventType, envelope);
             if (ready) {
@@ -156,15 +140,10 @@ public class InsuranceSagaConsumer {
         String eventType = envelope.getEventType();
 
         transactionTemplate.executeWithoutResult(status -> {
-            if (sagaEventRepository.existsBySagaIdAndEventType(sagaId, eventType)) {
+            if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
                 log.info("Duplicate event: sagaId={}, eventType={} — skipping", sagaId, eventType);
                 return;
             }
-
-            sagaEventRepository.save(SagaEvent.builder()
-                    .sagaId(sagaId)
-                    .eventType(eventType)
-                    .build());
 
             log.warn("SAGA invalidated for sagaId={}: {}", sagaId, reason);
             aggregationStore.remove(sagaId.toString());
