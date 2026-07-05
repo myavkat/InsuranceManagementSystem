@@ -175,6 +175,42 @@ estimation.setDetails(jsonMapper.writeValueAsString(Map.of("reason", reason)));
 estimation.setDetails("{\"reason\":\"" + reason + "\"}");
 ```
 
+**Fallback safety:** When `writeValueAsString()` itself throws (rare, but possible with circular references or OOM), the fallback path MUST still produce valid JSON. A bare `"{\"reason\":\"" + reason + "\"}"` or even `reason.replace("\"", "\\\"")` is insufficient — backslashes, newlines, and control characters remain unescaped. Use a nested `JsonMapper` try-catch or a shared `JsonUtils.safeSerialize()` utility.
+
+### Aggregation / Correlation Store Concurrency
+
+Insurance premium calculation correlates three independent SAGA events (`ESTIMATION_REQUESTED`, `CUSTOMER_VALIDATED`, `VEHICLE_VALIDATED`) in a shared `saga_aggregations` row. Each event handler calls `storeAndCheckReady()` which reads the row, mutates one column, and saves it back.
+
+**Rule:** The initial read in any multi-event correlation store MUST use `SELECT FOR UPDATE` (`@Lock(PESSIMISTIC_WRITE)`). Without it, under multi-instance concurrency, two instances processing different event types for the same saga can both load a stale snapshot and overwrite each other's column writes — Hibernate's default `UPDATE` writes all columns, including stale nulls.
+
+```java
+// ✅ Correct — pessimistic lock prevents lost updates across instances
+SagaAggregation agg = repository.findByIdForUpdate(sagaUuid)  // SELECT ... FOR UPDATE
+    .orElseGet(() -> SagaAggregation.builder().sagaId(sagaUuid).build());
+agg.setCustomerValidatedPayload(payload);  // safe: no concurrent writer can intervene
+repository.save(agg);
+
+// ❌ Wrong — two instances can both read before either writes, last writer loses data
+SagaAggregation agg = repository.findById(sagaUuid)  // plain SELECT, no lock
+    .orElseGet(() -> SagaAggregation.builder().sagaId(sagaUuid).build());
+agg.setCustomerValidatedPayload(payload);
+repository.save(agg);
+```
+
+### Scheduled Task Trace Propagation
+
+Scheduled tasks (e.g., `SagaTimeoutService`) originate SAGA events without a triggering `EventEnvelope`. They have no `traceId` to propagate. The correct behavior is to store the original `traceId` on the business entity when the saga is initiated, so scheduled tasks can retrieve and propagate it:
+
+```java
+// ✅ Correct — Estimation entity stores traceId at creation time
+estimation.setTraceId(traceId);  // from the HTTP request or initial EventEnvelope
+// ... later, at timeout:
+outboxEventSerializer.buildEstimationFailedOutboxEvent(sagaId, estimation.getTraceId(), ...);
+
+// ❌ Wrong — passes sagaId as traceId, conflating trace identity with business identity
+outboxEventSerializer.buildEstimationFailedOutboxEvent(sagaId, sagaId, ...);
+```
+
 ## Idempotency
 
 - Every consumer deduplicates via the **`saga_events` database table** (entity: `SagaEvent`) keyed by `UNIQUE(saga_id, event_type)`.

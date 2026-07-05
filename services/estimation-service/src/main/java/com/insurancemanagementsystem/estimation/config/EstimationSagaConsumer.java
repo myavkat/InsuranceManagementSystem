@@ -181,7 +181,7 @@ public class EstimationSagaConsumer {
                     estimation.setDetails(jsonMapper.writeValueAsString(Map.of("reason", reason)));
                 } catch (Exception e) {
                     log.warn("Failed to serialize rejection details for sagaId={}", sagaId, e);
-                    estimation.setDetails("{\"reason\":\"" + reason + "\"}"); // fallback
+                    estimation.setDetails("{\"reason\":\"" + reason.replace("\\", "\\\\").replace("\"", "\\\"") + "\"}");
                 }
                 estimationRepository.save(estimation);
                 outboxEventRepository.save(outboxEvent);

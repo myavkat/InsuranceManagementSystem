@@ -38,13 +38,36 @@ public class OutboxRelay {
         outboxProcessor.setMaxRetries(maxRetries);
         outboxProcessor.setFailedTtlMinutes(failedTtlMinutes);
 
-        scheduler.scheduleWithFixedDelay(outboxProcessor::processOutbox, 5, pollIntervalMs, TimeUnit.MILLISECONDS);
-        scheduler.scheduleWithFixedDelay(outboxProcessor::cleanupEvents, 10, 30, TimeUnit.MINUTES);
+        // Wrap in try-catch: ScheduledExecutorService silently cancels future
+        // executions if an unhandled exception propagates out of the task.
+        scheduler.scheduleWithFixedDelay(() -> {
+            try {
+                outboxProcessor.processOutbox();
+            } catch (Exception e) {
+                log.error("Unhandled exception in outbox processOutbox — relay will retry on next poll", e);
+            }
+        }, 5, pollIntervalMs, TimeUnit.MILLISECONDS);
+        scheduler.scheduleWithFixedDelay(() -> {
+            try {
+                outboxProcessor.cleanupEvents();
+            } catch (Exception e) {
+                log.error("Unhandled exception in outbox cleanupEvents — relay will retry on next cycle", e);
+            }
+        }, 10, 30, TimeUnit.MINUTES);
         log.info("OutboxRelay initialized: pollInterval={}ms, maxRetries={}", pollIntervalMs, maxRetries);
     }
 
     @PreDestroy
     public void shutdown() {
         scheduler.shutdown();
+        try {
+            if (!scheduler.awaitTermination(10, TimeUnit.SECONDS)) {
+                scheduler.shutdownNow();
+                log.warn("OutboxRelay scheduler did not terminate within 10s — forced shutdown");
+            }
+        } catch (InterruptedException e) {
+            scheduler.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
     }
 }

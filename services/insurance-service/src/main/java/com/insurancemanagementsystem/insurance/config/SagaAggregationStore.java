@@ -50,7 +50,11 @@ public class SagaAggregationStore {
         UUID sagaUuid = UUID.fromString(sagaId);
         String payload = serializeEnvelope(sagaUuid, envelope);
 
-        SagaAggregation agg = repository.findById(sagaUuid)
+        // SELECT FOR UPDATE — prevents lost updates when multiple instances process
+        // different event types for the same saga concurrently. Without the lock,
+        // the second writer's Hibernate UPDATE (all columns, no @DynamicUpdate)
+        // can overwrite the first writer's column with null.
+        SagaAggregation agg = repository.findByIdForUpdate(sagaUuid)
                 .orElseGet(() -> SagaAggregation.builder().sagaId(sagaUuid).build());
 
         switch (eventType) {

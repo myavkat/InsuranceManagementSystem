@@ -29,6 +29,17 @@ When working on features, prioritize guidelines in this order:
 - **Extract before triplicating:** Before adding the same class to a 3rd service module, extract it to `common-message`. If it already exists in 2 services, the next change must be extraction, not copy-paste.
 - **Propagate trace context:** All outbound SAGA events must carry the original `traceId` from the triggering `EventEnvelope`. Never generate a fresh `UUID.randomUUID()` for outbound traceId — it breaks end-to-end observability.
 
+### DB State Safety Rules
+- **Aggregation/correlation store locking:** Any DB-backed store that performs read-modify-write cycles on a shared row (load → mutate field → save) MUST acquire a pessimistic lock on the initial read via `@Lock(PESSIMISTIC_WRITE)` / `SELECT FOR UPDATE`. Plain `findById()` + `save()` loses data under multi-instance concurrency when the entity lacks `@DynamicUpdate` — Hibernate writes all columns, including stale nulls from the pre-mutation snapshot.
+- **Event table TTL:** Every table that stores transient event data (dedup markers, aggregation state, outbox events) MUST have a cleanup mechanism — a scheduled DELETE by age, a TTL index, or application-level eviction. Migrations from in-memory stores to DB tables must preserve the original TTL invariant. A table without cleanup is a slow disk-exhaustion bug.
+
+### Scheduled & Background Task Rules
+- **Top-level exception handler required:** Every method invoked by `ScheduledExecutorService.scheduleWithFixedDelay()` (or `scheduleAtFixedRate()`) MUST have a top-level try-catch that logs the error and prevents it from propagating. An unhandled exception reaching the executor silently cancels ALL future executions of that task — the relay or poller dies permanently with no alert. The per-item loop body catching exceptions is NOT sufficient; the repository queries and transaction template calls outside the loop also need coverage.
+- **Graceful shutdown:** Every `ScheduledExecutorService` created by application code MUST call `awaitTermination()` after `shutdown()` in its `@PreDestroy` method. Without it, in-flight tasks are interrupted mid-write during pod termination, leaving database rows in indeterminate states (e.g., `PUBLISHING` zombie outbox events).
+
+### JSON Serialization Rules
+- **Fallback must produce valid JSON:** When `jsonMapper.writeValueAsString()` fails and a string-construction fallback is used, the fallback MUST produce valid JSON under all inputs. `.replace("\"", "\\\"")` is insufficient — it doesn't escape backslashes, newlines, or control characters. Use a nested try-catch with `JsonMapper.builder().build().writeValueAsString()`, or extract a shared `JsonUtils.safeSerialize()` utility. A fallback that produces malformed JSON silently corrupts the `details` JSONB column.
+
 ## Architecture & Convention Index
 
 All technical decisions and conventions live in `docs/outlines/`. Consult the relevant outline before implementing any feature.

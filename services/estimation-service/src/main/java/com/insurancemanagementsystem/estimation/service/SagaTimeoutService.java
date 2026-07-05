@@ -70,7 +70,7 @@ public class SagaTimeoutService {
                 estimation.setDetails(jsonMapper.writeValueAsString(Map.of("reason", reason)));
             } catch (Exception e) {
                 log.warn("Failed to serialize timeout details for sagaId={}", sagaId, e);
-                estimation.setDetails("{\"reason\":\"" + reason.replace("\"", "\\\"") + "\"}");
+                estimation.setDetails("{\"reason\":\"" + reason.replace("\\", "\\\\").replace("\"", "\\\"") + "\"}");
             }
             estimationRepository.save(estimation);
             outboxEventRepository.save(outboxEvent);
