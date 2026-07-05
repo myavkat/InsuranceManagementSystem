@@ -16,7 +16,11 @@ public class MessagePublisher {
 
     public void publish(String topic, Object message) {
         log.debug("Publishing message to {}: {}", topic, message);
-        streamBridge.send(topic, message);
+        boolean sent = streamBridge.send(topic, message);
+        if (!sent) {
+            throw new IllegalStateException(
+                "Failed to send message to topic " + topic + " — StreamBridge returned false");
+        }
     }
 
     /**
@@ -37,7 +41,10 @@ public class MessagePublisher {
                     @Override
                     public void afterCommit() {
                         log.debug("Publishing message after transaction commit to {}: {}", topic, message);
-                        streamBridge.send(topic, message);
+                        boolean sent = streamBridge.send(topic, message);
+                        if (!sent) {
+                            log.error("Failed to send afterCommit message to topic {} — StreamBridge returned false", topic);
+                        }
                     }
                 });
             log.trace("Registered afterCommit publish to {}", topic);

@@ -4,11 +4,11 @@
 
 ## Status
 
-- [ ] Fix `MessagePublisher.publish()` — check `StreamBridge.send()` return value
-- [ ] Fix `OutboxEventRepository` — add pessimistic lock or `SKIP LOCKED` query to prevent duplicate processing
-- [ ] Fix `OutboxEvent` @Index — correct column name from `createdAt` to `created_at`
-- [ ] Fix `OutboxEvent` — add CHECK constraint on `status` column in all three `init.sql` files
-- [ ] Run all outbox tests and verify
+- [x] Fix `MessagePublisher.publish()` — check `StreamBridge.send()` return value
+- [x] Fix `OutboxEventRepository` — add pessimistic lock or `SKIP LOCKED` query to prevent duplicate processing
+- [x] Fix `OutboxEvent` @Index — correct column name from `createdAt` to `created_at`
+- [x] Fix `OutboxEvent` — add CHECK constraint on `status` column in all three `init.sql` files
+- [x] Run all outbox tests and verify
 
 ---
 

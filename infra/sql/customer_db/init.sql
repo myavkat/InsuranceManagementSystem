@@ -34,7 +34,8 @@ CREATE TABLE IF NOT EXISTS outbox_events (
     saga_id UUID,
     topic VARCHAR(100) NOT NULL,
     payload JSONB NOT NULL,
-    status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING'
+        CHECK (status IN ('PENDING','PUBLISHING','PUBLISHED','FAILED')),
     retry_count INT DEFAULT 0,
     last_error TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

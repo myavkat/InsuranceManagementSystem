@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "outbox_events", indexes = {
-    @Index(name = "idx_outbox_status", columnList = "status, createdAt")
+    @Index(name = "idx_outbox_status", columnList = "status, created_at")
 })
 @Data
 @Builder

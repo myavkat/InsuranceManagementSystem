@@ -11,7 +11,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.cloud.stream.function.StreamBridge;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class MessagePublisherTest {
@@ -29,9 +31,20 @@ class MessagePublisherTest {
     void publish_sendsViaStreamBridge() {
         String topic = "test.topic";
         Object payload = "test-payload";
+        when(streamBridge.send(topic, payload)).thenReturn(true);
 
         messagePublisher.publish(topic, payload);
 
         verify(streamBridge).send(topic, payload);
+    }
+
+    @Test
+    void publish_failedSend_throwsIllegalStateException() {
+        String topic = "test.topic";
+        Object payload = "test-payload";
+        when(streamBridge.send(topic, payload)).thenReturn(false);
+
+        org.junit.jupiter.api.Assertions.assertThrows(IllegalStateException.class,
+                () -> messagePublisher.publish(topic, payload));
     }
 }
