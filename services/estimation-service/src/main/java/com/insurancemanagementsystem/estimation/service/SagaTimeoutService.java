@@ -50,28 +50,24 @@ public class SagaTimeoutService {
         log.warn("Found {} timed-out estimations (timeout={}min)", staleEstimations.size(), timeoutMinutes);
 
         for (Estimation estimation : staleEstimations) {
-            try {
-                UUID sagaId = estimation.getSagaId();
-                log.warn("Timing out estimation id={}, sagaId={}, created at {}",
-                        estimation.getId(), sagaId, estimation.getCreatedAt());
+            UUID sagaId = estimation.getSagaId();
+            log.warn("Timing out estimation id={}, sagaId={}, created at {}",
+                    estimation.getId(), sagaId, estimation.getCreatedAt());
 
-                String reason = "SAGA timed out after " + timeoutMinutes + " minutes";
+            String reason = "SAGA timed out after " + timeoutMinutes + " minutes";
 
-                // Serialize outbox event FIRST — if serialization fails, exception propagates
-                // and @Transactional rolls back the transaction, keeping estimation as STARTED
-                OutboxEvent outboxEvent = outboxEventSerializer.buildEstimationFailedOutboxEvent(
-                        sagaId, reason, "SagaTimeoutService", EventConstants.ESTIMATION_SAGA);
+            // Serialize outbox event FIRST — if serialization fails, exception propagates
+            // and @Transactional rolls back the transaction, keeping estimation as STARTED
+            OutboxEvent outboxEvent = outboxEventSerializer.buildEstimationFailedOutboxEvent(
+                    sagaId, reason, "SagaTimeoutService", EventConstants.ESTIMATION_SAGA);
 
-                // Transition to REJECTED
-                estimation.setStatus(Estimation.Status.REJECTED);
-                estimation.setDetails("{\"reason\":\"" + reason + "\"}");
-                estimationRepository.save(estimation);
-                outboxEventRepository.save(outboxEvent);
+            // Transition to REJECTED
+            estimation.setStatus(Estimation.Status.REJECTED);
+            estimation.setDetails("{\"reason\":\"" + reason + "\"}");
+            estimationRepository.save(estimation);
+            outboxEventRepository.save(outboxEvent);
 
-                log.info("Rejected timed-out estimation sagaId={} and saved outbox event", sagaId);
-            } catch (Exception e) {
-                log.error("Failed to process timeout for estimation id={}", estimation.getId(), e);
-            }
+            log.info("Rejected timed-out estimation sagaId={} and saved outbox event", sagaId);
         }
     }
 }

@@ -124,32 +124,7 @@ class SagaTimeoutServiceTest {
     }
 
     // ---------------------------------------------------------------
-    // 4. Exception during processing one → others still processed
-    // ---------------------------------------------------------------
-    @Test
-    void exceptionDuringProcessing_otherEstimationsStillProcessed() {
-        UUID sagaId1 = UUID.randomUUID();
-        UUID sagaId2 = UUID.randomUUID();
-        Estimation stale1 = createStaleEstimation(sagaId1);
-        Estimation stale2 = createStaleEstimation(sagaId2);
-
-        when(estimationRepository.findByStatusAndCreatedAtBefore(any(), any()))
-                .thenReturn(List.of(stale1, stale2));
-
-        // First save throws, second succeeds
-        when(estimationRepository.save(stale1)).thenThrow(new RuntimeException("DB error"));
-        when(estimationRepository.save(stale2)).thenReturn(stale2);
-
-        timeoutService.checkForTimedOutSagas();
-
-        // stale2 should still be processed despite stale1 failing
-        assertThat(stale2.getStatus()).isEqualTo(Estimation.Status.REJECTED);
-        verify(estimationRepository).save(stale2);
-        verify(outboxEventRepository).save(any(OutboxEvent.class));
-    }
-
-    // ---------------------------------------------------------------
-    // 5. Correct cutoff time calculation (based on timeoutMinutes config)
+    // 4. Correct cutoff time calculation (based on timeoutMinutes config)
     // ---------------------------------------------------------------
     @Test
     void usesCorrectCutoffTime() {
