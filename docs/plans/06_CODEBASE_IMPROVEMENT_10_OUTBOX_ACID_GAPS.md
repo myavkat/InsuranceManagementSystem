@@ -306,14 +306,14 @@ Also remove the private `saveOutboxEvent()` method entirely (lines ~218-242).
 
 ## Execution Checklist
 
-- [ ] Read all 4 context files
-- [ ] Create `OutboxEventSerializer.java` — shared serialization helper
-- [ ] Modify `SagaTimeoutService.java` — serialize before state mutation, remove private helper
-- [ ] Modify `EstimationSagaConsumer.java` — serialize before state mutation, remove private helper
-- [ ] Update `SagaTimeoutServiceTest.java` — mock new dependency, verify ordering
-- [ ] Update `EstimationSagaConsumerTest.java` — mock new dependency, add rollback test
-- [ ] Compile: `BUILD SUCCESSFUL`
-- [ ] All tests pass
+- [x] Read all 4 context files
+- [x] Create `OutboxEventSerializer.java` — shared serialization helper
+- [x] Modify `SagaTimeoutService.java` — serialize before state mutation, remove private helper
+- [x] Modify `EstimationSagaConsumer.java` — serialize before state mutation, remove private helper
+- [x] Update `SagaTimeoutServiceTest.java` — mock new dependency, verify ordering
+- [x] Update `EstimationSagaConsumerTest.java` — mock new dependency, add rollback test
+- [x] Compile: `BUILD SUCCESSFUL`
+- [x] All tests pass
 
 ---
 
