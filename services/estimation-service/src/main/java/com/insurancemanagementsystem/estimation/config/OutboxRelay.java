@@ -38,7 +38,7 @@ public class OutboxRelay {
         outboxProcessor.setMaxRetries(maxRetries);
         outboxProcessor.setFailedTtlMinutes(failedTtlMinutes);
 
-        // Now calls through injected OutboxProcessor (always the proxy for @Transactional methods)
+        // Delegates to injected OutboxProcessor, which wraps DB work in TransactionTemplate
         scheduler.scheduleWithFixedDelay(outboxProcessor::processOutbox, 5, pollIntervalMs, TimeUnit.MILLISECONDS);
         scheduler.scheduleWithFixedDelay(outboxProcessor::cleanupEvents, 10, 30, TimeUnit.MINUTES);
         log.info("OutboxRelay initialized: pollInterval={}ms, maxRetries={}", pollIntervalMs, maxRetries);

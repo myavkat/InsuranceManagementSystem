@@ -46,17 +46,21 @@ class OutboxProcessorTest {
         }).when(transactionTemplate).executeWithoutResult(any());
     }
 
-    private OutboxEvent createPendingEvent() {
+    private OutboxEvent createEvent(OutboxEvent.Status status) {
         return OutboxEvent.builder()
                 .id(UUID.randomUUID())
                 .sagaId(UUID.randomUUID())
                 .topic("estimation.saga")
                 .payload("{}")
-                .status(OutboxEvent.Status.PENDING)
+                .status(status)
                 .retryCount(0)
                 .maxRetries(3)
-                .createdAt(Instant.now())
+                .createdAt(Instant.now().minusSeconds(600))
                 .build();
+    }
+
+    private OutboxEvent createPendingEvent() {
+        return createEvent(OutboxEvent.Status.PENDING);
     }
 
     // ---------------------------------------------------------------
@@ -143,5 +147,85 @@ class OutboxProcessorTest {
         // Entity stays FAILED (max retries reached)
         assertThat(pending.getStatus()).isEqualTo(OutboxEvent.Status.FAILED);
         assertThat(pending.getRetryCount()).isEqualTo(3);
+    }
+
+    // ---------------------------------------------------------------
+    // 5. cleanupEvents — no stale rows → no-op
+    // ---------------------------------------------------------------
+    @Test
+    void cleanupEvents_noStaleEvents_doesNothing() {
+        mockTransaction();
+        when(outboxEventRepository.findByStatusAndCreatedAtBefore(eq(OutboxEvent.Status.PUBLISHED), any(Instant.class)))
+                .thenReturn(List.of());
+        when(outboxEventRepository.findByStatusAndCreatedAtBefore(eq(OutboxEvent.Status.FAILED), any(Instant.class)))
+                .thenReturn(List.of());
+        when(outboxEventRepository.findByStatusAndCreatedAtBefore(eq(OutboxEvent.Status.PUBLISHING), any(Instant.class)))
+                .thenReturn(List.of());
+
+        outboxProcessor.cleanupEvents();
+
+        verify(outboxEventRepository, never()).deleteAllInBatch(anyList());
+        verify(outboxEventRepository, never()).saveAll(anyList());
+    }
+
+    // ---------------------------------------------------------------
+    // 6. cleanupEvents — deletes stale PUBLISHED rows
+    // ---------------------------------------------------------------
+    @Test
+    void cleanupEvents_deletesStalePublished() {
+        mockTransaction();
+        OutboxEvent stalePublished = createEvent(OutboxEvent.Status.PUBLISHED);
+        when(outboxEventRepository.findByStatusAndCreatedAtBefore(eq(OutboxEvent.Status.PUBLISHED), any(Instant.class)))
+                .thenReturn(List.of(stalePublished));
+        when(outboxEventRepository.findByStatusAndCreatedAtBefore(eq(OutboxEvent.Status.FAILED), any(Instant.class)))
+                .thenReturn(List.of());
+        when(outboxEventRepository.findByStatusAndCreatedAtBefore(eq(OutboxEvent.Status.PUBLISHING), any(Instant.class)))
+                .thenReturn(List.of());
+
+        outboxProcessor.cleanupEvents();
+
+        verify(outboxEventRepository).deleteAllInBatch(List.of(stalePublished));
+        verify(outboxEventRepository, never()).saveAll(anyList());
+    }
+
+    // ---------------------------------------------------------------
+    // 7. cleanupEvents — deletes stale FAILED rows
+    // ---------------------------------------------------------------
+    @Test
+    void cleanupEvents_deletesStaleFailed() {
+        mockTransaction();
+        OutboxEvent staleFailed = createEvent(OutboxEvent.Status.FAILED);
+        when(outboxEventRepository.findByStatusAndCreatedAtBefore(eq(OutboxEvent.Status.PUBLISHED), any(Instant.class)))
+                .thenReturn(List.of());
+        when(outboxEventRepository.findByStatusAndCreatedAtBefore(eq(OutboxEvent.Status.FAILED), any(Instant.class)))
+                .thenReturn(List.of(staleFailed));
+        when(outboxEventRepository.findByStatusAndCreatedAtBefore(eq(OutboxEvent.Status.PUBLISHING), any(Instant.class)))
+                .thenReturn(List.of());
+
+        outboxProcessor.cleanupEvents();
+
+        verify(outboxEventRepository).deleteAllInBatch(List.of(staleFailed));
+        verify(outboxEventRepository, never()).saveAll(anyList());
+    }
+
+    // ---------------------------------------------------------------
+    // 8. cleanupEvents — recovers stuck PUBLISHING zombies to PENDING
+    // ---------------------------------------------------------------
+    @Test
+    void cleanupEvents_recoversStuckPublishing() {
+        mockTransaction();
+        OutboxEvent stuckPublishing = createEvent(OutboxEvent.Status.PUBLISHING);
+        when(outboxEventRepository.findByStatusAndCreatedAtBefore(eq(OutboxEvent.Status.PUBLISHED), any(Instant.class)))
+                .thenReturn(List.of());
+        when(outboxEventRepository.findByStatusAndCreatedAtBefore(eq(OutboxEvent.Status.FAILED), any(Instant.class)))
+                .thenReturn(List.of());
+        when(outboxEventRepository.findByStatusAndCreatedAtBefore(eq(OutboxEvent.Status.PUBLISHING), any(Instant.class)))
+                .thenReturn(List.of(stuckPublishing));
+
+        outboxProcessor.cleanupEvents();
+
+        verify(outboxEventRepository, never()).deleteAllInBatch(anyList());
+        verify(outboxEventRepository).saveAll(List.of(stuckPublishing));
+        assertThat(stuckPublishing.getStatus()).isEqualTo(OutboxEvent.Status.PENDING);
     }
 }
