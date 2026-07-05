@@ -3,13 +3,14 @@ package com.insurancemanagementsystem.insurance.saga;
 import com.insurancemanagementsystem.common.event.EventConstants;
 import com.insurancemanagementsystem.common.event.EventEnvelope;
 import com.insurancemanagementsystem.common.event.saga.*;
-import com.insurancemanagementsystem.common.messaging.MessagePublisher;
 import com.insurancemanagementsystem.insurance.entity.Insurance;
 import com.insurancemanagementsystem.insurance.entity.InsuranceCompany;
 import com.insurancemanagementsystem.insurance.entity.InsuranceType;
+import com.insurancemanagementsystem.insurance.entity.OutboxEvent;
 import com.insurancemanagementsystem.insurance.repository.InsuranceCompanyRepository;
 import com.insurancemanagementsystem.insurance.repository.InsuranceRepository;
 import com.insurancemanagementsystem.insurance.repository.InsuranceTypeRepository;
+import com.insurancemanagementsystem.insurance.repository.OutboxEventRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,6 @@ import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -73,9 +73,9 @@ class InsuranceSagaConsumerTest {
     private KafkaTemplate<String, String> kafkaTemplate;
 
     @MockitoBean
-    private MessagePublisher messagePublisher;
+    private OutboxEventRepository outboxEventRepository;
 
-    private final List<EventEnvelope> capturedEnvelopes = new ArrayList<>();
+    private final List<OutboxEvent> capturedOutboxEvents = new ArrayList<>();
 
     private static final JsonMapper MAPPER = new JsonMapper();
 
@@ -88,7 +88,7 @@ class InsuranceSagaConsumerTest {
         insuranceRepository.deleteAll();
         insuranceCompanyRepository.deleteAll();
         insuranceTypeRepository.deleteAll();
-        capturedEnvelopes.clear();
+        capturedOutboxEvents.clear();
         sagaId = UUID.randomUUID();
         traceId = UUID.randomUUID();
 
@@ -108,15 +108,25 @@ class InsuranceSagaConsumerTest {
                 .basePremium(BigDecimal.valueOf(1000))
                 .build());
 
-        // Capture published envelopes via doAnswer to avoid ArgumentCaptor + timeout() compatibility issues
+        // Capture saved outbox events
         doAnswer(invocation -> {
-            capturedEnvelopes.add(invocation.getArgument(1));
-            return null;
-        }).when(messagePublisher).publish(anyString(), any(EventEnvelope.class));
+            OutboxEvent event = invocation.getArgument(0);
+            if (event.getId() == null) {
+                event.setId(UUID.randomUUID());
+            }
+            capturedOutboxEvents.add(event);
+            return event;
+        }).when(outboxEventRepository).save(any(OutboxEvent.class));
+
+        // Ensure relay queries are no-ops
+        when(outboxEventRepository.findTop10ByStatusOrderByCreatedAtAsc(any()))
+                .thenReturn(List.of());
+        when(outboxEventRepository.findByStatusAndCreatedAtBefore(any(), any()))
+                .thenReturn(List.of());
     }
 
     @Test
-    void allThreeEvents_valid_shouldPublishPremiumCalculated() throws Exception {
+    void allThreeEvents_valid_shouldSaveOutboxPremiumCalculated() throws Exception {
         // Send events out of order: CustomerValidated first, then VehicleValidated, then EstimationRequested
         CustomerValidatedEvent customerEvent = CustomerValidatedEvent.builder()
                 .customerId(UUID.randomUUID())
@@ -147,10 +157,11 @@ class InsuranceSagaConsumerTest {
                 MAPPER.writeValueAsString(estimationEvent.toEnvelope(sagaId, traceId)))
                 .get(10, TimeUnit.SECONDS);
 
-        verify(messagePublisher, timeout(15000).times(1))
-                .publish(anyString(), any(EventEnvelope.class));
+        verify(outboxEventRepository, timeout(15000).times(1))
+                .save(any(OutboxEvent.class));
 
-        EventEnvelope published = capturedEnvelopes.get(0);
+        OutboxEvent saved = capturedOutboxEvents.get(0);
+        EventEnvelope published = MAPPER.readValue(saved.getPayload(), EventEnvelope.class);
         assertThat(published.getEventType()).isEqualTo(EventConstants.PREMIUM_CALCULATED);
         assertThat(published.getSagaId()).isEqualTo(sagaId);
         assertThat(published.getTraceId()).isEqualTo(traceId);
@@ -164,7 +175,7 @@ class InsuranceSagaConsumerTest {
     }
 
     @Test
-    void customerInvalidated_shouldPublishCalculationFailed() throws Exception {
+    void customerInvalidated_shouldSaveOutboxCalculationFailed() throws Exception {
         EstimationRequestedEvent estimationEvent = EstimationRequestedEvent.builder()
                 .customerId(UUID.randomUUID())
                 .vehicleId(UUID.randomUUID())
@@ -183,10 +194,11 @@ class InsuranceSagaConsumerTest {
                 MAPPER.writeValueAsString(invalidatedEvent.toEnvelope(sagaId, traceId)))
                 .get(10, TimeUnit.SECONDS);
 
-        verify(messagePublisher, timeout(15000).times(1))
-                .publish(anyString(), any(EventEnvelope.class));
+        verify(outboxEventRepository, timeout(15000).times(1))
+                .save(any(OutboxEvent.class));
 
-        EventEnvelope published = capturedEnvelopes.get(0);
+        OutboxEvent saved = capturedOutboxEvents.get(0);
+        EventEnvelope published = MAPPER.readValue(saved.getPayload(), EventEnvelope.class);
         assertThat(published.getEventType()).isEqualTo(EventConstants.CALCULATION_FAILED);
         assertThat(published.getSagaId()).isEqualTo(sagaId);
         assertThat(published.getTraceId()).isEqualTo(traceId);
@@ -196,7 +208,7 @@ class InsuranceSagaConsumerTest {
     }
 
     @Test
-    void vehicleInvalidated_shouldPublishCalculationFailed() throws Exception {
+    void vehicleInvalidated_shouldSaveOutboxCalculationFailed() throws Exception {
         EstimationRequestedEvent estimationEvent = EstimationRequestedEvent.builder()
                 .customerId(UUID.randomUUID())
                 .vehicleId(UUID.randomUUID())
@@ -215,10 +227,11 @@ class InsuranceSagaConsumerTest {
                 MAPPER.writeValueAsString(invalidatedEvent.toEnvelope(sagaId, traceId)))
                 .get(10, TimeUnit.SECONDS);
 
-        verify(messagePublisher, timeout(15000).times(1))
-                .publish(anyString(), any(EventEnvelope.class));
+        verify(outboxEventRepository, timeout(15000).times(1))
+                .save(any(OutboxEvent.class));
 
-        EventEnvelope published = capturedEnvelopes.get(0);
+        OutboxEvent saved = capturedOutboxEvents.get(0);
+        EventEnvelope published = MAPPER.readValue(saved.getPayload(), EventEnvelope.class);
         assertThat(published.getEventType()).isEqualTo(EventConstants.CALCULATION_FAILED);
         assertThat(published.getSagaId()).isEqualTo(sagaId);
         assertThat(published.getTraceId()).isEqualTo(traceId);
@@ -228,7 +241,7 @@ class InsuranceSagaConsumerTest {
     }
 
     @Test
-    void noMatchingInsurance_shouldPublishCalculationFailed() throws Exception {
+    void noMatchingInsurance_shouldSaveOutboxCalculationFailed() throws Exception {
         // Use a non-matching insuranceTypeId (999) that has no corresponding Insurance in the DB
         EstimationRequestedEvent estimationEvent = EstimationRequestedEvent.builder()
                 .customerId(UUID.randomUUID())
@@ -259,10 +272,11 @@ class InsuranceSagaConsumerTest {
                 MAPPER.writeValueAsString(vehicleEvent.toEnvelope(sagaId, traceId)))
                 .get(10, TimeUnit.SECONDS);
 
-        verify(messagePublisher, timeout(15000).times(1))
-                .publish(anyString(), any(EventEnvelope.class));
+        verify(outboxEventRepository, timeout(15000).times(1))
+                .save(any(OutboxEvent.class));
 
-        EventEnvelope published = capturedEnvelopes.get(0);
+        OutboxEvent saved = capturedOutboxEvents.get(0);
+        EventEnvelope published = MAPPER.readValue(saved.getPayload(), EventEnvelope.class);
         assertThat(published.getEventType()).isEqualTo(EventConstants.CALCULATION_FAILED);
         assertThat(published.getSagaId()).isEqualTo(sagaId);
         assertThat(published.getTraceId()).isEqualTo(traceId);
@@ -301,9 +315,9 @@ class InsuranceSagaConsumerTest {
         kafkaTemplate.send("estimation.saga", vehicleMessage).get(10, TimeUnit.SECONDS);
         kafkaTemplate.send("estimation.saga", estimationMessage).get(10, TimeUnit.SECONDS);
 
-        verify(messagePublisher, timeout(15000).times(1))
-                .publish(anyString(), any(EventEnvelope.class));
-        assertThat(capturedEnvelopes).hasSize(1);
+        verify(outboxEventRepository, timeout(15000).times(1))
+                .save(any(OutboxEvent.class));
+        assertThat(capturedOutboxEvents).hasSize(1);
 
         // Send duplicate CustomerValidated event with the same sagaId
         kafkaTemplate.send("estimation.saga", customerMessage).get(10, TimeUnit.SECONDS);
@@ -311,10 +325,10 @@ class InsuranceSagaConsumerTest {
         // Wait for consumer to potentially process the duplicate
         Thread.sleep(5000);
 
-        // Verify total publishes is still 1 (idempotent)
-        verify(messagePublisher, times(1))
-                .publish(anyString(), any(EventEnvelope.class));
-        assertThat(capturedEnvelopes).hasSize(1);
+        // Verify total outbox saves is still 1 (idempotent)
+        verify(outboxEventRepository, times(1))
+                .save(any(OutboxEvent.class));
+        assertThat(capturedOutboxEvents).hasSize(1);
     }
 
     @Test
@@ -349,10 +363,11 @@ class InsuranceSagaConsumerTest {
                 MAPPER.writeValueAsString(estimationEvent.toEnvelope(sagaId, traceId)))
                 .get(10, TimeUnit.SECONDS);
 
-        verify(messagePublisher, timeout(15000).times(1))
-                .publish(anyString(), any(EventEnvelope.class));
+        verify(outboxEventRepository, timeout(15000).times(1))
+                .save(any(OutboxEvent.class));
 
-        EventEnvelope published = capturedEnvelopes.get(0);
+        OutboxEvent saved = capturedOutboxEvents.get(0);
+        EventEnvelope published = MAPPER.readValue(saved.getPayload(), EventEnvelope.class);
         assertThat(published.getEventType()).isEqualTo(EventConstants.PREMIUM_CALCULATED);
         assertThat(published.getSagaId()).isEqualTo(sagaId);
         assertThat(published.getTraceId()).isEqualTo(traceId);
@@ -419,7 +434,7 @@ class InsuranceSagaConsumerTest {
                 .get(10, TimeUnit.SECONDS);
 
         // The 3 events should trigger premium calculation (valid saga, no duplicate)
-        verify(messagePublisher, timeout(15000).times(1))
-                .publish(anyString(), any(EventEnvelope.class));
+        verify(outboxEventRepository, timeout(15000).times(1))
+                .save(any(OutboxEvent.class));
     }
 }

@@ -28,6 +28,7 @@ spring:
       kafka:
         binder:
           brokers: localhost:9092
+      dynamicDestinations: estimation.saga
   kafka:
     consumer:
       group-id: insurance-service-group
@@ -39,6 +40,12 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+insurance:
+  outbox:
+    poll-interval-ms: 1000
+    max-retries: 3
+    failed-ttl-minutes: 60
 
 logging:
   pattern:

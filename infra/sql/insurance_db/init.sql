@@ -64,3 +64,18 @@ CREATE TABLE IF NOT EXISTS saga_events (
     received_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(saga_id, event_type)
 );
+
+CREATE TABLE IF NOT EXISTS outbox_events (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    saga_id UUID,
+    topic VARCHAR(100) NOT NULL,
+    payload JSONB NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    retry_count INT DEFAULT 0,
+    max_retries INT DEFAULT 3,
+    last_error TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_outbox_status_created ON outbox_events(status, created_at);
