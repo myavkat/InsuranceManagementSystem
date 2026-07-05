@@ -67,12 +67,12 @@ class OutboxProcessorTest {
     @Test
     void noPendingEvents_doesNothing() {
         mockTransaction();
-        when(outboxEventRepository.findTop10ByStatusOrderByCreatedAtAsc(OutboxEvent.Status.PENDING))
+        when(outboxEventRepository.findTop10ByStatusOrderByCreatedAtAsc(OutboxEvent.Status.PENDING.name()))
                 .thenReturn(List.of());
 
         outboxProcessor.processOutbox();
 
-        verify(outboxEventRepository).findTop10ByStatusOrderByCreatedAtAsc(OutboxEvent.Status.PENDING);
+        verify(outboxEventRepository).findTop10ByStatusOrderByCreatedAtAsc(OutboxEvent.Status.PENDING.name());
         verify(outboxEventRepository, never()).save(any());
         verifyNoInteractions(messagePublisher);
     }
@@ -84,7 +84,7 @@ class OutboxProcessorTest {
     void pendingEvent_publishedSuccessfully() {
         mockTransaction();
         OutboxEvent pending = createPendingEvent();
-        when(outboxEventRepository.findTop10ByStatusOrderByCreatedAtAsc(OutboxEvent.Status.PENDING))
+        when(outboxEventRepository.findTop10ByStatusOrderByCreatedAtAsc(OutboxEvent.Status.PENDING.name()))
                 .thenReturn(List.of(pending));
 
         outboxProcessor.processOutbox();
@@ -105,7 +105,7 @@ class OutboxProcessorTest {
     void publishFails_savesTwiceAndRetries() {
         mockTransaction();
         OutboxEvent pending = createPendingEvent();
-        when(outboxEventRepository.findTop10ByStatusOrderByCreatedAtAsc(OutboxEvent.Status.PENDING))
+        when(outboxEventRepository.findTop10ByStatusOrderByCreatedAtAsc(OutboxEvent.Status.PENDING.name()))
                 .thenReturn(List.of(pending));
         doThrow(new RuntimeException("Kafka down"))
                 .when(messagePublisher).publish(anyString(), any());
@@ -131,7 +131,7 @@ class OutboxProcessorTest {
         outboxProcessor.setMaxRetries(3);
         OutboxEvent pending = createPendingEvent();
         pending.setRetryCount(2); // One more attempt = maxRetries (3)
-        when(outboxEventRepository.findTop10ByStatusOrderByCreatedAtAsc(OutboxEvent.Status.PENDING))
+        when(outboxEventRepository.findTop10ByStatusOrderByCreatedAtAsc(OutboxEvent.Status.PENDING.name()))
                 .thenReturn(List.of(pending));
         doThrow(new RuntimeException("Kafka still down"))
                 .when(messagePublisher).publish(anyString(), any());

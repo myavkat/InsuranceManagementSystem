@@ -34,7 +34,7 @@ public class OutboxProcessor {
     public void processOutbox() {
         transactionTemplate.executeWithoutResult(status -> {
             List<OutboxEvent> pendingEvents = outboxEventRepository
-                    .findTop10ByStatusOrderByCreatedAtAsc(OutboxEvent.Status.PENDING);
+                    .findTop10ByStatusOrderByCreatedAtAsc(OutboxEvent.Status.PENDING.name());
 
             if (pendingEvents.isEmpty()) {
                 return;
