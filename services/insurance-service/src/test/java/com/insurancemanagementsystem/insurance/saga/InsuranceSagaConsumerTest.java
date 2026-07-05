@@ -241,6 +241,43 @@ class InsuranceSagaConsumerTest {
     }
 
     @Test
+    void duplicateInvalidatedEvent_isSkipped() throws Exception {
+        // First send estimation request to establish context
+        EstimationRequestedEvent estimationEvent = EstimationRequestedEvent.builder()
+                .customerId(UUID.randomUUID())
+                .vehicleId(UUID.randomUUID())
+                .insuranceTypeId(1)
+                .companyId(companyId)
+                .build();
+        kafkaTemplate.send("estimation.saga",
+                        MAPPER.writeValueAsString(estimationEvent.toEnvelope(sagaId, traceId)))
+                .get(10, TimeUnit.SECONDS);
+
+        // Send CUSTOMER_INVALIDATED (should produce 1 outbox save)
+        CustomerInvalidatedEvent invalidatedEvent = CustomerInvalidatedEvent.builder()
+                .customerId(UUID.randomUUID())
+                .reason("Customer not found")
+                .build();
+        String invalidatedMessage = MAPPER.writeValueAsString(invalidatedEvent.toEnvelope(sagaId, traceId));
+        kafkaTemplate.send("estimation.saga", invalidatedMessage).get(10, TimeUnit.SECONDS);
+
+        verify(outboxEventRepository, timeout(15000).times(1))
+                .save(any(OutboxEvent.class));
+        assertThat(capturedOutboxEvents).hasSize(1);
+
+        // Send duplicate CUSTOMER_INVALIDATED with the same sagaId
+        kafkaTemplate.send("estimation.saga", invalidatedMessage).get(10, TimeUnit.SECONDS);
+
+        // Wait for consumer to potentially process the duplicate
+        Thread.sleep(5000);
+
+        // Verify total outbox saves is still 1 (idempotent)
+        verify(outboxEventRepository, times(1))
+                .save(any(OutboxEvent.class));
+        assertThat(capturedOutboxEvents).hasSize(1);
+    }
+
+    @Test
     void noMatchingInsurance_shouldSaveOutboxCalculationFailed() throws Exception {
         // Use a non-matching insuranceTypeId (999) that has no corresponding Insurance in the DB
         EstimationRequestedEvent estimationEvent = EstimationRequestedEvent.builder()

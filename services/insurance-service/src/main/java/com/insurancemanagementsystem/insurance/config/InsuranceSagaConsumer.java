@@ -153,7 +153,19 @@ public class InsuranceSagaConsumer {
     // Invalidated — calculation not possible, publish failure
     // ---------------------------------------------------------------
     private void handleInvalidated(EventEnvelope envelope, UUID sagaId, UUID traceId, String reason) {
+        String eventType = envelope.getEventType();
+
         transactionTemplate.executeWithoutResult(status -> {
+            if (sagaEventRepository.existsBySagaIdAndEventType(sagaId, eventType)) {
+                log.info("Duplicate event: sagaId={}, eventType={} — skipping", sagaId, eventType);
+                return;
+            }
+
+            sagaEventRepository.save(SagaEvent.builder()
+                    .sagaId(sagaId)
+                    .eventType(eventType)
+                    .build());
+
             log.warn("SAGA invalidated for sagaId={}: {}", sagaId, reason);
             aggregationStore.remove(sagaId.toString());
 
