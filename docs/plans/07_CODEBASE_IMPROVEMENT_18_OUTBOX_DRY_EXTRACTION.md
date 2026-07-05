@@ -2,13 +2,13 @@
 
 ## Severity: MEDIUM — Bug fix divergence risk; 322 duplicated lines across 3 services
 
-## Status
+## Status — ✅ Complete
 
-- [ ] Move `OutboxProcessor` to `common-message` module
-- [ ] Move `OutboxRelay` to `common-message` module with configurable property prefix
-- [ ] Remove per-service `OutboxProcessor.java` and `OutboxRelay.java`
-- [ ] Update all three service configurations to use common beans
-- [ ] Run all outbox tests across all three services
+- [x] Move `OutboxProcessor` to `common-message` module
+- [x] Move `OutboxRelay` to `common-message` module with configurable property prefix
+- [x] Remove per-service `OutboxProcessor.java` and `OutboxRelay.java`
+- [x] Update all three service configurations to use common beans
+- [x] Run all outbox tests across all three services
 
 ---
 
