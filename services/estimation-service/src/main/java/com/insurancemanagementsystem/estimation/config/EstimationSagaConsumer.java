@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.support.TransactionTemplate;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.math.BigDecimal;
@@ -30,6 +31,7 @@ public class EstimationSagaConsumer {
     private final SagaEventRepository sagaEventRepository;
     private final OutboxEventRepository outboxEventRepository;
     private final OutboxEventSerializer outboxEventSerializer;
+    private final TransactionTemplate transactionTemplate;
 
     @Bean
     public Consumer<String> processEstimationSaga(JsonMapper jsonMapper) {
@@ -81,15 +83,17 @@ public class EstimationSagaConsumer {
     private void handleCustomerValidated(EventEnvelope envelope, UUID sagaId, UUID traceId, JsonMapper jsonMapper) {
         String eventType = envelope.getEventType();
 
-        if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
-            return;
-        }
+        transactionTemplate.executeWithoutResult(status -> {
+            if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
+                return;
+            }
 
-        // Convert to typed event for logging
-        CustomerValidatedEvent event = jsonMapper.convertValue(
-                envelope.getPayload(), CustomerValidatedEvent.class);
-        log.info("Customer validated for sagaId={}: customerId={}, {} {}",
-                sagaId, event.getCustomerId(), event.getFirstName(), event.getLastName());
+            // Convert to typed event for logging
+            CustomerValidatedEvent event = jsonMapper.convertValue(
+                    envelope.getPayload(), CustomerValidatedEvent.class);
+            log.info("Customer validated for sagaId={}: customerId={}, {} {}",
+                    sagaId, event.getCustomerId(), event.getFirstName(), event.getLastName());
+        });
     }
 
     // ---------------------------------------------------------------
@@ -98,14 +102,16 @@ public class EstimationSagaConsumer {
     private void handleVehicleValidated(EventEnvelope envelope, UUID sagaId, UUID traceId, JsonMapper jsonMapper) {
         String eventType = envelope.getEventType();
 
-        if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
-            return;
-        }
+        transactionTemplate.executeWithoutResult(status -> {
+            if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
+                return;
+            }
 
-        // Convert to typed event for logging
-        VehicleValidatedEvent event = jsonMapper.convertValue(
-                envelope.getPayload(), VehicleValidatedEvent.class);
-        log.info("Vehicle validated for sagaId={}: vehicleId={}, plate={}", sagaId, event.getVehicleId(), event.getPlate());
+            // Convert to typed event for logging
+            VehicleValidatedEvent event = jsonMapper.convertValue(
+                    envelope.getPayload(), VehicleValidatedEvent.class);
+            log.info("Vehicle validated for sagaId={}: vehicleId={}, plate={}", sagaId, event.getVehicleId(), event.getPlate());
+        });
     }
 
     // ---------------------------------------------------------------
@@ -114,32 +120,34 @@ public class EstimationSagaConsumer {
     private void handlePremiumCalculated(EventEnvelope envelope, UUID sagaId, UUID traceId, JsonMapper jsonMapper) {
         String eventType = envelope.getEventType();
 
-        if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
-            return;
-        }
-
-        // Convert payload
-        PremiumCalculatedEvent event = jsonMapper.convertValue(
-                envelope.getPayload(), PremiumCalculatedEvent.class);
-
-        // Find estimation by sagaId
-        estimationRepository.findBySagaId(sagaId).ifPresentOrElse(estimation -> {
-            // Transition: STARTED → COMPLETED
-            if (estimation.getStatus() != Estimation.Status.STARTED) {
-                log.warn("Estimation {} is in status {} — cannot transition to COMPLETED",
-                        estimation.getId(), estimation.getStatus());
+        transactionTemplate.executeWithoutResult(status -> {
+            if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
                 return;
             }
 
-            estimation.setStatus(Estimation.Status.COMPLETED);
-            estimation.setPremium(event.getPremium());
-            if (event.getBreakdown() != null) {
-                estimation.setDetails(jsonMapper.writeValueAsString(event.getBreakdown()));
-            }
-            estimationRepository.save(estimation);
-            log.info("Estimation {} completed for sagaId={}: premium={}",
-                    estimation.getId(), sagaId, event.getPremium());
-        }, () -> log.warn("No estimation found for sagaId={}", sagaId));
+            // Convert payload
+            PremiumCalculatedEvent event = jsonMapper.convertValue(
+                    envelope.getPayload(), PremiumCalculatedEvent.class);
+
+            // Find estimation by sagaId
+            estimationRepository.findBySagaId(sagaId).ifPresentOrElse(estimation -> {
+                // Transition: STARTED → COMPLETED
+                if (estimation.getStatus() != Estimation.Status.STARTED) {
+                    log.warn("Estimation {} is in status {} — cannot transition to COMPLETED",
+                            estimation.getId(), estimation.getStatus());
+                    return;
+                }
+
+                estimation.setStatus(Estimation.Status.COMPLETED);
+                estimation.setPremium(event.getPremium());
+                if (event.getBreakdown() != null) {
+                    estimation.setDetails(jsonMapper.writeValueAsString(event.getBreakdown()));
+                }
+                estimationRepository.save(estimation);
+                log.info("Estimation {} completed for sagaId={}: premium={}",
+                        estimation.getId(), sagaId, event.getPremium());
+            }, () -> log.warn("No estimation found for sagaId={}", sagaId));
+        });
     }
 
     // ---------------------------------------------------------------
@@ -148,37 +156,39 @@ public class EstimationSagaConsumer {
     private void handleFailed(EventEnvelope envelope, UUID sagaId, UUID traceId, String reason, JsonMapper jsonMapper) {
         String eventType = envelope.getEventType();
 
-        if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
-            return;
-        }
-
-        log.warn("SAGA failed for sagaId={}: eventType={}, reason={}", sagaId, eventType, reason);
-
-        // Find and reject estimation
-        estimationRepository.findBySagaId(sagaId).ifPresentOrElse(estimation -> {
-            if (estimation.getStatus() != Estimation.Status.STARTED) {
-                log.warn("Estimation {} is in status {} — cannot transition to REJECTED",
-                        estimation.getId(), estimation.getStatus());
+        transactionTemplate.executeWithoutResult(status -> {
+            if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
                 return;
             }
 
-            // Serialize outbox event FIRST — if serialization fails, exception propagates
-            // and the estimation stays STARTED
-            OutboxEvent outboxEvent = outboxEventSerializer.buildEstimationFailedOutboxEvent(
-                    sagaId, reason, eventType, EventConstants.ESTIMATION_SAGA);
+            log.warn("SAGA failed for sagaId={}: eventType={}, reason={}", sagaId, eventType, reason);
 
-            estimation.setStatus(Estimation.Status.REJECTED);
-            try {
-                estimation.setDetails(jsonMapper.writeValueAsString(Map.of("reason", reason)));
-            } catch (Exception e) {
-                log.warn("Failed to serialize rejection details for sagaId={}", sagaId, e);
-                estimation.setDetails("{\"reason\":\"" + reason + "\"}"); // fallback
-            }
-            estimationRepository.save(estimation);
-            outboxEventRepository.save(outboxEvent);
+            // Find and reject estimation
+            estimationRepository.findBySagaId(sagaId).ifPresentOrElse(estimation -> {
+                if (estimation.getStatus() != Estimation.Status.STARTED) {
+                    log.warn("Estimation {} is in status {} — cannot transition to REJECTED",
+                            estimation.getId(), estimation.getStatus());
+                    return;
+                }
 
-            log.info("Estimation {} rejected for sagaId={}: {}", estimation.getId(), sagaId, reason);
-        }, () -> log.warn("No estimation found for sagaId={}", sagaId));
+                // Serialize outbox event FIRST — if serialization fails, exception propagates
+                // and the estimation stays STARTED
+                OutboxEvent outboxEvent = outboxEventSerializer.buildEstimationFailedOutboxEvent(
+                        sagaId, reason, eventType, EventConstants.ESTIMATION_SAGA);
+
+                estimation.setStatus(Estimation.Status.REJECTED);
+                try {
+                    estimation.setDetails(jsonMapper.writeValueAsString(Map.of("reason", reason)));
+                } catch (Exception e) {
+                    log.warn("Failed to serialize rejection details for sagaId={}", sagaId, e);
+                    estimation.setDetails("{\"reason\":\"" + reason + "\"}"); // fallback
+                }
+                estimationRepository.save(estimation);
+                outboxEventRepository.save(outboxEvent);
+
+                log.info("Estimation {} rejected for sagaId={}: {}", estimation.getId(), sagaId, reason);
+            }, () -> log.warn("No estimation found for sagaId={}", sagaId));
+        });
     }
 
     // ---------------------------------------------------------------

@@ -15,12 +15,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.support.TransactionTemplate;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
@@ -41,6 +43,9 @@ class EstimationSagaConsumerTest {
     @Mock
     private OutboxEventSerializer outboxEventSerializer;
 
+    @Mock
+    private TransactionTemplate transactionTemplate;
+
     @InjectMocks
     private EstimationSagaConsumer consumer;
 
@@ -48,6 +53,13 @@ class EstimationSagaConsumerTest {
 
     @BeforeEach
     void setUp() {
+        // Configure TransactionTemplate mock to invoke the callback inline (same as real TX behavior)
+        lenient().doAnswer(invocation -> {
+            Consumer<?> callback = invocation.getArgument(0);
+            callback.accept(null);
+            return null;
+        }).when(transactionTemplate).executeWithoutResult(any());
+
         lenient().when(outboxEventSerializer.buildEstimationFailedOutboxEvent(
                 any(), any(), any(), any())).thenReturn(OutboxEvent.builder().build());
     }
