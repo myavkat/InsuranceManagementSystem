@@ -8,14 +8,14 @@ import org.hibernate.type.SqlTypes;
 import java.time.Instant;
 import java.util.UUID;
 
-@Entity
-@Table(name = "outbox_events", indexes = {
-    @Index(name = "idx_outbox_status", columnList = "status, created_at")
-})
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
+@Table(name = "outbox_events", indexes = {
+    @Index(name = "idx_outbox_status", columnList = "status, created_at")
+})
 public class OutboxEvent {
 
     @Id
@@ -27,7 +27,7 @@ public class OutboxEvent {
     @Column(nullable = false, length = 100)
     private String topic;
 
-    @Column(nullable = false, columnDefinition = "JSONB")
+    @Column(nullable = false)
     @JdbcTypeCode(SqlTypes.JSON)
     private String payload;
 
