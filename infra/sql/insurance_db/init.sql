@@ -78,3 +78,14 @@ CREATE TABLE IF NOT EXISTS outbox_events (
 );
 
 CREATE INDEX IF NOT EXISTS idx_outbox_status_created ON outbox_events(status, created_at);
+
+-- Saga aggregation state for insurance premium calculation correlation
+-- Replaces the former in-memory ConcurrentHashMap in SagaAggregationStore.
+-- All payload columns are nullable because events can arrive out of order.
+CREATE TABLE IF NOT EXISTS saga_aggregations (
+    saga_id UUID PRIMARY KEY,
+    estimation_request_payload JSONB,
+    customer_validated_payload JSONB,
+    vehicle_validated_payload JSONB,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

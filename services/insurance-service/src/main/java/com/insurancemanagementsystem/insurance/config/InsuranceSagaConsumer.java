@@ -14,8 +14,6 @@ import org.slf4j.MDC;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Pageable;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.transaction.support.TransactionTemplate;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -176,7 +174,7 @@ public class InsuranceSagaConsumer {
     // Premium Calculation — core business logic
     // ---------------------------------------------------------------
     private void calculatePremium(UUID sagaId, UUID traceId) {
-        SagaAggregationStore.SagaState state = aggregationStore.peek(sagaId.toString());
+        SagaAggregationStore.SagaState state = aggregationStore.retrieve(sagaId.toString());
         if (state == null) {
             log.warn("SAGA state not found for sagaId={} — already consumed?", sagaId);
             return;
@@ -240,7 +238,6 @@ public class InsuranceSagaConsumer {
 
         EventEnvelope outcome = premiumEvent.toEnvelope(sagaId, traceId);
         outboxEventRepository.save(buildOutboxEvent(sagaId, outcome, EventConstants.ESTIMATION_SAGA));
-        removeAggregationAfterCommit(sagaId);
         log.info("Premium calculated for sagaId={}: premium={}, typeId={}, companyId={}",
                 sagaId, totalPremium, insuranceTypeId, companyId);
     }
@@ -251,24 +248,7 @@ public class InsuranceSagaConsumer {
                 .build();
         EventEnvelope outcome = failed.toEnvelope(sagaId, traceId);
         outboxEventRepository.save(buildOutboxEvent(sagaId, outcome, EventConstants.ESTIMATION_SAGA));
-        removeAggregationAfterCommit(sagaId);
         log.warn("Calculation failed for sagaId={}: {}", sagaId, reason);
-    }
-
-    /**
-     * Register an after-commit callback that removes the saga's aggregation state
-     * from the in-memory store only after the enclosing DB transaction commits
-     * successfully. If the transaction rolls back, the callback is never invoked
-     * and the state remains available for retry.
-     */
-    private void removeAggregationAfterCommit(UUID sagaId) {
-        TransactionSynchronizationManager.registerSynchronization(
-                new TransactionSynchronization() {
-                    @Override
-                    public void afterCommit() {
-                        aggregationStore.remove(sagaId.toString());
-                    }
-                });
     }
 
     private OutboxEvent buildOutboxEvent(UUID sagaId, EventEnvelope envelope, String topic) {
