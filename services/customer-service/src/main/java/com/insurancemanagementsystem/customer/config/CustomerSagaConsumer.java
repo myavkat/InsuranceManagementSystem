@@ -3,7 +3,6 @@ package com.insurancemanagementsystem.customer.config;
 import com.insurancemanagementsystem.common.event.EventConstants;
 import com.insurancemanagementsystem.common.event.EventEnvelope;
 import com.insurancemanagementsystem.common.entity.OutboxEvent;
-import com.insurancemanagementsystem.common.entity.SagaEvent;
 import com.insurancemanagementsystem.common.repository.OutboxEventRepository;
 import com.insurancemanagementsystem.common.repository.SagaEventRepository;
 import com.insurancemanagementsystem.common.event.saga.CustomerInvalidatedEvent;
@@ -75,17 +74,10 @@ public class CustomerSagaConsumer {
         String eventType = envelope.getEventType();
 
         transactionTemplate.executeWithoutResult(status -> {
-            // Idempotency check using SELECT — the UNIQUE constraint guards against races at commit time
-            if (sagaEventRepository.existsBySagaIdAndEventType(sagaId, eventType)) {
+            if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
                 log.info("Duplicate event: sagaId={}, eventType={} — skipping", sagaId, eventType);
                 return;
             }
-
-            // Insert dedup marker
-            sagaEventRepository.save(SagaEvent.builder()
-                    .sagaId(sagaId)
-                    .eventType(eventType)
-                    .build());
 
             // Convert the envelope payload to the typed event
             EstimationRequestedEvent requestEvent = jsonMapper.convertValue(
