@@ -15,6 +15,7 @@ public class InsuranceCreatedEvent extends BaseEvent {
     private UUID insuranceId;
     private Integer typeId;
     private UUID companyId;
+    private String name;
 
     @Override
     public String getEventType() {

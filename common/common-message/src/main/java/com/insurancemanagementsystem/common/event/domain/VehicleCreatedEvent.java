@@ -14,6 +14,8 @@ import java.util.UUID;
 public class VehicleCreatedEvent extends BaseEvent {
     private UUID vehicleId;
     private String plate;
+    private UUID customerId;
+    private Integer carBrandId;
 
     @Override
     public String getEventType() {

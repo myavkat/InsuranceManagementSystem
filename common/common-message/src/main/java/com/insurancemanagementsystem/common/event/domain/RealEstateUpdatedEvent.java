@@ -13,6 +13,9 @@ import java.util.UUID;
 @AllArgsConstructor
 public class RealEstateUpdatedEvent extends BaseEvent {
     private UUID realEstateId;
+    private String address;
+    private Integer cityId;
+    private UUID customerId;
 
     @Override
     public String getEventType() {

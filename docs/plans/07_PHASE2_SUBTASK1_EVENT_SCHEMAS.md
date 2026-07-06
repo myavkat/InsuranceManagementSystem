@@ -1,6 +1,6 @@
 # Subtask 1: Finalize All Event Schemas
 
-## Status: NOT STARTED
+## Status: COMPLETED
 ## Parent: `07_PHASE2_MASTER_PLAN.md`
 ## Branch: `phase2-message-queue-event-driven-integration`
 
@@ -49,13 +49,13 @@ Review and finalize all event POJOs in `common-message` module. Ensure every SAG
 
 ### Step 1: Audit All Event POJOs Against Consumer Needs
 
-- [ ] **1.1** Open each service's SAGA consumer and list what fields they extract from each event:
+- [x] **1.1** Open each service's SAGA consumer and list what fields they extract from each event:
   - `services/estimation-service/.../EstimationSagaConsumer.java` — reads CustomerValidatedEvent, VehicleValidatedEvent, PremiumCalculatedEvent, etc.
   - `services/insurance-service/.../InsuranceSagaConsumer.java` — reads EstimationRequestedEvent, CustomerValidatedEvent, VehicleValidatedEvent
   - `services/customer-service/.../` — find the SAGA consumer, check what it publishes in CustomerValidatedEvent
   - `services/vehicle-service/.../` — find the SAGA consumer, check what it publishes in VehicleValidatedEvent
 
-- [ ] **1.2** Create an audit table (in this plan) listing each event type with:
+- [x] **1.2** Create an audit table (in this plan) listing each event type with:
   - All fields currently on the POJO
   - All fields consumed by downstream services
   - Any missing fields
@@ -63,17 +63,17 @@ Review and finalize all event POJOs in `common-message` module. Ensure every SAG
 
 ### Step 2: Add Missing Event Types
 
-- [ ] **2.1** Create `InsuranceDeletedEvent.java`:
+- [x] **2.1** Create `InsuranceDeletedEvent.java`:
   - Path: `common/common-message/src/main/java/com/insurancemanagementsystem/common/event/domain/InsuranceDeletedEvent.java`
   - Pattern: same as other domain events (`@Data`, `@Builder`, `@NoArgsConstructor`, `@AllArgsConstructor`, `@EqualsAndHashCode(callSuper = true)`)
   - Fields: `UUID insuranceId`, `Integer typeId`, `UUID companyId`
   - `getEventType()` returns `EventConstants.INSURANCE_DELETED`
 
-- [ ] **2.2** Add `INSURANCE_DELETED = "InsuranceDeleted"` constant to `EventConstants.java`
+- [x] **2.2** Add `INSURANCE_DELETED = "InsuranceDeleted"` constant to `EventConstants.java`
 
 ### Step 3: Fill Sparse Domain Event Fields
 
-- [ ] **3.1** Review each domain event for completeness. The following events are known to have minimal fields:
+- [x] **3.1** Review each domain event for completeness. The following events are known to have minimal fields:
   - `RealEstateCreatedEvent` — has only `realEstateId`. Should include: `address`, `cityId`, `customerId`
   - `RealEstateUpdatedEvent` — has only `realEstateId`. Should include changed fields
   - `RealEstateDeletedEvent` — has only `realEstateId`. OK for delete
@@ -82,17 +82,19 @@ Review and finalize all event POJOs in `common-message` module. Ensure every SAG
   - `CustomerCreatedEvent` — has `customerId`, `nationalId`, `email`. Should include: `firstName`, `lastName`
   - `CustomerUpdatedEvent` — has `customerId`, `nationalId`, `email`. Same additions
   - `CustomerDeletedEvent` — has `customerId`, `nationalId`. OK for delete
+  - `InsuranceCreatedEvent` — added `name` for audit completeness
+  - `InsuranceUpdatedEvent` — added `name` for audit completeness
 
-- [ ] **3.2** Look at the actual entities in each service to determine the right field set:
+- [x] **3.2** Look at the actual entities in each service to determine the right field set:
   - `services/customer-service/.../entity/Customer.java` — check record fields
   - `services/vehicle-service/.../entity/Vehicle.java` — check record fields
   - `services/realestate-service/.../entity/RealEstate.java` — check record fields
 
-- [ ] **3.3** Add necessary fields to each domain event. Keep fields minimal but useful — domain events are for audit/analytics/cache invalidation.
+- [x] **3.3** Add necessary fields to each domain event. Keep fields minimal but useful — domain events are for audit/analytics/cache invalidation.
 
 ### Step 4: Add Comprehensive Serialization Tests
 
-- [ ] **4.1** Extend `EventSerializationTest.java` to cover ALL event types:
+- [x] **4.1** Extend `EventSerializationTest.java` to cover ALL event types:
 
   For each SAGA event type (10 tests):
   - Build the event with realistic test data
@@ -110,16 +112,16 @@ Review and finalize all event POJOs in `common-message` module. Ensure every SAG
   - Serialize/deserialize round-trip
   - Verify `getEventType()` returns correct constant
 
-- [ ] **4.2** Add edge case tests:
+- [x] **4.2** Add edge case tests:
   - `PremiumCalculatedEvent` with null breakdown map — verify serializes as null, not "null" string
   - `PremiumCalculatedEvent` with BigDecimal values having many decimal places — verify precision preserved
   - Event with null optional fields (e.g., `realEstateId` in EstimationRequestedEvent) — verify null handling
-  
-- [ ] **4.3** Add a test that verifies `EventConstants` event type strings match actual `getEventType()` return values for every event class
+
+- [x] **4.3** Add a test that verifies `EventConstants` event type strings match actual `getEventType()` return values for every event class
 
 ### Step 5: Document Event Schemas
 
-- [ ] **5.1** Create `docs/outlines/14_EVENT_SCHEMA_REGISTRY.md` with a table per event:
+- [x] **5.1** Create `docs/outlines/14_EVENT_SCHEMA_REGISTRY.md` with a table per event:
   ```
   ## EstimationRequestedEvent
   | Field | Type | Required | Description |
@@ -132,14 +134,14 @@ Review and finalize all event POJOs in `common-message` module. Ensure every SAG
   ```
   Do this for ALL 23 event types (10 SAGA + 13 domain).
 
-- [ ] **5.2** Document the envelope structure at the top of the registry
+- [x] **5.2** Document the envelope structure at the top of the registry
 
 ### Step 6: Build and Verify
 
-- [ ] **6.1** Build common-message: `.\gradlew.bat :common:common-message:build`
-- [ ] **6.2** Run tests: `.\gradlew.bat :common:common-message:test`
-- [ ] **6.3** Fix any compilation errors in downstream services due to field changes
-- [ ] **6.4** Build all affected services to verify no breakage: `.\gradlew.bat build`
+- [x] **6.1** Build common-message: `.\gradlew.bat :common:common-message:build`
+- [x] **6.2** Run tests: `.\gradlew.bat :common:common-message:test`
+- [x] **6.3** Fix any compilation errors in downstream services due to field changes
+- [x] **6.4** Build all affected services to verify no breakage: `.\gradlew.bat build`
 
 ---
 
@@ -213,8 +215,8 @@ void shouldSerializeAndDeserializeXxxEvent() {
 - None (this is the foundational subtask)
 
 ## Completion Criteria
-- [ ] All 23 event types have serialization round-trip tests passing
-- [ ] All event POJOs have complete fields matching consumer needs
-- [ ] `InsuranceDeletedEvent` exists with constant
-- [ ] Schema registry document is complete
-- [ ] `.\gradlew.bat build` passes for common-message and all services
+- [x] All 23 event types have serialization round-trip tests passing
+- [x] All event POJOs have complete fields matching consumer needs
+- [x] `InsuranceDeletedEvent` exists with constant
+- [x] Schema registry document is complete
+- [x] `.\gradlew.bat build` passes for common-message and all services
