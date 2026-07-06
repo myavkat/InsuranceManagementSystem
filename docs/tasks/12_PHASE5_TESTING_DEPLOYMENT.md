@@ -24,7 +24,6 @@ Production-harden the entire system through comprehensive testing (unit, integra
    - Testcontainers-based integration tests per service:
      - PostgreSQL container for database tests.
      - Kafka container for event publishing/consuming tests.
-     - RabbitMQ container for RPC tests.
    - Test full request → response cycle through controller → service → repository.
    - Test event-driven flows: publish → consume → verify side effects.
 
@@ -50,7 +49,7 @@ Production-harden the entire system through comprehensive testing (unit, integra
      - `Service.yaml`: ClusterIP service.
      - `ConfigMap.yaml`: externalized configuration (DB URLs, broker addresses).
      - `Secret.yaml`: DB passwords, JWT private keys, API keys.
-   - Infrastructure manifests: PostgreSQL StatefulSets, Kafka StatefulSet, RabbitMQ StatefulSet, Redis Deployment.
+   - Infrastructure manifests: PostgreSQL StatefulSets, Kafka StatefulSet, Redis Deployment.
    - Ingress controller for Gateway with TLS termination.
    - Helm chart for umbrella deployment (or Kustomize overlays for dev/staging/prod).
 
@@ -64,7 +63,7 @@ Production-harden the entire system through comprehensive testing (unit, integra
 
 ### Deliverables
 - Unit test suite for all services (≥80% coverage)
-- Integration test suite with Testcontainers (PostgreSQL + Kafka + RabbitMQ)
+- Integration test suite with Testcontainers (PostgreSQL + Kafka)
 - Pact contract tests verified between dependent services
 - GitHub Actions CI/CD pipelines for all services and frontend
 - Kubernetes manifests for all services and infrastructure
