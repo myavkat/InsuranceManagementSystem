@@ -121,6 +121,8 @@ services:
     env_file: .env
     environment:
       POSTGRES_DB: reference_data_db
+    ports:
+      - "5438:5432"
     volumes:
       - reference-data-db-data:/var/lib/postgresql/data
       - ./../sql/reference_data_db/init.sql:/docker-entrypoint-initdb.d/init.sql
