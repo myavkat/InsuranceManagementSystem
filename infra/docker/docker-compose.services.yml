@@ -21,6 +21,11 @@ services:
       args:
         JAR_PATH: services/customer-service/build/libs/customer-service-0.0.1-SNAPSHOT.jar
     container_name: customer-service
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
     ports: ["8081:8080"]
     environment:
       SERVER_PORT: "8080"
@@ -41,6 +46,11 @@ services:
       args:
         JAR_PATH: services/vehicle-service/build/libs/vehicle-service-0.0.1-SNAPSHOT.jar
     container_name: vehicle-service
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
     ports: ["8082:8080"]
     environment:
       SERVER_PORT: "8080"
@@ -61,6 +71,11 @@ services:
       args:
         JAR_PATH: services/realestate-service/build/libs/realestate-service-0.0.1-SNAPSHOT.jar
     container_name: realestate-service
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
     ports: ["8083:8080"]
     environment:
       SERVER_PORT: "8080"
@@ -81,6 +96,11 @@ services:
       args:
         JAR_PATH: services/insurance-service/build/libs/insurance-service-0.0.1-SNAPSHOT.jar
     container_name: insurance-service
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
     ports: ["8084:8080"]
     environment:
       SERVER_PORT: "8080"
@@ -101,6 +121,11 @@ services:
       args:
         JAR_PATH: services/estimation-service/build/libs/estimation-service-0.0.1-SNAPSHOT.jar
     container_name: estimation-service
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
     ports: ["8085:8080"]
     environment:
       SERVER_PORT: "8080"
@@ -121,6 +146,11 @@ services:
       args:
         JAR_PATH: services/reference-data-service/build/libs/reference-data-service-0.0.1-SNAPSHOT.jar
     container_name: reference-data-service
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
     ports: ["8086:8080"]
     environment:
       SERVER_PORT: "8080"

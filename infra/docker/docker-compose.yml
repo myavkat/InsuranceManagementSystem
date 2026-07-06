@@ -10,6 +10,11 @@ services:
   auth-db:
     image: postgres:16
     container_name: auth-db
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
     env_file: .env
     environment:
       POSTGRES_DB: auth_db
@@ -28,6 +33,11 @@ services:
   customer-db:
     image: postgres:16
     container_name: customer-db
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
     env_file: .env
     environment:
       POSTGRES_DB: customer_db
@@ -46,6 +56,11 @@ services:
   vehicle-db:
     image: postgres:16
     container_name: vehicle-db
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
     env_file: .env
     environment:
       POSTGRES_DB: vehicle_db
@@ -64,6 +79,11 @@ services:
   realestate-db:
     image: postgres:16
     container_name: realestate-db
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
     env_file: .env
     environment:
       POSTGRES_DB: realestate_db
@@ -82,6 +102,11 @@ services:
   insurance-db:
     image: postgres:16
     container_name: insurance-db
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
     env_file: .env
     environment:
       POSTGRES_DB: insurance_db
@@ -100,6 +125,11 @@ services:
   estimation-db:
     image: postgres:16
     container_name: estimation-db
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
     env_file: .env
     environment:
       POSTGRES_DB: estimation_db
@@ -118,6 +148,11 @@ services:
   reference-data-db:
     image: postgres:16
     container_name: reference-data-db
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
     env_file: .env
     environment:
       POSTGRES_DB: reference_data_db
@@ -138,6 +173,11 @@ services:
   gateway-db:
     image: postgres:16
     container_name: gateway-db
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
     env_file: .env
     environment:
       POSTGRES_DB: gateway_db
@@ -161,6 +201,11 @@ services:
   kafka:
     image: confluentinc/cp-kafka:latest
     container_name: kafka
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
     ports:
       - "9092:9092"
     environment:
@@ -208,6 +253,11 @@ services:
   zipkin:
     image: openzipkin/zipkin:latest
     container_name: zipkin
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
     ports:
       - "9411:9411"
     networks:
@@ -225,6 +275,11 @@ services:
   redis:
     image: redis:7-alpine
     container_name: redis
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
     ports:
       - "6379:6379"
     networks:
