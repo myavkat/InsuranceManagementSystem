@@ -1,5 +1,6 @@
 package com.insurancemanagementsystem.realestate.service;
 
+import com.insurancemanagementsystem.realestate.config.RealEstateEventPublisher;
 import com.insurancemanagementsystem.realestate.dto.RealEstateRequest;
 import com.insurancemanagementsystem.realestate.dto.RealEstateResponse;
 import com.insurancemanagementsystem.realestate.entity.RealEstate;
@@ -28,6 +29,7 @@ import java.util.UUID;
 public class RealEstateService {
 
     private final RealEstateRepository realEstateRepository;
+    private final RealEstateEventPublisher realEstateEventPublisher;
     private final RealEstateConstructionTypeRepository constructionTypeRepository;
     private final RealEstateLuxuryClassRepository luxuryClassRepository;
     private final RealEstateUsageTypeRepository usageTypeRepository;
@@ -64,6 +66,7 @@ public class RealEstateService {
                 .build();
 
         RealEstate saved = realEstateRepository.save(realEstate);
+        realEstateEventPublisher.publishRealEstateCreated(saved);
         log.info("RealEstate created with id: {}", saved.getId());
         return toResponse(saved);
     }
@@ -87,6 +90,7 @@ public class RealEstateService {
         realEstate.setCustomerId(request.getCustomerId());
 
         RealEstate saved = realEstateRepository.save(realEstate);
+        realEstateEventPublisher.publishRealEstateUpdated(saved);
         log.info("RealEstate updated with id: {}", saved.getId());
         return toResponse(saved);
     }
@@ -95,6 +99,7 @@ public class RealEstateService {
     public void delete(UUID id) {
         RealEstate realEstate = realEstateRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("RealEstate not found with id: " + id));
+        realEstateEventPublisher.publishRealEstateDeleted(realEstate);
         realEstateRepository.delete(realEstate);
         log.info("RealEstate deleted with id: {}", id);
     }
