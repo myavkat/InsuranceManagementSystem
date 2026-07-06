@@ -50,7 +50,7 @@ Also create `services/reference-data-service/src/test/java/com/insurancemanageme
 
 ### Step 2: Create `build.gradle.kts`
 
-- [ ] Create `services/reference-data-service/build.gradle.kts`
+- [x] Create `services/reference-data-service/build.gradle.kts`
 
 **Pattern:** Copy from `services/customer-service/build.gradle.kts` with these changes:
 - Include `common:common-message` and `common:common-web` as project dependencies
@@ -65,7 +65,7 @@ Also create `services/reference-data-service/src/test/java/com/insurancemanageme
 
 ### Step 3: Create `settings.gradle.kts`
 
-- [ ] Create `services/reference-data-service/settings.gradle.kts`
+- [x] Create `services/reference-data-service/settings.gradle.kts`
 
 ```kotlin
 rootProject.name = "reference-data-service"
@@ -73,7 +73,7 @@ rootProject.name = "reference-data-service"
 
 ### Step 4: Create `application.yml`
 
-- [ ] Create `services/reference-data-service/src/main/resources/application.yml`
+- [x] Create `services/reference-data-service/src/main/resources/application.yml`
 
 **Configuration:**
 - `server.port: 8086` (next available after existing services: customer=8081, vehicle=8082, realestate=8083, insurance=8084, estimation=8085)
@@ -89,7 +89,7 @@ rootProject.name = "reference-data-service"
 
 ### Step 5: Create Main Application Class
 
-- [ ] Create `ReferenceDataServiceApplication.java`
+- [x] Create `ReferenceDataServiceApplication.java`
 
 Package: `com.insurancemanagementsystem.referencedata`
 
@@ -112,33 +112,33 @@ public class ReferenceDataServiceApplication {
 
 ### Step 6: Create `Dockerfile`
 
-- [ ] Create `services/reference-data-service/Dockerfile`
+- [x] Create `services/reference-data-service/Dockerfile`
 
 Copy from `services/reference-skeleton/Dockerfile`, change port to `8086`.
 
 ### Step 7: Register in Root `settings.gradle.kts`
 
-- [ ] Edit `settings.gradle.kts` — uncomment `include("services:reference-data-service")` (line 15)
+- [x] Edit `settings.gradle.kts` — uncomment `include("services:reference-data-service")` (line 15)
 
 ### Step 8: Verify Build
 
-- [ ] Run: `.\gradlew.bat :services:reference-data-service:build`
-- [ ] Confirm compilation succeeds (tests may fail — no test classes yet, that's expected)
-- [ ] If build fails, check: all imports resolve, dependency versions are correct, application.yml is valid YAML
+- [x] Run: `.\gradlew.bat :services:reference-data-service:build`
+- [x] Confirm compilation succeeds (tests may fail — no test classes yet, that's expected)
+- [x] If build fails, check: all imports resolve, dependency versions are correct, application.yml is valid YAML
 
 ### Step 9: Verify Docker Compose DB
 
-- [ ] Confirm `infra/docker/docker-compose.yml` already defines `reference-data-db` on port 5438
-- [ ] Confirm `infra/docker/docker-compose.override.yml` maps port 5438
-- [ ] Confirm `infra/sql/reference_data_db/init.sql` exists with cities/professions DDL and seed data
-- [ ] No changes needed to infra files (they are pre-configured)
+- [x] Confirm `infra/docker/docker-compose.yml` already defines `reference-data-db` on port 5438
+- [x] Confirm `infra/docker/docker-compose.override.yml` maps port 5438
+- [x] Confirm `infra/sql/reference_data_db/init.sql` exists with cities/professions DDL and seed data
+- [x] No changes needed to infra files (they are pre-configured)
 
 ## Deliverables (this plan)
 
-- [ ] `build.gradle.kts` — compiles, all dependencies resolve
-- [ ] `settings.gradle.kts` — root project name set
-- [ ] `application.yml` — all config properties defined
-- [ ] `ReferenceDataServiceApplication.java` — main class boots Spring context
-- [ ] `Dockerfile` — container build instructions
-- [ ] Root `settings.gradle.kts` — service included in multi-project build
-- [ ] `.\gradlew.bat :services:reference-data-service:build` passes
+- [x] `build.gradle.kts` — compiles, all dependencies resolve
+- [x] `settings.gradle.kts` — root project name set
+- [x] `application.yml` — all config properties defined
+- [x] `ReferenceDataServiceApplication.java` — main class boots Spring context
+- [x] `Dockerfile` — container build instructions
+- [x] Root `settings.gradle.kts` — service included in multi-project build
+- [x] `.\gradlew.bat :services:reference-data-service:build` passes
