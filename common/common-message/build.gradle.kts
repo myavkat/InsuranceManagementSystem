@@ -38,6 +38,11 @@ dependencies {
     implementation("org.springframework:spring-tx")
     api("org.springframework.boot:spring-boot-starter-data-jpa")
 
+    // Micrometer Tracing (distributed tracing — successor to Spring Cloud Sleuth)
+    api("io.micrometer:micrometer-tracing-bridge-brave")
+    api("io.zipkin.reporter2:zipkin-reporter-brave")
+    api("io.zipkin.brave:brave-instrumentation-kafka-clients")
+
     testImplementation(platform("org.testcontainers:testcontainers-bom:2.0.5"))
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.cloud:spring-cloud-stream")

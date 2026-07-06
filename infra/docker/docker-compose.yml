@@ -203,6 +203,23 @@ services:
         condition: service_healthy
 
   # ============================================================
+  # Zipkin (Distributed Tracing)
+  # ============================================================
+  zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    networks:
+      - insurance-net
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9411/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ============================================================
   # Redis (API Gateway rate limiting)
   # ============================================================
   redis:

@@ -100,3 +100,4 @@ During incremental migration (see [`01_SYSTEM_ARCHITECTURE.md`](./01_SYSTEM_ARCH
 | `api-gateway` | `8080` |
 | Legacy backend | (existing port, unchanged) |
 | Next.js frontend | `3000` |
+| Zipkin | `9411` |
