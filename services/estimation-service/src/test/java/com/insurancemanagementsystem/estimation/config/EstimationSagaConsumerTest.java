@@ -529,7 +529,16 @@ class EstimationSagaConsumerTest {
         when(outboxEventSerializer.buildEstimationFailedOutboxEvent(
                 any(), any(), any(), any(), any())).thenThrow(new RuntimeException("Serialization failed"));
 
-        consumer.processEstimationSaga(jsonMapper).accept(buildEventJson(event, sagaId));
+        // The RuntimeException from the outbox serializer propagates through the
+        // TransactionTemplate callback → handleFailed → consumer lambda → catch block.
+        // The catch block now re-throws RuntimeExceptions so the binder can retry.
+        // The estimation stays STARTED because the serialization failure occurred
+        // BEFORE the state transition in handleFailed.
+        try {
+            consumer.processEstimationSaga(jsonMapper).accept(buildEventJson(event, sagaId));
+        } catch (RuntimeException expected) {
+            // Expected — the consumer re-throws to signal a retryable failure
+        }
 
         // Estimation should remain STARTED — no state mutation occurred
         assertThat(estimation.getStatus()).isEqualTo(Estimation.Status.STARTED);

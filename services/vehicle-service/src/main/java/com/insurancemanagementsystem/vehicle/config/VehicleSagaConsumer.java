@@ -42,10 +42,18 @@ public class VehicleSagaConsumer {
     @Bean
     public Consumer<String> processVehicleSaga(JsonMapper jsonMapperArg) {
         return message -> {
+            // Deserialize — JacksonException (including StreamReadException) is a
+            // RuntimeException in Jackson 3, but deserialization failures are
+            // poison-pill messages that cannot be fixed by retry.
             EventEnvelope envelope;
             try {
                 envelope = jsonMapperArg.readValue(message, EventEnvelope.class);
+            } catch (Exception e) {
+                log.error("Failed to deserialize SAGA message — skipping (poison pill): {}", e.getMessage(), e);
+                return;
+            }
 
+            try {
                 UUID sagaId = envelope.getSagaId();
                 UUID traceId = envelope.getTraceId();
                 String eventType = envelope.getEventType();
@@ -65,6 +73,11 @@ public class VehicleSagaConsumer {
                 }
             } catch (Exception e) {
                 log.error("Error processing SAGA message: {}", e.getMessage(), e);
+                // Re-throw RuntimeExceptions so the binder can retry/DLQ
+                // transient failures (e.g. DB deadlocks). Checked exceptions
+                // are re-wrapped so the binder also sees a failure.
+                if (e instanceof RuntimeException re) throw re;
+                throw new RuntimeException("Failed to process SAGA message", e);
             } finally {
                 MDC.clear();
             }
