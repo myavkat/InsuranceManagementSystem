@@ -3,13 +3,11 @@ package com.insurancemanagementsystem.referencedata.controller;
 import com.insurancemanagementsystem.referencedata.dto.CityResponse;
 import com.insurancemanagementsystem.referencedata.dto.ProfessionResponse;
 import com.insurancemanagementsystem.referencedata.service.ReferenceDataService;
-import com.insurancemanagementsystem.referencedata.exception.GlobalExceptionHandler;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.client.RestTestClient;
@@ -19,7 +17,6 @@ import java.util.List;
 import static org.mockito.BDDMockito.given;
 
 @WebMvcTest(ReferenceDataController.class)
-@Import(GlobalExceptionHandler.class)
 class ReferenceDataControllerTest {
 
     @Autowired

@@ -1,6 +1,7 @@
 package com.insurancemanagementsystem.referencedata.exception;
 
 import com.insurancemanagementsystem.common.web.dto.ApiResponse;
+import com.insurancemanagementsystem.common.web.exception.GlobalExceptionHandler;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;

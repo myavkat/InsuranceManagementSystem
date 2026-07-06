@@ -1,12 +1,16 @@
 CREATE TABLE IF NOT EXISTS cities (
     id INT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    plate_code VARCHAR(2) NOT NULL
+    plate_code VARCHAR(2) NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS professions (
     id INT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL
+    name VARCHAR(100) NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX IF NOT EXISTS idx_cities_name ON cities(name);

@@ -7,7 +7,8 @@ import org.springframework.boot.persistence.autoconfigure.EntityScan;
 @SpringBootApplication(scanBasePackages = {
     "com.insurancemanagementsystem.referencedata",
     "com.insurancemanagementsystem.common.messaging",
-    "com.insurancemanagementsystem.common.config"
+    "com.insurancemanagementsystem.common.config",
+    "com.insurancemanagementsystem.common.web"
 })
 @EntityScan(basePackages = {
     "com.insurancemanagementsystem.referencedata.entity",
