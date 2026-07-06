@@ -28,8 +28,12 @@ spring:
           group: vehicle-service-group
       kafka:
         binder:
-          brokers: localhost:9092
+          brokers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+          configuration:
+            auto.create.topics.enable: false  # topics are pre-provisioned by kafka-init
   kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
     consumer:
       group-id: vehicle-service-group
       auto-offset-reset: earliest

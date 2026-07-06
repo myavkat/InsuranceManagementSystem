@@ -19,7 +19,7 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     consumer:
       group-id: reference-data-service-group
       auto-offset-reset: earliest
@@ -36,6 +36,11 @@ spring:
       bindings:
         referenceDataEvents-out:
           destination: reference-data.events
+      kafka:
+        binder:
+          brokers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+          configuration:
+            auto.create.topics.enable: false  # topics are pre-provisioned by kafka-init
 
 logging:
   pattern:
