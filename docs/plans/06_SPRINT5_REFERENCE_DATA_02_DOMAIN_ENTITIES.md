@@ -14,7 +14,7 @@
 
 ## Prerequisites
 
-- [ ] Plan 01 (Service Scaffold) completed — project compiles
+- [x] Plan 01 (Service Scaffold) completed — project compiles
 
 ## Conventions to Apply
 
@@ -29,7 +29,7 @@
 
 ### Step 1: Create `City` Entity
 
-- [ ] Create `services/reference-data-service/src/main/java/com/insurancemanagementsystem/referencedata/entity/City.java`
+- [x] Create `services/reference-data-service/src/main/java/com/insurancemanagementsystem/referencedata/entity/City.java`
 
 Package: `com.insurancemanagementsystem.referencedata.entity`
 
@@ -79,7 +79,7 @@ public class City {
 
 ### Step 2: Create `Profession` Entity
 
-- [ ] Create `services/reference-data-service/src/main/java/com/insurancemanagementsystem/referencedata/entity/Profession.java`
+- [x] Create `services/reference-data-service/src/main/java/com/insurancemanagementsystem/referencedata/entity/Profession.java`
 
 Package: `com.insurancemanagementsystem.referencedata.entity`
 
@@ -120,7 +120,7 @@ public class Profession {
 
 ### Step 3: Create `CityRepository`
 
-- [ ] Create `services/reference-data-service/src/main/java/com/insurancemanagementsystem/referencedata/repository/CityRepository.java`
+- [x] Create `services/reference-data-service/src/main/java/com/insurancemanagementsystem/referencedata/repository/CityRepository.java`
 
 Package: `com.insurancemanagementsystem.referencedata.repository`
 
@@ -136,7 +136,7 @@ public interface CityRepository extends JpaRepository<City, Integer> {
 
 ### Step 4: Create `ProfessionRepository`
 
-- [ ] Create `services/reference-data-service/src/main/java/com/insurancemanagementsystem/referencedata/repository/ProfessionRepository.java`
+- [x] Create `services/reference-data-service/src/main/java/com/insurancemanagementsystem/referencedata/repository/ProfessionRepository.java`
 
 Package: `com.insurancemanagementsystem.referencedata.repository`
 
@@ -149,7 +149,7 @@ public interface ProfessionRepository extends JpaRepository<Profession, Integer>
 
 ### Step 5: Create `CityResponse` DTO
 
-- [ ] Create `services/reference-data-service/src/main/java/com/insurancemanagementsystem/referencedata/dto/CityResponse.java`
+- [x] Create `services/reference-data-service/src/main/java/com/insurancemanagementsystem/referencedata/dto/CityResponse.java`
 
 Package: `com.insurancemanagementsystem.referencedata.dto`
 
@@ -169,7 +169,7 @@ public class CityResponse {
 
 ### Step 6: Create `ProfessionResponse` DTO
 
-- [ ] Create `services/reference-data-service/src/main/java/com/insurancemanagementsystem/referencedata/dto/ProfessionResponse.java`
+- [x] Create `services/reference-data-service/src/main/java/com/insurancemanagementsystem/referencedata/dto/ProfessionResponse.java`
 
 Package: `com.insurancemanagementsystem.referencedata.dto`
 
@@ -186,7 +186,7 @@ public class ProfessionResponse {
 
 ### Step 7: Create `ApiResponse<T>` Envelope
 
-- [ ] Create `services/reference-data-service/src/main/java/com/insurancemanagementsystem/referencedata/dto/ApiResponse.java`
+- [x] (Skipped — shared ApiResponse exists in common/common-web/ and is already a dependency)
 
 Package: `com.insurancemanagementsystem.referencedata.dto`
 
@@ -200,17 +200,17 @@ Package: `com.insurancemanagementsystem.referencedata.dto`
 
 ### Step 8: Verify Compilation
 
-- [ ] Run: `.\gradlew.bat :services:reference-data-service:compileJava`
-- [ ] All entity mappings match the SQL schema (`cities` table, `professions` table)
-- [ ] No JPA mapping errors (column names must match exactly: `plate_code`, `created_at`, `updated_at`)
+- [x] Run: `.\gradlew.bat :services:reference-data-service:compileJava`
+- [x] All entity mappings match the SQL schema (`cities` table, `professions` table)
+- [x] No JPA mapping errors (column names must match exactly: `plate_code`, `created_at`, `updated_at`)
 
 ## Deliverables (this plan)
 
-- [ ] `City.java` — entity mapped to `cities` table
-- [ ] `Profession.java` — entity mapped to `professions` table
-- [ ] `CityRepository.java` — JPA repository with sorted query
-- [ ] `ProfessionRepository.java` — JPA repository with sorted query
-- [ ] `CityResponse.java` — DTO for city API responses
-- [ ] `ProfessionResponse.java` — DTO for profession API responses
-- [ ] `ApiResponse.java` — standard response envelope
-- [ ] `.\gradlew.bat :services:reference-data-service:compileJava` passes
+- [x] `City.java` — entity mapped to `cities` table
+- [x] `Profession.java` — entity mapped to `professions` table
+- [x] `CityRepository.java` — JPA repository with sorted query
+- [x] `ProfessionRepository.java` — JPA repository with sorted query
+- [x] `CityResponse.java` — DTO for city API responses
+- [x] `ProfessionResponse.java` — DTO for profession API responses
+- [x] `ApiResponse.java` (shared from common-web) — standard response envelope
+- [x] `.\gradlew.bat :services:reference-data-service:compileJava` passes
