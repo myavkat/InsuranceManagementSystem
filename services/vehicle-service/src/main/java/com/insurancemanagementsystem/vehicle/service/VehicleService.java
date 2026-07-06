@@ -1,5 +1,6 @@
 package com.insurancemanagementsystem.vehicle.service;
 
+import com.insurancemanagementsystem.vehicle.config.VehicleEventPublisher;
 import com.insurancemanagementsystem.vehicle.dto.VehicleRequest;
 import com.insurancemanagementsystem.vehicle.dto.VehicleResponse;
 import com.insurancemanagementsystem.vehicle.entity.*;
@@ -27,6 +28,7 @@ public class VehicleService {
     private final CarFuelTypeRepository carFuelTypeRepository;
     private final CarTypeRepository carTypeRepository;
     private final CarPackageRepository carPackageRepository;
+    private final VehicleEventPublisher vehicleEventPublisher;
 
     // ---------- Vehicle CRUD ----------
 
@@ -68,6 +70,7 @@ public class VehicleService {
 
         Vehicle saved = vehicleRepository.save(vehicle);
         log.info("Vehicle created with id: {} and plate: {}", saved.getId(), saved.getPlate());
+        vehicleEventPublisher.publishVehicleCreated(saved);
         return toResponse(saved);
     }
 
@@ -99,6 +102,7 @@ public class VehicleService {
 
         Vehicle saved = vehicleRepository.save(vehicle);
         log.info("Vehicle updated with id: {}", saved.getId());
+        vehicleEventPublisher.publishVehicleUpdated(saved);
         return toResponse(saved);
     }
 
@@ -106,6 +110,7 @@ public class VehicleService {
     public void delete(UUID id) {
         Vehicle vehicle = vehicleRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Vehicle not found with id: " + id));
+        vehicleEventPublisher.publishVehicleDeleted(vehicle);
         vehicleRepository.delete(vehicle);
         log.info("Vehicle deleted with id: {}", id);
     }
