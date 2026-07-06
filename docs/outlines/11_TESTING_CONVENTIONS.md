@@ -72,6 +72,8 @@ The project uses Spring Boot 4 with Jackson 3. Many classes were repackaged or r
 
 | Annotation / Class | Import Path (Spring Boot 4) | Old Path (Spring Boot 3) |
 |---|---|---|
+| `@DataJpaTest` | `org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest` | `org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest` |
+| `@AutoConfigureTestDatabase` | `org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase` | `org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase` |
 | `@EntityScan` | `org.springframework.boot.persistence.autoconfigure.EntityScan` | `org.springframework.boot.autoconfigure.domain.EntityScan` |
 | `DataJpaRepositoriesAutoConfiguration` | `org.springframework.boot.data.jpa.autoconfigure.DataJpaRepositoriesAutoConfiguration` | `org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration` |
 | `DataSourceAutoConfiguration` | `org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration` | `org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration` |

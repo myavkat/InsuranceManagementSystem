@@ -7,7 +7,7 @@
 - Read Story: @docs/stories/07_REFERENCE_DATA.md
 
 ## Objective
-Implement the Reference Data Service — a lightweight service that owns city, profession, and other lookup tables. Serves data via REST API and RabbitMQ RPC for other services.
+Implement the Reference Data Service — a lightweight service that owns city, profession, and other lookup tables. Serves data via REST API (through the API Gateway, matching the pattern of all other services). Publishes domain events to Kafka for cache invalidation.
 
 ### Subtasks
 
@@ -26,16 +26,10 @@ Implement the Reference Data Service — a lightweight service that owns city, p
    - Response caching headers (Redis or in-memory with TTL).
    - Publish domain events to `reference-data.events` on data changes.
 
-4. **Implement Reference Data RPC Listener**
-   - RabbitMQ RPC consumer on `rpc.reference-data` queue (exchange: `rpc-exchange`, direct).
-   - Routing keys: `reference-data.getCities`, `reference-data.getProfessions`.
-   - Request/response pattern with `replyTo` queue and `correlationId`.
-   - Configurable timeout (default 5s).
-
 ### Deliverables
 - Reference Data Service with REST API
-- RabbitMQ RPC listener for synchronous lookups
 - Seed data for 81 cities and professions
-- In-memory or Redis caching with TTL
+- In-memory caching with TTL
+- Kafka domain event publishing on `reference-data.events`
 - Unit tests (≥80% coverage)
-- Integration tests for both REST and RPC paths
+- Integration tests for REST endpoints
