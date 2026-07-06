@@ -117,8 +117,13 @@ Find the commented line `// include("services:realestate-service")` and uncommen
 
 ## Verification
 
-```bash
-.\gradlew.bat :services:realestate-service:compileJava
+✅ `.\gradlew.bat :services:realestate-service:compileJava` — **BUILD SUCCESSFUL**
+
+### Git Log
+```
+147bc98 feat(realestate-service): add project skeleton with build config, app config, and main class
+ed756a2 feat(realestate-service): add domain entities and repositories
+e5bc9e5 feat(realestate-db): add saga_events and outbox_events infrastructure tables
 ```
 
 ## Files Written
