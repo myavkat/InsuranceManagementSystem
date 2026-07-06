@@ -83,3 +83,11 @@ All tests should pass. The new RealEstate test cases should exercise both RealEs
 ## Files Modified
 - `services/estimation-service/src/main/java/com/insurancemanagementsystem/estimation/config/EstimationSagaConsumer.java` ✅ (switch cases + new handler method)
 - `services/estimation-service/src/test/java/com/insurancemanagementsystem/estimation/config/EstimationSagaConsumerTest.java` ✅ (new test cases)
+
+## Execution Log
+- ✅ Added `REAL_ESTATE_VALIDATED` switch case calling `handleRealEstateValidated()` (log-only handler)
+- ✅ Added `REAL_ESTATE_INVALIDATED` switch case reusing `handleFailed()` with "Real estate validation failed" reason
+- ✅ Added `handleRealEstateValidated()` method following same pattern as `handleVehicleValidated()` (dedup + convert + log)
+- ✅ Added `realEstateValidated_isIdempotent()` test verifying dedup and no estimation interaction
+- ✅ Added `realEstateInvalidated_rejectsEstimation()` test verifying REJECTED transition + outbox event
+- ✅ All 19 tests pass (`BUILD SUCCESSFUL`)

@@ -60,6 +60,10 @@ public class EstimationSagaConsumer {
                         handleFailed(envelope, sagaId, traceId, "Customer validation failed", jsonMapper);
                     case EventConstants.VEHICLE_INVALIDATED ->
                         handleFailed(envelope, sagaId, traceId, "Vehicle validation failed", jsonMapper);
+                    case EventConstants.REAL_ESTATE_VALIDATED ->
+                        handleRealEstateValidated(envelope, sagaId, traceId, jsonMapper);
+                    case EventConstants.REAL_ESTATE_INVALIDATED ->
+                        handleFailed(envelope, sagaId, traceId, "Real estate validation failed", jsonMapper);
                     case EventConstants.CALCULATION_FAILED ->
                         handleFailed(envelope, sagaId, traceId, "Premium calculation failed", jsonMapper);
                     case EventConstants.PREMIUM_CALCULATED ->
@@ -111,6 +115,25 @@ public class EstimationSagaConsumer {
             VehicleValidatedEvent event = jsonMapper.convertValue(
                     envelope.getPayload(), VehicleValidatedEvent.class);
             log.info("Vehicle validated for sagaId={}: vehicleId={}, plate={}", sagaId, event.getVehicleId(), event.getPlate());
+        });
+    }
+
+    // ---------------------------------------------------------------
+    // RealEstateValidated — log progress (no state change needed in estimation)
+    // ---------------------------------------------------------------
+    private void handleRealEstateValidated(EventEnvelope envelope, UUID sagaId, UUID traceId, JsonMapper jsonMapper) {
+        String eventType = envelope.getEventType();
+
+        transactionTemplate.executeWithoutResult(status -> {
+            if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
+                return;
+            }
+
+            // Convert to typed event for logging
+            RealEstateValidatedEvent event = jsonMapper.convertValue(
+                    envelope.getPayload(), RealEstateValidatedEvent.class);
+            log.info("Real estate validated for sagaId={}: realEstateId={}, address={}",
+                    sagaId, event.getRealEstateId(), event.getAddress());
         });
     }
 
