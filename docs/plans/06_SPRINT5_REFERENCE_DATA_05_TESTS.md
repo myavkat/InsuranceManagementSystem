@@ -19,7 +19,7 @@
 
 ## Prerequisites
 
-- [ ] All previous plans (01-03) completed — service compiles and runs
+- [x] All previous plans (01-03) completed — service compiles and runs
 
 ## Test Coverage Target
 
@@ -58,7 +58,7 @@ From [11_TESTING_CONVENTIONS.md](../../outlines/11_TESTING_CONVENTIONS.md):
 
 ### Step 1: Create `CityRepositoryTest` (Slice — Data JPA)
 
-- [ ] Create `services/reference-data-service/src/test/java/com/insurancemanagementsystem/referencedata/repository/CityRepositoryTest.java`
+- [x] Create `services/reference-data-service/src/test/java/com/insurancemanagementsystem/referencedata/repository/CityRepositoryTest.java`
 
 ```java
 @DataJpaTest
@@ -101,22 +101,22 @@ class CityRepositoryTest {
 ```
 
 **Test cases:**
-- [ ] `shouldReturnCitiesSortedByName` — cities returned in alphabetical order
-- [ ] `shouldFindCityById` — `findById(34)` returns İstanbul
-- [ ] `shouldReturnEmptyForUnknownId` — `findById(999)` returns empty Optional
+- [x] `shouldReturnCitiesSortedByName` — cities returned in alphabetical order
+- [x] `shouldFindCityById` — `findById(34)` returns İstanbul
+- [x] `shouldReturnEmptyForUnknownId` — `findById(999)` returns empty Optional
 
 ### Step 2: Create `ProfessionRepositoryTest` (Slice — Data JPA)
 
-- [ ] Create `services/reference-data-service/src/test/java/.../repository/ProfessionRepositoryTest.java`
+- [x] Create `services/reference-data-service/src/test/java/.../repository/ProfessionRepositoryTest.java`
 
 Same pattern as CityRepositoryTest:
-- [ ] `shouldReturnProfessionsSortedByName`
-- [ ] `shouldFindProfessionById`
-- [ ] `shouldReturnEmptyForUnknownId`
+- [x] `shouldReturnProfessionsSortedByName`
+- [x] `shouldFindProfessionById`
+- [x] `shouldReturnEmptyForUnknownId`
 
 ### Step 3: Create `ReferenceDataServiceTest` (Unit Test)
 
-- [ ] Create `services/reference-data-service/src/test/java/.../service/ReferenceDataServiceTest.java`
+- [x] Create `services/reference-data-service/src/test/java/.../service/ReferenceDataServiceTest.java`
 
 ```java
 @ExtendWith(MockitoExtension.class)
@@ -135,15 +135,15 @@ class ReferenceDataServiceTest {
 ```
 
 **Test cases:**
-- [ ] `shouldReturnCitiesFromRepository` — mock repository returns cities, verify correct mapping to DTOs
-- [ ] `shouldCacheCitiesOnSecondCall` — repository called only once across two `getCities()` calls
-- [ ] `shouldReturnProfessionsFromRepository` — mock repository, verify DTO mapping
-- [ ] `shouldCacheProfessionsOnSecondCall` — repository called only once across two `getProfessions()` calls
-- [ ] `shouldInvalidateCache` — populate cache, call `invalidateCache()`, next `getCities()` hits repository again
+- [x] `shouldReturnCitiesFromRepository` — mock repository returns cities, verify correct mapping to DTOs
+- [x] `shouldCacheCitiesOnSecondCall` — repository called only once across two `getCities()` calls
+- [x] `shouldReturnProfessionsFromRepository` — mock repository, verify DTO mapping
+- [x] `shouldCacheProfessionsOnSecondCall` — repository called only once across two `getProfessions()` calls
+- [x] `shouldInvalidateCache` — populate cache, call `invalidateCache()`, next `getCities()` hits repository again
 
 ### Step 4: Create `ReferenceDataControllerTest` (Slice — @WebMvcTest)
 
-- [ ] Create `services/reference-data-service/src/test/java/.../controller/ReferenceDataControllerTest.java`
+- [x] Create `services/reference-data-service/src/test/java/.../controller/ReferenceDataControllerTest.java`
 
 ```java
 @WebMvcTest(ReferenceDataController.class)
@@ -165,7 +165,7 @@ class ReferenceDataControllerTest {
 ```
 
 **Test cases:**
-- [ ] `shouldReturnCitiesList` — mock service returns city list, verify HTTP 200 + JSON structure
+- [x] `shouldReturnCitiesList` — mock service returns city list, verify HTTP 200 + JSON structure
   ```java
   client.get().uri("/api/reference-data/cities")
       .exchange()
@@ -176,13 +176,13 @@ class ReferenceDataControllerTest {
       .jsonPath("$.data[0].name").isEqualTo("Ankara")
       .jsonPath("$.data[0].plateCode").isEqualTo("06");
   ```
-- [ ] `shouldReturnProfessionsList` — mock, verify HTTP 200 + structure
-- [ ] `shouldIncludeCacheControlHeader` — verify `Cache-Control` header present
-- [ ] `shouldReturnSuccessTrue` — verify `$.success` is `true`
+- [x] `shouldReturnProfessionsList` — mock, verify HTTP 200 + structure
+- [x] `shouldIncludeCacheControlHeader` — verify `Cache-Control` header present
+- [x] `shouldReturnSuccessTrue` — verify `$.success` is `true`
 
 ### Step 5: Create `ReferenceDataServiceApplicationTests` (Integration Test)
 
-- [ ] Create `services/reference-data-service/src/test/java/.../ReferenceDataServiceApplicationTests.java`
+- [x] Create `services/reference-data-service/src/test/java/.../ReferenceDataServiceApplicationTests.java`
 
 ```java
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -221,8 +221,8 @@ class ReferenceDataServiceApplicationTests {
 ```
 
 **Test cases:**
-- [ ] `contextLoads` — Spring context starts successfully
-- [ ] `shouldReturnCitiesFromDatabase` — seed test data, call `/api/reference-data/cities`, verify JSON response
+- [x] `contextLoads` — Spring context starts successfully
+- [x] `shouldReturnCitiesFromDatabase` — seed test data, call `/api/reference-data/cities`, verify JSON response
   ```java
   @Test
   void shouldReturnCitiesFromDatabase() {
@@ -240,30 +240,34 @@ class ReferenceDataServiceApplicationTests {
               .jsonPath("$.data[0].name").isEqualTo("Ankara");
   }
   ```
-- [ ] `shouldReturnProfessionsFromDatabase` — seed, call, verify
-- [ ] `shouldReturnEmptyArrayWhenNoData` — empty DB, city list returns `[]`, HTTP 200
-- [ ] `shouldHaveCorrectResponseEnvelope` — verify `success`, `message`, `data`, `timestamp` fields exist
+- [x] `shouldReturnProfessionsFromDatabase` — seed, call, verify
+- [x] `shouldReturnEmptyArrayWhenNoData` — empty DB, city list returns `[]`, HTTP 200
+- [x] `shouldHaveCorrectResponseEnvelope` — verify `success`, `message`, `data`, `timestamp` fields exist
 
 ### Step 6: Verify Coverage
 
-- [ ] Run: `.\gradlew.bat :services:reference-data-service:test jacocoTestReport`
-- [ ] Open `services/reference-data-service/build/reports/jacoco/test/html/index.html`
-- [ ] Confirm ≥80% line coverage across all production classes
-- [ ] If coverage is below threshold, identify untested branches and add tests
+- [x] Run: `.\gradlew.bat :services:reference-data-service:test jacocoTestReport`
+- [x] Open `services/reference-data-service/build/reports/jacoco/test/html/index.html`
+- [x] Confirm ≥80% line coverage across all production classes
+- [x] If coverage is below threshold, identify untested branches and add tests
 
 ### Step 7: Verify All Tests Pass
 
-- [ ] Run: `.\gradlew.bat :services:reference-data-service:test`
-- [ ] All tests green
-- [ ] No test depends on test order — each test cleans up after itself
+- [x] Run: `.\gradlew.bat :services:reference-data-service:test`
+- [x] All tests green
+- [x] No test depends on test order — each test cleans up after itself
 
 ## Deliverables (this plan)
 
-- [ ] `CityRepositoryTest.java` — 3 test cases
-- [ ] `ProfessionRepositoryTest.java` — 3 test cases
-- [ ] `ReferenceDataServiceTest.java` — 5 test cases (caching + mapping)
-- [ ] `ReferenceDataControllerTest.java` — 4 test cases (REST endpoints + headers)
-- [ ] `ReferenceDataServiceApplicationTests.java` — 5 integration test cases
-- [ ] JaCoCo report ≥80% coverage
-- [ ] `.\gradlew.bat :services:reference-data-service:test` — all tests pass
-- [ ] `.\gradlew.bat :services:reference-data-service:build` — full build passes
+- [x] `CityRepositoryTest.java` — 3 test cases
+- [x] `ProfessionRepositoryTest.java` — 3 test cases
+- [x] `ReferenceDataServiceTest.java` — 5 test cases (caching + mapping)
+- [x] `ReferenceDataControllerTest.java` — 6 test cases (REST endpoints + headers + error handling)
+- [x] `ReferenceDataServiceApplicationTests.java` — 5 integration test cases
+- [x] `CityEntityTest.java` — 2 test cases (@PrePersist/@PreUpdate lifecycle)
+- [x] `ProfessionEntityTest.java` — 2 test cases (@PrePersist/@PreUpdate lifecycle)
+- [x] `GlobalExceptionHandlerTest.java` — 4 test cases (all handler methods)
+- [x] `ReferenceDataEventPublisherTest.java` — 1 test case
+- [x] JaCoCo report ≥80% coverage (actual: 94%)
+- [x] `.\gradlew.bat :services:reference-data-service:test` — all tests pass
+- [x] `.\gradlew.bat :services:reference-data-service:build` — full build passes
