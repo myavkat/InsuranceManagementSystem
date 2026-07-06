@@ -187,6 +187,7 @@ services:
 
   # ============================================================
   # kafka-init — Creates Kafka topics on first startup.
+  # Shares kafka's network namespace so it can use localhost:9092.
   # Builds from: ../kafka/Dockerfile
   # Script:      ../kafka/create-topics.sh
   # ============================================================
@@ -195,12 +196,11 @@ services:
       context: ./../kafka
       dockerfile: Dockerfile
     container_name: kafka-init
-    command: ["kafka:9092"]
+    network_mode: "service:kafka"
+    command: ["localhost:9092"]
     depends_on:
       kafka:
         condition: service_healthy
-    networks:
-      - insurance-net
 
   # ============================================================
   # Redis (API Gateway rate limiting)
