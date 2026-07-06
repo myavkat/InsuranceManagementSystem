@@ -1,0 +1,139 @@
+# ============================================================
+# docker-compose.services.yml — Run all 6 microservices as containers
+#
+# Prerequisites:
+#   ./gradlew bootJar -x test
+#
+# Full startup (infra + services):
+#   ./gradlew bootJar -x test && docker compose \
+#     -f docker-compose.yml -f docker-compose.override.yml -f docker-compose.services.yml \
+#     up -d --build
+#
+# Services only (infra already up):
+#   docker compose -f docker-compose.services.yml up -d --build
+# ============================================================
+
+services:
+  customer-service:
+    build:
+      context: ../../
+      dockerfile: infra/docker/Dockerfile.service
+      args:
+        JAR_PATH: services/customer-service/build/libs/customer-service-0.0.1-SNAPSHOT.jar
+    container_name: customer-service
+    ports: ["8081:8080"]
+    environment:
+      SERVER_PORT: "8080"
+      SPRING_PROFILES_ACTIVE: dev
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9094
+      ZIPKIN_ENDPOINT: http://host.docker.internal:9411/api/v2/spans
+      SPRING_DATASOURCE_URL: jdbc:postgresql://customer-db:5432/customer_db
+    networks: [insurance-net]
+    restart: unless-stopped
+    depends_on:
+      kafka: { condition: service_healthy }
+      customer-db: { condition: service_healthy }
+
+  vehicle-service:
+    build:
+      context: ../../
+      dockerfile: infra/docker/Dockerfile.service
+      args:
+        JAR_PATH: services/vehicle-service/build/libs/vehicle-service-0.0.1-SNAPSHOT.jar
+    container_name: vehicle-service
+    ports: ["8082:8080"]
+    environment:
+      SERVER_PORT: "8080"
+      SPRING_PROFILES_ACTIVE: dev
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9094
+      ZIPKIN_ENDPOINT: http://host.docker.internal:9411/api/v2/spans
+      SPRING_DATASOURCE_URL: jdbc:postgresql://vehicle-db:5432/vehicle_db
+    networks: [insurance-net]
+    restart: unless-stopped
+    depends_on:
+      kafka: { condition: service_healthy }
+      vehicle-db: { condition: service_healthy }
+
+  realestate-service:
+    build:
+      context: ../../
+      dockerfile: infra/docker/Dockerfile.service
+      args:
+        JAR_PATH: services/realestate-service/build/libs/realestate-service-0.0.1-SNAPSHOT.jar
+    container_name: realestate-service
+    ports: ["8083:8080"]
+    environment:
+      SERVER_PORT: "8080"
+      SPRING_PROFILES_ACTIVE: dev
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9094
+      ZIPKIN_ENDPOINT: http://host.docker.internal:9411/api/v2/spans
+      SPRING_DATASOURCE_URL: jdbc:postgresql://realestate-db:5432/realestate_db
+    networks: [insurance-net]
+    restart: unless-stopped
+    depends_on:
+      kafka: { condition: service_healthy }
+      realestate-db: { condition: service_healthy }
+
+  insurance-service:
+    build:
+      context: ../../
+      dockerfile: infra/docker/Dockerfile.service
+      args:
+        JAR_PATH: services/insurance-service/build/libs/insurance-service-0.0.1-SNAPSHOT.jar
+    container_name: insurance-service
+    ports: ["8084:8080"]
+    environment:
+      SERVER_PORT: "8080"
+      SPRING_PROFILES_ACTIVE: dev
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9094
+      ZIPKIN_ENDPOINT: http://host.docker.internal:9411/api/v2/spans
+      SPRING_DATASOURCE_URL: jdbc:postgresql://insurance-db:5432/insurance_db
+    networks: [insurance-net]
+    restart: unless-stopped
+    depends_on:
+      kafka: { condition: service_healthy }
+      insurance-db: { condition: service_healthy }
+
+  estimation-service:
+    build:
+      context: ../../
+      dockerfile: infra/docker/Dockerfile.service
+      args:
+        JAR_PATH: services/estimation-service/build/libs/estimation-service-0.0.1-SNAPSHOT.jar
+    container_name: estimation-service
+    ports: ["8085:8080"]
+    environment:
+      SERVER_PORT: "8080"
+      SPRING_PROFILES_ACTIVE: dev
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9094
+      ZIPKIN_ENDPOINT: http://host.docker.internal:9411/api/v2/spans
+      SPRING_DATASOURCE_URL: jdbc:postgresql://estimation-db:5432/estimation_db
+    networks: [insurance-net]
+    restart: unless-stopped
+    depends_on:
+      kafka: { condition: service_healthy }
+      estimation-db: { condition: service_healthy }
+
+  reference-data-service:
+    build:
+      context: ../../
+      dockerfile: infra/docker/Dockerfile.service
+      args:
+        JAR_PATH: services/reference-data-service/build/libs/reference-data-service-0.0.1-SNAPSHOT.jar
+    container_name: reference-data-service
+    ports: ["8086:8080"]
+    environment:
+      SERVER_PORT: "8080"
+      SPRING_PROFILES_ACTIVE: dev
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9094
+      ZIPKIN_ENDPOINT: http://host.docker.internal:9411/api/v2/spans
+      SPRING_DATASOURCE_URL: jdbc:postgresql://reference-data-db:5432/reference_data_db
+    networks: [insurance-net]
+    restart: unless-stopped
+    depends_on:
+      kafka: { condition: service_healthy }
+      reference-data-db: { condition: service_healthy }
+
+networks:
+  insurance-net:
+    driver: bridge
