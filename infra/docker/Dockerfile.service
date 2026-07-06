@@ -6,4 +6,4 @@ ARG JAR_PATH
 WORKDIR /app
 COPY ${JAR_PATH} app.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Xmx256m", "-Xms128m", "-jar", "app.jar"]
