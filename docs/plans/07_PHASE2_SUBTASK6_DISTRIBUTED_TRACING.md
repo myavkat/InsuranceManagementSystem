@@ -50,7 +50,7 @@ Use **Micrometer Tracing** (the Spring Boot 4.x standard) with **Brave** as the 
 
 ### Step 1: Add Zipkin to Docker Compose
 
-- [ ] **1.1** Add Zipkin service to `infra/docker/docker-compose.yml`:
+- [x] **1.1** Add Zipkin service to `infra/docker/docker-compose.yml`:
 
   ```yaml
   # ============================================================
@@ -71,14 +71,14 @@ Use **Micrometer Tracing** (the Spring Boot 4.x standard) with **Brave** as the 
       start_period: 30s
   ```
 
-- [ ] **1.2** Update `docs/outlines/13_ENVIRONMENT_QUIRKS.md` — add Zipkin to port allocation table:
+- [x] **1.2** Update `docs/outlines/13_ENVIRONMENT_QUIRKS.md` — add Zipkin to port allocation table:
   ```
   | Zipkin | `9411` |
   ```
 
 ### Step 2: Add Micrometer Tracing Dependencies
 
-- [ ] **2.1** Add to `common/common-message/build.gradle.kts` (api scope so all services inherit):
+- [x] **2.1** Add to `common/common-message/build.gradle.kts` (api scope so all services inherit):
 
   ```kotlin
   // Micrometer Tracing (distributed tracing — successor to Spring Cloud Sleuth)
@@ -86,9 +86,9 @@ Use **Micrometer Tracing** (the Spring Boot 4.x standard) with **Brave** as the 
   api("io.zipkin.reporter2:zipkin-reporter-brave")
   ```
 
-- [ ] **2.2** Since `common-message` is an `api` dependency of all services, the tracing libraries will be available everywhere.
+- [x] **2.2** Since `common-message` is an `api` dependency of all services, the tracing libraries will be available everywhere.
 
-- [ ] **2.3** For the BOM, ensure Micrometer Tracing version is managed. Spring Boot 4.x includes Micrometer Tracing in its BOM — check that no explicit version is needed. If not managed, add:
+- [x] **2.3** For the BOM, ensure Micrometer Tracing version is managed. Spring Boot 4.x includes Micrometer Tracing in its BOM — check that no explicit version is needed. If not managed, add:
 
   ```kotlin
   dependencyManagement {
@@ -100,7 +100,7 @@ Use **Micrometer Tracing** (the Spring Boot 4.x standard) with **Brave** as the 
 
 ### Step 3: Configure Tracing in application.yml
 
-- [ ] **3.1** Add tracing configuration to each service's `application.yml`. Since this is shared config, consider adding it to a common configuration or applying to all 6 services:
+- [x] **3.1** Add tracing configuration to each service's `application.yml`. Since this is shared config, consider adding it to a common configuration or applying to all 6 services:
 
   ```yaml
   management:
@@ -123,7 +123,7 @@ Use **Micrometer Tracing** (the Spring Boot 4.x standard) with **Brave** as the 
           spring.kafka.producer.properties.interceptor.classes: io.micrometer.tracing.brave.bridge.KafkaTracingProducerInterceptor
   ```
 
-- [ ] **3.2** Update `logging.pattern.console` in each service to include trace and span IDs from Micrometer Tracing:
+- [x] **3.2** Update `logging.pattern.console` in each service to include trace and span IDs from Micrometer Tracing:
 
   ```yaml
   logging:
@@ -135,11 +135,11 @@ Use **Micrometer Tracing** (the Spring Boot 4.x standard) with **Brave** as the 
 
   Micrometer Tracing automatically populates MDC with `traceId` and `spanId`. The `sagaId` is populated manually by the consumer's MDC setup.
 
-- [ ] **3.3** Apply this configuration to all 6 services (customer, vehicle, realestate, insurance, estimation, reference-data).
+- [x] **3.3** Apply this configuration to all 6 services (customer, vehicle, realestate, insurance, estimation, reference-data).
 
 ### Step 4: Configure Kafka Trace Propagation
 
-- [ ] **4.1** Create a shared Kafka tracing configuration bean in `common-message`:
+- [x] **4.1** Create a shared Kafka tracing configuration bean in `common-message`:
 
   `common/common-message/src/main/java/com/insurancemanagementsystem/common/config/KafkaTracingConfig.java`:
 
@@ -170,13 +170,13 @@ Use **Micrometer Tracing** (the Spring Boot 4.x standard) with **Brave** as the 
   }
   ```
 
-- [ ] **4.2** Register a `KafkaTracingProducerInterceptor` in each service's Kafka producer configuration. Since Spring Boot auto-configures Kafka, the interceptor class is set via properties (Step 3.1 above).
+- [x] **4.2** Register a `KafkaTracingProducerInterceptor` in each service's Kafka producer configuration. Since Spring Boot auto-configures Kafka, the interceptor class is set via properties (Step 3.1 above).
 
-- [ ] **4.3** For Spring Cloud Stream, trace propagation is handled by the binder when `micrometer-tracing` is on the classpath. The binder automatically injects/extracts trace headers from messages. Verify this works by checking Spring Cloud Stream documentation.
+- [x] **4.3** For Spring Cloud Stream, trace propagation is handled by the binder when `micrometer-tracing` is on the classpath. The binder automatically injects/extracts trace headers from messages. Verify this works by checking Spring Cloud Stream documentation.
 
 ### Step 5: Ensure Saga Consumers Populate MDC with traceId
 
-- [ ] **5.1** Verify that every SAGA consumer correctly puts `traceId` into MDC. Currently, consumers do:
+- [x] **5.1** Verify that every SAGA consumer correctly puts `traceId` into MDC. Currently, consumers do:
 
   ```java
   MDC.put("traceId", traceId != null ? traceId.toString() : "");
@@ -184,7 +184,7 @@ Use **Micrometer Tracing** (the Spring Boot 4.x standard) with **Brave** as the 
 
   This is correct but should ALSO set the Micrometer Tracing `traceId` so that spans are linked. Micrometer Tracing's `Observation` API handles this natively when using `Observation.createNotStarted()`.
 
-- [ ] **5.2** Update the `MessageListener` abstraction (from Subtask 3) to use Micrometer Observation:
+- [x] **5.2** Update the `MessageListener` abstraction (from Subtask 3) to use Micrometer Observation:
 
   ```java
   // In MessageListener.asConsumer():
@@ -199,11 +199,11 @@ Use **Micrometer Tracing** (the Spring Boot 4.x standard) with **Brave** as the 
   });
   ```
 
-- [ ] **5.3** For existing consumers (not using `MessageListener`), wrap the handler body with an Observation or at minimum ensure MDC is correctly populated.
+- [x] **5.3** For existing consumers (not using `MessageListener`), wrap the handler body with an Observation or at minimum ensure MDC is correctly populated.
 
 ### Step 6: Add Trace ID to Outbox Events (Ensure Propagation)
 
-- [ ] **6.1** Verify that all outbox events carry the correct `traceId`. Current pattern:
+- [x] **6.1** Verify that all outbox events carry the correct `traceId`. Current pattern:
 
   ```java
   // In EstimationService.create():
@@ -213,15 +213,15 @@ Use **Micrometer Tracing** (the Spring Boot 4.x standard) with **Brave** as the 
   EventEnvelope envelope = event.toEnvelope(sagaId, currentTraceId()); // ✅ propagated
   ```
 
-- [ ] **6.2** Fix the `EstimationService.create()` method to use a proper initial trace ID. Since this is the SAGA entry point, a new trace ID is acceptable — but it should use `CorrelationIdGenerator.generateTraceId()` (from Subtask 3) rather than inline `UUID.randomUUID()`.
+- [x] **6.2** Fix the `EstimationService.create()` method to use a proper initial trace ID. Since this is the SAGA entry point, a new trace ID is acceptable — but it should use `CorrelationIdGenerator.generateTraceId()` (from Subtask 3) rather than inline `UUID.randomUUID()`.
 
-- [ ] **6.3** Verify that all consumer-to-producer chains propagate `traceId`:
+- [x] **6.3** Verify that all consumer-to-producer chains propagate `traceId`:
   - `CustomerSagaConsumer`: receives `EstimationRequested` with traceId X → publishes `CustomerValidated` with traceId X ✅ (check code)
   - `VehicleSagaConsumer`: receives with traceId X → publishes with traceId X ✅
   - `InsuranceSagaConsumer`: receives with traceId X → publishes with traceId X ✅
   - `EstimationSagaConsumer`: receives with traceId X → publishes `EstimationFailed` with traceId X ✅
 
-- [ ] **6.4** The one exception is `SagaTimeoutService` which originates new events. It currently uses `sagaId` as `traceId` (line 65 of SagaTimeoutService.java):
+- [x] **6.4** The one exception is `SagaTimeoutService` which originates new events. It currently uses `sagaId` as `traceId` (line 65 of SagaTimeoutService.java):
   ```java
   OutboxEvent outboxEvent = outboxEventSerializer.buildEstimationFailedOutboxEvent(
           sagaId, sagaId, reason, "SagaTimeoutService", EventConstants.ESTIMATION_SAGA);
@@ -230,51 +230,51 @@ Use **Micrometer Tracing** (the Spring Boot 4.x standard) with **Brave** as the 
 
 ### Step 7: Fix SagaTimeoutService Trace Propagation
 
-- [ ] **7.1** Add `traceId` field to `Estimation` entity:
+- [x] **7.1** Add `traceId` field to `Estimation` entity:
   - `services/estimation-service/.../entity/Estimation.java` — add:
     ```java
     @Column(name = "trace_id")
     private UUID traceId;
     ```
 
-- [ ] **7.2** Update `EstimationService.create()` to store the initial traceId:
+- [x] **7.2** Update `EstimationService.create()` to store the initial traceId:
   ```java
   estimation.setTraceId(CorrelationIdGenerator.generateTraceId());
   ```
 
-- [ ] **7.3** Update `SagaTimeoutService.checkForTimedOutSagas()` to use `estimation.getTraceId()`:
+- [x] **7.3** Update `SagaTimeoutService.checkForTimedOutSagas()` to use `estimation.getTraceId()`:
   ```java
   OutboxEvent outboxEvent = outboxEventSerializer.buildEstimationFailedOutboxEvent(
           sagaId, estimation.getTraceId(), reason, "SagaTimeoutService", EventConstants.ESTIMATION_SAGA);
   ```
 
-- [ ] **7.4** Add `trace_id` column to estimation_db init.sql:
+- [x] **7.4** Add `trace_id` column to estimation_db init.sql:
   - `infra/sql/estimation_db/init.sql` — add column:
     ```sql
     trace_id UUID,
     ```
     After the `company_id` line in the `estimations` table.
 
-- [ ] **7.5** Update `EstimationSagaConsumer` to propagate `traceId` from incoming envelopes rather than using `UUID.randomUUID()`.
+- [x] **7.5** Update `EstimationSagaConsumer` to propagate `traceId` from incoming envelopes rather than using `UUID.randomUUID()`.
 
 ### Step 8: Verify
 
-- [ ] **8.1** Start infrastructure with Zipkin:
+- [x] **8.1** Start infrastructure with Zipkin:
   ```bash
   docker compose -f infra/docker/docker-compose.yml up -d
   ```
 
-- [ ] **8.2** Verify Zipkin is running: `http://localhost:9411/` — UI should be accessible
+- [x] **8.2** Verify Zipkin is running: `http://localhost:9411/` — UI should be accessible
 
-- [ ] **8.3** Build all services: `.\gradlew.bat build`
+- [x] **8.3** Build all services: `.\gradlew.bat build`
 
-- [ ] **8.4** Start one service (e.g., estimation-service) and make a request. Verify traces appear in Zipkin UI.
+- [x] **8.4** Start one service (e.g., estimation-service) and make a request. Verify traces appear in Zipkin UI.
 
-- [ ] **8.5** Trigger a full SAGA flow and verify the full trace chain is visible in Zipkin:
+- [x] **8.5** Trigger a full SAGA flow and verify the full trace chain is visible in Zipkin:
   - HTTP request → EstimationService → Kafka → CustomerService → Kafka → InsuranceService → Kafka → EstimationService
   - All spans should share the same `traceId`
 
-- [ ] **8.6** Check logs for `traceId` and `spanId` in MDC output
+- [x] **8.6** Check logs for `traceId` and `spanId` in MDC output
 
 ---
 
@@ -302,12 +302,12 @@ Use **Micrometer Tracing** (the Spring Boot 4.x standard) with **Brave** as the 
 - Subtask 3 (Common Library) — `CorrelationIdGenerator`, `MessageListener`
 
 ## Completion Criteria
-- [ ] Zipkin container running in Docker Compose
-- [ ] Micrometer Tracing + Brave dependencies in all services (via common-message)
-- [ ] All services configured with Zipkin endpoint
-- [ ] Kafka trace propagation working (b3 headers on Kafka messages)
-- [ ] All log entries include `traceId` and `spanId` from Micrometer Tracing
-- [ ] `SagaTimeoutService` uses stored traceId (not sagaId)
-- [ ] `Estimation` entity has `trace_id` column
-- [ ] Full SAGA trace visible in Zipkin UI
-- [ ] `.\gradlew.bat build` passes for all modules
+- [x] Zipkin container running in Docker Compose
+- [x] Micrometer Tracing + Brave dependencies in all services (via common-message)
+- [x] All services configured with Zipkin endpoint
+- [x] Kafka trace propagation working (b3 headers on Kafka messages)
+- [x] All log entries include `traceId` and `spanId` from Micrometer Tracing
+- [x] `SagaTimeoutService` uses stored traceId (not sagaId)
+- [x] `Estimation` entity has `trace_id` column
+- [x] Full SAGA trace visible in Zipkin UI
+- [x] `.\gradlew.bat build` passes for all modules
