@@ -258,4 +258,4 @@ If the build context is not the repo root, the `COPY settings.gradle.kts ./` ste
 - [x] `Dockerfile` — rewritten following `customer-service/Dockerfile` pattern
 - [x] `.\gradlew.bat :services:reference-data-service:build` — full build passes
 - [x] `.\gradlew.bat :services:reference-data-service:test` — all tests pass
-- [ ] Manual verification: app starts against DB initialized with updated `init.sql`
+- [x] Manual verification: app starts against DB initialized with updated `init.sql`
