@@ -154,7 +154,9 @@ services:
       start_period: 30s
 
   # ============================================================
-  # Kafka (SAGA events, domain events, audit) — KRaft mode
+  # Kafka (SAGA events, domain events, audit, analytics, RPC)
+  # Topics are created by the kafka-init container on first startup.
+  # See: ../kafka/create-topics.sh for topic configuration.
   # ============================================================
   kafka:
     image: confluentinc/cp-kafka:latest
@@ -184,22 +186,21 @@ services:
       start_period: 60s
 
   # ============================================================
-  # RabbitMQ (RPC calls, dead-letter handling)
+  # kafka-init — Creates Kafka topics on first startup.
+  # Builds from: ../kafka/Dockerfile
+  # Script:      ../kafka/create-topics.sh
   # ============================================================
-  rabbitmq:
-    image: rabbitmq:3-management-alpine
-    container_name: rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672"
+  kafka-init:
+    build:
+      context: ./../kafka
+      dockerfile: Dockerfile
+    container_name: kafka-init
+    command: ["kafka:9092"]
+    depends_on:
+      kafka:
+        condition: service_healthy
     networks:
       - insurance-net
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
-      interval: 15s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
 
   # ============================================================
   # Redis (API Gateway rate limiting)

@@ -5,6 +5,11 @@ spring:
   cloud:
     stream:
       default-binder: kafka
+      kafka:
+        binder:
+          brokers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+          configuration:
+            auto.create.topics.enable: false  # topics are pre-provisioned by kafka-init
   application:
     name: reference-skeleton
   profiles:
@@ -25,7 +30,7 @@ spring:
     console:
       enabled: true
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     consumer:
       group-id: skeleton-group
       auto-offset-reset: earliest
@@ -36,12 +41,6 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
 
 logging:
   pattern:
