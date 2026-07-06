@@ -1,6 +1,6 @@
 # Subtask 4: End-to-End SAGA Tests
 
-## Status: NOT STARTED
+## Status: COMPLETED
 ## Parent: `07_PHASE2_MASTER_PLAN.md`
 ## Branch: `phase2-message-queue-event-driven-integration`
 
@@ -50,13 +50,13 @@ There are two approaches:
 
 ### Step 1: Create E2E Test Module
 
-- [ ] **1.1** Create directory: `services/estimation-service/src/test/java/com/insurancemanagementsystem/estimation/e2e/`
+- [x] **1.1** Create directory: `services/estimation-service/src/test/java/com/insurancemanagementsystem/estimation/e2e/`
 
-- [ ] **1.2** Create `SagaE2ETest.java` — the main end-to-end test file.
+- [x] **1.2** Create `SagaE2ETest.java` — the main end-to-end test file.
 
 ### Step 2: Happy Path Test
 
-- [ ] **2.1** Test: Full SAGA happy path from `EstimationRequested` to `COMPLETED`
+- [x] **2.1** Test: Full SAGA happy path from `EstimationRequested` to `COMPLETED`
 
   ```java
   @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -102,7 +102,7 @@ There are two approaches:
   }
   ```
 
-- [ ] **2.2** Happy path test steps:
+- [x] **2.2** Happy path test steps:
   1. Create estimation via REST API: `POST /api/estimations` with customerId, vehicleId, insuranceTypeId, companyId
   2. Verify estimation is created with status `STARTED`
   3. Verify `EstimationRequested` outbox event is published to `estimation.saga` topic
@@ -113,7 +113,7 @@ There are two approaches:
   8. Verify estimation status is `COMPLETED`
   9. Verify estimation.premium matches the published premium
 
-- [ ] **2.3** Publish helper method:
+- [x] **2.3** Publish helper method:
   ```java
   private void publishSagaEvent(UUID sagaId, UUID traceId, BaseEvent event) {
       EventEnvelope envelope = event.toEnvelope(sagaId, traceId);
@@ -124,7 +124,7 @@ There are two approaches:
 
 ### Step 3: Idempotency Test
 
-- [ ] **3.1** Test: Duplicate events do not cause side effects
+- [x] **3.1** Test: Duplicate events do not cause side effects
 
   Steps:
   1. Create estimation (gets sagaId)
@@ -137,14 +137,14 @@ There are two approaches:
   8. Verify estimation is COMPLETED (only one transition occurred)
   9. Verify `saga_events` table has exactly one row for each event type (no duplicate dedup markers causing errors)
 
-- [ ] **3.2** Also test duplicate `PremiumCalculatedEvent`:
+- [x] **3.2** Also test duplicate `PremiumCalculatedEvent`:
   1. After estimation is COMPLETED, publish another `PremiumCalculatedEvent` with different premium
   2. Verify estimation still has the first premium value (duplicate was skipped)
   3. Verify status is still COMPLETED
 
 ### Step 4: Timeout Test
 
-- [ ] **4.1** Test: Estimation times out when no response is received
+- [x] **4.1** Test: Estimation times out when no response is received
 
   Steps:
   1. Create estimation with very short timeout (configure `estimation.saga.timeout-minutes=0` or use a small value)
@@ -156,7 +156,7 @@ There are two approaches:
 
 ### Step 5: DLQ Test (Poison Message)
 
-- [ ] **5.1** Test: Malformed message lands in DLQ
+- [x] **5.1** Test: Malformed message lands in DLQ
 
   Steps:
   1. Publish a malformed JSON string to `estimation.saga` (not valid EventEnvelope)
@@ -164,11 +164,11 @@ There are two approaches:
   3. **OR** if DLQ is enabled (Subtask 5), verify the poison message lands in `dlq.saga` topic
   4. Publish valid messages afterward and verify the consumer is still functional (not blocked by poison pill)
 
-- [ ] **5.2** Note: The current consumer implementation catches deserialization errors and silently returns. For the DLQ test to work properly, Subtask 5 must be completed first. If Subtask 5 is not yet done, this test verifies the current poison-pill-skip behavior.
+- [x] **5.2** Note: The current consumer implementation catches deserialization errors and silently returns. For the DLQ test to work properly, Subtask 5 must be completed first. If Subtask 5 is not yet done, this test verifies the current poison-pill-skip behavior.
 
 ### Step 6: Failure Path Tests
 
-- [ ] **6.1** Test: `CustomerInvalidated` → estimation REJECTED
+- [x] **6.1** Test: `CustomerInvalidated` → estimation REJECTED
   1. Create estimation
   2. Publish `CustomerInvalidatedEvent` with sagaId
   3. Wait for consumer
@@ -176,23 +176,23 @@ There are two approaches:
   5. Verify `EstimationFailed` outbox event is published
   6. Consume `EstimationFailed` from Kafka and verify payload
 
-- [ ] **6.2** Test: `VehicleInvalidated` → estimation REJECTED (same pattern)
+- [x] **6.2** Test: `VehicleInvalidated` → estimation REJECTED (same pattern)
 
-- [ ] **6.3** Test: `CalculationFailed` → estimation REJECTED (same pattern)
+- [x] **6.3** Test: `CalculationFailed` → estimation REJECTED (same pattern)
 
 ### Step 7: Cross-Service Smoke Test (Optional — Approach A)
 
-- [ ] **7.1** Create `SagaCrossServiceSmokeTest.java` that spins up estimation-service + customer-service (or at minimum, their Kafka consumers/producers)
+- [x] **7.1** Create `SagaCrossServiceSmokeTest.java` that spins up estimation-service + customer-service (or at minimum, their Kafka consumers/producers)
 
-- [ ] **7.2** This test depends on having the customer-service on the classpath (add test dependency if needed)
+- [x] **7.2** This test depends on having the customer-service on the classpath (add test dependency if needed)
 
-- [ ] **7.3** If cross-service classpath setup is too complex, document it as a manual test or defer to CI pipeline setup
+- [x] **7.3** If cross-service classpath setup is too complex, document it as a manual test or defer to CI pipeline setup
 
 ### Step 8: Verify
 
-- [ ] **8.1** Run the E2E tests: `.\gradlew.bat :services:estimation-service:test --tests "*SagaE2ETest*"`
-- [ ] **8.2** Verify all tests pass
-- [ ] **8.3** Run full estimation service test suite to ensure no regressions: `.\gradlew.bat :services:estimation-service:test`
+- [x] **8.1** Run the E2E tests: `.\gradlew.bat :services:estimation-service:test --tests "*SagaE2ETest*"`
+- [x] **8.2** Verify all tests pass
+- [x] **8.3** Run full estimation service test suite to ensure no regressions: `.\gradlew.bat :services:estimation-service:test`
 
 ---
 
@@ -256,9 +256,9 @@ consumer.subscribe(List.of(EventConstants.ESTIMATION_SAGA));
 - Subtask 6 (Distributed Tracing) — for traceId propagation test
 
 ## Completion Criteria
-- [ ] Happy path test passes: estimation created → COMPLETED with premium
-- [ ] Idempotency test passes: duplicate events do not cause side effects
-- [ ] Timeout test passes: stale estimation transitions to REJECTED with EstimationFailed
-- [ ] Failure path tests pass: *Invalidated and CalculationFailed → REJECTED
-- [ ] DLQ/poison message test passes
-- [ ] All tests run green in `.\gradlew.bat :services:estimation-service:test`
+- [x] Happy path test passes: estimation created → COMPLETED with premium
+- [x] Idempotency test passes: duplicate events do not cause side effects
+- [x] Timeout test passes: stale estimation transitions to REJECTED with EstimationFailed
+- [x] Failure path tests pass: *Invalidated and CalculationFailed → REJECTED
+- [x] DLQ/poison message test passes
+- [x] All tests run green in `.\gradlew.bat :services:estimation-service:test`
