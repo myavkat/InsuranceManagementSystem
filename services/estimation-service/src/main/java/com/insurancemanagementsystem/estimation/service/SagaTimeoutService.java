@@ -1,6 +1,9 @@
 package com.insurancemanagementsystem.estimation.service;
 
-import com.insurancemanagementsystem.estimation.config.EstimationEventPublisher;
+import com.insurancemanagementsystem.common.event.EventConstants;
+import com.insurancemanagementsystem.common.entity.OutboxEvent;
+import com.insurancemanagementsystem.common.repository.OutboxEventRepository;
+import com.insurancemanagementsystem.estimation.config.OutboxEventSerializer;
 import com.insurancemanagementsystem.estimation.entity.Estimation;
 import com.insurancemanagementsystem.estimation.repository.EstimationRepository;
 import lombok.RequiredArgsConstructor;
@@ -9,12 +12,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -23,7 +26,9 @@ import java.util.UUID;
 public class SagaTimeoutService {
 
     private final EstimationRepository estimationRepository;
-    private final EstimationEventPublisher estimationEventPublisher;
+    private final OutboxEventRepository outboxEventRepository;
+    private final OutboxEventSerializer outboxEventSerializer;
+    private final JsonMapper jsonMapper;
 
     @Value("${estimation.saga.timeout-minutes:5}")
     private int timeoutMinutes;
@@ -48,33 +53,29 @@ public class SagaTimeoutService {
         log.warn("Found {} timed-out estimations (timeout={}min)", staleEstimations.size(), timeoutMinutes);
 
         for (Estimation estimation : staleEstimations) {
+            UUID sagaId = estimation.getSagaId();
+            log.warn("Timing out estimation id={}, sagaId={}, created at {}",
+                    estimation.getId(), sagaId, estimation.getCreatedAt());
+
+            String reason = "SAGA timed out after " + timeoutMinutes + " minutes";
+
+            // Serialize outbox event FIRST — if serialization fails, exception propagates
+            // and @Transactional rolls back the transaction, keeping estimation as STARTED
+            OutboxEvent outboxEvent = outboxEventSerializer.buildEstimationFailedOutboxEvent(
+                    sagaId, sagaId, reason, "SagaTimeoutService", EventConstants.ESTIMATION_SAGA);
+
+            // Transition to REJECTED
+            estimation.setStatus(Estimation.Status.REJECTED);
             try {
-                UUID sagaId = estimation.getSagaId();
-                log.warn("Timing out estimation id={}, sagaId={}, created at {}",
-                        estimation.getId(), sagaId, estimation.getCreatedAt());
-
-                // Transition to REJECTED
-                estimation.setStatus(Estimation.Status.REJECTED);
-                estimation.setDetails("SAGA timed out after " + timeoutMinutes + " minutes");
-                estimationRepository.save(estimation);
-
-                // Defer publish until after DB transaction commits (atomicity)
-                UUID capturedSagaId = sagaId;
-                int capturedTimeout = timeoutMinutes;
-                TransactionSynchronizationManager.registerSynchronization(
-                    new TransactionSynchronization() {
-                        @Override
-                        public void afterCommit() {
-                            estimationEventPublisher.publishEstimationFailed(
-                                    capturedSagaId,
-                                    null,
-                                    "SAGA timed out after " + capturedTimeout + " minutes",
-                                    "SagaTimeoutService");
-                        }
-                    });
+                estimation.setDetails(jsonMapper.writeValueAsString(Map.of("reason", reason)));
             } catch (Exception e) {
-                log.error("Failed to process timeout for estimation id={}", estimation.getId(), e);
+                log.warn("Failed to serialize timeout details for sagaId={}", sagaId, e);
+                estimation.setDetails("{\"reason\":\"" + reason.replace("\\", "\\\\").replace("\"", "\\\"") + "\"}");
             }
+            estimationRepository.save(estimation);
+            outboxEventRepository.save(outboxEvent);
+
+            log.info("Rejected timed-out estimation sagaId={} and saved outbox event", sagaId);
         }
     }
 }

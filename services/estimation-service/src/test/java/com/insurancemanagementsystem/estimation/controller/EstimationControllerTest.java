@@ -21,7 +21,10 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -173,7 +176,7 @@ class EstimationControllerTest {
     @Test
     void getAll_WithNoFilters_ReturnsPaginatedList() {
         Page<EstimationResponse> page = new PageImpl<>(List.of(createSampleResponse()));
-        given(estimationService.findAll(isNull(), isNull(), any(Pageable.class))).willReturn(page);
+        given(estimationService.findAll(nullable(UUID.class), nullable(String.class), any(Pageable.class))).willReturn(page);
 
         restTestClient.get().uri("/api/estimations")
                 .exchange()
@@ -184,7 +187,7 @@ class EstimationControllerTest {
                 .jsonPath("$.data.content[0].id").isEqualTo(testId.toString())
                 .jsonPath("$.data.content[0].status").isEqualTo("STARTED");
 
-        verify(estimationService).findAll(isNull(), isNull(), any(Pageable.class));
+        verify(estimationService).findAll(isNull(UUID.class), isNull(String.class), any(Pageable.class));
     }
 
     // ---------------------------------------------------------------
@@ -193,7 +196,7 @@ class EstimationControllerTest {
     @Test
     void getAll_WithCustomerIdFilter_ReturnsFilteredList() {
         Page<EstimationResponse> page = new PageImpl<>(List.of(createSampleResponse()));
-        given(estimationService.findAll(eq(customerId), isNull(), any(Pageable.class))).willReturn(page);
+        given(estimationService.findAll(eq(customerId), nullable(String.class), any(Pageable.class))).willReturn(page);
 
         restTestClient.get().uri("/api/estimations?customerId={customerId}", customerId)
                 .exchange()
@@ -203,7 +206,7 @@ class EstimationControllerTest {
                 .jsonPath("$.data.content").isArray()
                 .jsonPath("$.data.content[0].id").isEqualTo(testId.toString());
 
-        verify(estimationService).findAll(eq(customerId), isNull(), any(Pageable.class));
+        verify(estimationService).findAll(eq(customerId), isNull(String.class), any(Pageable.class));
     }
 
     // ---------------------------------------------------------------
@@ -212,7 +215,7 @@ class EstimationControllerTest {
     @Test
     void getAll_WithStatusFilter_ReturnsFilteredList() {
         Page<EstimationResponse> page = new PageImpl<>(List.of(createSampleResponse()));
-        given(estimationService.findAll(isNull(), eq("STARTED"), any(Pageable.class))).willReturn(page);
+        given(estimationService.findAll(nullable(UUID.class), eq("STARTED"), any(Pageable.class))).willReturn(page);
 
         restTestClient.get().uri("/api/estimations?status=STARTED")
                 .exchange()
@@ -222,7 +225,7 @@ class EstimationControllerTest {
                 .jsonPath("$.data.content").isArray()
                 .jsonPath("$.data.content[0].id").isEqualTo(testId.toString());
 
-        verify(estimationService).findAll(isNull(), eq("STARTED"), any(Pageable.class));
+        verify(estimationService).findAll(isNull(UUID.class), eq("STARTED"), any(Pageable.class));
     }
 
     // ---------------------------------------------------------------
@@ -230,7 +233,7 @@ class EstimationControllerTest {
     // ---------------------------------------------------------------
     @Test
     void getAll_WithInvalidStatus_Returns400() {
-        given(estimationService.findAll(isNull(), eq("INVALID"), any(Pageable.class)))
+        given(estimationService.findAll(nullable(UUID.class), eq("INVALID"), any(Pageable.class)))
                 .willThrow(new IllegalArgumentException("Invalid status: 'INVALID'. Valid values: STARTED, COMPLETED, REJECTED"));
 
         restTestClient.get().uri("/api/estimations?status=INVALID")

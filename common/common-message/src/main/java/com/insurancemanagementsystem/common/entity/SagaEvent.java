@@ -1,4 +1,4 @@
-package com.insurancemanagementsystem.estimation.entity;
+package com.insurancemanagementsystem.common.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

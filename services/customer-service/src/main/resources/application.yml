@@ -42,11 +42,16 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
+customer:
+  outbox:
+    poll-interval-ms: 1000
+    max-retries: 3
+    failed-ttl-minutes: 60
+
+outbox:
+  poll-interval-ms: ${customer.outbox.poll-interval-ms:1000}
+  max-retries: ${customer.outbox.max-retries:3}
+  failed-ttl-minutes: ${customer.outbox.failed-ttl-minutes:60}
 
 logging:
   pattern:

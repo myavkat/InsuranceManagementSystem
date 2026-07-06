@@ -41,12 +41,6 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
-
 logging:
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} [%X{traceId:-},%X{sagaId:-}] - %msg%n"
@@ -57,3 +51,13 @@ estimation:
   saga:
     timeout-minutes: 5
     poll-interval-ms: 30000
+  outbox:
+    poll-interval-ms: 1000
+    batch-size: 10
+    max-retries: 3
+    failed-ttl-minutes: 60
+
+outbox:
+  poll-interval-ms: ${estimation.outbox.poll-interval-ms:1000}
+  max-retries: ${estimation.outbox.max-retries:3}
+  failed-ttl-minutes: ${estimation.outbox.failed-ttl-minutes:60}

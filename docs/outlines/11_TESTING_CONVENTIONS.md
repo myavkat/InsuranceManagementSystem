@@ -55,7 +55,9 @@ class CustomerServiceApplicationTests {
 
 ## Key Import Paths (Spring Boot 4)
 
-The project uses Spring Boot 4 with Jackson 3. Key import paths differ from Spring Boot 3:
+The project uses Spring Boot 4 with Jackson 3. Many classes were repackaged or renamed as part of Spring Boot's modularization — always check the actual import before writing direct references.
+
+### Test Infrastructure
 
 | Annotation / Class | Import Path |
 |---|---|
@@ -65,6 +67,14 @@ The project uses Spring Boot 4 with Jackson 3. Key import paths differ from Spri
 | `ObjectMapper` (Jackson 3) | `tools.jackson.databind.ObjectMapper` |
 | `JsonMapper` (Jackson 3) | `tools.jackson.databind.json.JsonMapper` |
 | `@ExtendWith(MockitoExtension.class)` | `org.mockito.junit.jupiter.MockitoExtension` |
+
+### JPA / Persistence
+
+| Annotation / Class | Import Path (Spring Boot 4) | Old Path (Spring Boot 3) |
+|---|---|---|
+| `@EntityScan` | `org.springframework.boot.persistence.autoconfigure.EntityScan` | `org.springframework.boot.autoconfigure.domain.EntityScan` |
+| `DataJpaRepositoriesAutoConfiguration` | `org.springframework.boot.data.jpa.autoconfigure.DataJpaRepositoriesAutoConfiguration` | `org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration` |
+| `DataSourceAutoConfiguration` | `org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration` | `org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration` |
 
 ---
 

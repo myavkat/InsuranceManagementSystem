@@ -43,6 +43,24 @@ docker compose -f infra/docker/docker-compose.yml ps
 
 ---
 
+## Testcontainers on Windows
+
+Integration tests use Testcontainers (`@Testcontainers`, `PostgreSQLContainer`, `ConfluentKafkaContainer`) which require Docker. On Windows with Docker Desktop in WSL2 mode, the default named pipe auto-detection may fail with:
+
+```
+Could not find a valid Docker environment.
+```
+
+**Fix:** Add the WSL2 pipe to `~/.testcontainers.properties`:
+
+```properties
+docker.host=npipe:////./pipe/dockerDesktopLinuxEngine
+```
+
+Note: the standard pipe is `docker_engine`; Docker Desktop in WSL2 mode uses `dockerDesktopLinuxEngine`. If a `docker.client.strategy` line exists from an older Testcontainers 1.x setup, remove it — Testcontainers 2.x resolves the strategy automatically from `docker.host`.
+
+---
+
 ## IDE Quirks
 
 ### IntelliJ IDEA

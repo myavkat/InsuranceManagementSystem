@@ -28,6 +28,7 @@ spring:
       kafka:
         binder:
           brokers: localhost:9092
+      dynamicDestinations: estimation.saga
   kafka:
     consumer:
       group-id: insurance-service-group
@@ -40,11 +41,16 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
+insurance:
+  outbox:
+    poll-interval-ms: 1000
+    max-retries: 3
+    failed-ttl-minutes: 60
+
+outbox:
+  poll-interval-ms: ${insurance.outbox.poll-interval-ms:1000}
+  max-retries: ${insurance.outbox.max-retries:3}
+  failed-ttl-minutes: ${insurance.outbox.failed-ttl-minutes:60}
 
 logging:
   pattern:

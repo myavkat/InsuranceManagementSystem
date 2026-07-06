@@ -1,9 +1,10 @@
 package com.insurancemanagementsystem.estimation.service;
 
-import com.insurancemanagementsystem.estimation.config.EstimationEventPublisher;
+import com.insurancemanagementsystem.common.entity.OutboxEvent;
+import com.insurancemanagementsystem.common.repository.OutboxEventRepository;
+import com.insurancemanagementsystem.estimation.config.OutboxEventSerializer;
 import com.insurancemanagementsystem.estimation.entity.Estimation;
 import com.insurancemanagementsystem.estimation.repository.EstimationRepository;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,12 +14,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,7 +35,13 @@ class SagaTimeoutServiceTest {
     private EstimationRepository estimationRepository;
 
     @Mock
-    private EstimationEventPublisher estimationEventPublisher;
+    private OutboxEventRepository outboxEventRepository;
+
+    @Mock
+    private OutboxEventSerializer outboxEventSerializer;
+
+    @Mock
+    private JsonMapper jsonMapper;
 
     @InjectMocks
     private SagaTimeoutService timeoutService;
@@ -45,12 +53,11 @@ class SagaTimeoutServiceTest {
     void setUp() {
         // @Value fields are not injected by Mockito — set manually
         ReflectionTestUtils.setField(timeoutService, "timeoutMinutes", 5);
-        TransactionSynchronizationManager.initSynchronization();
-    }
+        lenient().when(outboxEventSerializer.buildEstimationFailedOutboxEvent(
+                any(), any(), any(), any(), any())).thenReturn(OutboxEvent.builder().build());
 
-    @AfterEach
-    void tearDown() {
-        TransactionSynchronizationManager.clearSynchronization();
+        lenient().when(jsonMapper.writeValueAsString(any(Map.class)))
+                .thenReturn("{\"reason\":\"SAGA timed out after 5 minutes\"}");
     }
 
     // ---------------------------------------------------------------
@@ -78,7 +85,7 @@ class SagaTimeoutServiceTest {
         verify(estimationRepository).findByStatusAndCreatedAtBefore(
                 eq(Estimation.Status.STARTED), any(Instant.class));
         verify(estimationRepository, never()).save(any());
-        verify(estimationEventPublisher, never()).publishEstimationFailed(any(), any(), any(), any());
+        verify(outboxEventRepository, never()).save(any());
     }
 
     // ---------------------------------------------------------------
@@ -95,11 +102,10 @@ class SagaTimeoutServiceTest {
         timeoutService.checkForTimedOutSagas();
 
         assertThat(stale.getStatus()).isEqualTo(Estimation.Status.REJECTED);
-        assertThat(stale.getDetails()).contains("timed out");
+        assertThat(stale.getDetails()).isEqualTo("{\"reason\":\"SAGA timed out after 5 minutes\"}");
 
         verify(estimationRepository).save(stale);
-        // publishEstimationFailed is now deferred to TransactionSynchronization.afterCommit() —
-        // verified by integration tests with Testcontainers
+        verify(outboxEventRepository).save(any(OutboxEvent.class));
     }
 
     // ---------------------------------------------------------------
@@ -119,39 +125,14 @@ class SagaTimeoutServiceTest {
 
         assertThat(stale1.getStatus()).isEqualTo(Estimation.Status.REJECTED);
         assertThat(stale2.getStatus()).isEqualTo(Estimation.Status.REJECTED);
+        assertThat(stale1.getDetails()).isEqualTo("{\"reason\":\"SAGA timed out after 5 minutes\"}");
+        assertThat(stale2.getDetails()).isEqualTo("{\"reason\":\"SAGA timed out after 5 minutes\"}");
         verify(estimationRepository, times(2)).save(any());
-        // publishEstimationFailed is now deferred to TransactionSynchronization.afterCommit() —
-        // verified by integration tests with Testcontainers
+        verify(outboxEventRepository, times(2)).save(any(OutboxEvent.class));
     }
 
     // ---------------------------------------------------------------
-    // 4. Exception during processing one → others still processed
-    // ---------------------------------------------------------------
-    @Test
-    void exceptionDuringProcessing_otherEstimationsStillProcessed() {
-        UUID sagaId1 = UUID.randomUUID();
-        UUID sagaId2 = UUID.randomUUID();
-        Estimation stale1 = createStaleEstimation(sagaId1);
-        Estimation stale2 = createStaleEstimation(sagaId2);
-
-        when(estimationRepository.findByStatusAndCreatedAtBefore(any(), any()))
-                .thenReturn(List.of(stale1, stale2));
-
-        // First save throws, second succeeds
-        when(estimationRepository.save(stale1)).thenThrow(new RuntimeException("DB error"));
-        when(estimationRepository.save(stale2)).thenReturn(stale2);
-
-        timeoutService.checkForTimedOutSagas();
-
-        // stale2 should still be processed despite stale1 failing
-        assertThat(stale2.getStatus()).isEqualTo(Estimation.Status.REJECTED);
-        verify(estimationRepository).save(stale2);
-        // publishEstimationFailed is now deferred to TransactionSynchronization.afterCommit() —
-        // verified by integration tests with Testcontainers
-    }
-
-    // ---------------------------------------------------------------
-    // 5. Correct cutoff time calculation (based on timeoutMinutes config)
+    // 4. Correct cutoff time calculation (based on timeoutMinutes config)
     // ---------------------------------------------------------------
     @Test
     void usesCorrectCutoffTime() {

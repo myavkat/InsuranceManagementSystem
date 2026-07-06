@@ -3,8 +3,10 @@ package com.insurancemanagementsystem.insurance.config;
 import com.insurancemanagementsystem.common.event.EventConstants;
 import com.insurancemanagementsystem.common.event.EventEnvelope;
 import com.insurancemanagementsystem.common.event.saga.*;
+import com.insurancemanagementsystem.common.entity.OutboxEvent;
+import com.insurancemanagementsystem.common.repository.OutboxEventRepository;
+import com.insurancemanagementsystem.common.repository.SagaEventRepository;
 import com.insurancemanagementsystem.insurance.entity.Insurance;
-import com.insurancemanagementsystem.common.messaging.MessagePublisher;
 import com.insurancemanagementsystem.insurance.repository.InsuranceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +14,7 @@ import org.slf4j.MDC;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.support.TransactionTemplate;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.math.BigDecimal;
@@ -27,9 +30,11 @@ import java.util.function.Consumer;
 public class InsuranceSagaConsumer {
 
     private final InsuranceRepository insuranceRepository;
-    private final MessagePublisher messagePublisher;
-    private final DeduplicationStore deduplicationStore;
+    private final SagaEventRepository sagaEventRepository;
+    private final OutboxEventRepository outboxEventRepository;
     private final SagaAggregationStore aggregationStore;
+    private final TransactionTemplate transactionTemplate;
+    private final JsonMapper jsonMapper;
 
     @Bean
     public Consumer<String> processInsuranceSaga(JsonMapper jsonMapper) {
@@ -49,11 +54,11 @@ public class InsuranceSagaConsumer {
 
                 switch (eventType) {
                     case EventConstants.ESTIMATION_REQUESTED ->
-                        handleEstimationRequested(envelope, sagaId, traceId, jsonMapper);
+                        handleEstimationRequested(envelope, sagaId, traceId);
                     case EventConstants.CUSTOMER_VALIDATED ->
-                        handleCustomerValidated(envelope, sagaId, traceId, jsonMapper);
+                        handleCustomerValidated(envelope, sagaId, traceId);
                     case EventConstants.VEHICLE_VALIDATED ->
-                        handleVehicleValidated(envelope, sagaId, traceId, jsonMapper);
+                        handleVehicleValidated(envelope, sagaId, traceId);
                     case EventConstants.CUSTOMER_INVALIDATED ->
                         handleInvalidated(envelope, sagaId, traceId, "Customer validation failed");
                     case EventConstants.VEHICLE_INVALIDATED ->
@@ -74,84 +79,101 @@ public class InsuranceSagaConsumer {
     // ---------------------------------------------------------------
     // EstimationRequested — store insurance context
     // ---------------------------------------------------------------
-    private void handleEstimationRequested(EventEnvelope envelope, UUID sagaId, UUID traceId, JsonMapper jsonMapper) {
+    private void handleEstimationRequested(EventEnvelope envelope, UUID sagaId, UUID traceId) {
         String eventType = envelope.getEventType();
 
-        if (deduplicationStore.isDuplicate(sagaId.toString(), eventType)) {
-            log.info("Duplicate event: sagaId={}, eventType={} — skipping", sagaId, eventType);
-            return;
-        }
-        deduplicationStore.markProcessed(sagaId.toString(), eventType);
+        transactionTemplate.executeWithoutResult(status -> {
+            if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
+                log.info("Duplicate event: sagaId={}, eventType={} — skipping", sagaId, eventType);
+                return;
+            }
 
-        // Store in aggregation — will check if complete
-        boolean ready = aggregationStore.storeAndCheckReady(sagaId.toString(), eventType, envelope);
-        if (ready) {
-            calculatePremium(sagaId, traceId, jsonMapper);
-        }
+            boolean ready = aggregationStore.storeAndCheckReady(sagaId.toString(), eventType, envelope);
+            if (ready) {
+                calculatePremium(sagaId, traceId);
+            }
+        });
     }
 
     // ---------------------------------------------------------------
     // CustomerValidated — store customer data
     // ---------------------------------------------------------------
-    private void handleCustomerValidated(EventEnvelope envelope, UUID sagaId, UUID traceId, JsonMapper jsonMapper) {
+    private void handleCustomerValidated(EventEnvelope envelope, UUID sagaId, UUID traceId) {
         String eventType = envelope.getEventType();
 
-        if (deduplicationStore.isDuplicate(sagaId.toString(), eventType)) {
-            log.info("Duplicate event: sagaId={}, eventType={} — skipping", sagaId, eventType);
-            return;
-        }
-        deduplicationStore.markProcessed(sagaId.toString(), eventType);
+        transactionTemplate.executeWithoutResult(status -> {
+            if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
+                log.info("Duplicate event: sagaId={}, eventType={} — skipping", sagaId, eventType);
+                return;
+            }
 
-        boolean ready = aggregationStore.storeAndCheckReady(sagaId.toString(), eventType, envelope);
-        if (ready) {
-            calculatePremium(sagaId, traceId, jsonMapper);
-        }
+            boolean ready = aggregationStore.storeAndCheckReady(sagaId.toString(), eventType, envelope);
+            if (ready) {
+                calculatePremium(sagaId, traceId);
+            }
+        });
     }
 
     // ---------------------------------------------------------------
     // VehicleValidated — store vehicle data
     // ---------------------------------------------------------------
-    private void handleVehicleValidated(EventEnvelope envelope, UUID sagaId, UUID traceId, JsonMapper jsonMapper) {
+    private void handleVehicleValidated(EventEnvelope envelope, UUID sagaId, UUID traceId) {
         String eventType = envelope.getEventType();
 
-        if (deduplicationStore.isDuplicate(sagaId.toString(), eventType)) {
-            log.info("Duplicate event: sagaId={}, eventType={} — skipping", sagaId, eventType);
-            return;
-        }
-        deduplicationStore.markProcessed(sagaId.toString(), eventType);
+        transactionTemplate.executeWithoutResult(status -> {
+            if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
+                log.info("Duplicate event: sagaId={}, eventType={} — skipping", sagaId, eventType);
+                return;
+            }
 
-        boolean ready = aggregationStore.storeAndCheckReady(sagaId.toString(), eventType, envelope);
-        if (ready) {
-            calculatePremium(sagaId, traceId, jsonMapper);
-        }
+            boolean ready = aggregationStore.storeAndCheckReady(sagaId.toString(), eventType, envelope);
+            if (ready) {
+                calculatePremium(sagaId, traceId);
+            }
+        });
     }
 
     // ---------------------------------------------------------------
     // Invalidated — calculation not possible, publish failure
     // ---------------------------------------------------------------
     private void handleInvalidated(EventEnvelope envelope, UUID sagaId, UUID traceId, String reason) {
-        log.warn("SAGA invalidated for sagaId={}: {}", sagaId, reason);
-        aggregationStore.remove(sagaId.toString());
+        String eventType = envelope.getEventType();
 
-        CalculationFailedEvent failed = CalculationFailedEvent.builder()
-                .reason(reason)
-                .build();
-        EventEnvelope outcome = failed.toEnvelope(sagaId, traceId);
-        messagePublisher.publish(EventConstants.ESTIMATION_SAGA, outcome);
+        transactionTemplate.executeWithoutResult(status -> {
+            if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
+                log.info("Duplicate event: sagaId={}, eventType={} — skipping", sagaId, eventType);
+                return;
+            }
+
+            log.warn("SAGA invalidated for sagaId={}: {}", sagaId, reason);
+            aggregationStore.remove(sagaId.toString());
+
+            CalculationFailedEvent failed = CalculationFailedEvent.builder()
+                    .reason(reason)
+                    .build();
+            EventEnvelope outcome = failed.toEnvelope(sagaId, traceId);
+            outboxEventRepository.save(buildOutboxEvent(sagaId, outcome, EventConstants.ESTIMATION_SAGA));
+        });
     }
 
     // ---------------------------------------------------------------
     // EstimationFailed — log only (no reversible action)
     // ---------------------------------------------------------------
     private void handleEstimationFailed(EventEnvelope envelope) {
-        log.warn("Estimation failed for saga: {} — no compensation needed (calculation is stateless)",
-                envelope.getSagaId());
+        UUID sagaId = envelope.getSagaId();
+        String eventType = envelope.getEventType();
+
+        if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
+            return;
+        }
+
+        log.warn("Estimation failed for saga: {} — no compensation needed (calculation is stateless)", sagaId);
     }
 
     // ---------------------------------------------------------------
     // Premium Calculation — core business logic
     // ---------------------------------------------------------------
-    private void calculatePremium(UUID sagaId, UUID traceId, JsonMapper jsonMapper) {
+    private void calculatePremium(UUID sagaId, UUID traceId) {
         SagaAggregationStore.SagaState state = aggregationStore.retrieve(sagaId.toString());
         if (state == null) {
             log.warn("SAGA state not found for sagaId={} — already consumed?", sagaId);
@@ -193,20 +215,18 @@ public class InsuranceSagaConsumer {
         }
 
         // Calculate premium: basePremium * risk factor
-        // Risk factor = 1.0 (default) with simple adjustments
         BigDecimal riskFactor = BigDecimal.ONE;
 
         Map<String, BigDecimal> breakdown = new LinkedHashMap<>();
         breakdown.put("basePremium", basePremium);
 
-        // Simple risk factors (can be extended with more data later)
         BigDecimal measuredAdjustment = BigDecimal.ZERO;
         breakdown.put("riskFactor", riskFactor);
         breakdown.put("adjustment", measuredAdjustment);
 
         BigDecimal totalPremium = basePremium.multiply(riskFactor).add(measuredAdjustment);
 
-        // Publish PremiumCalculated
+        // Publish PremiumCalculated via outbox
         PremiumCalculatedEvent premiumEvent = PremiumCalculatedEvent.builder()
                 .premium(totalPremium)
                 .breakdown(breakdown)
@@ -217,7 +237,7 @@ public class InsuranceSagaConsumer {
                 .build();
 
         EventEnvelope outcome = premiumEvent.toEnvelope(sagaId, traceId);
-        messagePublisher.publish(EventConstants.ESTIMATION_SAGA, outcome);
+        outboxEventRepository.save(buildOutboxEvent(sagaId, outcome, EventConstants.ESTIMATION_SAGA));
         log.info("Premium calculated for sagaId={}: premium={}, typeId={}, companyId={}",
                 sagaId, totalPremium, insuranceTypeId, companyId);
     }
@@ -227,7 +247,22 @@ public class InsuranceSagaConsumer {
                 .reason(reason)
                 .build();
         EventEnvelope outcome = failed.toEnvelope(sagaId, traceId);
-        messagePublisher.publish(EventConstants.ESTIMATION_SAGA, outcome);
+        outboxEventRepository.save(buildOutboxEvent(sagaId, outcome, EventConstants.ESTIMATION_SAGA));
         log.warn("Calculation failed for sagaId={}: {}", sagaId, reason);
+    }
+
+    private OutboxEvent buildOutboxEvent(UUID sagaId, EventEnvelope envelope, String topic) {
+        String payloadJson;
+        try {
+            payloadJson = jsonMapper.writeValueAsString(envelope);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to serialize outbox payload for sagaId=" + sagaId, e);
+        }
+        return OutboxEvent.builder()
+                .sagaId(sagaId)
+                .topic(topic)
+                .payload(payloadJson)
+                .status(OutboxEvent.Status.PENDING)
+                .build();
     }
 }

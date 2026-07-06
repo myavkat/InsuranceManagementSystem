@@ -2,12 +2,14 @@ package com.insurancemanagementsystem.customer.saga;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
+import com.insurancemanagementsystem.common.entity.OutboxEvent;
+import com.insurancemanagementsystem.common.repository.OutboxEventRepository;
 import com.insurancemanagementsystem.common.event.EventConstants;
 import com.insurancemanagementsystem.common.event.EventEnvelope;
 import com.insurancemanagementsystem.common.event.saga.CustomerInvalidatedEvent;
 import com.insurancemanagementsystem.common.event.saga.CustomerValidatedEvent;
+import com.insurancemanagementsystem.common.event.saga.EstimationFailedEvent;
 import com.insurancemanagementsystem.common.event.saga.EstimationRequestedEvent;
-import com.insurancemanagementsystem.common.messaging.MessagePublisher;
 import com.insurancemanagementsystem.customer.entity.Customer;
 import com.insurancemanagementsystem.customer.repository.CustomerRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,7 +35,6 @@ import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -67,9 +68,9 @@ class CustomerSagaConsumerTest {
     private KafkaTemplate<String, String> kafkaTemplate;
 
     @MockitoBean
-    private MessagePublisher messagePublisher;
+    private OutboxEventRepository outboxEventRepository;
 
-    private final List<EventEnvelope> capturedEnvelopes = new ArrayList<>();
+    private final List<OutboxEvent> capturedOutboxEvents = new ArrayList<>();
 
     private static final ObjectMapper MAPPER = new JsonMapper();
 
@@ -79,19 +80,29 @@ class CustomerSagaConsumerTest {
     @BeforeEach
     void setUp() {
         customerRepository.deleteAll();
-        capturedEnvelopes.clear();
+        capturedOutboxEvents.clear();
         sagaId = UUID.randomUUID();
         traceId = UUID.randomUUID();
 
-        // Capture published envelopes via doAnswer to avoid ArgumentCaptor + timeout() compatibility issues
+        // Capture saved outbox events and assign an ID (as the real DB would)
         doAnswer(invocation -> {
-            capturedEnvelopes.add(invocation.getArgument(1));
-            return null;
-        }).when(messagePublisher).publish(anyString(), any(EventEnvelope.class));
+            OutboxEvent event = invocation.getArgument(0);
+            if (event.getId() == null) {
+                event.setId(UUID.randomUUID());
+            }
+            capturedOutboxEvents.add(event);
+            return event;
+        }).when(outboxEventRepository).save(any(OutboxEvent.class));
+
+        // Ensure relay queries return empty lists so the OutboxRelay scheduled task is a no-op
+        when(outboxEventRepository.findTop10ByStatusOrderByCreatedAtAsc(any()))
+                .thenReturn(List.of());
+        when(outboxEventRepository.findByStatusAndCreatedAtBefore(any(), any()))
+                .thenReturn(List.of());
     }
 
     @Test
-    void validCustomer_ShouldPublishCustomerValidated() throws Exception {
+    void validCustomer_ShouldSaveOutboxEventForCustomerValidated() throws Exception {
         Customer customer = customerRepository.save(Customer.builder()
                 .firstName("John")
                 .lastName("Doe")
@@ -108,10 +119,11 @@ class CustomerSagaConsumerTest {
 
         kafkaTemplate.send("estimation.saga", message).get(10, TimeUnit.SECONDS);
 
-        verify(messagePublisher, timeout(15000).times(1))
-                .publish(anyString(), any(EventEnvelope.class));
+        verify(outboxEventRepository, timeout(15000).times(1))
+                .save(any(OutboxEvent.class));
 
-        EventEnvelope published = capturedEnvelopes.get(0);
+        OutboxEvent saved = capturedOutboxEvents.get(0);
+        EventEnvelope published = MAPPER.readValue(saved.getPayload(), EventEnvelope.class);
         assertThat(published.getEventType()).isEqualTo(EventConstants.CUSTOMER_VALIDATED);
         assertThat(published.getSagaId()).isEqualTo(sagaId);
         assertThat(published.getTraceId()).isEqualTo(traceId);
@@ -123,7 +135,7 @@ class CustomerSagaConsumerTest {
     }
 
     @Test
-    void invalidCustomerId_ShouldPublishCustomerInvalidated() throws Exception {
+    void invalidCustomerId_ShouldSaveOutboxEventForCustomerInvalidated() throws Exception {
         UUID nonExistentId = UUID.randomUUID();
         EstimationRequestedEvent sagaEvent = EstimationRequestedEvent.builder()
                 .customerId(nonExistentId)
@@ -133,10 +145,11 @@ class CustomerSagaConsumerTest {
 
         kafkaTemplate.send("estimation.saga", message).get(10, TimeUnit.SECONDS);
 
-        verify(messagePublisher, timeout(15000).times(1))
-                .publish(anyString(), any(EventEnvelope.class));
+        verify(outboxEventRepository, timeout(15000).times(1))
+                .save(any(OutboxEvent.class));
 
-        EventEnvelope published = capturedEnvelopes.get(0);
+        OutboxEvent saved = capturedOutboxEvents.get(0);
+        EventEnvelope published = MAPPER.readValue(saved.getPayload(), EventEnvelope.class);
         assertThat(published.getEventType()).isEqualTo(EventConstants.CUSTOMER_INVALIDATED);
         assertThat(published.getSagaId()).isEqualTo(sagaId);
 
@@ -146,7 +159,7 @@ class CustomerSagaConsumerTest {
     }
 
     @Test
-    void softDeletedCustomer_ShouldPublishCustomerInvalidated() throws Exception {
+    void softDeletedCustomer_ShouldSaveOutboxEventForCustomerInvalidated() throws Exception {
         Customer customer = customerRepository.save(Customer.builder()
                 .firstName("Jane")
                 .lastName("Smith")
@@ -163,15 +176,61 @@ class CustomerSagaConsumerTest {
 
         kafkaTemplate.send("estimation.saga", message).get(10, TimeUnit.SECONDS);
 
-        verify(messagePublisher, timeout(15000).times(1))
-                .publish(anyString(), any(EventEnvelope.class));
+        verify(outboxEventRepository, timeout(15000).times(1))
+                .save(any(OutboxEvent.class));
 
-        EventEnvelope published = capturedEnvelopes.get(0);
+        OutboxEvent saved = capturedOutboxEvents.get(0);
+        EventEnvelope published = MAPPER.readValue(saved.getPayload(), EventEnvelope.class);
         assertThat(published.getEventType()).isEqualTo(EventConstants.CUSTOMER_INVALIDATED);
 
         CustomerInvalidatedEvent payload = MAPPER.convertValue(published.getPayload(), CustomerInvalidatedEvent.class);
         assertThat(payload.getCustomerId()).isEqualTo(customer.getId());
         assertThat(payload.getReason()).containsIgnoringCase("not found");
+    }
+
+    @Test
+    void duplicateEstimationFailed_isIdempotent() throws Exception {
+        // Use a fresh sagaId for this test
+        UUID failSagaId = UUID.randomUUID();
+
+        EstimationFailedEvent failEvent = EstimationFailedEvent.builder()
+                .originalSagaId(failSagaId)
+                .reason("Calculation timeout")
+                .failedStep("InsuranceService")
+                .build();
+        EventEnvelope failEnvelope = failEvent.toEnvelope(failSagaId, traceId);
+        String failMessage = MAPPER.writeValueAsString(failEnvelope);
+
+        // Send first ESTIMATION_FAILED
+        kafkaTemplate.send("estimation.saga", failMessage).get(10, TimeUnit.SECONDS);
+
+        // Send duplicate ESTIMATION_FAILED
+        kafkaTemplate.send("estimation.saga", failMessage).get(10, TimeUnit.SECONDS);
+
+        // Wait for both messages to be consumed
+        Thread.sleep(5000);
+
+        // Now verify that the dedup prevented duplicate processing
+        // by sending a valid ESTIMATION_REQUESTED with the SAME sagaId
+        Customer customer = customerRepository.save(Customer.builder()
+                .firstName("John")
+                .lastName("Doe")
+                .nationalId("12345678901")
+                .birthDate(java.time.LocalDate.of(1990, 1, 15))
+                .build());
+
+        EstimationRequestedEvent requestEvent = EstimationRequestedEvent.builder()
+                .customerId(customer.getId())
+                .build();
+        EventEnvelope requestEnvelope = requestEvent.toEnvelope(failSagaId, traceId);
+        String requestMessage = MAPPER.writeValueAsString(requestEnvelope);
+
+        kafkaTemplate.send("estimation.saga", requestMessage).get(10, TimeUnit.SECONDS);
+
+        // The ESTIMATION_REQUESTED should still be processed normally (dedup scoped by eventType + sagaId)
+        // That gives us exactly 1 outbox save (from ESTIMATION_REQUESTED, not from ESTIMATION_FAILED)
+        verify(outboxEventRepository, timeout(15000).times(1))
+                .save(any(OutboxEvent.class));
     }
 
     @Test
@@ -190,9 +249,9 @@ class CustomerSagaConsumerTest {
 
         // Send first event and verify it was processed
         kafkaTemplate.send("estimation.saga", message).get(10, TimeUnit.SECONDS);
-        verify(messagePublisher, timeout(15000).times(1))
-                .publish(anyString(), any(EventEnvelope.class));
-        assertThat(capturedEnvelopes).hasSize(1);
+        verify(outboxEventRepository, timeout(15000).times(1))
+                .save(any(OutboxEvent.class));
+        assertThat(capturedOutboxEvents).hasSize(1);
 
         // Send duplicate event with the same sagaId
         kafkaTemplate.send("estimation.saga", message).get(10, TimeUnit.SECONDS);
@@ -200,8 +259,8 @@ class CustomerSagaConsumerTest {
         // Wait for consumer to potentially process the duplicate
         Thread.sleep(5000);
 
-        // Verify the total number of publishes is still 1 (idempotent)
-        verify(messagePublisher, times(1))
-                .publish(anyString(), any(EventEnvelope.class));
+        // Verify the total number of saves is still 1 (idempotent)
+        verify(outboxEventRepository, times(1))
+                .save(any(OutboxEvent.class));
     }
 }

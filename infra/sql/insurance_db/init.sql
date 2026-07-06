@@ -56,3 +56,37 @@ INSERT INTO insurances (name, description, type_id, company_id, base_premium, is
 SELECT 'Premium Kasko', 'Premium comprehensive insurance', 2, id, 4500.00, TRUE FROM insurance_companies WHERE name = 'Allianz';
 INSERT INTO insurances (name, description, type_id, company_id, base_premium, is_active)
 SELECT 'Hayat Sigortası', 'Life insurance', 5, id, 1500.00, TRUE FROM insurance_companies WHERE name = 'Allianz';
+
+CREATE TABLE IF NOT EXISTS saga_events (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    saga_id UUID NOT NULL,
+    event_type VARCHAR(50) NOT NULL,
+    received_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(saga_id, event_type)
+);
+
+CREATE TABLE IF NOT EXISTS outbox_events (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    saga_id UUID,
+    topic VARCHAR(100) NOT NULL,
+    payload JSONB NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING'
+        CHECK (status IN ('PENDING','PUBLISHING','PUBLISHED','FAILED')),
+    retry_count INT DEFAULT 0,
+    last_error TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_outbox_status_created ON outbox_events(status, created_at);
+
+-- Saga aggregation state for insurance premium calculation correlation
+-- Replaces the former in-memory ConcurrentHashMap in SagaAggregationStore.
+-- All payload columns are nullable because events can arrive out of order.
+CREATE TABLE IF NOT EXISTS saga_aggregations (
+    saga_id UUID PRIMARY KEY,
+    estimation_request_payload JSONB,
+    customer_validated_payload JSONB,
+    vehicle_validated_payload JSONB,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

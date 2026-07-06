@@ -2,87 +2,156 @@ package com.insurancemanagementsystem.insurance.config;
 
 import com.insurancemanagementsystem.common.event.EventConstants;
 import com.insurancemanagementsystem.common.event.EventEnvelope;
-import jakarta.annotation.PostConstruct;
+import com.insurancemanagementsystem.insurance.entity.SagaAggregation;
+import com.insurancemanagementsystem.insurance.repository.SagaAggregationRepository;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.json.JsonMapper;
 
-import java.time.Duration;
 import java.time.Instant;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.UUID;
 
+/**
+ * DB-backed saga aggregation store for correlating the three events
+ * ({@code ESTIMATION_REQUESTED}, {@code CUSTOMER_VALIDATED},
+ * {@code VEHICLE_VALIDATED}) needed for insurance premium calculation.
+ * <p>
+ * Replaces the former in-memory {@code ConcurrentHashMap} implementation.
+ * The underlying {@code saga_aggregations} table provides:
+ * <ul>
+ *   <li>Crash resilience — state survives service restarts</li>
+ *   <li>Multi-instance safety — single DB source of truth</li>
+ *   <li>Transactional atomicity — {@link #retrieve(String)} uses
+ *       SELECT FOR UPDATE + DELETE within the same transaction as
+ *       the outbox save, so a rollback preserves the state for retry</li>
+ * </ul>
+ */
 @Component
 @Slf4j
 public class SagaAggregationStore {
 
-    private final ConcurrentHashMap<String, SagaState> store = new ConcurrentHashMap<>();
-    private final Duration ttl = Duration.ofMinutes(10);
-    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
-        Thread thread = new Thread(r, "saga-agg-cleanup");
-        thread.setDaemon(true);
-        return thread;
-    });
+    private final SagaAggregationRepository repository;
+    private final JsonMapper jsonMapper;
 
-    @PostConstruct
-    public void init() {
-        scheduler.scheduleAtFixedRate(this::cleanup, 5, 5, TimeUnit.MINUTES);
-        log.info("SagaAggregationStore initialized with TTL={}m", ttl.toMinutes());
+    public SagaAggregationStore(SagaAggregationRepository repository, JsonMapper jsonMapper) {
+        this.repository = repository;
+        this.jsonMapper = jsonMapper;
+        log.info("SagaAggregationStore initialized (DB-backed)");
     }
 
     /**
-     * Store an event for a given sagaId.
-     * Returns true if all required events are now present (saga is ready for calculation).
+     * Store an event payload for a given sagaId.
+     * Returns true when all three required events are present (saga is ready for calculation).
      */
     public boolean storeAndCheckReady(String sagaId, String eventType, EventEnvelope envelope) {
-        SagaState state = store.computeIfAbsent(sagaId, k -> new SagaState());
+        UUID sagaUuid = UUID.fromString(sagaId);
+        String payload = serializeEnvelope(sagaUuid, envelope);
+
+        // SELECT FOR UPDATE — prevents lost updates when multiple instances process
+        // different event types for the same saga concurrently. Without the lock,
+        // the second writer's Hibernate UPDATE (all columns, no @DynamicUpdate)
+        // can overwrite the first writer's column with null.
+        SagaAggregation agg = repository.findByIdForUpdate(sagaUuid)
+                .orElseGet(() -> SagaAggregation.builder().sagaId(sagaUuid).build());
 
         switch (eventType) {
-            case EventConstants.ESTIMATION_REQUESTED -> state.setEstimationRequest(envelope);
-            case EventConstants.CUSTOMER_VALIDATED -> state.setCustomerValidated(envelope);
-            case EventConstants.VEHICLE_VALIDATED -> state.setVehicleValidated(envelope);
+            case EventConstants.ESTIMATION_REQUESTED -> agg.setEstimationRequestPayload(payload);
+            case EventConstants.CUSTOMER_VALIDATED -> agg.setCustomerValidatedPayload(payload);
+            case EventConstants.VEHICLE_VALIDATED -> agg.setVehicleValidatedPayload(payload);
+            default -> log.warn("Unknown event type for aggregation: {}", eventType);
         }
 
-        boolean ready = state.isComplete();
+        repository.save(agg);
+
+        boolean ready = agg.isComplete();
         if (ready) {
             log.info("SAGA aggregation complete for sagaId={}", sagaId);
         } else {
             log.debug("SAGA state for sagaId={}: hasEstimation={}, hasCustomer={}, hasVehicle={}",
-                    sagaId, state.hasEstimationRequest(), state.hasCustomerValidated(), state.hasVehicleValidated());
+                    sagaId,
+                    agg.getEstimationRequestPayload() != null,
+                    agg.getCustomerValidatedPayload() != null,
+                    agg.getVehicleValidatedPayload() != null);
         }
         return ready;
     }
 
     /**
-     * Retrieve and remove aggregation state (one-shot consumption — state consumed once).
+     * Peek at aggregation state without consuming it (non-destructive read).
      */
-    public SagaState retrieve(String sagaId) {
-        SagaState state = store.remove(sagaId);
-        log.debug("Retrieved and removed SAGA state for sagaId={}", sagaId);
-        return state;
+    public SagaState peek(String sagaId) {
+        UUID sagaUuid = UUID.fromString(sagaId);
+        return repository.findById(sagaUuid)
+                .map(this::toState)
+                .orElse(null);
     }
 
     /**
-     * Remove saga state on invalidation (no calculation needed).
+     * Retrieve and consume aggregation state (atomic find-and-delete within the
+     * current transaction). If the enclosing transaction rolls back, the DELETE
+     * is undone and the state remains available for retry.
      */
-    public void remove(String sagaId) {
-        store.remove(sagaId);
-        log.debug("Removed SAGA state for sagaId={} (invalidated)", sagaId);
+    public SagaState retrieve(String sagaId) {
+        UUID sagaUuid = UUID.fromString(sagaId);
+        return repository.findByIdForUpdate(sagaUuid)
+                .map(agg -> {
+                    SagaState state = toState(agg);
+                    repository.delete(agg);
+                    log.debug("Retrieved and removed SAGA state for sagaId={}", sagaId);
+                    return state;
+                })
+                .orElse(null);
     }
 
-    private void cleanup() {
-        Instant cutoff = Instant.now().minus(ttl);
-        int before = store.size();
-        store.values().removeIf(state -> state.getCreatedAt().isBefore(cutoff));
-        int after = store.size();
-        if (before != after) {
-            log.debug("SagaAggregationStore cleanup: removed {} entries ({} remaining)", before - after, after);
+    /**
+     * Remove saga state (e.g. on invalidation — no calculation needed).
+     */
+    public void remove(String sagaId) {
+        UUID sagaUuid = UUID.fromString(sagaId);
+        repository.deleteById(sagaUuid);
+        log.debug("Removed SAGA state for sagaId={}", sagaId);
+    }
+
+    // ---------------------------------------------------------------
+    // Serialization helpers
+    // ---------------------------------------------------------------
+
+    private SagaState toState(SagaAggregation agg) {
+        SagaState state = new SagaState();
+        if (agg.getEstimationRequestPayload() != null) {
+            state.setEstimationRequest(deserializeEnvelope(agg.getSagaId(), agg.getEstimationRequestPayload()));
+        }
+        if (agg.getCustomerValidatedPayload() != null) {
+            state.setCustomerValidated(deserializeEnvelope(agg.getSagaId(), agg.getCustomerValidatedPayload()));
+        }
+        if (agg.getVehicleValidatedPayload() != null) {
+            state.setVehicleValidated(deserializeEnvelope(agg.getSagaId(), agg.getVehicleValidatedPayload()));
+        }
+        return state;
+    }
+
+    private String serializeEnvelope(UUID sagaId, EventEnvelope envelope) {
+        try {
+            return jsonMapper.writeValueAsString(envelope);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to serialize EventEnvelope for sagaId=" + sagaId, e);
         }
     }
+
+    private EventEnvelope deserializeEnvelope(UUID sagaId, String payload) {
+        try {
+            return jsonMapper.readValue(payload, EventEnvelope.class);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to deserialize EventEnvelope for sagaId=" + sagaId, e);
+        }
+    }
+
+    // ---------------------------------------------------------------
+    // Saga state DTO — three correlated event envelopes
+    // ---------------------------------------------------------------
 
     @Getter
     @Setter
