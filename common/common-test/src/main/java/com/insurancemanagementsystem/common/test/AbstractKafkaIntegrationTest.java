@@ -2,8 +2,8 @@ package com.insurancemanagementsystem.common.test;
 
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.kafka.ConfluentKafkaContainer;
 import org.testcontainers.utility.DockerImageName;
 
 /**
@@ -14,7 +14,7 @@ import org.testcontainers.utility.DockerImageName;
 public abstract class AbstractKafkaIntegrationTest extends AbstractIntegrationTest {
 
     @Container
-    static KafkaContainer kafka = new KafkaContainer(
+    static ConfluentKafkaContainer kafka = new ConfluentKafkaContainer(
             DockerImageName.parse("confluentinc/cp-kafka:7.6.0"));
 
     @DynamicPropertySource
