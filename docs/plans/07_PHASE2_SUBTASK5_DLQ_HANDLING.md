@@ -308,6 +308,9 @@ The binder-level approach is simpler and preferred.
 - Subtask 2 (Message Infrastructure) — `dlq.saga` topic must exist
 - Subtask 3 (Common Library) — `common-message` must have `DlqMonitor` and error handler
 
+## Known Issues (pre-existing, not introduced by this subtask)
+- **Jackson 2/Jackson 3 classpath conflict:** `bootRun` fails with `NoClassDefFoundError: com/fasterxml/jackson/databind/JavaType`. Spring Kafka / `spring-kafka` pulls `com.fasterxml.jackson.*` (Jackson 2) through `kafka-clients`, but the project uses `tools.jackson.*` (Jackson 3). This blocks full-stack DLQ verification via `bootRun`. The DLQ routing logic is verified via `@EmbeddedKafka` integration tests which handle the classpath correctly. Resolution would require aligning the Kafka client's Jackson dependency with the project's Jackson 3 version (e.g., shading or exclusions).
+
 ## Completion Criteria
 - [x] `dlq.saga` topic exists with correct configuration (1 partition, 30-day retention, delete cleanup)
 - [x] All 5 SAGA consumers are configured with `enableDlq: true`
