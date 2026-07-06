@@ -33,6 +33,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9094
       ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
       SPRING_DATASOURCE_URL: jdbc:postgresql://customer-db:5432/customer_db
+      OUTBOX_POLL_INTERVAL_MS: "5000"
     networks: [insurance-net]
     restart: unless-stopped
     depends_on:
@@ -58,6 +59,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9094
       ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
       SPRING_DATASOURCE_URL: jdbc:postgresql://vehicle-db:5432/vehicle_db
+      OUTBOX_POLL_INTERVAL_MS: "5000"
     networks: [insurance-net]
     restart: unless-stopped
     depends_on:
@@ -83,6 +85,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9094
       ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
       SPRING_DATASOURCE_URL: jdbc:postgresql://realestate-db:5432/realestate_db
+      OUTBOX_POLL_INTERVAL_MS: "5000"
     networks: [insurance-net]
     restart: unless-stopped
     depends_on:
@@ -108,6 +111,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9094
       ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
       SPRING_DATASOURCE_URL: jdbc:postgresql://insurance-db:5432/insurance_db
+      OUTBOX_POLL_INTERVAL_MS: "5000"
     networks: [insurance-net]
     restart: unless-stopped
     depends_on:
@@ -133,6 +137,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9094
       ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
       SPRING_DATASOURCE_URL: jdbc:postgresql://estimation-db:5432/estimation_db
+      OUTBOX_POLL_INTERVAL_MS: "5000"
     networks: [insurance-net]
     restart: unless-stopped
     depends_on:
@@ -158,6 +163,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9094
       ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
       SPRING_DATASOURCE_URL: jdbc:postgresql://reference-data-db:5432/reference_data_db
+      OUTBOX_POLL_INTERVAL_MS: "5000"
     networks: [insurance-net]
     restart: unless-stopped
     depends_on:
