@@ -165,5 +165,6 @@
 - `GET /api/reference-data/cities` — list cities
 - `GET /api/reference-data/professions` — list professions
 
-**RabbitMQ RPC:**
-- Consumes `rpc.reference-data` requests for synchronous lookups by other services
+**Kafka RPC / Domain Events:**
+- Publishes `reference-data.events` on reference data changes for cache invalidation
+- RPC-style lookups (future) will use Kafka request/reply pattern

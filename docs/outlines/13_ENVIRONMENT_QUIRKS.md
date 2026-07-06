@@ -30,11 +30,11 @@ See [`08_LEGACY_BACKEND.md`](./08_LEGACY_BACKEND.md) for legacy connection detai
 
 ## Message Broker Defaults
 
-Both run via Docker Compose. Default connection strings:
+Kafka runs via Docker Compose. Default connection string:
 
 - **Kafka:** `localhost:9092`
-- **RabbitMQ:** `localhost:5672`
-- **RabbitMQ Management UI:** `http://localhost:15672` (guest/guest)
+
+Topics are pre-provisioned by the `kafka-init` container on first startup. See `infra/kafka/create-topics.sh` for the full topic configuration.
 
 If a service fails to start with connection errors, verify Docker Compose is running:
 ```bash

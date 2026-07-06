@@ -63,7 +63,7 @@ Replace `<service-name>` with one of:
 All commands run from the repo root.
 
 ```bash
-# Start all services (PostgreSQL, Kafka, RabbitMQ)
+# Start all services (PostgreSQL, Kafka)
 docker compose -f infra/docker/docker-compose.yml up -d
 
 # Start with local dev overrides
@@ -82,14 +82,14 @@ docker compose -f infra/docker/docker-compose.yml up -d customer-db
 |---------|------|
 | PostgreSQL | `5432` |
 | Kafka | `9092` |
-| RabbitMQ | `5672` |
-| RabbitMQ Management UI | `15672` |
+
+> **Note:** Kafka topics are created automatically by the `kafka-init` container on `docker compose up`. See `infra/kafka/create-topics.sh` for the topic configuration.
 
 ---
 
 ## Order of Operations (Fresh Start)
 
-1. **Start infra:** `docker compose up -d` (PostgreSQL, Kafka, RabbitMQ)
+1. **Start infra:** `docker compose up -d` (PostgreSQL, Kafka — topics auto-created by kafka-init)
 2. **Build common:** `.\gradlew.bat :common:common-message:build`
 3. **Build & run a service:** `.\gradlew.bat :services:<service-name>:bootRun`
 4. **Start frontend:** `cd frontend-next && npm run dev`

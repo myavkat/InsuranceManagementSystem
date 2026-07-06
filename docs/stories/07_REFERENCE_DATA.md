@@ -17,10 +17,10 @@ As any user, I want to browse reference data (cities, professions) so that I can
 - **When** I open the profession dropdown
 - **Then** I see an alphabetically sorted list of all professions
 
-### 3. RPC Lookup by Other Services
-- **Given** a microservice (e.g., Customer Service) needs city or profession data
-- **When** it sends a RabbitMQ RPC request to the Reference Data Service
-- **Then** the data is returned synchronously within the RPC timeout window
+### 3. Domain Event Publication
+- **Given** reference data changes (e.g., a city is added)
+- **When** the Reference Data Service publishes the change
+- **Then** consumers (cache invalidation, dependent services) receive the update via `reference-data.events` topic
 
 ---
 
@@ -28,6 +28,6 @@ As any user, I want to browse reference data (cities, professions) so that I can
 
 - Reference data is seeded with Turkish cities (81 cities) and common professions
 - API endpoint returns data with caching headers (CDN or in-memory cache)
-- RabbitMQ RPC timeout is 5 seconds
+- Domain events published to `reference-data.events` topic for cache invalidation
 - Domain events published on reference data changes for cache invalidation
 - City list includes city name and plate code (e.g., "06 - Ankara")
