@@ -102,7 +102,8 @@ Test cases:
 .\gradlew.bat :services:realestate-service:jacocoTestReport
 ```
 
-All tests should pass. JaCoCo ≥80% coverage.
+All tests pass. JaCoCo 95% instruction coverage (≥80% target met). ✅
+Branch coverage: 68% (missed branches in saga consumer null/not-null checks and service toResponse reference lookups).
 
 ## Files Written
 - `services/realestate-service/src/test/resources/application-test.yml` ✅

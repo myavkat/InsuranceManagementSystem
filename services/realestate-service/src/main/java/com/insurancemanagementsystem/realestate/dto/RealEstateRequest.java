@@ -28,7 +28,6 @@ public class RealEstateRequest {
     @Min(value = 1, message = "Square meters must be positive")
     private BigDecimal squareMeters;
 
-    @PastOrPresent(message = "Construction year cannot be in the future")
     private Integer constructionYear;
 
     @NotNull(message = "Construction type ID is required")
