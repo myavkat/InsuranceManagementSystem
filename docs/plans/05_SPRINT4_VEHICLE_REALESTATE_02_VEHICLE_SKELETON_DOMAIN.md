@@ -195,22 +195,22 @@ include("services:vehicle-service")
 Should compile successfully (no tests yet — those come in Step 5).
 
 ## Files Written
-- `services/vehicle-service/build.gradle.kts` ✅
-- `services/vehicle-service/src/main/resources/application.yml` ✅
-- `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/VehicleServiceApplication.java` ✅
-- `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/entity/Vehicle.java` ✅
-- `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/entity/CarBrand.java` ✅
-- `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/entity/CarModel.java` ✅
-- `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/entity/CarEngine.java` ✅
-- `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/entity/CarFuelType.java` ✅
-- `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/entity/CarType.java` ✅
-- `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/entity/CarPackage.java` ✅
-- `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/repository/VehicleRepository.java` ✅
-- `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/repository/CarBrandRepository.java` ✅
-- `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/repository/CarModelRepository.java` ✅
-- `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/repository/CarEngineRepository.java` ✅
-- `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/repository/CarFuelTypeRepository.java` ✅
-- `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/repository/CarTypeRepository.java` ✅
-- `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/repository/CarPackageRepository.java` ✅
-- `infra/sql/vehicle_db/init.sql` ✅ (modified — saga_events + outbox_events appended)
-- `settings.gradle.kts` ✅ (modified — vehicle-service uncommented)
+- [x] `services/vehicle-service/build.gradle.kts` ✅
+- [x] `services/vehicle-service/src/main/resources/application.yml` ✅
+- [x] `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/VehicleServiceApplication.java` ✅
+- [x] `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/entity/Vehicle.java` ✅
+- [x] `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/entity/CarBrand.java` ✅
+- [x] `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/entity/CarModel.java` ✅
+- [x] `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/entity/CarEngine.java` ✅
+- [x] `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/entity/CarFuelType.java` ✅
+- [x] `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/entity/CarType.java` ✅
+- [x] `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/entity/CarPackage.java` ✅
+- [x] `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/repository/VehicleRepository.java` ✅
+- [x] `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/repository/CarBrandRepository.java` ✅
+- [x] `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/repository/CarModelRepository.java` ✅
+- [x] `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/repository/CarEngineRepository.java` ✅
+- [x] `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/repository/CarFuelTypeRepository.java` ✅
+- [x] `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/repository/CarTypeRepository.java` ✅
+- [x] `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/repository/CarPackageRepository.java` ✅
+- [x] `infra/sql/vehicle_db/init.sql` ✅ (modified — saga_events + outbox_events appended)
+- [x] `settings.gradle.kts` ✅ (modified — vehicle-service uncommented)
