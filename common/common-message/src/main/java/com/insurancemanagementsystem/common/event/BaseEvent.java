@@ -1,6 +1,7 @@
 package com.insurancemanagementsystem.common.event;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
@@ -8,6 +9,7 @@ import tools.jackson.databind.json.JsonMapper;
 import java.time.Instant;
 import java.util.UUID;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class BaseEvent {
 
     private static final ObjectMapper MAPPER = new JsonMapper();

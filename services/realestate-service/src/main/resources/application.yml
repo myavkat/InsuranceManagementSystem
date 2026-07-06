@@ -1,0 +1,60 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: realestate-service
+  profiles:
+    active: dev
+  datasource:
+    url: jdbc:postgresql://localhost:5435/realestate_db
+    username: ims_user
+    password: ims_password
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  cloud:
+    stream:
+      default-binder: kafka
+      dynamicDestinations: estimation.saga
+      bindings:
+        processRealEstateSaga-in-0:
+          destination: estimation.saga
+          group: realestate-service-group
+      kafka:
+        binder:
+          brokers: localhost:9092
+  kafka:
+    consumer:
+      group-id: realestate-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.insurancemanagementsystem.*"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} [%X{traceId:-},%X{sagaId:-}] - %msg%n"
+  level:
+    com.insurancemanagementsystem: DEBUG
+
+realestate:
+  outbox:
+    poll-interval-ms: 1000
+    batch-size: 10
+    max-retries: 3
+    failed-ttl-minutes: 60
+
+outbox:
+  poll-interval-ms: ${realestate.outbox.poll-interval-ms:1000}
+  max-retries: ${realestate.outbox.max-retries:3}
+  failed-ttl-minutes: ${realestate.outbox.failed-ttl-minutes:60}

@@ -18,6 +18,8 @@ public final class EventConstants {
     public static final String CUSTOMER_INVALIDATED = "CustomerInvalidated";
     public static final String VEHICLE_VALIDATED = "VehicleValidated";
     public static final String VEHICLE_INVALIDATED = "VehicleInvalidated";
+    public static final String REAL_ESTATE_VALIDATED = "RealEstateValidated";
+    public static final String REAL_ESTATE_INVALIDATED = "RealEstateInvalidated";
     public static final String PREMIUM_CALCULATED = "PremiumCalculated";
     public static final String CALCULATION_FAILED = "CalculationFailed";
     public static final String ESTIMATION_FAILED = "EstimationFailed";

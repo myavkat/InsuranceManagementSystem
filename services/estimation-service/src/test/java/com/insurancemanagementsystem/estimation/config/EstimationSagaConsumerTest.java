@@ -114,6 +114,25 @@ class EstimationSagaConsumerTest {
     }
 
     // ---------------------------------------------------------------
+    // 2b. RealEstateValidated → logs progress, marks as processed via dedup
+    // ---------------------------------------------------------------
+    @Test
+    void realEstateValidated_isIdempotent() {
+        UUID sagaId = UUID.randomUUID();
+        RealEstateValidatedEvent event = RealEstateValidatedEvent.builder()
+                .realEstateId(UUID.randomUUID())
+                .address("123 Main St")
+                .cityId(1)
+                .build();
+
+        consumer.processEstimationSaga(jsonMapper).accept(buildEventJson(event, sagaId));
+
+        verify(sagaEventRepository).tryInsertDedup(sagaId, EventConstants.REAL_ESTATE_VALIDATED);
+        verifyNoInteractions(estimationRepository);
+
+    }
+
+    // ---------------------------------------------------------------
     // 3. PremiumCalculated → transitions to COMPLETED with premium
     // ---------------------------------------------------------------
     @Test
@@ -219,6 +238,35 @@ class EstimationSagaConsumerTest {
         verify(estimationRepository).save(estimation);
         verify(outboxEventRepository).save(any(OutboxEvent.class));
         verify(sagaEventRepository).tryInsertDedup(sagaId, EventConstants.VEHICLE_INVALIDATED);
+    }
+
+    // ---------------------------------------------------------------
+    // 6b. RealEstateInvalidated → transitions to REJECTED + publishes EstimationFailed
+    // ---------------------------------------------------------------
+    @Test
+    void realEstateInvalidated_rejectsEstimation() {
+        UUID sagaId = UUID.randomUUID();
+        RealEstateInvalidatedEvent event = RealEstateInvalidatedEvent.builder()
+                .realEstateId(UUID.randomUUID())
+                .reason("Property not found")
+                .build();
+
+        Estimation estimation = Estimation.builder()
+                .id(UUID.randomUUID())
+                .sagaId(sagaId)
+                .status(Estimation.Status.STARTED)
+                .build();
+
+        when(estimationRepository.findBySagaId(sagaId)).thenReturn(Optional.of(estimation));
+
+        consumer.processEstimationSaga(jsonMapper).accept(buildEventJson(event, sagaId));
+
+        assertThat(estimation.getStatus()).isEqualTo(Estimation.Status.REJECTED);
+        assertThat(estimation.getDetails()).contains("reason");
+        assertThat(estimation.getDetails()).contains("Real estate validation failed");
+        verify(estimationRepository).save(estimation);
+        verify(outboxEventRepository).save(any(OutboxEvent.class));
+        verify(sagaEventRepository).tryInsertDedup(sagaId, EventConstants.REAL_ESTATE_INVALIDATED);
     }
 
     // ---------------------------------------------------------------
@@ -481,7 +529,16 @@ class EstimationSagaConsumerTest {
         when(outboxEventSerializer.buildEstimationFailedOutboxEvent(
                 any(), any(), any(), any(), any())).thenThrow(new RuntimeException("Serialization failed"));
 
-        consumer.processEstimationSaga(jsonMapper).accept(buildEventJson(event, sagaId));
+        // The RuntimeException from the outbox serializer propagates through the
+        // TransactionTemplate callback → handleFailed → consumer lambda → catch block.
+        // The catch block now re-throws RuntimeExceptions so the binder can retry.
+        // The estimation stays STARTED because the serialization failure occurred
+        // BEFORE the state transition in handleFailed.
+        try {
+            consumer.processEstimationSaga(jsonMapper).accept(buildEventJson(event, sagaId));
+        } catch (RuntimeException expected) {
+            // Expected — the consumer re-throws to signal a retryable failure
+        }
 
         // Estimation should remain STARTED — no state mutation occurred
         assertThat(estimation.getStatus()).isEqualTo(Estimation.Status.STARTED);

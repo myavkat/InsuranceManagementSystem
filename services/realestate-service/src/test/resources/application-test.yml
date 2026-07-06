@@ -1,0 +1,7 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+realestate:
+  outbox:
+    poll-interval-ms: 600000  # disable scheduled tasks during tests

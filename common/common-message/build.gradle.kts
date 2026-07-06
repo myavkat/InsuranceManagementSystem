@@ -36,10 +36,14 @@ dependencies {
     implementation("org.springframework:spring-tx")
     api("org.springframework.boot:spring-boot-starter-data-jpa")
 
+    testImplementation(platform("org.testcontainers:testcontainers-bom:2.0.5"))
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.cloud:spring-cloud-stream")
     testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("org.testcontainers:testcontainers-postgresql")
+    testImplementation("org.testcontainers:testcontainers-junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testRuntimeOnly("org.postgresql:postgresql")
 }
 
 tasks.withType<Test> {

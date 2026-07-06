@@ -1,0 +1,9 @@
+vehicle:
+  outbox:
+    poll-interval-ms: 600000  # Disable scheduled tasks during tests
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
