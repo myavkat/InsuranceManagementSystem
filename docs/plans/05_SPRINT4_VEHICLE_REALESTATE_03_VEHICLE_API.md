@@ -463,7 +463,7 @@ public class VehicleController {
 Should compile successfully.
 
 ## Files Written
-- `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/dto/VehicleRequest.java` ✅
-- `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/dto/VehicleResponse.java` ✅
-- `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/service/VehicleService.java` ✅
-- `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/controller/VehicleController.java` ✅
+- [x] `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/dto/VehicleRequest.java` ✅
+- [x] `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/dto/VehicleResponse.java` ✅
+- [x] `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/service/VehicleService.java` ✅
+- [x] `services/vehicle-service/src/main/java/com/insurancemanagementsystem/vehicle/controller/VehicleController.java` ✅
