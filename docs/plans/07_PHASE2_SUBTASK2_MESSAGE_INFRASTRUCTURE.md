@@ -126,12 +126,12 @@ Create Kafka topic provisioning scripts that create all topics with the correct 
 ### Step 6: Verify
 
 - [x] **6.1** All services compile successfully (`gradlew build -x test`)
-- [ ] **6.2** Start infrastructure: `docker compose -f infra/docker/docker-compose.yml up -d`
-- [ ] **6.3** Wait for kafka-init container to complete (check logs: `docker logs kafka-init`)
-- [ ] **6.4** Verify all topics are created: `docker exec kafka kafka-topics --bootstrap-server localhost:9092 --list`
-- [ ] **6.5** Verify topic configs: `docker exec kafka kafka-topics --bootstrap-server localhost:9092 --describe --topic estimation.saga`
-- [ ] **6.6** Verify no RabbitMQ container is running: `docker compose -f infra/docker/docker-compose.yml ps | grep -i rabbit` (should be empty)
-- [ ] **6.7** Tear down: `docker compose -f infra/docker/docker-compose.yml down`
+- [x] **6.2** Start infrastructure: `docker compose -f infra/docker/docker-compose.yml up -d`
+- [x] **6.3** Wait for kafka-init container to complete (check logs: `docker logs kafka-init`) — Exited 0
+- [x] **6.4** Verify all topics are created: 7 topics confirmed via `kafka-topics --list`
+- [x] **6.5** Verify topic configs: all match spec (partitions, retention, compaction)
+- [x] **6.6** Verify no RabbitMQ container is running: confirmed via `docker compose ps`
+- [x] **6.7** Tear down: `docker compose -f infra/docker/docker-compose.yml down`
 
 ---
 
@@ -183,4 +183,5 @@ Create Kafka topic provisioning scripts that create all topics with the correct 
 - [x] `kafka-init` container creates all 7 topics on startup with correct configs
 - [x] All services compile successfully
 - [x] Documentation updated (outlines, dev commands, env quirks)
-- [ ] `docker compose up -d` → all topics verified via `kafka-topics --list` (requires Docker)
+- [x] `docker compose up -d` → all 7 topics verified via `kafka-topics --list`
+- [x] No RabbitMQ container running after `docker compose up`
