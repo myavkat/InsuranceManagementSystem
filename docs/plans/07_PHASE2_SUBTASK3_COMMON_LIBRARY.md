@@ -1,6 +1,6 @@
 # Subtask 3: Build Common Message Library
 
-## Status: NOT STARTED
+## Status: COMPLETED
 ## Parent: `07_PHASE2_MASTER_PLAN.md`
 ## Branch: `phase2-message-queue-event-driven-integration`
 
@@ -53,7 +53,7 @@ Build out the `common-message` module with reusable abstractions that all servic
 
 ### Step 1: Create `MessageListener<T>` Abstraction
 
-- [ ] **1.1** Create `common/common-message/src/main/java/com/insurancemanagementsystem/common/messaging/MessageListener.java`:
+- [x] **1.1** Create `common/common-message/src/main/java/com/insurancemanagementsystem/common/messaging/MessageListener.java`:
 
   ```java
   package com.insurancemanagementsystem.common.messaging;
@@ -143,18 +143,18 @@ Build out the `common-message` module with reusable abstractions that all servic
   }
   ```
 
-- [ ] **1.2** This abstraction encapsulates:
+- [x] **1.2** This abstraction encapsulates:
   - JSON deserialization of `EventEnvelope` (with poison-pill skip)
   - MDC context setup/teardown (sagaId, traceId)
   - Atomic dedup via `SagaEventRepository.tryInsertDedup()`
   - Typed payload conversion via `jsonMapper.convertValue()`
   - Re-throw of `RuntimeException` for binder-level retry
 
-- [ ] **1.3** Note: This is an **optional** abstraction. Existing consumers can continue using their manual pattern. New consumers should use this. Don't retroactively refactor all existing consumers unless time permits — the task says "build the library," not "refactor all consumers."
+- [x] **1.3** Note: This is an **optional** abstraction. Existing consumers can continue using their manual pattern. New consumers should use this. Don't retroactively refactor all existing consumers unless time permits — the task says "build the library," not "refactor all consumers."
 
 ### Step 2: Create `CorrelationIdGenerator`
 
-- [ ] **2.1** Create `common/common-message/src/main/java/com/insurancemanagementsystem/common/util/CorrelationIdGenerator.java`:
+- [x] **2.1** Create `common/common-message/src/main/java/com/insurancemanagementsystem/common/util/CorrelationIdGenerator.java`:
 
   ```java
   package com.insurancemanagementsystem.common.util;
@@ -188,11 +188,11 @@ Build out the `common-message` module with reusable abstractions that all servic
   }
   ```
 
-- [ ] **2.2** This is a simple utility. The key rule is: **never generate a fresh traceId for outbound SAGA events — propagate the original** (as stated in AGENTS.md). This utility is for the ORIGINATING event only (e.g., when EstimationService starts a new SAGA).
+- [x] **2.2** This is a simple utility. The key rule is: **never generate a fresh traceId for outbound SAGA events — propagate the original** (as stated in AGENTS.md). This utility is for the ORIGINATING event only (e.g., when EstimationService starts a new SAGA).
 
 ### Step 3: Create `SagaContext` Holder
 
-- [ ] **3.1** Create `common/common-message/src/main/java/com/insurancemanagementsystem/common/util/SagaContext.java`:
+- [x] **3.1** Create `common/common-message/src/main/java/com/insurancemanagementsystem/common/util/SagaContext.java`:
 
   ```java
   package com.insurancemanagementsystem.common.util;
@@ -237,7 +237,7 @@ Build out the `common-message` module with reusable abstractions that all servic
 
 ### Step 4: Extract Shared Constants/Topics for Outbox Publisher
 
-- [ ] **4.1** Create `common/common-message/src/main/java/com/insurancemanagementsystem/common/messaging/OutboxMessagePublisher.java`:
+- [x] **4.1** Create `common/common-message/src/main/java/com/insurancemanagementsystem/common/messaging/OutboxMessagePublisher.java`:
 
   ```java
   package com.insurancemanagementsystem.common.messaging;
@@ -302,7 +302,7 @@ Build out the `common-message` module with reusable abstractions that all servic
 
 ### Step 5: Populate `common-test` Module
 
-- [ ] **5.1** Create `common/common-test/build.gradle.kts`:
+- [x] **5.1** Create `common/common-test/build.gradle.kts`:
 
   ```kotlin
   plugins {
@@ -334,9 +334,9 @@ Build out the `common-message` module with reusable abstractions that all servic
   }
   ```
 
-- [ ] **5.2** Uncomment `include("common:common-test")` in root `settings.gradle.kts`
+- [x] **5.2** Uncomment `include("common:common-test")` in root `settings.gradle.kts`
 
-- [ ] **5.3** Create shared test base class: `common/common-test/src/main/java/com/insurancemanagementsystem/common/test/AbstractIntegrationTest.java`:
+- [x] **5.3** Create shared test base class: `common/common-test/src/main/java/com/insurancemanagementsystem/common/test/AbstractIntegrationTest.java`:
 
   ```java
   package com.insurancemanagementsystem.common.test;
@@ -374,7 +374,7 @@ Build out the `common-message` module with reusable abstractions that all servic
   }
   ```
 
-- [ ] **5.4** Create `AbstractKafkaIntegrationTest.java` that adds a Kafka container:
+- [x] **5.4** Create `AbstractKafkaIntegrationTest.java` that adds a Kafka container:
   ```java
   package com.insurancemanagementsystem.common.test;
 
@@ -398,27 +398,27 @@ Build out the `common-message` module with reusable abstractions that all servic
   }
   ```
 
-- [ ] **5.5** Build common-test: `.\gradlew.bat :common:common-test:build`
+- [x] **5.5** Build common-test: `.\gradlew.bat :common:common-test:build`
 
 ### Step 6: Update Domain Event Publishers to Use Outbox (Optional Enhancement)
 
-- [ ] **6.1** Review: Currently, domain event publishers (CustomerEventPublisher, VehicleEventPublisher, etc.) use `MessagePublisher.publish()` directly. This is acceptable for non-SAGA domain events where eventual consistency and crash-recovery are less critical. Document this design decision.
+- [x] **6.1** Review: Currently, domain event publishers (CustomerEventPublisher, VehicleEventPublisher, etc.) use `MessagePublisher.publish()` directly. This is acceptable for non-SAGA domain events where eventual consistency and crash-recovery are less critical. Document this design decision.
 
-- [ ] **6.2** If the task requires domain events to also use outbox, update each EventPublisher to save `OutboxEvent` instead:
+- [x] **6.2** If the task requires domain events to also use outbox, update each EventPublisher to save `OutboxEvent` instead:
   - `services/customer-service/.../CustomerEventPublisher.java`
   - `services/vehicle-service/.../VehicleEventPublisher.java`
   - `services/realestate-service/.../RealEstateEventPublisher.java`
   - `services/insurance-service/.../InsuranceEventPublisher.java`
   - `services/reference-data-service/.../ReferenceDataEventPublisher.java`
 
-- [ ] **6.3** For now, document that domain events use direct publish via `MessagePublisher` and note that migrating to outbox is a follow-up improvement. The SAGA events already use outbox.
+- [x] **6.3** For now, document that domain events use direct publish via `MessagePublisher` and note that migrating to outbox is a follow-up improvement. The SAGA events already use outbox.
 
 ### Step 7: Verify
 
-- [ ] **7.1** Build common-message: `.\gradlew.bat :common:common-message:build`
-- [ ] **7.2** Build common-test: `.\gradlew.bat :common:common-test:build`
-- [ ] **7.3** Build all services to verify no breakage: `.\gradlew.bat build`
-- [ ] **7.4** Run all tests: `.\gradlew.bat test`
+- [x] **7.1** Build common-message: `.\gradlew.bat :common:common-message:build`
+- [x] **7.2** Build common-test: `.\gradlew.bat :common:common-test:build`
+- [x] **7.3** Build all services to verify no breakage: `.\gradlew.bat build`
+- [x] **7.4** Run all tests: `.\gradlew.bat test`
 
 ---
 
@@ -444,9 +444,9 @@ Build out the `common-message` module with reusable abstractions that all servic
 - Subtask 1 (Event Schemas) — must complete first (event POJOs are the foundation)
 
 ## Completion Criteria
-- [ ] `MessageListener<T>` abstract class exists with deserialization, MDC, dedup
-- [ ] `CorrelationIdGenerator` utility exists
-- [ ] `SagaContext` AutoCloseable MDC holder exists
-- [ ] `OutboxMessagePublisher` convenience class exists
-- [ ] `common-test` module is built with `AbstractIntegrationTest` and `AbstractKafkaIntegrationTest`
-- [ ] `.\gradlew.bat build` passes for all modules
+- [x] `MessageListener<T>` abstract class exists with deserialization, MDC, dedup
+- [x] `CorrelationIdGenerator` utility exists
+- [x] `SagaContext` AutoCloseable MDC holder exists
+- [x] `OutboxMessagePublisher` convenience class exists
+- [x] `common-test` module is built with `AbstractIntegrationTest` and `AbstractKafkaIntegrationTest`
+- [x] `.\gradlew.bat build` passes for all modules
