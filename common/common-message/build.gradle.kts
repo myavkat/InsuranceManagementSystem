@@ -33,6 +33,8 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok")
     implementation("jakarta.validation:jakarta.validation-api")
     compileOnly("org.springframework.cloud:spring-cloud-stream")
+    compileOnly("org.springframework.kafka:spring-kafka")
+    compileOnly("org.apache.kafka:kafka-clients")
     implementation("org.springframework:spring-tx")
     api("org.springframework.boot:spring-boot-starter-data-jpa")
 

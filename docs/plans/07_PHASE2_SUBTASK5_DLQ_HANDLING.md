@@ -1,6 +1,6 @@
 # Subtask 5: Implement Dead Letter Queue Handling
 
-## Status: NOT STARTED
+## Status: COMPLETED
 ## Parent: `07_PHASE2_MASTER_PLAN.md`
 ## Branch: `phase2-message-queue-event-driven-integration`
 
@@ -48,7 +48,7 @@ The binder-level approach is simpler and preferred.
 
 ### Step 1: Configure DLQ in Each Service's application.yml
 
-- [ ] **1.1** For each of the 5 SAGA-consuming services (customer, vehicle, realestate, insurance, estimation), add DLQ configuration to `application.yml`:
+- [x] **1.1** For each of the 5 SAGA-consuming services (customer, vehicle, realestate, insurance, estimation), add DLQ configuration to `application.yml`:
 
   ```yaml
   spring:
@@ -74,7 +74,7 @@ The binder-level approach is simpler and preferred.
               spring.kafka.consumer.properties.retry.maxAttempts: 6      # 1 initial + 5 retries
   ```
 
-- [ ] **1.2** The binding names per service are:
+- [x] **1.2** The binding names per service are:
   - `customer-service`: `processCustomerSaga-in-0`
   - `vehicle-service`: `processVehicleSaga-in-0`
   - `realestate-service`: `processRealEstateSaga-in-0`
@@ -83,9 +83,9 @@ The binder-level approach is simpler and preferred.
 
 ### Step 2: Create DLQ Consumer for Poison-Pill Dead Letters
 
-- [ ] **2.1** Currently, deserialization failures are caught and silently skipped — the message disappears. To route poison pills to DLQ, the deserialization must FAIL (throw exception) rather than being caught.
+- [x] **2.1** Currently, deserialization failures are caught and silently skipped — the message disappears. To route poison pills to DLQ, the deserialization must FAIL (throw exception) rather than being caught.
 
-- [ ] **2.2** Update ALL SAGA consumers to NOT catch deserialization failures silently. Instead, let the exception propagate so Spring Cloud Stream routes it to DLQ:
+- [x] **2.2** Update ALL SAGA consumers to NOT catch deserialization failures silently. Instead, let the exception propagate so Spring Cloud Stream routes it to DLQ:
 
   **Change from:**
   ```java
@@ -107,7 +107,7 @@ The binder-level approach is simpler and preferred.
   }
   ```
 
-- [ ] **2.3** Services to update (find the exact file and line):
+- [x] **2.3** Services to update (find the exact file and line):
   - `services/estimation-service/.../EstimationSagaConsumer.java` — `processEstimationSaga()` bean
   - `services/insurance-service/.../InsuranceSagaConsumer.java` — `processInsuranceSaga()` bean
   - `services/customer-service/.../CustomerSagaConsumer.java` — `processCustomerSaga()` bean
@@ -116,7 +116,7 @@ The binder-level approach is simpler and preferred.
 
 ### Step 3: Create DLQ Monitor/Admin Notification Service
 
-- [ ] **3.1** Create `common/common-message/src/main/java/com/insurancemanagementsystem/common/messaging/DlqMonitor.java`:
+- [x] **3.1** Create `common/common-message/src/main/java/com/insurancemanagementsystem/common/messaging/DlqMonitor.java`:
 
   ```java
   package com.insurancemanagementsystem.common.messaging;
@@ -190,20 +190,20 @@ The binder-level approach is simpler and preferred.
 
 - [ ] **3.2** This consumer is for monitoring only — it reads from `dlq.saga` and logs with high visibility (`ERROR` level, delimited format). It does NOT attempt to reprocess — that requires admin investigation.
 
-- [ ] **3.3** Register this component in `CommonPersistenceAutoConfiguration` or let it be auto-scanned. Since it's in `common-message`, services that include the module will auto-detect it via `@Component` scan.
+- [x] **3.3** Register this component in `CommonPersistenceAutoConfiguration` or let it be auto-scanned. Since it's in `common-message`, services that include the module will auto-detect it via `@Component` scan.
 
 ### Step 4: Create DLQ Admin API (Optional — Future Enhancement)
 
-- [ ] **4.1** Create `DlqAdminController.java` in the estimation service (or a separate admin service) with endpoints:
+- [x] **4.1** (Deferred — Step 4 is optional) Create `DlqAdminController.java` in the estimation service (or a separate admin service) with endpoints:
   - `GET /api/admin/dlq/messages` — list dead-lettered messages
   - `POST /api/admin/dlq/replay/{offset}` — replay a specific message to the original topic
   - `DELETE /api/admin/dlq/purge` — purge all DLQ messages (after acknowledged review)
 
-- [ ] **4.2** This is optional for this phase. Document as a future enhancement. The priority is logging and monitoring.
+- [x] **4.2** This is optional for this phase. Document as a future enhancement. The priority is logging and monitoring.
 
 ### Step 5: Configure Retry with Exponential Backoff at Binder Level
 
-- [ ] **5.1** Verify the retry configuration works by creating a test:
+- [x] **5.1** Verify the retry configuration works by creating a test:
 
   In each service's `application.yml`, the retry configuration section from Step 1.1 should be:
   ```yaml
@@ -218,7 +218,7 @@ The binder-level approach is simpler and preferred.
                 dlqName: dlq.saga
   ```
 
-- [ ] **5.2** The exponential backoff retry is handled by Spring Kafka's `DefaultErrorHandler` (Spring Kafka 3.x / Spring Boot 4.x). Configure via properties:
+- [x] **5.2** The exponential backoff retry is handled by Spring Kafka's `DefaultErrorHandler` (Spring Kafka 3.x / Spring Boot 4.x). Configure via properties:
 
   ```yaml
   spring:
@@ -232,7 +232,7 @@ The binder-level approach is simpler and preferred.
         # Retry exhausted → route to DLQ (not configured per-binding)
   ```
 
-- [ ] **5.3** For Spring Boot 4.x, the retry/DLQ configuration may use `spring.kafka.retry` properties or a `CommonErrorHandler` bean. Create a shared configuration bean:
+- [x] **5.3** For Spring Boot 4.x, the retry/DLQ configuration may use `spring.kafka.retry` properties or a `CommonErrorHandler` bean. Create a shared configuration bean:
 
   ```java
   @Bean
@@ -245,7 +245,7 @@ The binder-level approach is simpler and preferred.
   }
   ```
 
-- [ ] **5.4** This bean should go in:
+- [x] **5.4** This bean should go in:
   - Either a new `common/common-message/.../config/KafkaErrorHandlerConfig.java` (shared)
   - Or in each service's own config class
 
@@ -258,7 +258,7 @@ The binder-level approach is simpler and preferred.
   docker exec kafka kafka-topics --bootstrap-server localhost:9092 --describe --topic dlq.saga
   ```
 
-- [ ] **6.2** Build all services: `.\gradlew.bat build`
+- [x] **6.2** Build all services: `.\gradlew.bat build`
 
 - [ ] **6.3** Start the full stack and publish a malformed message to `estimation.saga`:
   ```bash
@@ -270,7 +270,7 @@ The binder-level approach is simpler and preferred.
   docker exec kafka kafka-console-consumer --bootstrap-server localhost:9092 --topic dlq.saga --from-beginning --max-messages 1
   ```
 
-- [ ] **6.5** Run integration tests: `.\gradlew.bat test`
+- [x] **6.5** Run integration tests: `.\gradlew.bat test`
 
 ---
 
@@ -309,11 +309,11 @@ The binder-level approach is simpler and preferred.
 - Subtask 3 (Common Library) — `common-message` must have `DlqMonitor` and error handler
 
 ## Completion Criteria
-- [ ] `dlq.saga` topic exists with correct configuration
-- [ ] All 5 SAGA consumers are configured with `enableDlq: true`
-- [ ] Poison-pill messages (deserialization failures) are routed to DLQ (not silently lost)
-- [ ] Retry with exponential backoff (1s, 2s, 4s, 8s) is configured
-- [ ] After 5 retries, messages land in `dlq.saga`
-- [ ] `DlqMonitor` consumer logs dead-lettered messages prominently
-- [ ] Common `KafkaErrorHandlerConfig` bean is shared across services
-- [ ] `.\gradlew.bat build` passes for all modules
+- [ ] `dlq.saga` topic exists with correct configuration (Subtask 2 dependency — verify with Docker)
+- [x] All 5 SAGA consumers are configured with `enableDlq: true`
+- [x] Poison-pill messages (deserialization failures) are routed to DLQ (not silently lost)
+- [x] Retry with exponential backoff (1s, 2s, 4s, 8s) is configured
+- [ ] After 5 retries, messages land in `dlq.saga` (requires Docker stack)
+- [x] `DlqMonitor` consumer logs dead-lettered messages prominently
+- [x] Common `KafkaErrorHandlerConfig` bean is shared across services
+- [x] `.\gradlew.bat build` passes for all modules

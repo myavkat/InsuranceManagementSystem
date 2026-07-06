@@ -43,8 +43,8 @@ public class CustomerSagaConsumer {
             try {
                 envelope = jsonMapper.readValue(message, EventEnvelope.class);
             } catch (Exception e) {
-                log.error("Failed to deserialize SAGA message — skipping (poison pill): {}", e.getMessage(), e);
-                return;
+                log.error("Failed to deserialize SAGA message — routing to DLQ: {}", e.getMessage(), e);
+                throw new RuntimeException("Deserialization failed — routing to DLQ", e);
             }
 
             try {

@@ -26,6 +26,15 @@ spring:
           destination: estimation.saga
           group: insurance-service-group
       kafka:
+        bindings:
+          processInsuranceSaga-in-0:
+            consumer:
+              enableDlq: true
+              dlqName: dlq.saga
+              dlqProducerProperties:
+                configuration:
+                  key.serializer: org.apache.kafka.common.serialization.StringSerializer
+                  value.serializer: org.springframework.kafka.support.serializer.JsonSerializer
         binder:
           brokers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
           configuration:
