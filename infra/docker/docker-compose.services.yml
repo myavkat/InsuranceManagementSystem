@@ -26,7 +26,7 @@ services:
       SERVER_PORT: "8080"
       SPRING_PROFILES_ACTIVE: dev
       KAFKA_BOOTSTRAP_SERVERS: kafka:9094
-      ZIPKIN_ENDPOINT: http://host.docker.internal:9411/api/v2/spans
+      ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
       SPRING_DATASOURCE_URL: jdbc:postgresql://customer-db:5432/customer_db
     networks: [insurance-net]
     restart: unless-stopped
@@ -46,7 +46,7 @@ services:
       SERVER_PORT: "8080"
       SPRING_PROFILES_ACTIVE: dev
       KAFKA_BOOTSTRAP_SERVERS: kafka:9094
-      ZIPKIN_ENDPOINT: http://host.docker.internal:9411/api/v2/spans
+      ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
       SPRING_DATASOURCE_URL: jdbc:postgresql://vehicle-db:5432/vehicle_db
     networks: [insurance-net]
     restart: unless-stopped
@@ -66,7 +66,7 @@ services:
       SERVER_PORT: "8080"
       SPRING_PROFILES_ACTIVE: dev
       KAFKA_BOOTSTRAP_SERVERS: kafka:9094
-      ZIPKIN_ENDPOINT: http://host.docker.internal:9411/api/v2/spans
+      ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
       SPRING_DATASOURCE_URL: jdbc:postgresql://realestate-db:5432/realestate_db
     networks: [insurance-net]
     restart: unless-stopped
@@ -86,7 +86,7 @@ services:
       SERVER_PORT: "8080"
       SPRING_PROFILES_ACTIVE: dev
       KAFKA_BOOTSTRAP_SERVERS: kafka:9094
-      ZIPKIN_ENDPOINT: http://host.docker.internal:9411/api/v2/spans
+      ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
       SPRING_DATASOURCE_URL: jdbc:postgresql://insurance-db:5432/insurance_db
     networks: [insurance-net]
     restart: unless-stopped
@@ -106,7 +106,7 @@ services:
       SERVER_PORT: "8080"
       SPRING_PROFILES_ACTIVE: dev
       KAFKA_BOOTSTRAP_SERVERS: kafka:9094
-      ZIPKIN_ENDPOINT: http://host.docker.internal:9411/api/v2/spans
+      ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
       SPRING_DATASOURCE_URL: jdbc:postgresql://estimation-db:5432/estimation_db
     networks: [insurance-net]
     restart: unless-stopped
@@ -126,7 +126,7 @@ services:
       SERVER_PORT: "8080"
       SPRING_PROFILES_ACTIVE: dev
       KAFKA_BOOTSTRAP_SERVERS: kafka:9094
-      ZIPKIN_ENDPOINT: http://host.docker.internal:9411/api/v2/spans
+      ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
       SPRING_DATASOURCE_URL: jdbc:postgresql://reference-data-db:5432/reference_data_db
     networks: [insurance-net]
     restart: unless-stopped
