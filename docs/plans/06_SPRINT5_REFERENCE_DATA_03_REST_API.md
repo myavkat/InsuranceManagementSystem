@@ -19,8 +19,8 @@
 
 ## Prerequisites
 
-- [ ] Plan 01 (Service Scaffold) completed — project compiles, dependencies resolve
-- [ ] Plan 02 (Domain Entities) completed — entities, repositories, DTOs compile
+- [x] Plan 01 (Service Scaffold) completed — project compiles, dependencies resolve
+- [x] Plan 02 (Domain Entities) completed — entities, repositories, DTOs compile
 
 ## Conventions to Apply
 
@@ -36,7 +36,7 @@
 
 ### Step 1: Create `ReferenceDataService`
 
-- [ ] Create `services/reference-data-service/src/main/java/com/insurancemanagementsystem/referencedata/service/ReferenceDataService.java`
+- [x] Create `services/reference-data-service/src/main/java/com/insurancemanagementsystem/referencedata/service/ReferenceDataService.java`
 
 Package: `com.insurancemanagementsystem.referencedata.service`
 
@@ -128,7 +128,7 @@ public class ReferenceDataService {
 
 ### Step 2: Create `ReferenceDataEventPublisher`
 
-- [ ] Create `services/reference-data-service/src/main/java/com/insurancemanagementsystem/referencedata/config/ReferenceDataEventPublisher.java`
+- [x] Create `services/reference-data-service/src/main/java/com/insurancemanagementsystem/referencedata/config/ReferenceDataEventPublisher.java`
 
 Package: `com.insurancemanagementsystem.referencedata.config`
 
@@ -165,7 +165,7 @@ public class ReferenceDataEventPublisher {
 
 ### Step 3: Create `ReferenceDataController`
 
-- [ ] Create `services/reference-data-service/src/main/java/com/insurancemanagementsystem/referencedata/controller/ReferenceDataController.java`
+- [x] Create `services/reference-data-service/src/main/java/com/insurancemanagementsystem/referencedata/controller/ReferenceDataController.java`
 
 Package: `com.insurancemanagementsystem.referencedata.controller`
 
@@ -206,7 +206,7 @@ public class ReferenceDataController {
 
 ### Step 4: Create `GlobalExceptionHandler`
 
-- [ ] Create `services/reference-data-service/src/main/java/com/insurancemanagementsystem/referencedata/exception/GlobalExceptionHandler.java`
+- [x] Create `services/reference-data-service/src/main/java/com/insurancemanagementsystem/referencedata/exception/GlobalExceptionHandler.java`
 
 Package: `com.insurancemanagementsystem.referencedata.exception`
 
@@ -220,7 +220,7 @@ Package: `com.insurancemanagementsystem.referencedata.exception`
 
 ### Step 5: Verify Build & Manual Test
 
-- [ ] Run: `.\gradlew.bat :services:reference-data-service:build`
+- [x] Run: `.\gradlew.bat :services:reference-data-service:build`
 - [ ] Start Docker Compose: `docker compose -f infra/docker/docker-compose.yml up -d reference-data-db`
 - [ ] Run service: `.\gradlew.bat :services:reference-data-service:bootRun`
 - [ ] Test `GET http://localhost:8086/api/reference-data/cities` — returns 81 cities sorted alphabetically
@@ -230,9 +230,9 @@ Package: `com.insurancemanagementsystem.referencedata.exception`
 
 ## Deliverables (this plan)
 
-- [ ] `ReferenceDataService.java` — cached lookups, entity-to-DTO mapping, cache invalidation
-- [ ] `ReferenceDataEventPublisher.java` — publishes `ReferenceDataChangedEvent` to `reference-data.events`
-- [ ] `ReferenceDataController.java` — `GET /api/reference-data/cities`, `GET /api/reference-data/professions`
-- [ ] `GlobalExceptionHandler.java` — standard error handling
-- [ ] `.\gradlew.bat :services:reference-data-service:build` passes
+- [x] `ReferenceDataService.java` — cached lookups, entity-to-DTO mapping, cache invalidation
+- [x] `ReferenceDataEventPublisher.java` — publishes `ReferenceDataChangedEvent` to `reference-data.events`
+- [x] `ReferenceDataController.java` — `GET /api/reference-data/cities`, `GET /api/reference-data/professions`
+- [x] `GlobalExceptionHandler.java` — standard error handling
+- [x] `.\gradlew.bat :services:reference-data-service:build` passes
 - [ ] Manual smoke test against running service returns correct data
