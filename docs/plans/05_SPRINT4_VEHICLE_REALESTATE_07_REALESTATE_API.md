@@ -174,3 +174,10 @@ All responses wrapped in `ResponseEntity<ApiResponse<T>>`.
 - `services/realestate-service/src/main/java/com/insurancemanagementsystem/realestate/dto/RealEstateResponse.java` ✅
 - `services/realestate-service/src/main/java/com/insurancemanagementsystem/realestate/service/RealEstateService.java` ✅
 - `services/realestate-service/src/main/java/com/insurancemanagementsystem/realestate/controller/RealEstateController.java` ✅
+
+## Verification
+
+```bash
+.\gradlew.bat :services:realestate-service:compileJava
+```
+- `compileJava` — ✅ SUCCESS
