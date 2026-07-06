@@ -55,6 +55,9 @@ public class Estimation {
     @Column(name = "company_id")
     private UUID companyId;
 
+    @Column(name = "trace_id")
+    private UUID traceId;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20, nullable = false)
     private Status status;

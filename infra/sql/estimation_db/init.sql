@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS estimations (
     real_estate_id UUID,
     insurance_type_id INT,
     company_id UUID,
+    trace_id UUID,
     status VARCHAR(20) NOT NULL CHECK (status IN ('STARTED', 'COMPLETED', 'REJECTED')),
     premium DECIMAL(12,2),
     details JSONB,

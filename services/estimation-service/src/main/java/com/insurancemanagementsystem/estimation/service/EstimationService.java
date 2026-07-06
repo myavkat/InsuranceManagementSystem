@@ -5,6 +5,7 @@ import com.insurancemanagementsystem.common.repository.OutboxEventRepository;
 import com.insurancemanagementsystem.common.event.EventConstants;
 import com.insurancemanagementsystem.common.event.EventEnvelope;
 import com.insurancemanagementsystem.common.event.saga.EstimationRequestedEvent;
+import com.insurancemanagementsystem.common.util.CorrelationIdGenerator;
 import com.insurancemanagementsystem.estimation.dto.EstimationRequest;
 import com.insurancemanagementsystem.estimation.dto.EstimationResponse;
 import com.insurancemanagementsystem.estimation.entity.Estimation;
@@ -61,7 +62,8 @@ public class EstimationService {
             throw new IllegalArgumentException("Either vehicleId or realEstateId must be provided");
         }
 
-        UUID sagaId = UUID.randomUUID();
+        UUID sagaId = CorrelationIdGenerator.generateSagaId();
+        UUID traceId = CorrelationIdGenerator.generateTraceId();
 
         Estimation estimation = Estimation.builder()
                 .sagaId(sagaId)
@@ -70,18 +72,19 @@ public class EstimationService {
                 .realEstateId(request.getRealEstateId())
                 .insuranceTypeId(request.getInsuranceTypeId())
                 .companyId(request.getCompanyId())
+                .traceId(traceId)
                 .status(Estimation.Status.STARTED)
                 .build();
 
         estimation = estimationRepository.save(estimation);
-        log.info("Created estimation id={} with sagaId={}", estimation.getId(), sagaId);
+        log.info("Created estimation id={} with sagaId={}, traceId={}", estimation.getId(), sagaId, traceId);
 
-        saveOutboxEvent(sagaId, request);
+        saveOutboxEvent(sagaId, traceId, request);
 
         return EstimationResponse.fromEntity(estimation);
     }
 
-    private void saveOutboxEvent(UUID sagaId, EstimationRequest request) {
+    private void saveOutboxEvent(UUID sagaId, UUID traceId, EstimationRequest request) {
         EstimationRequestedEvent event = EstimationRequestedEvent.builder()
                 .customerId(request.getCustomerId())
                 .vehicleId(request.getVehicleId())
@@ -90,7 +93,7 @@ public class EstimationService {
                 .companyId(request.getCompanyId())
                 .build();
 
-        EventEnvelope envelope = event.toEnvelope(sagaId, UUID.randomUUID());
+        EventEnvelope envelope = event.toEnvelope(sagaId, traceId);
 
         String payloadJson;
         try {

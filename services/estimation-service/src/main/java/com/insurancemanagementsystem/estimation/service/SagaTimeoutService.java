@@ -59,10 +59,13 @@ public class SagaTimeoutService {
 
             String reason = "SAGA timed out after " + timeoutMinutes + " minutes";
 
+            // Use stored traceId (fall back to sagaId for pre-migration records)
+            UUID traceId = estimation.getTraceId() != null ? estimation.getTraceId() : sagaId;
+
             // Serialize outbox event FIRST — if serialization fails, exception propagates
             // and @Transactional rolls back the transaction, keeping estimation as STARTED
             OutboxEvent outboxEvent = outboxEventSerializer.buildEstimationFailedOutboxEvent(
-                    sagaId, sagaId, reason, "SagaTimeoutService", EventConstants.ESTIMATION_SAGA);
+                    sagaId, traceId, reason, "SagaTimeoutService", EventConstants.ESTIMATION_SAGA);
 
             // Transition to REJECTED
             estimation.setStatus(Estimation.Status.REJECTED);
