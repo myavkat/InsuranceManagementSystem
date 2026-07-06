@@ -3,6 +3,8 @@ package com.insurancemanagementsystem.common.messaging;
 import com.insurancemanagementsystem.common.event.BaseEvent;
 import com.insurancemanagementsystem.common.event.EventEnvelope;
 import com.insurancemanagementsystem.common.repository.SagaEventRepository;
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -14,8 +16,9 @@ import java.util.function.Consumer;
 /**
  * Typed message listener base class for SAGA event consumers.
  * <p>
- * Handles deserialization, MDC context setup, dedup checking, and
- * exception handling so concrete consumers only implement business logic.
+ * Handles deserialization, MDC context setup, dedup checking, Micrometer
+ * Observation instrumentation, and exception handling so concrete consumers
+ * only implement business logic.
  *
  * @param <T> the specific event type this listener handles
  */
@@ -25,15 +28,18 @@ public abstract class MessageListener<T extends BaseEvent> {
     protected final JsonMapper jsonMapper;
     protected final SagaEventRepository sagaEventRepository;
     protected final TransactionTemplate transactionTemplate;
+    protected final ObservationRegistry observationRegistry;
     protected final Class<T> eventClass;
 
     protected MessageListener(JsonMapper jsonMapper,
                               SagaEventRepository sagaEventRepository,
                               TransactionTemplate transactionTemplate,
+                              ObservationRegistry observationRegistry,
                               Class<T> eventClass) {
         this.jsonMapper = jsonMapper;
         this.sagaEventRepository = sagaEventRepository;
         this.transactionTemplate = transactionTemplate;
+        this.observationRegistry = observationRegistry;
         this.eventClass = eventClass;
     }
 
@@ -64,8 +70,16 @@ public abstract class MessageListener<T extends BaseEvent> {
                     return;
                 }
 
-                T event = jsonMapper.convertValue(envelope.getPayload(), eventClass);
-                handleEvent(event, envelope);
+                // Wrap processing in a Micrometer Observation to produce spans for Zipkin
+                Observation observation = Observation.createNotStarted("saga.process", observationRegistry)
+                        .contextualName("process " + eventClass.getSimpleName())
+                        .lowCardinalityKeyValue("event.type", eventType)
+                        .highCardinalityKeyValue("saga.id", sagaId.toString());
+
+                observation.observe(() -> {
+                    T event = jsonMapper.convertValue(envelope.getPayload(), eventClass);
+                    handleEvent(event, envelope);
+                });
             } catch (Exception e) {
                 log.error("Error processing message: {}", e.getMessage(), e);
                 if (e instanceof RuntimeException re) throw re;
@@ -77,9 +91,10 @@ public abstract class MessageListener<T extends BaseEvent> {
     }
 
     /**
-     * Implement business logic for the event. Called after deserialization
-     * and dedup check. The transaction is managed by the caller — use
-     * {@code transactionTemplate.executeWithoutResult()} for multi-write operations.
+     * Implement business logic for the event. Called after deserialization,
+     * dedup check, and Observation setup. The transaction is managed by the
+     * caller — use {@code transactionTemplate.executeWithoutResult()} for
+     * multi-write operations.
      */
     protected abstract void handleEvent(T event, EventEnvelope envelope);
 }
