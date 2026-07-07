@@ -26,6 +26,21 @@ spring:
           destination: estimation.saga
           group: insurance-service-group
       kafka:
+        default:
+          consumer:
+            # Error handling architecture:
+            # - SAGA consumers (functional bindings): retry via binder-level retry config,
+            #   then route to dlq.saga via enableDlq per binding
+            # - DlqMonitor (@KafkaListener): uses dlqMonitorContainerFactory with
+            #   no-retry handler to prevent infinite DLQ loops
+            # - The KafkaErrorHandlerConfig CommonErrorHandler bean serves ONLY
+            #   @KafkaListener containers (currently just DlqMonitor)
+            retry:
+              maxAttempts: 5
+              backOff:
+                initialInterval: 1000
+                multiplier: 2.0
+                maxInterval: 8000
         bindings:
           processInsuranceSaga-in-0:
             consumer:

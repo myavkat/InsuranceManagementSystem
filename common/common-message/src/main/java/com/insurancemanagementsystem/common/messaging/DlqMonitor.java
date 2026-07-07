@@ -25,6 +25,7 @@ public class DlqMonitor {
     @KafkaListener(
         topics = "dlq.saga",
         groupId = "dlq-monitor-group",
+        containerFactory = "dlqMonitorContainerFactory",
         autoStartup = "true"
     )
     public void consume(ConsumerRecord<String, String> record) {
