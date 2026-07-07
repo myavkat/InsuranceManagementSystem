@@ -9,6 +9,7 @@ import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -19,8 +20,9 @@ import java.nio.charset.StandardCharsets;
  * Overrides Gateway's default 429 response to return standardized ErrorResponse JSON
  * with Retry-After header.
  *
- * This handler catches {@link ResponseStatusException} with status 429 (TOO_MANY_REQUESTS)
- * thrown by the RequestRateLimiter filter.
+ * This handler catches 429 errors thrown by the RequestRateLimiter filter, which
+ * can manifest as either {@link ResponseStatusException} (when throwOnLimit is false)
+ * or {@link HttpClientErrorException.TooManyRequests} (when throwOnLimit is true).
  */
 @Configuration
 @Order(-2) // Before default error handlers
@@ -31,12 +33,23 @@ public class RateLimitExceptionHandler implements ErrorWebExceptionHandler {
     public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
         ServerHttpResponse response = exchange.getResponse();
 
-        if (ex instanceof ResponseStatusException rse && rse.getStatusCode() == HttpStatus.TOO_MANY_REQUESTS) {
+        if (isRateLimitException(ex)) {
             return handleRateLimit(response);
         }
 
         // Fall through to next error handler for non-rate-limit errors
         return Mono.error(ex);
+    }
+
+    /**
+     * Checks whether the given throwable represents a rate-limit (429) error
+     * from the RequestRateLimiter filter.
+     */
+    private boolean isRateLimitException(Throwable ex) {
+        if (ex instanceof ResponseStatusException rse) {
+            return rse.getStatusCode() == HttpStatus.TOO_MANY_REQUESTS;
+        }
+        return ex instanceof HttpClientErrorException.TooManyRequests;
     }
 
     private Mono<Void> handleRateLimit(ServerHttpResponse response) {

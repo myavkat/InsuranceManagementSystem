@@ -2,6 +2,7 @@ package com.insurancemanagementsystem.gateway.ratelimit;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.ratelimit.KeyResolver;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -18,6 +19,7 @@ import java.util.Objects;
  * - "user:<uuid>" for authenticated requests
  * - "ip:<address>" for unauthenticated requests
  */
+@Primary
 @Component
 @Slf4j
 public class RateLimitKeyResolver implements KeyResolver {
