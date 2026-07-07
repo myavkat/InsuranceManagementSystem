@@ -14,6 +14,7 @@ import com.insurancemanagementsystem.estimation.entity.Estimation;
 import com.insurancemanagementsystem.estimation.repository.EstimationRepository;
 import com.insurancemanagementsystem.estimation.service.SagaTimeoutService;
 import jakarta.persistence.EntityManager;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -21,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.stream.function.StreamBridge;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.client.RestTestClient;
@@ -66,7 +67,6 @@ class SagaE2ETest extends AbstractKafkaIntegrationTest {
     @DynamicPropertySource
     static void configureAdditionalProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop");
-        registry.add("spring.kafka.consumer.properties.spring.json.trusted.packages", () -> "*");
         // Enable auto topic creation for tests (avoids dependency on kafka-init)
         registry.add("spring.cloud.stream.kafka.binder.configuration.auto.create.topics.enable", () -> true);
         registry.add("spring.kafka.producer.properties.auto.create.topics.enable", () -> true);
@@ -83,7 +83,7 @@ class SagaE2ETest extends AbstractKafkaIntegrationTest {
     private RestTestClient client;
 
     @Autowired
-    private StreamBridge streamBridge;
+    private KafkaTemplate<String, String> kafkaTemplate;
 
     @Autowired
     private EstimationRepository estimationRepository;
@@ -156,21 +156,17 @@ class SagaE2ETest extends AbstractKafkaIntegrationTest {
     }
 
     /**
-     * Publishes a SAGA event to the estimation.saga topic via StreamBridge.
+     * Publishes a SAGA event to the estimation.saga topic via KafkaTemplate.
      * <p>
-     * Uses StreamBridge instead of KafkaTemplate to ensure the message is
-     * serialized with the same content-type handling (JSON string wrapping)
-     * that the Spring Cloud Stream binder expects. Publishing via
-     * KafkaTemplate with StringSerializer would produce raw JSON bytes that
-     * the binder's deserializer might misinterpret.
+     * Uses KafkaTemplate<String, String> to send pre-serialized JSON events,
+     * matching how other saga consumer tests publish. The StringSerializer
+     * writes the JSON as UTF-8 bytes; the consumer's StringDeserializer reads
+     * them back as a String for jsonMapper deserialization.
      */
     private void publishSagaEvent(UUID sagaId, UUID traceId, BaseEvent event) throws Exception {
         EventEnvelope envelope = event.toEnvelope(sagaId, traceId);
         String json = jsonMapper.writeValueAsString(envelope);
-        boolean sent = streamBridge.send(EventConstants.ESTIMATION_SAGA, json);
-        if (!sent) {
-            throw new RuntimeException("Failed to send event via StreamBridge for sagaId=" + sagaId);
-        }
+        kafkaTemplate.send(EventConstants.ESTIMATION_SAGA, json).get(10, TimeUnit.SECONDS);
     }
 
     // ===============================================================
@@ -477,8 +473,7 @@ class SagaE2ETest extends AbstractKafkaIntegrationTest {
     @Test
     void malformedJson_doesNotBlockConsumer() throws Exception {
         // 1. Publish a malformed JSON string to estimation.saga
-        boolean sent = streamBridge.send(EventConstants.ESTIMATION_SAGA, "not valid json at all {{{");
-        assertThat(sent).isTrue();
+        kafkaTemplate.send(EventConstants.ESTIMATION_SAGA, "not valid json at all {{{").get(10, TimeUnit.SECONDS);
 
         // 2. Give the consumer time to process (and fail to deserialize)
         Thread.sleep(2000);
