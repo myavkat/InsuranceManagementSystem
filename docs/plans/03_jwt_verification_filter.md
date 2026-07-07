@@ -1,6 +1,6 @@
 # Plan 03: JWT Verification Filter
 
-> **Status:** Not started
+> **Status:** ✅ Complete
 > **Branch:** `phase4-api-gateway`
 > **Depends on:** Plan 02 (API Gateway Core) — GatewayConfig.java and application.yml must exist
 > **Blocks:** Plan 06 (Integration Tests)
@@ -496,14 +496,14 @@ Also verify the root `.gitignore` doesn't already exclude `.pem` files. If the r
 
 ## Acceptance Criteria
 
-- [ ] `JwtPublicKeyProvider.java` compiles and loads public key from classpath
-- [ ] `JwtAuthFilter.java` compiles and implements `GlobalFilter, Ordered`
-- [ ] `TestJwtTokenGenerator.java` compiles (test scope)
-- [ ] Dev RSA key pair generated: `keys/public-key.pem` (committed), `keys/private-key.pem` (gitignored)
-- [ ] `application.yml` has `gateway.auth.*` configuration block
-- [ ] `.\gradlew.bat :services:api-gateway:build` passes
-- [ ] `JwtAuthFilter` uses `@Component` (auto-detected by Spring)
-- [ ] Filter short-circuits to 401 on missing/invalid/expired token
-- [ ] Filter injects `X-User-Id` and `X-User-Roles` headers on valid token
-- [ ] Routes with `metadata.auth-required: false` bypass JWT validation
-- [ ] Manual JSON serialization in `unauthorized()` properly escapes special characters
+- [x] `JwtPublicKeyProvider.java` compiles and loads public key from classpath
+- [x] `JwtAuthFilter.java` compiles and implements `GlobalFilter, Ordered`
+- [x] `TestJwtTokenGenerator.java` compiles (test scope)
+- [x] Dev RSA key pair generated: `keys/public-key.pem` (committed), `keys/private-key.pem` (gitignored)
+- [x] `application.yml` has `gateway.auth.*` configuration block
+- [x] `.\gradlew.bat :services:api-gateway:build` passes
+- [x] `JwtAuthFilter` uses `@Component` (auto-detected by Spring)
+- [x] Filter short-circuits to 401 on missing/invalid/expired token
+- [x] Filter injects `X-User-Id` and `X-User-Roles` headers on valid token
+- [x] Routes with `metadata.auth-required: false` bypass JWT validation
+- [x] Manual JSON serialization in `unauthorized()` properly escapes special characters
