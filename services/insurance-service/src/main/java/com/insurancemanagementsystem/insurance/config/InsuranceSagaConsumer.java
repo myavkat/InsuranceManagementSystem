@@ -173,11 +173,13 @@ public class InsuranceSagaConsumer {
         UUID sagaId = envelope.getSagaId();
         String eventType = envelope.getEventType();
 
-        if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
-            return;
-        }
+        transactionTemplate.executeWithoutResult(status -> {
+            if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
+                return;
+            }
 
-        log.warn("Estimation failed for saga: {} — no compensation needed (calculation is stateless)", sagaId);
+            log.warn("Estimation failed for saga: {} — no compensation needed (calculation is stateless)", sagaId);
+        });
     }
 
     // ---------------------------------------------------------------

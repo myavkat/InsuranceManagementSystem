@@ -230,10 +230,12 @@ public class EstimationSagaConsumer {
     private void handleEstimationFailed(EventEnvelope envelope, UUID sagaId) {
         String eventType = envelope.getEventType();
 
-        if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
-            return;
-        }
+        transactionTemplate.executeWithoutResult(status -> {
+            if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
+                return;
+            }
 
-        log.warn("Estimation failed for saga: {} — no compensation needed (estimation state updated)", sagaId);
+            log.warn("Estimation failed for saga: {} — no compensation needed (estimation state updated)", sagaId);
+        });
     }
 }

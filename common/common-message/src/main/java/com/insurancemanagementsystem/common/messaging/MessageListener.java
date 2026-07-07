@@ -53,8 +53,8 @@ public abstract class MessageListener<T extends BaseEvent> {
             try {
                 envelope = jsonMapper.readValue(message, EventEnvelope.class);
             } catch (Exception e) {
-                log.error("Failed to deserialize message — skipping (poison pill): {}", e.getMessage());
-                return;
+                log.error("Failed to deserialize message — routing to DLQ: {}", e.getMessage(), e);
+                throw new RuntimeException("Deserialization failed — routing to DLQ", e);
             }
 
             try {
@@ -65,20 +65,22 @@ public abstract class MessageListener<T extends BaseEvent> {
                 MDC.put("sagaId", sagaId != null ? sagaId.toString() : "");
                 MDC.put("traceId", traceId != null ? traceId.toString() : "");
 
-                if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
-                    log.info("Duplicate event: sagaId={}, eventType={} — skipping", sagaId, eventType);
-                    return;
-                }
+                transactionTemplate.executeWithoutResult(status -> {
+                    if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
+                        log.info("Duplicate event: sagaId={}, eventType={} — skipping", sagaId, eventType);
+                        return;
+                    }
 
-                // Wrap processing in a Micrometer Observation to produce spans for Zipkin
-                Observation observation = Observation.createNotStarted("saga.process", observationRegistry)
-                        .contextualName("process " + eventClass.getSimpleName())
-                        .lowCardinalityKeyValue("event.type", eventType)
-                        .highCardinalityKeyValue("saga.id", sagaId.toString());
+                    // Wrap processing in a Micrometer Observation to produce spans for Zipkin
+                    Observation observation = Observation.createNotStarted("saga.process", observationRegistry)
+                            .contextualName("process " + eventClass.getSimpleName())
+                            .lowCardinalityKeyValue("event.type", eventType)
+                            .highCardinalityKeyValue("saga.id", sagaId.toString());
 
-                observation.observe(() -> {
-                    T event = jsonMapper.convertValue(envelope.getPayload(), eventClass);
-                    handleEvent(event, envelope);
+                    observation.observe(() -> {
+                        T event = jsonMapper.convertValue(envelope.getPayload(), eventClass);
+                        handleEvent(event, envelope);
+                    });
                 });
             } catch (Exception e) {
                 log.error("Error processing message: {}", e.getMessage(), e);
