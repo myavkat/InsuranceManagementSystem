@@ -2,7 +2,7 @@
 
 ## Overview
 
-The repository contains both legacy and target codebases. The legacy stack is preserved as-is during incremental migration.
+The repository is organized as a Gradle multi-module project with microservices, a shared library layer, a Next.js frontend, and infrastructure artifacts.
 
 ---
 
@@ -10,21 +10,20 @@ The repository contains both legacy and target codebases. The legacy stack is pr
 
 ```
 InsuranceManagementSystem/
-├── backend/                          # Legacy monolith (Java Spring Boot WebFlux)
-├── frontend/                         # Legacy Vue 3 + Vite + TypeScript + TailwindCSS 4
-├── services/                         # Target microservices (under construction)
+├── services/                         # Microservices
 │   ├── customer-service/             # Customer CRUD, search
 │   ├── insurance-service/            # Insurance products, types, companies
 │   ├── estimation-service/           # Insurance estimation/quote, SAGA coordination
 │   ├── vehicle-service/              # Vehicle information management
 │   ├── realestate-service/           # Real estate information management
 │   ├── reference-data-service/       # Reference data (cities, professions, lookups)
-│   ├── api-gateway/                  # Spring Cloud Gateway, routing, auth, rate limiting
-│   ├── auth-service/                 # Authentication & JWT issuance/validation
+│   ├── api-gateway/                  # Spring Cloud Gateway, routing, auth, rate limiting (stub)
+│   ├── auth-service/                 # Authentication & JWT issuance/validation (stub)
 │   └── reference-skeleton/           # Reference/template Spring Boot service (CRUD, Kafka)
-├── frontend-next/                    # Target Next.js SSR (App Router) + Tailwind CSS + shadcn/ui
+├── frontend-next/                    # Next.js SSR (App Router) + Tailwind CSS + shadcn/ui
 ├── common/                           # Shared libraries
 │   ├── common-message/               # Event schemas (SAGA + domain events), serialization, constants
+│   ├── common-web/                   # Shared web config (Springdoc OpenAPI, exception handling, tracing)
 │   └── common-test/                  # Shared test utilities
 ├── infra/                            # Infrastructure artifacts
 │   ├── docker/                       # Docker Compose, .env, override configs
@@ -37,7 +36,7 @@ InsuranceManagementSystem/
 
 ---
 
-> **Technology stack:** See [`01_SYSTEM_ARCHITECTURE.md`](./01_SYSTEM_ARCHITECTURE.md) for target stack, [`08_LEGACY_BACKEND.md`](./08_LEGACY_BACKEND.md) and [`09_LEGACY_FRONTEND.md`](./09_LEGACY_FRONTEND.md) for legacy stack.
+> **Technology stack:** See [`01_SYSTEM_ARCHITECTURE.md`](./01_SYSTEM_ARCHITECTURE.md) for the full technology stack.
 >
 > **Service conventions:** See [`01_SYSTEM_ARCHITECTURE.md`](./01_SYSTEM_ARCHITECTURE.md) for architectural rules and [`02_MICROSERVICES_SPECIFICATIONS.md`](./02_MICROSERVICES_SPECIFICATIONS.md) for per-service specs.
 
@@ -48,13 +47,12 @@ InsuranceManagementSystem/
 Changes affecting multiple services must be implemented bottom-up (no circular dependencies):
 
 ```
-Reference Data → Auth → Customer/Vehicle/RealEstate → Insurance → Estimation → API Gateway
+Common modules → Reference Data → Customer/Vehicle/RealEstate → Insurance → Estimation
 ```
 
-- **Frontend-next** depends only on API Gateway contracts
+- **Frontend-next** depends only on API Gateway contracts (once gateway is implemented)
 - **common-message** is a dependency of all services — build it first
 - **reference-skeleton** is a template — not in the dependency chain
+- **auth-service** and **api-gateway** are stubs without build files — not yet in the build chain
 
 ---
-
-> **Legacy preservation:** See [`01_SYSTEM_ARCHITECTURE.md`](./01_SYSTEM_ARCHITECTURE.md) rule #6.

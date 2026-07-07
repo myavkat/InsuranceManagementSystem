@@ -7,20 +7,13 @@ Non-obvious environment-specific details that affect development and troubleshoo
 ## Git Ignore Coverage
 
 - **Root `.gitignore`** — covers IDE/OS artifacts, `node_modules/`, `build/`, `.env` files, logs, and test output.
-- **Per-module `.gitignore`** files also present in:
-  - `backend/`
-  - `frontend/`
-  - Each `services/*/`
+- Per-service `.gitignore` files may also be present in `services/*/`.
 
 ---
 
 ## Database Defaults
 
-### Legacy Backend (Monolith)
-
-See [`08_LEGACY_BACKEND.md`](./08_LEGACY_BACKEND.md) for legacy connection details.
-
-### Target Services
+### Services
 
 - Connection pattern: `jdbc:postgresql://localhost:5432/<service-db>`
 - One database per service (see [`02_MICROSERVICES_SPECIFICATIONS.md`](./02_MICROSERVICES_SPECIFICATIONS.md))
@@ -75,17 +68,6 @@ Note: the standard pipe is `docker_engine`; Docker Desktop in WSL2 mode uses `do
 
 ---
 
-## Legacy Stack Coexistence
-
-During incremental migration (see [`01_SYSTEM_ARCHITECTURE.md`](./01_SYSTEM_ARCHITECTURE.md) rule #6):
-
-- **Legacy Vue app** → served from `app.legacy.example.com`
-- **New Next.js app** → served from `app.example.com`
-- **API Gateway** routes traffic by `Host` header or migration cookie
-- **Legacy monolith `backend/`** → remains on its own subdomain/port
-
----
-
 ## Jackson 2 / Jackson 3 Classpath Conflict
 
 **Status:** Known issue — `bootRun` fails with `NoClassDefFoundError: com/fasterxml/jackson/databind/JavaType`.
@@ -104,8 +86,7 @@ with isolated classpaths. For local development, use `gradlew test` (integration
 
 **Resolution plan:** Either:
 1. Shade `com.fasterxml.jackson` into a relocated package in the service JARs, OR
-2. Migrate all Jackson usage from `tools.jackson` back to `com.fasterxml.jackson` (reverses the
-   Jackson 3 migration), OR
+2. Migrate all Jackson usage from `tools.jackson` back to `com.fasterxml.jackson` (reverses the Jackson 3 decision), OR
 3. Exclude `com.fasterxml.jackson` from Spring Kafka dependencies and configure Spring Kafka
    to use `tools.jackson` serializers (requires custom serializer implementation).
 
@@ -116,7 +97,7 @@ with isolated classpaths. For local development, use `gradlew test` (integration
 ## Shared Configuration Blocks
 
 The following configuration is extracted into `common/common-web/src/main/resources/application-common.yml`
-and imported by all 6 target services via `spring.config.import: classpath:application-common.yml`:
+and imported by all 6 services via `spring.config.import: classpath:application-common.yml`:
 
 - `management.tracing.*` (sampling, Zipkin endpoint)
 - `logging.pattern.console` (MDC: traceId, spanId, sagaId)
@@ -126,7 +107,7 @@ and override the shared config where needed.
 
 ---
 
-## Port Allocation (Target Services)
+## Port Allocation
 
 | Service | Default Port |
 |---------|-------------|
@@ -138,6 +119,5 @@ and override the shared config where needed.
 | `reference-data-service` | `8086` |
 | `auth-service` | `8087` |
 | `api-gateway` | `8080` |
-| Legacy backend | (existing port, unchanged) |
 | Next.js frontend | `3000` |
 | Zipkin | `9411` |

@@ -1,5 +1,7 @@
 # API Gateway & Auth Outline
 
+> **Status:** Both the API Gateway and Auth Service are currently stub services — no `build.gradle.kts` yet, commented out of `settings.gradle.kts`. The specs below describe the planned design.
+
 ## API Gateway (Spring Cloud Gateway)
 
 **Purpose:** Single entry point for all external requests. Routes traffic to the appropriate microservice, handles authentication validation, rate limiting, and request/response transformation.
@@ -8,7 +10,7 @@
 
 ### Route Configuration
 
-| Route Path | Target Service | Auth Required |
+| Route Path | Service | Auth Required |
 |------------|---------------|---------------|
 | `/api/auth/**` | Auth Service | No (except `/validate`) |
 | `/api/customers/**` | Customer Service | Yes |
@@ -22,7 +24,7 @@
 
 1. **Rate Limiter** — token bucket per client IP or user ID
 2. **JWT Authentication Filter** — extracts JWT from `Authorization: Bearer <token>`, validates with Auth Service (or local public key), injects user context as headers (`X-User-Id`, `X-User-Roles`)
-3. **Route Filter** — forwards request to target service with modified path
+3. **Route Filter** — forwards request to service with modified path
 4. **Response Filter** — standardizes error responses, adds CORS headers
 
 ### Rate Limiting

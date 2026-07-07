@@ -7,12 +7,14 @@
 - **Lombok** (`@Data`, `@AllArgsConstructor`, `@NoArgsConstructor` on entities/DTOs)
 - **PostgreSQL** via `spring.datasource.url=jdbc:postgresql://localhost:5432/<service-db>`
 - **API response envelope** — standard `ApiResponse<T>` with `success`, `message`, `data`, `timestamp`
-- **Gradle** build, JAR packaging, JUnit 5 + Testcontainers for integration tests
-- **`application.yml`** configuration per service
+- **Gradle** build, JAR packaging, JUnit 5 + Testcontainers for integration tests; JaCoCo coverage (80% minimum on `insurance-service` and `estimation-service`)
+- **`application.yml`** configuration per service; shared web config via `common:common-web` (Springdoc OpenAPI 3.0.3, Zipkin tracing, exception handling)
 
 ---
 
 ## 1. Auth Service
+
+> **Status:** Stub — no `build.gradle.kts` yet, commented out of `settings.gradle.kts`. The spec below describes the planned design.
 
 **Database:** `auth_db`
 

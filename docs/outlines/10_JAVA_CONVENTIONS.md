@@ -20,7 +20,7 @@ This is valid for:
 - Java 25 (the project target)
 - All Java 21+ runtimes
 
-**Note:** The legacy backend may still use `public static void main` — do not retroactively change legacy code.
+**Note:** If any existing service uses `public static void main`, it remains valid — both forms compile and run correctly on Java 25.
 
 ---
 
@@ -63,7 +63,7 @@ Fields representing a calendar date without time zone use `LocalDate`:
 
 - `Instant` avoids timezone ambiguity for audit trails (always UTC).
 - `LocalDate` avoids the confusion of `java.sql.Date` / `java.util.Date`.
-- Consistent across all target microservices — enforced in code review.
+- Consistent across all microservices — enforced in code review.
 
 ---
 
@@ -85,7 +85,7 @@ The order is: `@Data`, `@Builder`, `@NoArgsConstructor`, `@AllArgsConstructor`, 
 
 ---
 
-## Jackson 3 Migration Notes
+## Jackson 3 Usage Notes
 
 ### Annotations Stay at `com.fasterxml.jackson.annotation`
 
