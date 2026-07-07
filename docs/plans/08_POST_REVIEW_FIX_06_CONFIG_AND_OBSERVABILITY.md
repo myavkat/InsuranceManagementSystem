@@ -308,15 +308,15 @@ Prove the Observation instrumentation pattern in a real consumer. The `MessageLi
   .\gradlew.bat test
   ```
 
-- [ ] **6.4** Start infrastructure and verify Zipkin is reachable:
+- [x] **6.4** Start infrastructure and verify Zipkin is reachable:
   ```bash
   docker compose -f infra/docker/docker-compose.yml up -d
   curl http://localhost:9411/health
   ```
 
-- [ ] **6.5** If Observation was added (Step 5), trigger a SAGA flow and check for spans in Zipkin UI.
+- [x] **6.5** If Observation was added (Step 5), trigger a SAGA flow and check for spans in Zipkin UI.
 
-- [ ] **6.6** Tear down:
+- [x] **6.6** Tear down:
   ```bash
   docker compose -f infra/docker/docker-compose.yml down
   ```
