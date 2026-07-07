@@ -1,6 +1,6 @@
 # Plan 06: API Gateway Integration Tests
 
-> **Status:** Not started
+> **Status:** Complete
 > **Branch:** `phase4-api-gateway`
 > **Depends on:** Plans 01, 02, 03, 04, 05 — all Gateway functionality must be implemented before tests
 > **Blocks:** None (final validation plan)
@@ -716,13 +716,13 @@ If tests fail, debug and fix before proceeding.
 
 ## Acceptance Criteria
 
-- [ ] Test dependencies added to `build.gradle.kts` (WireMock, RestTestClient, Testcontainers, reactor-test)
-- [ ] `application-test.yml` exists with WireMock-based route overrides
-- [ ] `BaseGatewayTest.java` sets up WireMock and RestTestClient
-- [ ] `GatewayRoutingTest` — all 7 routes forward correctly
-- [ ] `JwtAuthenticationTest` — valid/expired/missing/malformed token scenarios
-- [ ] `SecurityHeadersTest` — security headers on responses
-- [ ] `CorsTest` — preflight and actual response CORS headers
-- [ ] `ErrorHandlingTest` — standardized error response format
-- [ ] All tests pass: `.\gradlew.bat :services:api-gateway:test`
-- [ ] Test coverage covers all Gateway filter chain components
+- [x] Test dependencies added to `build.gradle.kts` (WireMock, WebTestClient, Testcontainers, reactor-test)
+- [x] `application-test.yml` exists with WireMock-based route overrides
+- [x] `BaseGatewayTest.java` sets up WireMock and WebTestClient
+- [x] `GatewayRoutingTest` — all 7 routes forward correctly
+- [x] `JwtAuthenticationTest` — valid/expired/missing/malformed token scenarios
+- [x] `SecurityHeadersTest` — security headers on responses
+- [x] `CorsTest` — preflight and actual response CORS headers
+- [x] `ErrorHandlingTest` — standardized error response format
+- [x] All tests pass: `.\gradlew.bat :services:api-gateway:test`
+- [x] Test coverage covers all Gateway filter chain components

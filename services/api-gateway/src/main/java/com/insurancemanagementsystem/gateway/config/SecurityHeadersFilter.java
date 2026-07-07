@@ -19,16 +19,20 @@ public class SecurityHeadersFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        return chain.filter(exchange).then(Mono.fromRunnable(() -> {
-            HttpHeaders headers = exchange.getResponse().getHeaders();
-            headers.add("X-Content-Type-Options", "nosniff");
-            headers.add("X-Frame-Options", "DENY");
-            headers.add("X-XSS-Protection", "0");
-            headers.add("Referrer-Policy", "strict-origin-when-cross-origin");
-            headers.add("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate");
-            headers.add("Pragma", "no-cache");
-            headers.add("Expires", "0");
-        }));
+        // Set response headers BEFORE the downstream chain runs.
+        // Once the ServerHttpResponse is committed, WebFlux wraps its headers in
+        // ReadOnlyHttpHeaders — any attempt to mutate them after that point throws
+        // UnsupportedOperationException. This has always been true in WebFlux
+        // (not new to Spring 7 / Boot 4), so post-filter header modification isn't possible.
+        HttpHeaders headers = exchange.getResponse().getHeaders();
+        headers.add("X-Content-Type-Options", "nosniff");
+        headers.add("X-Frame-Options", "DENY");
+        headers.add("X-XSS-Protection", "0");
+        headers.add("Referrer-Policy", "strict-origin-when-cross-origin");
+        headers.add("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate");
+        headers.add("Pragma", "no-cache");
+        headers.add("Expires", "0");
+        return chain.filter(exchange);
     }
 
     @Override
