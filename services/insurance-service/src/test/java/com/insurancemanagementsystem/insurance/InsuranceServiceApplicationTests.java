@@ -1,12 +1,9 @@
 package com.insurancemanagementsystem.insurance;
 
 import tools.jackson.databind.ObjectMapper;
-import com.insurancemanagementsystem.insurance.dto.InsuranceCompanyRequest;
 import com.insurancemanagementsystem.insurance.dto.InsuranceRequest;
 import com.insurancemanagementsystem.insurance.entity.Insurance;
-import com.insurancemanagementsystem.insurance.entity.InsuranceCompany;
 import com.insurancemanagementsystem.insurance.entity.InsuranceType;
-import com.insurancemanagementsystem.insurance.repository.InsuranceCompanyRepository;
 import com.insurancemanagementsystem.insurance.repository.InsuranceRepository;
 import com.insurancemanagementsystem.insurance.repository.InsuranceTypeRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,19 +59,13 @@ class InsuranceServiceApplicationTests {
     private InsuranceRepository insuranceRepository;
 
     @Autowired
-    private InsuranceCompanyRepository insuranceCompanyRepository;
-
-    @Autowired
     private InsuranceTypeRepository insuranceTypeRepository;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private UUID testCompanyId;
-
     @BeforeEach
     void cleanUp() {
         insuranceRepository.deleteAll();
-        insuranceCompanyRepository.deleteAll();
         insuranceTypeRepository.deleteAll();
 
         // Seed InsuranceType data
@@ -85,14 +76,6 @@ class InsuranceServiceApplicationTests {
                 new InsuranceType(4, "HEALTH"),
                 new InsuranceType(5, "LIFE")
         ));
-
-        // Seed InsuranceCompany for tests
-        InsuranceCompany company = InsuranceCompany.builder()
-                .name("TestCo")
-                .rating(new BigDecimal("4.5"))
-                .build();
-        insuranceCompanyRepository.save(company);
-        testCompanyId = company.getId();
     }
 
     @Test
@@ -131,7 +114,6 @@ class InsuranceServiceApplicationTests {
         Insurance insurance = Insurance.builder()
                 .name("TestInsurance")
                 .typeId(1)
-                .companyId(testCompanyId)
                 .basePremium(new BigDecimal("1000"))
                 .build();
         insuranceRepository.save(insurance);
@@ -200,7 +182,6 @@ class InsuranceServiceApplicationTests {
         InsuranceRequest updateReq = new InsuranceRequest();
         updateReq.setName("UpdatedInsurance");
         updateReq.setTypeId(1);
-        updateReq.setCompanyId(testCompanyId);
         updateReq.setBasePremium(new BigDecimal("1500"));
 
         restTestClient.put().uri("/api/insurances/{id}", insuranceId)
@@ -228,7 +209,6 @@ class InsuranceServiceApplicationTests {
         InsuranceRequest request = new InsuranceRequest();
         request.setName("");
         request.setTypeId(1);
-        request.setCompanyId(testCompanyId);
         request.setBasePremium(new BigDecimal("1000"));
 
         restTestClient.post().uri("/api/insurances")
@@ -237,28 +217,6 @@ class InsuranceServiceApplicationTests {
                 .expectStatus().isBadRequest()
                 .expectBody()
                 .jsonPath("$.success").isEqualTo(false);
-    }
-
-    @Test
-    void createCompany_thenListCompanies() {
-        InsuranceCompanyRequest request = createValidCompanyRequest();
-
-        restTestClient.post().uri("/api/insurances/companies")
-                .body(request)
-                .exchange()
-                .expectStatus().isCreated()
-                .expectBody()
-                .jsonPath("$.success").isEqualTo(true)
-                .jsonPath("$.message").isEqualTo("Insurance company created successfully");
-
-        // GET /api/insurances/companies → 200, verify company appears in list
-        restTestClient.get().uri("/api/insurances/companies")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.success").isEqualTo(true)
-                .jsonPath("$.data.totalElements").isEqualTo(2)
-                .jsonPath("$.data.content[0].name").isEqualTo("NewCo");
     }
 
     @Test
@@ -280,15 +238,7 @@ class InsuranceServiceApplicationTests {
         InsuranceRequest request = new InsuranceRequest();
         request.setName("TestInsurance");
         request.setTypeId(1);
-        request.setCompanyId(testCompanyId);
         request.setBasePremium(new BigDecimal("1000"));
-        return request;
-    }
-
-    private InsuranceCompanyRequest createValidCompanyRequest() {
-        InsuranceCompanyRequest request = new InsuranceCompanyRequest();
-        request.setName("NewCo");
-        request.setRating(new BigDecimal("4.5"));
         return request;
     }
 }

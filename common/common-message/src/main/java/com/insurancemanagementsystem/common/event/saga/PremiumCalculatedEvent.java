@@ -17,7 +17,6 @@ public class PremiumCalculatedEvent extends BaseEvent {
     private BigDecimal premium;
     private Map<String, BigDecimal> breakdown;
     private Integer insuranceTypeId;
-    private UUID companyId;
     private UUID customerId;
     private UUID vehicleId;
 

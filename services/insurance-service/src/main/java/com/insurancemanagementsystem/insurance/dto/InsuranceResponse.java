@@ -20,9 +20,6 @@ public class InsuranceResponse {
     private String description;
     private Integer typeId;
     private String typeName;
-    private UUID companyId;
-    private String companyName;
-    private BigDecimal companyRating;
     private BigDecimal basePremium;
     private Boolean isActive;
     private Instant createdAt;
@@ -35,9 +32,6 @@ public class InsuranceResponse {
                 .description(insurance.getDescription())
                 .typeId(insurance.getTypeId())
                 .typeName(insurance.getInsuranceType() != null ? insurance.getInsuranceType().getName() : null)
-                .companyId(insurance.getCompanyId())
-                .companyName(insurance.getInsuranceCompany() != null ? insurance.getInsuranceCompany().getName() : null)
-                .companyRating(insurance.getInsuranceCompany() != null ? insurance.getInsuranceCompany().getRating() : null)
                 .basePremium(insurance.getBasePremium())
                 .isActive(insurance.getIsActive())
                 .createdAt(insurance.getCreatedAt())

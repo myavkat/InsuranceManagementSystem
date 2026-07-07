@@ -35,8 +35,7 @@ class EventSerializationTest {
                 .vehicleId(UUID.randomUUID())
                 .realEstateId(null)
                 .insuranceTypeId(1)
-                .companyId(UUID.randomUUID())
-                .build();
+                                .build();
 
         assertSagaEventRoundTrip(event, EstimationRequestedEvent.class);
     }
@@ -111,8 +110,7 @@ class EventSerializationTest {
                 .premium(new BigDecimal("1250.00"))
                 .breakdown(Map.of("base", new BigDecimal("1000.00"), "tax", new BigDecimal("250.00")))
                 .insuranceTypeId(1)
-                .companyId(UUID.randomUUID())
-                .customerId(UUID.randomUUID())
+                                .customerId(UUID.randomUUID())
                 .vehicleId(UUID.randomUUID())
                 .build();
 
@@ -251,8 +249,7 @@ class EventSerializationTest {
         InsuranceCreatedEvent event = InsuranceCreatedEvent.builder()
                 .insuranceId(UUID.randomUUID())
                 .typeId(1)
-                .companyId(UUID.randomUUID())
-                .name("Trafik Sigortası")
+                                .name("Trafik Sigortası")
                 .build();
 
         assertDomainEventRoundTrip(event, InsuranceCreatedEvent.class);
@@ -263,8 +260,7 @@ class EventSerializationTest {
         InsuranceUpdatedEvent event = InsuranceUpdatedEvent.builder()
                 .insuranceId(UUID.randomUUID())
                 .typeId(1)
-                .companyId(UUID.randomUUID())
-                .name("Kasko Sigortası")
+                                .name("Kasko Sigortası")
                 .build();
 
         assertDomainEventRoundTrip(event, InsuranceUpdatedEvent.class);
@@ -275,8 +271,7 @@ class EventSerializationTest {
         InsuranceDeletedEvent event = InsuranceDeletedEvent.builder()
                 .insuranceId(UUID.randomUUID())
                 .typeId(2)
-                .companyId(UUID.randomUUID())
-                .build();
+                                .build();
 
         assertDomainEventRoundTrip(event, InsuranceDeletedEvent.class);
     }
@@ -339,8 +334,7 @@ class EventSerializationTest {
                 .vehicleId(null)
                 .realEstateId(UUID.randomUUID())
                 .insuranceTypeId(3) // DASK
-                .companyId(UUID.randomUUID())
-                .build();
+                                .build();
 
         String json = mapper.writeValueAsString(event);
 

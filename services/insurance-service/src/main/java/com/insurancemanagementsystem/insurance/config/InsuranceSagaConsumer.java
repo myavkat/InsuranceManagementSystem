@@ -198,7 +198,6 @@ public class InsuranceSagaConsumer {
         UUID customerId = estimationEvent.getCustomerId();
         UUID vehicleId = estimationEvent.getVehicleId();
         Integer insuranceTypeId = estimationEvent.getInsuranceTypeId();
-        UUID companyId = estimationEvent.getCompanyId();
 
         // Extract customer data
         CustomerValidatedEvent customerEvent = jsonMapper.convertValue(
@@ -208,14 +207,14 @@ public class InsuranceSagaConsumer {
         VehicleValidatedEvent vehicleEvent = jsonMapper.convertValue(
                 state.getVehicleValidated().getPayload(), VehicleValidatedEvent.class);
 
-        // Look up insurance entity by typeId + companyId
+        // Look up insurance by typeId only — single provider system
         Optional<Insurance> insuranceOpt = insuranceRepository
-                .findByTypeIdAndCompanyIdAndIsActiveTrue(insuranceTypeId, companyId, Pageable.unpaged())
+                .findByTypeIdAndIsActiveTrue(insuranceTypeId, Pageable.unpaged())
                 .stream().findFirst();
 
         if (insuranceOpt.isEmpty()) {
             publishCalculationFailed(sagaId, traceId,
-                    "No active insurance found for typeId=" + insuranceTypeId + ", companyId=" + companyId);
+                    "No active insurance found for typeId=" + insuranceTypeId);
             return;
         }
 
@@ -243,15 +242,14 @@ public class InsuranceSagaConsumer {
                 .premium(totalPremium)
                 .breakdown(breakdown)
                 .insuranceTypeId(insuranceTypeId)
-                .companyId(companyId)
                 .customerId(customerId)
                 .vehicleId(vehicleId)
                 .build();
 
         EventEnvelope outcome = premiumEvent.toEnvelope(sagaId, traceId);
         outboxEventRepository.save(buildOutboxEvent(sagaId, outcome, EventConstants.ESTIMATION_SAGA));
-        log.info("Premium calculated for sagaId={}: premium={}, typeId={}, companyId={}",
-                sagaId, totalPremium, insuranceTypeId, companyId);
+        log.info("Premium calculated for sagaId={}: premium={}, typeId={}",
+                sagaId, totalPremium, insuranceTypeId);
     }
 
     private void publishCalculationFailed(UUID sagaId, UUID traceId, String reason) {

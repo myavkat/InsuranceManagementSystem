@@ -31,9 +31,6 @@ public class Insurance {
     @Column(name = "type_id", nullable = false)
     private Integer typeId;
 
-    @Column(name = "company_id", nullable = false)
-    private UUID companyId;
-
     @Column(name = "base_premium", precision = 12, scale = 2)
     private BigDecimal basePremium;
 
@@ -63,8 +60,4 @@ public class Insurance {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "type_id", insertable = false, updatable = false)
     private InsuranceType insuranceType;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "company_id", insertable = false, updatable = false)
-    private InsuranceCompany insuranceCompany;
 }

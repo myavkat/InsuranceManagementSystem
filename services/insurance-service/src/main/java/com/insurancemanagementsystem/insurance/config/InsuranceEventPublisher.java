@@ -24,7 +24,6 @@ public class InsuranceEventPublisher {
         InsuranceCreatedEvent event = InsuranceCreatedEvent.builder()
                 .insuranceId(insurance.getId())
                 .typeId(insurance.getTypeId())
-                .companyId(insurance.getCompanyId())
                 .name(insurance.getName())
                 .build();
 
@@ -37,7 +36,6 @@ public class InsuranceEventPublisher {
         InsuranceUpdatedEvent event = InsuranceUpdatedEvent.builder()
                 .insuranceId(insurance.getId())
                 .typeId(insurance.getTypeId())
-                .companyId(insurance.getCompanyId())
                 .name(insurance.getName())
                 .build();
 
@@ -50,7 +48,6 @@ public class InsuranceEventPublisher {
         InsuranceDeletedEvent event = InsuranceDeletedEvent.builder()
                 .insuranceId(insurance.getId())
                 .typeId(insurance.getTypeId())
-                .companyId(insurance.getCompanyId())
                 .build();
 
         EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
