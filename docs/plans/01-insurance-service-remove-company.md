@@ -1,6 +1,6 @@
 # 01 — Remove Multi-Company Concept: common-message + insurance-service
 
-## Status: READY FOR IMPLEMENTATION
+## Status: COMPLETED
 
 ## Objective
 
@@ -1316,17 +1316,17 @@ Verify: `./gradlew :common-message:test`
 
 ## Acceptance Criteria
 
-- [ ] All 5 common-message event classes compile without `companyId`
-- [ ] `EventSerializationTest.java` in common-message has no `.companyId(...)` builder calls — `./gradlew :common-message:test` passes
-- [ ] 4 insurance-service files are deleted: `InsuranceCompany.java`, `InsuranceCompanyRequest.java`, `InsuranceCompanyResponse.java`, `InsuranceCompanyRepository.java`
-- [ ] `Insurance.java` has no `companyId` field or `insuranceCompany` relationship
-- [ ] `InsuranceRequest.java` and `InsuranceResponse.java` have no company-related fields
-- [ ] `InsuranceRepository.java` has no company-related query methods
-- [ ] `InsuranceController.java` has no `companyId` query param and no `/companies` endpoints
-- [ ] `InsuranceService.java` has no company validation, no `insuranceCompanyRepository` field, no company CRUD methods
-- [ ] `InsuranceSagaConsumer.java` looks up insurance by `typeId` only
-- [ ] `InsuranceEventPublisher.java` publishes events without `companyId`
-- [ ] `infra/sql/insurance_db/init.sql` has no `insurance_companies` table, no `company_id` column, no company seed data
-- [ ] All test files compile and pass: `./gradlew :common-message:test :insurance-service:test`
-- [ ] `grep -ri "companyid\|company_id\|insurancecompany\|insurance_company" services/insurance-service/src/` returns zero results
-- [ ] `grep -ri "companyid\|company_id\|insurancecompany\|insurance_company" common/common-message/src/` returns zero results
+- [x] All 5 common-message event classes compile without `companyId`
+- [x] `EventSerializationTest.java` in common-message has no `.companyId(...)` builder calls — `./gradlew :common-message:test` passes
+- [x] 4 insurance-service files are deleted: `InsuranceCompany.java`, `InsuranceCompanyRequest.java`, `InsuranceCompanyResponse.java`, `InsuranceCompanyRepository.java`
+- [x] `Insurance.java` has no `companyId` field or `insuranceCompany` relationship
+- [x] `InsuranceRequest.java` and `InsuranceResponse.java` have no company-related fields
+- [x] `InsuranceRepository.java` has no company-related query methods
+- [x] `InsuranceController.java` has no `companyId` query param and no `/companies` endpoints
+- [x] `InsuranceService.java` has no company validation, no `insuranceCompanyRepository` field, no company CRUD methods
+- [x] `InsuranceSagaConsumer.java` looks up insurance by `typeId` only
+- [x] `InsuranceEventPublisher.java` publishes events without `companyId`
+- [x] `infra/sql/insurance_db/init.sql` has no `insurance_companies` table, no `company_id` column, no company seed data
+- [x] All test files compile and pass: `./gradlew :common-message:test :insurance-service:test`
+- [x] `grep -ri "companyid\|company_id\|insurancecompany\|insurance_company" services/insurance-service/src/` returns zero results
+- [x] `grep -ri "companyid\|company_id\|insurancecompany\|insurance_company" common/common-message/src/` returns zero results
