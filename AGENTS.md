@@ -62,20 +62,19 @@ All technical decisions and conventions live in `docs/outlines/`. Consult the re
 | Outline | Content |
 |---------|---------|
 | [`03_SAGA_PATTERN.md`](docs/outlines/03_SAGA_PATTERN.md) | SAGA choreography flow, event catalog, idempotency, timeout, compensation |
-| [`04_MESSAGE_QUEUE_TOPOLOGY.md`](docs/outlines/04_MESSAGE_QUEUE_TOPOLOGY.md) | Kafka topics, RabbitMQ queues, per-service config |
+| [`04_MESSAGE_QUEUE_TOPOLOGY.md`](docs/outlines/04_MESSAGE_QUEUE_TOPOLOGY.md) | Kafka topics, partitions, retention, per-service consumer configuration |
 | [`06_API_GATEWAY_AUTH.md`](docs/outlines/06_API_GATEWAY_AUTH.md) | Gateway routing, filter chain, rate limiting, auth service |
 
 ### Frontend
 | Outline | Content |
 |---------|---------|
 | [`05_NEXTJS_FRONTEND.md`](docs/outlines/05_NEXTJS_FRONTEND.md) | Next.js App Router architecture, BFF pattern, component structure, data flow |
-| [`09_LEGACY_FRONTEND.md`](docs/outlines/09_LEGACY_FRONTEND.md) | Legacy Vue 3 conventions, mock services, auth quirks, navigation issues |
 
 ### Conventions & Operations
 | Outline | Content |
 |---------|---------|
-| [`08_LEGACY_BACKEND.md`](docs/outlines/08_LEGACY_BACKEND.md) | Legacy monolith conventions (WebFlux, R2DBC, Result pattern, Thymeleaf) |
-| [`10_JAVA_CONVENTIONS.md`](docs/outlines/10_JAVA_CONVENTIONS.md) | Java 21+ relaxed main, datetime conventions (Instant/LocalDate), Lombok order |
+| [`10_JAVA_CONVENTIONS.md`](docs/outlines/10_JAVA_CONVENTIONS.md) | Java 21+ relaxed main, datetime conventions (Instant/LocalDate), Lombok order, Jackson 3 usage |
 | [`11_TESTING_CONVENTIONS.md`](docs/outlines/11_TESTING_CONVENTIONS.md) | Spring Boot 4 testing rules (RestTestClient, slice/integration tests, assertions) |
 | [`12_DEVELOPER_COMMANDS.md`](docs/outlines/12_DEVELOPER_COMMANDS.md) | Build, run, test commands for all subsystems |
-| [`13_ENVIRONMENT_QUIRKS.md`](docs/outlines/13_ENVIRONMENT_QUIRKS.md) | .gitignore, defaults, IntelliJ quirks, port allocation, legacy preservation |
+| [`13_ENVIRONMENT_QUIRKS.md`](docs/outlines/13_ENVIRONMENT_QUIRKS.md) | .gitignore, defaults, IntelliJ quirks, port allocation, Jackson conflict |
+| [`14_EVENT_SCHEMA_REGISTRY.md`](docs/outlines/14_EVENT_SCHEMA_REGISTRY.md) | Event schemas, EventType constants, payload fields, producer/consumer index |

@@ -2,7 +2,6 @@ rootProject.name = "insurance-management-system"
 
 include("common:common-message")
 include("common:common-web")
-// include("services:reference-skeleton")
 
 // Future services (uncomment when build files are created):
 include("common:common-test")

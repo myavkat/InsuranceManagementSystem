@@ -7,6 +7,8 @@
 ## Objective
 Build the foundational layer of the Next.js frontend: App Router layout, BFF layer, state management, API client, authentication, and UI component library.
 
+> **UI Library:** This project uses **shadcn/ui with Base UI React** (`@base-ui/react`), configured with `style: "base-nova"`. Do NOT use Radix UI primitives. All interactive components must be built on `@base-ui/react` via the shadcn/ui wrappers already installed under `src/components/ui/`.
+
 ### Subtasks
 
 1. **Configure Next.js Foundation**

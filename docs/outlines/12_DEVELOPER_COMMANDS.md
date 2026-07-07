@@ -14,12 +14,11 @@ npm run dev                  # Next.js dev server at localhost:3000
 npm run build                # Production build (SSR + static generation)
 npm run start                # Production server
 npm run lint                 # ESLint
-npm run test                 # Jest / Vitest
 ```
 
 ---
 
-## Target Microservices (Gradle)
+## Microservices (Gradle)
 
 All commands run from the repo root. Use `.\gradlew.bat` on Windows, `./gradlew` on Unix.
 
@@ -46,7 +45,7 @@ All commands run from the repo root. Use `.\gradlew.bat` on Windows, `./gradlew`
 ### Run All Services (One-Command Docker Startup)
 
 The recommended way to run everything at once. Builds all JARs, starts infrastructure
-(PostgreSQL × 8, Kafka, Zipkin, Redis), and launches all 6 services as containers.
+(PostgreSQL × 8, Kafka, Zipkin, Redis), and launches all active services as containers.
 
 ```bash
 # From repo root:
@@ -80,9 +79,12 @@ Under the hood:
 
 ### Service Names
 
-Replace `<service-name>` with one of:
+Replace `<service-name>` with one of the active services:
 `customer-service`, `insurance-service`, `estimation-service`, `vehicle-service`,
-`realestate-service`, `reference-data-service`, `api-gateway`, `auth-service`, `reference-skeleton`
+`realestate-service`, `reference-data-service`
+
+Stub/template services (not yet in the active build):
+`api-gateway`, `auth-service`
 
 ### Common Module
 

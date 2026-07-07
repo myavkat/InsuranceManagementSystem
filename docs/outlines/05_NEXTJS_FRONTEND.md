@@ -2,7 +2,7 @@
 
 ## Overview
 
-A **Next.js 15+ App Router** application with **SSR** as the default rendering strategy. Replaces the legacy Vue 3 frontend incrementally during migration.
+A **Next.js 16 App Router** application with **SSR** as the default rendering strategy.
 
 ---
 
@@ -12,79 +12,33 @@ A **Next.js 15+ App Router** application with **SSR** as the default rendering s
 frontend-next/
 ├── .env.local                    # GATEWAY_URL, AUTH_SECRET, etc.
 ├── next.config.ts
-├── tailwind.config.ts
-├── components.json               # shadcn/ui config
-├── app/
-│   ├── layout.tsx                # Root layout (fonts, providers)
-│   ├── page.tsx                  # Landing / redirect
-│   ├── (auth)/
-│   │   ├── layout.tsx            # Auth layout (centered card)
-│   │   ├── login/page.tsx        # Login page
-│   │   └── register/page.tsx     # Registration page
-│   ├── (dashboard)/
-│   │   ├── layout.tsx            # Dashboard layout (sidebar, header)
-│   │   ├── page.tsx              # Dashboard home
-│   │   ├── customers/
-│   │   │   ├── page.tsx          # Customer list (server component)
-│   │   │   ├── [id]/page.tsx     # Customer detail
-│   │   │   └── new/page.tsx      # New customer form
-│   │   ├── insurances/
-│   │   │   ├── page.tsx
-│   │   │   └── [id]/page.tsx
-│   │   ├── estimations/
-│   │   │   ├── page.tsx
-│   │   │   └── [id]/page.tsx
-│   │   └── vehicles/
-│   │       ├── page.tsx
-│   │       └── [id]/page.tsx
-│   └── api/                      # BFF route handlers
-│       ├── auth/
-│       │   ├── login/route.ts
-│       │   └── refresh/route.ts
-│       ├── customers/
-│       │   ├── route.ts          # GET (list), POST (create)
-│       │   └── [id]/route.ts     # GET, PUT, DELETE
-│       ├── insurances/
-│       │   └── route.ts
-│       ├── estimations/
-│       │   └── route.ts
-│       └── vehicles/
-│           └── route.ts
-├── components/
-│   ├── ui/                       # shadcn/ui primitives
-│   │   ├── button.tsx
-│   │   ├── input.tsx
-│   │   ├── card.tsx
-│   │   ├── dialog.tsx
-│   │   ├── table.tsx
-│   │   ├── select.tsx
-│   │   ├── badge.tsx
-│   │   └── skeleton.tsx
-│   └── features/                 # Feature-specific components
-│       ├── customers/
-│       │   ├── customer-table.tsx
-│       │   └── customer-form.tsx
-│       ├── estimations/
-│       │   ├── estimation-form.tsx
-│       │   └── estimation-status.tsx
-│       └── layout/
-│           ├── sidebar.tsx
-│           └── header.tsx
-├── lib/
-│   ├── api/                      # API client
-│   │   ├── client.ts             # Base fetch wrapper (auth headers, error handling)
-│   │   ├── auth.ts               # Auth API calls
-│   │   ├── customers.ts          # Customer API calls
-│   │   ├── insurances.ts
-│   │   ├── estimations.ts
-│   │   └── vehicles.ts
-│   ├── store/                    # Client state
-│   │   ├── auth-store.ts         # Zustand auth store
-│   │   └── ui-store.ts           # UI state (sidebar, theme)
-│   └── utils.ts                  # cn() helper, formatting
+├── postcss.config.mjs
+├── eslint.config.mjs
+├── components.json               # shadcn/ui config (style: "base-nova")
+├── tsconfig.json
+├── src/
+│   ├── app/
+│   │   ├── layout.tsx            # Root layout (fonts, providers)
+│   │   ├── page.tsx              # Landing / redirect
+│   │   ├── globals.css
+│   │   └── favicon.ico
+│   ├── components/
+│   │   └── ui/                   # shadcn/ui primitives (Base UI React)
+│   │       ├── button.tsx
+│   │       ├── input.tsx
+│   │       ├── card.tsx
+│   │       ├── dialog.tsx
+│   │       ├── table.tsx
+│   │       ├── select.tsx
+│   │       ├── badge.tsx
+│   │       └── skeleton.tsx
+│   └── lib/
+│       └── utils.ts              # cn() helper
 └── public/
     └── images/
 ```
+
+> **Note:** Additional directories (`(auth)/`, `(dashboard)/`, `api/` BFF route handlers, `components/features/`, `lib/api/`, `lib/store/`) will be added incrementally as features are implemented.
 
 ---
 
@@ -106,7 +60,7 @@ frontend-next/
 - Server state is managed by React Query, not Zustand.
 
 ### 4. UI Components (shadcn/ui)
-- All UI primitives are shadcn/ui (Radix + Tailwind).
+- All UI primitives are shadcn/ui (Base UI React + Tailwind CSS), configured with `style: "base-nova"`.
 - No Bootstrap. No custom CSS components.
 - Tailwind CSS v4 for utility-first styling.
 
@@ -132,7 +86,7 @@ BFF (app/api/* route handler)
 API Gateway (external)
       │
       ▼
-Target Microservice
+Microservice
       │
       ▼ (JSON response)
 API Gateway
@@ -148,11 +102,3 @@ React Query hydrates from same BFF endpoint
 ```
 
 ---
-
-## Migration Strategy
-
-- Legacy Vue app remains operational on `app.legacy.example.com`.
-- New Next.js app served from `app.example.com`.
-- API Gateway routes based on `Host` header or migration cookie.
-- During incremental migration, both frontends coexist and access the same Gateway.
-- The legacy frontend is decommissioned only after all routes are migrated and verified.

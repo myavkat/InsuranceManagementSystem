@@ -22,7 +22,7 @@ Eight microservices, each owning its domain data and collaborating via asynchron
 ### Communication
 
 - **External**: All requests route through the **API Gateway** (Spring Cloud Gateway). No direct service exposure.
-- **Inter-service**: **Kafka** for SAGA events and domain events; **RabbitMQ** for synchronous RPC lookups.
+- **Inter-service**: **Kafka** for all inter-service communication (SAGA events, domain events, RPC-style lookups).
 - **Pattern**: **Choreography-based SAGA** — no central orchestrator. Services react to events and publish outcomes.
 - **Idempotency**: All consumers deduplicate by `sagaId` + event type.
 
@@ -46,7 +46,7 @@ Client state managed via **Zustand**; auth state persisted as HTTP-only cookie.
 ## Getting Started
 
 ```bash
-# 1. Start infrastructure (PostgreSQL, Kafka, RabbitMQ)
+# 1. Start infrastructure (PostgreSQL, Kafka)
 docker compose up -d
 
 # 2. Start microservices (each in its own terminal)
