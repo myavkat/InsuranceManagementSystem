@@ -1,6 +1,6 @@
 # 02 — Remove Multi-Company Concept: estimation-service
 
-## Status: READY FOR IMPLEMENTATION
+## Status: COMPLETED
 
 ## Objective
 
@@ -456,11 +456,11 @@ The following estimation-service files have **zero** references to companyId and
 
 ## Acceptance Criteria
 
-- [ ] `Estimation.java` entity has no `companyId` field
-- [ ] `EstimationRequest.java` DTO has no `companyId` field — request payload no longer requires it
-- [ ] `EstimationResponse.java` DTO has no `companyId` field — response no longer includes it
-- [ ] `EstimationService.create()` builds entity and event without `companyId`
-- [ ] `infra/sql/estimation_db/init.sql` has no `company_id` column in `estimations` table, plus `ALTER TABLE ... DROP COLUMN IF EXISTS` migration
-- [ ] All test files compile and pass: `./gradlew :estimation-service:test`
-- [ ] `grep -ri "companyid\|company_id\|insurancecompany\|insurance_company" services/estimation-service/src/` returns zero results
-- [ ] Service compiles: `./gradlew :estimation-service:compileJava`
+- [x] `Estimation.java` entity has no `companyId` field
+- [x] `EstimationRequest.java` DTO has no `companyId` field — request payload no longer requires it
+- [x] `EstimationResponse.java` DTO has no `companyId` field — response no longer includes it
+- [x] `EstimationService.create()` builds entity and event without `companyId`
+- [x] `infra/sql/estimation_db/init.sql` has no `company_id` column in `estimations` table, plus `ALTER TABLE ... DROP COLUMN IF EXISTS` migration
+- [x] All test files compile and pass: `./gradlew :estimation-service:test`
+- [x] `grep -ri "companyid\|company_id\|insurancecompany\|insurance_company" services/estimation-service/src/` returns zero results
+- [x] Service compiles: `./gradlew :estimation-service:compileJava`
