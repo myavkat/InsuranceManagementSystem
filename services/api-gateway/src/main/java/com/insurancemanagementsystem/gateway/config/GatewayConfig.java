@@ -9,6 +9,14 @@ import org.springframework.web.reactive.config.WebFluxConfigurer;
 public class GatewayConfig {
 
     /**
+     * Filter chain order (defined by @Order on each GlobalFilter):
+     * 1. RateLimiter (built-in Spring Cloud Gateway, order = -1) — Plan 04
+     * 2. JwtAuthFilter (HIGHEST_PRECEDENCE + 100 = Integer.MIN_VALUE + 100) — Plan 03
+     * 3. Route forwarding (built-in)
+     * 4. Response filters (Plan 05)
+     */
+
+    /**
      * CORS configuration — allows frontend origins.
      * Plan 05 will enhance this with production domain configuration.
      */

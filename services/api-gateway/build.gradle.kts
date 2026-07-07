@@ -57,4 +57,6 @@ dependencyManagement {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    // TestJwtTokenGenerator is a utility class, not a test runner — don't fail when no tests exist yet
+    failOnNoDiscoveredTests = false
 }
