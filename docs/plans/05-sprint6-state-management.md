@@ -1,6 +1,6 @@
 # 05 — Sprint 6: State Management Setup (Zustand + React Query)
 
-## Status: NOT STARTED
+## Status: COMPLETED
 
 ## Objective
 
@@ -304,12 +304,12 @@ Fix any lint errors before marking this plan complete.
 
 ## Acceptance Criteria
 
-- [ ] `frontend-next/src/lib/store/auth-store.ts` exists with `useAuthStore` export
-- [ ] `frontend-next/src/lib/store/ui-store.ts` exists with `useUIStore` export
-- [ ] `frontend-next/src/lib/providers/query-provider.tsx` exists with `QueryProvider`
-- [ ] `frontend-next/src/lib/providers/index.tsx` exists with `Providers` barrel export
-- [ ] Root layout imports and wraps children with `<Providers>`
-- [ ] Root layout has `suppressHydrationWarning` on `<html>`
-- [ ] `npm run build` passes
-- [ ] `npm run lint` passes
+- [x] `frontend-next/src/lib/store/auth-store.ts` exists with `useAuthStore` export
+- [x] `frontend-next/src/lib/store/ui-store.ts` exists with `useUIStore` export
+- [x] `frontend-next/src/lib/providers/query-provider.tsx` exists with `QueryProvider`
+- [x] `frontend-next/src/lib/providers/index.tsx` exists with `Providers` barrel export
+- [x] Root layout imports and wraps children with `<Providers>`
+- [x] Root layout has `suppressHydrationWarning` on `<html>`
+- [x] `npm run build` passes
+- [x] `npm run lint` passes
 - [ ] Auth store persists to localStorage (verify manually: open browser devtools → Application → Local Storage → look for `ims-auth-storage` key after calling `login()`)
