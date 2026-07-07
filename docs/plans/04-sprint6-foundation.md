@@ -1,6 +1,6 @@
 # 04 — Sprint 6: Next.js Foundation Configuration
 
-## Status: NOT STARTED
+## Status: COMPLETED
 
 ## Objective
 
@@ -149,11 +149,11 @@ Fix any lint errors before marking this plan complete.
 
 ## Acceptance Criteria
 
-- [ ] `frontend-next/.env.local` exists with `NEXT_PUBLIC_GATEWAY_URL`, `AUTH_SECRET`, and `PORT`
-- [ ] `.env.template` includes `NEXT_PUBLIC_GATEWAY_URL` and `AUTH_SECRET` entries
-- [ ] Root layout metadata shows "Insurance Management System" as default title
-- [ ] Root layout metadata uses template format: `"%s | Insurance Management System"`
-- [ ] Landing page (`page.tsx`) is either a redirect or a minimal placeholder (not create-next-app boilerplate)
-- [ ] `tsconfig.json` has `"strict": true`
-- [ ] `npm run build` completes without errors
-- [ ] `npm run lint` passes
+- [x] `frontend-next/.env.local` exists with `NEXT_PUBLIC_GATEWAY_URL`, `AUTH_SECRET`, and `PORT`
+- [x] `.env.template` includes `NEXT_PUBLIC_GATEWAY_URL` and `AUTH_SECRET` entries
+- [x] Root layout metadata shows "Insurance Management System" as default title
+- [x] Root layout metadata uses template format: `"%s | Insurance Management System"`
+- [x] Landing page (`page.tsx`) is either a redirect or a minimal placeholder (not create-next-app boilerplate)
+- [x] `tsconfig.json` has `"strict": true`
+- [x] `npm run build` completes without errors
+- [x] `npm run lint` passes
