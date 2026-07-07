@@ -36,5 +36,6 @@ public final class EventConstants {
     public static final String REAL_ESTATE_DELETED = "RealEstateDeleted";
     public static final String INSURANCE_CREATED = "InsuranceCreated";
     public static final String INSURANCE_UPDATED = "InsuranceUpdated";
+    public static final String INSURANCE_DELETED = "InsuranceDeleted";
     public static final String REFERENCE_DATA_CHANGED = "ReferenceDataChanged";
 }

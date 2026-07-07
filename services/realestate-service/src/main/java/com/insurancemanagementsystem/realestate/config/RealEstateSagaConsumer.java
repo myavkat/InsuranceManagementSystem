@@ -43,8 +43,8 @@ public class RealEstateSagaConsumer {
             try {
                 envelope = jsonMapperArg.readValue(message, EventEnvelope.class);
             } catch (Exception e) {
-                log.error("Failed to deserialize SAGA message — skipping (poison pill): {}", e.getMessage(), e);
-                return;
+                log.error("Failed to deserialize SAGA message — routing to DLQ: {}", e.getMessage(), e);
+                throw new RuntimeException("Deserialization failed — routing to DLQ", e);
             }
 
             try {
@@ -127,10 +127,13 @@ public class RealEstateSagaConsumer {
     private void handleEstimationFailed(EventEnvelope envelope) {
         UUID sagaId = envelope.getSagaId();
         String eventType = envelope.getEventType();
-        if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
-            return;
-        }
-        log.warn("Estimation failed for saga: {} — no compensation needed (read-only validation)", sagaId);
+
+        transactionTemplate.executeWithoutResult(status -> {
+            if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
+                return;
+            }
+            log.warn("Estimation failed for saga: {} — no compensation needed (read-only validation)", sagaId);
+        });
     }
 
     private OutboxEvent buildOutboxEvent(UUID sagaId, EventEnvelope envelope, String topic) {

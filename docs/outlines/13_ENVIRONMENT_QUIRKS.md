@@ -30,11 +30,11 @@ See [`08_LEGACY_BACKEND.md`](./08_LEGACY_BACKEND.md) for legacy connection detai
 
 ## Message Broker Defaults
 
-Both run via Docker Compose. Default connection strings:
+Kafka runs via Docker Compose. Default connection string:
 
 - **Kafka:** `localhost:9092`
-- **RabbitMQ:** `localhost:5672`
-- **RabbitMQ Management UI:** `http://localhost:15672` (guest/guest)
+
+Topics are pre-provisioned by the `kafka-init` container on first startup. See `infra/kafka/create-topics.sh` for the full topic configuration.
 
 If a service fails to start with connection errors, verify Docker Compose is running:
 ```bash
@@ -86,6 +86,46 @@ During incremental migration (see [`01_SYSTEM_ARCHITECTURE.md`](./01_SYSTEM_ARCH
 
 ---
 
+## Jackson 2 / Jackson 3 Classpath Conflict
+
+**Status:** Known issue — `bootRun` fails with `NoClassDefFoundError: com/fasterxml/jackson/databind/JavaType`.
+
+**Cause:** Spring Kafka (`spring-kafka`) pulls `com.fasterxml.jackson.core:jackson-databind` (Jackson 2)
+transitively, while the project uses `tools.jackson.*` (Jackson 3). All services also explicitly declare
+`com.fasterxml.jackson.core:jackson-databind` to satisfy Kafka deserializer requirements.
+
+**Impact:** `bootRun` is broken. Services can only be tested via integration tests (`@EmbeddedKafka` +
+Testcontainers), which handle the classpath correctly by isolating the test runner.
+
+**Workaround:** Use the Docker-based startup (`docker compose -f infra/docker/docker-compose.yml
+-f infra/docker/docker-compose.services.yml up -d`) which builds and runs services in containers
+with isolated classpaths. For local development, use `gradlew test` (integration tests) instead of
+`gradlew bootRun`.
+
+**Resolution plan:** Either:
+1. Shade `com.fasterxml.jackson` into a relocated package in the service JARs, OR
+2. Migrate all Jackson usage from `tools.jackson` back to `com.fasterxml.jackson` (reverses the
+   Jackson 3 migration), OR
+3. Exclude `com.fasterxml.jackson` from Spring Kafka dependencies and configure Spring Kafka
+   to use `tools.jackson` serializers (requires custom serializer implementation).
+
+**Priority:** Medium — blocks local `bootRun` but tests and Docker deployment are unaffected.
+
+---
+
+## Shared Configuration Blocks
+
+The following configuration is extracted into `common/common-web/src/main/resources/application-common.yml`
+and imported by all 6 target services via `spring.config.import: classpath:application-common.yml`:
+
+- `management.tracing.*` (sampling, Zipkin endpoint)
+- `logging.pattern.console` (MDC: traceId, spanId, sagaId)
+
+The per-service `application.yml` files retain service-specific settings (datasource, outbox, etc.)
+and override the shared config where needed.
+
+---
+
 ## Port Allocation (Target Services)
 
 | Service | Default Port |
@@ -100,3 +140,4 @@ During incremental migration (see [`01_SYSTEM_ARCHITECTURE.md`](./01_SYSTEM_ARCH
 | `api-gateway` | `8080` |
 | Legacy backend | (existing port, unchanged) |
 | Next.js frontend | `3000` |
+| Zipkin | `9411` |

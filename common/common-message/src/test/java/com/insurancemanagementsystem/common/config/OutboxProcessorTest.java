@@ -26,10 +26,10 @@ class OutboxProcessorTest {
     private OutboxEventRepository outboxEventRepository;
 
     @Mock
-    private MessagePublisher messagePublisher;
+    private TransactionTemplate transactionTemplate;
 
     @Mock
-    private TransactionTemplate transactionTemplate;
+    private MessagePublisher messagePublisher;
 
     @InjectMocks
     private OutboxProcessor outboxProcessor;

@@ -1,7 +1,7 @@
 package com.insurancemanagementsystem.estimation.service;
 
-import com.insurancemanagementsystem.common.entity.OutboxEvent;
-import com.insurancemanagementsystem.common.repository.OutboxEventRepository;
+import com.insurancemanagementsystem.common.event.EventConstants;
+import com.insurancemanagementsystem.common.messaging.OutboxMessagePublisher;
 import com.insurancemanagementsystem.estimation.dto.EstimationRequest;
 import com.insurancemanagementsystem.estimation.dto.EstimationResponse;
 import com.insurancemanagementsystem.estimation.entity.Estimation;
@@ -18,7 +18,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import tools.jackson.databind.json.JsonMapper;
 
 import java.time.Instant;
 import java.util.List;
@@ -37,10 +36,7 @@ class EstimationServiceTest {
     private EstimationRepository estimationRepository;
 
     @Mock
-    private OutboxEventRepository outboxEventRepository;
-
-    @Mock
-    private JsonMapper jsonMapper;
+    private OutboxMessagePublisher outboxMessagePublisher;
 
     @InjectMocks
     private EstimationService estimationService;
@@ -92,7 +88,6 @@ class EstimationServiceTest {
         Estimation savedEntity = createSampleEntity();
 
         when(estimationRepository.save(any(Estimation.class))).thenReturn(savedEntity);
-        when(jsonMapper.writeValueAsString(any())).thenReturn("{}");
 
         // Act
         EstimationResponse response = estimationService.create(request);
@@ -112,7 +107,7 @@ class EstimationServiceTest {
         assertThat(saved.getStatus()).isEqualTo(Estimation.Status.STARTED);
         assertThat(saved.getSagaId()).isNotNull();
 
-        verify(outboxEventRepository).save(any(OutboxEvent.class));
+        verify(outboxMessagePublisher).publish(any(), any(), any(), eq(EventConstants.ESTIMATION_SAGA));
     }
 
     // ---------------------------------------------------------------
@@ -133,7 +128,7 @@ class EstimationServiceTest {
         assertThat(exception.getMessage()).contains("Either vehicleId or realEstateId must be provided");
 
         verify(estimationRepository, never()).save(any(Estimation.class));
-        verify(outboxEventRepository, never()).save(any());
+        verify(outboxMessagePublisher, never()).publish(any(), any(), any(), any());
     }
 
     // ---------------------------------------------------------------

@@ -21,7 +21,7 @@ InsuranceManagementSystem/
 │   ├── reference-data-service/       # Reference data (cities, professions, lookups)
 │   ├── api-gateway/                  # Spring Cloud Gateway, routing, auth, rate limiting
 │   ├── auth-service/                 # Authentication & JWT issuance/validation
-│   └── reference-skeleton/           # Reference/template Spring Boot service (CRUD, Kafka, RabbitMQ)
+│   └── reference-skeleton/           # Reference/template Spring Boot service (CRUD, Kafka)
 ├── frontend-next/                    # Target Next.js SSR (App Router) + Tailwind CSS + shadcn/ui
 ├── common/                           # Shared libraries
 │   ├── common-message/               # Event schemas (SAGA + domain events), serialization, constants

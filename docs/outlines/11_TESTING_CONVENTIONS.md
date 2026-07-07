@@ -102,6 +102,28 @@ Hibernate 6+ handles JSON serialization natively — no additional Hibernate Typ
 
 ---
 
+## Testcontainers Import Paths (Testcontainers 2.x)
+
+Testcontainers 2.x moved container classes out of the deprecated `org.testcontainers.containers` package into dedicated sub-packages under each module. Use the module-specific imports to avoid deprecation warnings:
+
+| Container | Module Coordinate | Import Path | Deprecated Alternative |
+|---|---|---|---|
+| PostgreSQL | `org.testcontainers:testcontainers-postgresql` | `org.testcontainers.postgresql.PostgreSQLContainer` | `org.testcontainers.containers.PostgreSQLContainer` |
+| Kafka | `org.testcontainers:testcontainers-kafka` | `org.testcontainers.kafka.ConfluentKafkaContainer` | `org.testcontainers.containers.KafkaContainer` |
+
+The module coordinates in `build.gradle.kts` must match the import path's module:
+
+```kotlin
+dependencies {
+    testImplementation("org.testcontainers:testcontainers-postgresql")
+    testImplementation("org.testcontainers:testcontainers-kafka")
+}
+```
+
+Note: `PostgreSQLContainer` is used as a raw type (no `<?>`) across the codebase — follow that convention for consistency.
+
+---
+
 ## Assertion Rules
 
 ### HTTP Response Assertions → `.jsonPath()`

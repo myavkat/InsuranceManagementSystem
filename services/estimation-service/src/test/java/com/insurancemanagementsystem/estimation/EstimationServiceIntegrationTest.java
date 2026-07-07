@@ -290,22 +290,16 @@ class EstimationServiceIntegrationTest {
     // ---------------------------------------------------------------
 
     /**
-     * Decodes a Kafka message value through two layers of encoding applied by
-     * Spring Cloud Stream's Kafka binder with {@code JsonSerializer}:
-     * <ol>
-     *   <li>The payload (a JSON string) is serialized as a JSON string literal
-     *       ({@code "..."}) on the topic.</li>
-     *   <li>Inside those JSON quotes, the content is Base64-encoded by the
-     *       binder's content-type handling.</li>
-     * </ol>
-     * This method reverses both layers to recover the original JSON payload.
+     * Decodes a Kafka message value written by {@code JsonSerializer} with a
+     * {@code String} payload. The payload (a JSON string) is serialized as a
+     * JSON string literal ({@code "..."}) on the topic.
+     * <p>
+     * This method unwraps the JSON string literal to recover the original JSON.
      */
     private String decodeKafkaMessage(String jsonSerializedValue) {
         try {
-            // Step 1: Unwrap the JSON string literal → raw Base64 string
-            String base64Value = objectMapper.readValue(jsonSerializedValue, String.class);
-            // Step 2: Base64-decode → original JSON content
-            return new String(Base64.getDecoder().decode(base64Value), StandardCharsets.UTF_8);
+            // Unwrap the JSON string literal → original JSON content
+            return objectMapper.readValue(jsonSerializedValue, String.class);
         } catch (Exception e) {
             throw new RuntimeException("Failed to decode Kafka message: " + jsonSerializedValue, e);
         }

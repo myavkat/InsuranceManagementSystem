@@ -23,6 +23,9 @@ public class RealEstateEventPublisher {
     public void publishRealEstateCreated(RealEstate realEstate) {
         RealEstateCreatedEvent event = RealEstateCreatedEvent.builder()
                 .realEstateId(realEstate.getId())
+                .address(realEstate.getAddress())
+                .cityId(realEstate.getCityId())
+                .customerId(realEstate.getCustomerId())
                 .build();
         EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
         messagePublisher.publish(EventConstants.REALESTATE_EVENTS, envelope);
@@ -32,6 +35,9 @@ public class RealEstateEventPublisher {
     public void publishRealEstateUpdated(RealEstate realEstate) {
         RealEstateUpdatedEvent event = RealEstateUpdatedEvent.builder()
                 .realEstateId(realEstate.getId())
+                .address(realEstate.getAddress())
+                .cityId(realEstate.getCityId())
+                .customerId(realEstate.getCustomerId())
                 .build();
         EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
         messagePublisher.publish(EventConstants.REALESTATE_EVENTS, envelope);

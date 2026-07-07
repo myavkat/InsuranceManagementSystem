@@ -25,6 +25,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -408,15 +409,18 @@ class EstimationSagaConsumerTest {
     }
 
     // ---------------------------------------------------------------
-    // 13. Malformed JSON → caught by try/catch, no crash
+    // 13. Malformed JSON → RuntimeException, routes to DLQ
     // ---------------------------------------------------------------
     @Test
-    void malformedJson_doesNotCrash() {
-        // Should not throw
-        consumer.processEstimationSaga(jsonMapper).accept("not valid json");
+    void malformedJson_routesToDlq() {
+        // Previously the exception was silently swallowed. Now it propagates
+        // as RuntimeException so the binder error handler routes to DLQ.
+        assertThatThrownBy(() ->
+            consumer.processEstimationSaga(jsonMapper).accept("not valid json"))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessageContaining("Deserialization failed");
 
         verifyNoInteractions(estimationRepository);
-
     }
 
     // ---------------------------------------------------------------

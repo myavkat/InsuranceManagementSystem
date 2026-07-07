@@ -1,11 +1,12 @@
 # Message Queue Topology Outline
 
-## Division of Labor
+## Single Broker Architecture
+
+All inter-service communication uses **Kafka exclusively** — SAGA events, domain events, and RPC-style request/reply all flow through Kafka topics.
 
 | Broker | Purpose | Characteristics |
 |--------|---------|-----------------|
-| **Kafka** | SAGA events, domain events, audit, analytics | Durable, replayable, log-compacted for entity state |
-| **RabbitMQ** | Synchronous RPC calls, dead-letter handling | Request/response pattern, immediate delivery |
+| **Kafka** | SAGA events, domain events, audit, analytics, RPC | Durable, replayable, log-compacted for entity state |
 
 ---
 
@@ -18,6 +19,12 @@
 | `estimation.saga` | 3 | 7 days | No | All SAGA workflow events |
 
 **Producers/Consumers:** See [03_SAGA_PATTERN.md](./03_SAGA_PATTERN.md).
+
+### Dead-Letter Queue Topic
+
+| Topic | Partitions | Retention | Compaction | Description |
+|-------|-----------|-----------|------------|-------------|
+| `dlq.saga` | 1 | 30 days | No (delete) | Failed SAGA event processing |
 
 ### Domain Event Topics
 
@@ -33,24 +40,6 @@
 
 ---
 
-## RabbitMQ
-
-### RPC Queue
-
-| Queue | Exchange | Routing Key | Description |
-|-------|----------|-------------|-------------|
-| `rpc.reference-data` | `rpc-exchange` (direct) | `reference-data.getCities`, `reference-data.getProfessions` | Synchronous lookup for cities/professions |
-
-**Pattern:** Services publish a request message with a `replyTo` queue and `correlationId`. The Reference Data Service processes the request and publishes the response to the `replyTo` queue. Consumers wait with a timeout.
-
-### Dead-Letter Queue
-
-| Queue | Source | Description |
-|-------|--------|-------------|
-| `dlq.saga` | `estimation.saga` (RabbitMQ bridge, if used) | Failed SAGA message processing |
-
----
-
 ## Configuration Per Service
 
 Each service that communicates via message brokers declares in `application.yml`:
@@ -58,9 +47,9 @@ Each service that communicates via message brokers declares in `application.yml`
 ```yaml
 spring:
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     consumer:
-      group-id: <service-name>-group
+      group-id: ${spring.application.name}-group
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
@@ -69,10 +58,13 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-
-rabbitmq:
-  host: localhost
-  port: 5672
-  username: guest
-  password: guest
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+          configuration:
+            auto.create.topics.enable: false  # topics are pre-provisioned
 ```
+
+> **Note:** Topics are pre-provisioned by the `kafka-init` container (see `infra/kafka/create-topics.sh`). The `auto.create.topics.enable: false` setting prevents accidental topic creation with wrong configuration.

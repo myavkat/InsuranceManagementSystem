@@ -10,6 +10,11 @@ services:
   auth-db:
     image: postgres:16
     container_name: auth-db
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
     env_file: .env
     environment:
       POSTGRES_DB: auth_db
@@ -28,6 +33,11 @@ services:
   customer-db:
     image: postgres:16
     container_name: customer-db
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
     env_file: .env
     environment:
       POSTGRES_DB: customer_db
@@ -46,6 +56,11 @@ services:
   vehicle-db:
     image: postgres:16
     container_name: vehicle-db
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
     env_file: .env
     environment:
       POSTGRES_DB: vehicle_db
@@ -64,6 +79,11 @@ services:
   realestate-db:
     image: postgres:16
     container_name: realestate-db
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
     env_file: .env
     environment:
       POSTGRES_DB: realestate_db
@@ -82,6 +102,11 @@ services:
   insurance-db:
     image: postgres:16
     container_name: insurance-db
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
     env_file: .env
     environment:
       POSTGRES_DB: insurance_db
@@ -100,6 +125,11 @@ services:
   estimation-db:
     image: postgres:16
     container_name: estimation-db
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
     env_file: .env
     environment:
       POSTGRES_DB: estimation_db
@@ -118,6 +148,11 @@ services:
   reference-data-db:
     image: postgres:16
     container_name: reference-data-db
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
     env_file: .env
     environment:
       POSTGRES_DB: reference_data_db
@@ -138,6 +173,11 @@ services:
   gateway-db:
     image: postgres:16
     container_name: gateway-db
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
     env_file: .env
     environment:
       POSTGRES_DB: gateway_db
@@ -154,11 +194,18 @@ services:
       start_period: 30s
 
   # ============================================================
-  # Kafka (SAGA events, domain events, audit) — KRaft mode
+  # Kafka (SAGA events, domain events, audit, analytics, RPC)
+  # Topics are created by the kafka-init container on first startup.
+  # See: ../kafka/create-topics.sh for topic configuration.
   # ============================================================
   kafka:
     image: confluentinc/cp-kafka:latest
     container_name: kafka
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
     ports:
       - "9092:9092"
     environment:
@@ -167,9 +214,9 @@ services:
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,INTERNAL://0.0.0.0:9094,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,INTERNAL://kafka:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,INTERNAL:PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
@@ -184,18 +231,39 @@ services:
       start_period: 60s
 
   # ============================================================
-  # RabbitMQ (RPC calls, dead-letter handling)
+  # kafka-init — Creates Kafka topics on first startup.
+  # Shares kafka's network namespace so it can use localhost:9092.
+  # Builds from: ../kafka/Dockerfile
+  # Script:      ../kafka/create-topics.sh
   # ============================================================
-  rabbitmq:
-    image: rabbitmq:3-management-alpine
-    container_name: rabbitmq
+  kafka-init:
+    build:
+      context: ./../kafka
+      dockerfile: Dockerfile
+    container_name: kafka-init
+    network_mode: "service:kafka"
+    command: ["localhost:9092"]
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  # ============================================================
+  # Zipkin (Distributed Tracing)
+  # ============================================================
+  zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: zipkin
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "9411:9411"
     networks:
       - insurance-net
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9411/health"]
       interval: 15s
       timeout: 5s
       retries: 5
@@ -207,6 +275,11 @@ services:
   redis:
     image: redis:7-alpine
     container_name: redis
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
     ports:
       - "6379:6379"
     networks:

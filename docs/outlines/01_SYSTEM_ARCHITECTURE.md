@@ -14,7 +14,7 @@ Migration from a monolithic Java Spring Boot WebFlux + Vue 3 application to a **
 | Frontend (target) | Next.js 15+ (App Router, SSR), TypeScript, Tailwind CSS |
 | UI Component Library | shadcn/ui (Radix primitives + Tailwind CSS) |
 | Database | PostgreSQL 16+ (database per service) |
-| Message Brokers | Kafka (SAGA/events), RabbitMQ (RPC) |
+| Message Brokers | Kafka (SAGA/events, domain events, RPC) |
 | API Gateway | Spring Cloud Gateway |
 | Auth | Dedicated Auth Service (JWT issuance + validation) |
 | Build Tool | Gradle (standardized across all services) |
@@ -53,7 +53,7 @@ API Gateway (Spring Cloud Gateway)
       ├──► Estimation Service
       └──► Reference Data Service
 
-Inter-service: Kafka (events) + RabbitMQ (RPC)
+Inter-service: Kafka (SAGA events, domain events, RPC)
      No direct REST between services.
 ```
 
@@ -61,7 +61,7 @@ Inter-service: Kafka (events) + RabbitMQ (RPC)
 
 ## Key Architectural Rules
 
-1. **No service calls another's REST API directly** — all inter-service communication via Kafka or RabbitMQ.
+1. **No service calls another's REST API directly** — all inter-service communication via Kafka.
 2. **Database per service** — no shared databases, no cross-service joins.
 3. **SAGA choreography** — no central orchestrator; services react to events and publish outcomes.
 4. **Idempotent consumers** — deduplicate events using `sagaId` + event type.

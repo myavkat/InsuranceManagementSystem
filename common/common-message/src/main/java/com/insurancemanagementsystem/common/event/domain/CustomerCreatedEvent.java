@@ -15,6 +15,8 @@ public class CustomerCreatedEvent extends BaseEvent {
     private UUID customerId;
     private String nationalId;
     private String email;
+    private String firstName;
+    private String lastName;
 
     @Override
     public String getEventType() {

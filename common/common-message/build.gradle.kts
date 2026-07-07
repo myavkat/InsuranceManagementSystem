@@ -33,8 +33,15 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok")
     implementation("jakarta.validation:jakarta.validation-api")
     compileOnly("org.springframework.cloud:spring-cloud-stream")
+    compileOnly("org.springframework.kafka:spring-kafka")
+    compileOnly("org.apache.kafka:kafka-clients")
     implementation("org.springframework:spring-tx")
     api("org.springframework.boot:spring-boot-starter-data-jpa")
+
+    // Micrometer Tracing (distributed tracing — successor to Spring Cloud Sleuth)
+    api("io.micrometer:micrometer-tracing-bridge-brave")
+    api("io.zipkin.reporter2:zipkin-reporter-brave")
+    api("io.zipkin.brave:brave-instrumentation-kafka-clients")
 
     testImplementation(platform("org.testcontainers:testcontainers-bom:2.0.5"))
     testImplementation("org.springframework.boot:spring-boot-starter-test")

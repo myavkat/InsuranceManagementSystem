@@ -19,4 +19,4 @@ FROM eclipse-temurin:25-jre-alpine
 WORKDIR /app
 COPY --from=build /app/services/estimation-service/build/libs/*.jar app.jar
 EXPOSE 8085
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Xmx256m", "-Xms128m", "-jar", "app.jar"]

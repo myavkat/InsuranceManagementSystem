@@ -147,6 +147,7 @@ public class InsuranceService {
 
         insurance.setIsActive(false);
         Insurance saved = insuranceRepository.save(insurance);
+        insuranceEventPublisher.publishInsuranceDeleted(saved);
         log.info("Insurance soft-deleted: id={}, name={}", saved.getId(), saved.getName());
         return InsuranceResponse.fromEntity(saved);
     }

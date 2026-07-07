@@ -8,4 +8,4 @@ FROM openjdk:25-jre-slim
 WORKDIR /app
 COPY --from=build /app/build/libs/*.jar app.jar
 EXPOSE 9999
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Xmx256m", "-Xms128m", "-jar", "app.jar"]

@@ -6,6 +6,8 @@ spring:
     name: reference-data-service
   profiles:
     active: dev
+  config:
+    import: classpath:application-common.yml
   datasource:
     url: jdbc:postgresql://localhost:5438/reference_data_db
     username: ims_user
@@ -13,19 +15,20 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     consumer:
       group-id: reference-data-service-group
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       properties:
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
         spring.json.trusted.packages: "com.insurancemanagementsystem.*"
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
@@ -36,9 +39,12 @@ spring:
       bindings:
         referenceDataEvents-out:
           destination: reference-data.events
+      kafka:
+        binder:
+          brokers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+          configuration:
+            auto.create.topics.enable: false  # topics are pre-provisioned by kafka-init
 
 logging:
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} [%X{traceId:-},%X{sagaId:-}] - %msg%n"
   level:
     com.insurancemanagementsystem: DEBUG

@@ -1,10 +1,9 @@
 package com.insurancemanagementsystem.estimation.service;
 
-import com.insurancemanagementsystem.common.entity.OutboxEvent;
-import com.insurancemanagementsystem.common.repository.OutboxEventRepository;
 import com.insurancemanagementsystem.common.event.EventConstants;
-import com.insurancemanagementsystem.common.event.EventEnvelope;
 import com.insurancemanagementsystem.common.event.saga.EstimationRequestedEvent;
+import com.insurancemanagementsystem.common.messaging.OutboxMessagePublisher;
+import com.insurancemanagementsystem.common.util.CorrelationIdGenerator;
 import com.insurancemanagementsystem.estimation.dto.EstimationRequest;
 import com.insurancemanagementsystem.estimation.dto.EstimationResponse;
 import com.insurancemanagementsystem.estimation.entity.Estimation;
@@ -16,7 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import tools.jackson.databind.json.JsonMapper;
 
 import java.util.UUID;
 
@@ -26,8 +24,7 @@ import java.util.UUID;
 public class EstimationService {
 
     private final EstimationRepository estimationRepository;
-    private final OutboxEventRepository outboxEventRepository;
-    private final JsonMapper jsonMapper;
+    private final OutboxMessagePublisher outboxMessagePublisher;
 
     @Transactional(readOnly = true)
     public EstimationResponse findById(UUID id) {
@@ -61,7 +58,8 @@ public class EstimationService {
             throw new IllegalArgumentException("Either vehicleId or realEstateId must be provided");
         }
 
-        UUID sagaId = UUID.randomUUID();
+        UUID sagaId = CorrelationIdGenerator.generateSagaId();
+        UUID traceId = CorrelationIdGenerator.generateTraceId();
 
         Estimation estimation = Estimation.builder()
                 .sagaId(sagaId)
@@ -70,18 +68,14 @@ public class EstimationService {
                 .realEstateId(request.getRealEstateId())
                 .insuranceTypeId(request.getInsuranceTypeId())
                 .companyId(request.getCompanyId())
+                .traceId(traceId)
                 .status(Estimation.Status.STARTED)
                 .build();
 
         estimation = estimationRepository.save(estimation);
-        log.info("Created estimation id={} with sagaId={}", estimation.getId(), sagaId);
+        log.info("Created estimation id={} with sagaId={}, traceId={}", estimation.getId(), sagaId, traceId);
 
-        saveOutboxEvent(sagaId, request);
-
-        return EstimationResponse.fromEntity(estimation);
-    }
-
-    private void saveOutboxEvent(UUID sagaId, EstimationRequest request) {
+        // Publish via shared outbox publisher (replaces inline saveOutboxEvent)
         EstimationRequestedEvent event = EstimationRequestedEvent.builder()
                 .customerId(request.getCustomerId())
                 .vehicleId(request.getVehicleId())
@@ -90,23 +84,9 @@ public class EstimationService {
                 .companyId(request.getCompanyId())
                 .build();
 
-        EventEnvelope envelope = event.toEnvelope(sagaId, UUID.randomUUID());
+        outboxMessagePublisher.publish(event, sagaId, traceId, EventConstants.ESTIMATION_SAGA);
 
-        String payloadJson;
-        try {
-            payloadJson = jsonMapper.writeValueAsString(envelope);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to serialize outbox payload for sagaId=" + sagaId, e);
-        }
-
-        OutboxEvent outboxEvent = OutboxEvent.builder()
-                .sagaId(sagaId)
-                .topic(EventConstants.ESTIMATION_SAGA)
-                .payload(payloadJson)
-                .status(OutboxEvent.Status.PENDING)
-                .build();
-        outboxEventRepository.save(outboxEvent);
-        log.info("Saved outbox event for sagaId={} to topic={}", sagaId, EventConstants.ESTIMATION_SAGA);
+        return EstimationResponse.fromEntity(estimation);
     }
 
     private Estimation.Status parseStatus(String status) {
