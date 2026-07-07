@@ -10,6 +10,7 @@ import com.insurancemanagementsystem.common.event.saga.CustomerInvalidatedEvent;
 import com.insurancemanagementsystem.common.event.saga.CustomerValidatedEvent;
 import com.insurancemanagementsystem.common.event.saga.EstimationFailedEvent;
 import com.insurancemanagementsystem.common.event.saga.EstimationRequestedEvent;
+import com.insurancemanagementsystem.common.test.AbstractIntegrationTest;
 import com.insurancemanagementsystem.customer.entity.Customer;
 import com.insurancemanagementsystem.customer.repository.CustomerRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,9 +23,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.testcontainers.postgresql.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -38,26 +36,16 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Testcontainers
 @EmbeddedKafka(
         topics = {"estimation.saga"},
         partitions = 1,
         controlledShutdown = true
 )
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-class CustomerSagaConsumerTest {
-
-    @Container
-    static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:16-alpine")
-            .withDatabaseName("test_customer_db")
-            .withUsername("test")
-            .withPassword("test");
+class CustomerSagaConsumerTest extends AbstractIntegrationTest {
 
     @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgres::getJdbcUrl);
-        registry.add("spring.datasource.username", postgres::getUsername);
-        registry.add("spring.datasource.password", postgres::getPassword);
+    static void configureDataSource(DynamicPropertyRegistry registry) {
         registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop");
     }
 

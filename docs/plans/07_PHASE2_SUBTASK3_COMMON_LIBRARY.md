@@ -9,9 +9,9 @@
 ## Objective
 
 Build out the `common-message` module with reusable abstractions that all services can use. This includes:
-1. `MessageListener<T>` abstraction for typed event consumption
+1. ~~`MessageListener<T>` abstraction for typed event consumption~~ **(REMOVED in Fix 05 — broken: no transaction wrapping, inconsistent poison-pill behavior, zero adopters)**
 2. `CorrelationIdGenerator` utility
-3. `SagaContext` holder (ThreadLocal-based MDC context)
+3. ~~`SagaContext` holder (ThreadLocal-based MDC context)~~ **(REMOVED in Fix 05 — zero callers, minimal value over inline MDC)**
 4. Make domain event publishers use the outbox pattern instead of direct `StreamBridge.send()`
 5. Populate the `common-test` module with shared test utilities
 

@@ -91,7 +91,7 @@ common-message → [All services depend on it]
 - Kafka auto-creates topics via Spring Cloud Stream dynamicDestinations
 
 ### Missing (What These Plans Build):
-- No `CorrelationIdGenerator`, `SagaContext` holder, `MessageListener<T>` abstraction
+- No `CorrelationIdGenerator` ~~, `SagaContext` holder, `MessageListener<T>` abstraction~~ **(`MessageListener` and `SagaContext` removed in Fix 05 — dead code)**
 - No Kafka topic creation scripts with correct partitions/retention/compaction
 - No DLQ topic, retry consumer, exponential backoff
 - No Zipkin/Micrometer Tracing/Sleuth in any service

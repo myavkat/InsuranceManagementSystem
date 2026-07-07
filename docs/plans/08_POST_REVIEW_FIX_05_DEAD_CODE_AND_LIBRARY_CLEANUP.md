@@ -1,6 +1,6 @@
 # Fix 05 — Dead Code & Library Cleanup
 
-## Status: NOT STARTED
+## Status: COMPLETED (2026-07-07)
 ## Parent: Post-Review Fixes (Phase 2 code review, 2026-07-07)
 ## Branch: `phase2-message-queue-event-driven-integration`
 
@@ -76,7 +76,7 @@ For each dead-code item, apply this decision matrix:
 
 ### Step 1: REMOVE `MessageListener` — Broken and Inconsistent
 
-- [ ] **1.1** Delete the file:
+- [x] **1.1** Delete the file:
   ```
   common/common-message/src/main/java/com/insurancemanagementsystem/common/messaging/MessageListener.java
   ```
@@ -88,17 +88,17 @@ For each dead-code item, apply this decision matrix:
   - The Observation instrumentation it provides is unused; existing consumers have no Micrometer spans anyway
   - If a future task wants a shared consumer abstraction, it should be designed AFTER fixing the transaction and DLQ patterns, and adopted by at least one service before merging
 
-- [ ] **1.2** Verify no imports reference `MessageListener`:
+- [x] **1.2** Verify no imports reference `MessageListener`:
   ```bash
   grep -r "MessageListener" --include="*.java" --include="*.md" --include="*.yml" --include="*.kts"
   ```
   Expected: only the file itself and plan documents. No production code references.
 
-- [ ] **1.3** If any plan documents reference `MessageListener`, update them to note it was removed (add a strikethrough or "REMOVED" note).
+- [x] **1.3** If any plan documents reference `MessageListener`, update them to note it was removed (add a strikethrough or "REMOVED" note).
 
 ### Step 2: REMOVE `SagaContext` — Minimal Utility Value
 
-- [ ] **2.1** Delete the file:
+- [x] **2.1** Delete the file:
   ```
   common/common-message/src/main/java/com/insurancemanagementsystem/common/util/SagaContext.java
   ```
@@ -109,7 +109,7 @@ For each dead-code item, apply this decision matrix:
   - Having both `SagaContext` and inline MDC creates ambiguity about which pattern to use
   - MDC is inherently thread-local — the `AutoCloseable` pattern adds ceremony without thread-safety benefit
 
-- [ ] **2.2** Verify no imports reference `SagaContext`:
+- [x] **2.2** Verify no imports reference `SagaContext`:
   ```bash
   grep -r "SagaContext" --include="*.java" --include="*.md" --include="*.yml" --include="*.kts"
   ```
@@ -119,9 +119,9 @@ For each dead-code item, apply this decision matrix:
 
 `OutboxMessagePublisher` wraps a common pattern (serialize event → save OutboxEvent) that is duplicated in 6+ places across the codebase. It has value if adopted.
 
-- [ ] **3.1** Read the current `EstimationService.saveOutboxEvent()` method (private, ~20 lines). It duplicates exactly what `OutboxMessagePublisher.publish()` does.
+- [x] **3.1** Read the current `EstimationService.saveOutboxEvent()` method (private, ~20 lines). It duplicates exactly what `OutboxMessagePublisher.publish()` does.
 
-- [ ] **3.2** Refactor `EstimationService` to inject and use `OutboxMessagePublisher`:
+- [x] **3.2** Refactor `EstimationService` to inject and use `OutboxMessagePublisher`:
 
   **Add field:**
   ```java
@@ -178,11 +178,11 @@ For each dead-code item, apply this decision matrix:
 
   Note: Both `estimationRepository.save()` and `outboxMessagePublisher.publish()` (which calls `outboxEventRepository.save()`) happen inside the same `@Transactional` method — atomicity is preserved ✅.
 
-- [ ] **3.3** Do NOT refactor the other SAGA consumers to use `OutboxMessagePublisher` in this task. One adopter is sufficient to prove the abstraction works. The remaining consumers can be migrated in a follow-up DRY pass.
+- [x] **3.3** Do NOT refactor the other SAGA consumers to use `OutboxMessagePublisher` in this task. One adopter is sufficient to prove the abstraction works. The remaining consumers can be migrated in a follow-up DRY pass.
 
 ### Step 4: ADOPT `AbstractKafkaIntegrationTest` in E2E Test
 
-- [ ] **4.1** Refactor `SagaE2ETest.java` to extend `AbstractKafkaIntegrationTest`:
+- [x] **4.1** Refactor `SagaE2ETest.java` to extend `AbstractKafkaIntegrationTest`:
 
   **Before:**
   ```java
@@ -237,33 +237,33 @@ For each dead-code item, apply this decision matrix:
 
   **Note:** The base class `AbstractIntegrationTest` uses the default database name `testdb`. The E2E test previously used `test_estimation_e2e_db`. If this matters, override via property. For test isolation (each test class gets its own DB), the default `testdb` is fine because Testcontainers creates a fresh container per JVM.
 
-- [ ] **4.2** Add the `common-test` dependency to `estimation-service/build.gradle.kts` if not already present:
+- [x] **4.2** Add the `common-test` dependency to `estimation-service/build.gradle.kts` if not already present:
 
   ```kotlin
   testImplementation(project(":common:common-test"))
   ```
 
-- [ ] **4.3** Verify the E2E test still passes after refactoring:
+- [x] **4.3** Verify the E2E test still passes after refactoring:
   ```bash
   .\gradlew.bat :services:estimation-service:test --tests "*SagaE2ETest*"
   ```
 
 ### Step 5: Migrate ONE More Test to Prove AbstractIntegrationTest Pattern
 
-- [ ] **5.1** Pick one simple test class that currently sets up `PostgreSQLContainer` individually. A good candidate is `CustomerSagaConsumerTest.java` or `EstimationSagaConsumerTest.java`.
+- [x] **5.1** Pick one simple test class that currently sets up `PostgreSQLContainer` individually. A good candidate is `CustomerSagaConsumerTest.java` or `EstimationSagaConsumerTest.java`.
 
-- [ ] **5.2** Refactor it to extend `AbstractIntegrationTest`, following the same pattern as Step 4.
+- [x] **5.2** Refactor it to extend `AbstractIntegrationTest`, following the same pattern as Step 4.
 
-- [ ] **5.3** Verify the test passes. This proves the base class pattern works for non-E2E tests too.
+- [x] **5.3** Verify the test passes. This proves the base class pattern works for non-E2E tests too.
 
 ### Step 6: Clean Up Dead E2E Test Helpers
 
-- [ ] **6.1** In `SagaE2ETest.java`, three helper methods are defined but never called:
+- [x] **6.1** In `SagaE2ETest.java`, three helper methods are defined but never called:
   - `createTestConsumer()` (lines 213-221)
   - `pollForRecords()` (lines 226-234)
   - `decodeKafkaMessage()` (lines 240-247)
 
-- [ ] **6.2** Check if any test method invokes these helpers. If they're unused:
+- [x] **6.2** Check if any test method invokes these helpers. If they're unused:
   - **Option A:** Delete them (clean removal)
   - **Option B:** Wire them into the DLQ test `malformedJson_doesNotBlockConsumer` to verify the poison message ACTUALLY lands in `dlq.saga` (adds test coverage)
 
@@ -278,26 +278,26 @@ For each dead-code item, apply this decision matrix:
 
   If not implementing Option B (scope/time), at minimum delete the dead helpers to avoid confusion. **Mark this decision in Step 6.3.**
 
-- [ ] **6.3** Decision: __________ (fill in: "Option A — delete helpers" or "Option B — wire into DLQ test")
+- [x] **6.3** Decision: **Option A — delete helpers**. The three helper methods (`createTestConsumer`, `pollForRecords`, `decodeKafkaMessage`) were unused. They referenced the `kafka` field which moved to the base class `AbstractKafkaIntegrationTest` in a different package. Deleting them avoids the need to make the base class field `protected` and keeps the scope focused. The existing `malformedJson_doesNotBlockConsumer` test already validates that poison pills don't block the consumer.
 
 ### Step 7: Build and Verify
 
-- [ ] **7.1** Full build after removals:
+- [x] **7.1** Full build after removals:
   ```bash
   .\gradlew.bat build
   ```
 
-- [ ] **7.2** Verify no compilation errors from deleting `MessageListener` and `SagaContext`:
+- [x] **7.2** Verify no compilation errors from deleting `MessageListener` and `SagaContext`:
   ```bash
   .\gradlew.bat :common:common-message:build
   ```
 
-- [ ] **7.3** Run the estimation service tests (affected by OutboxMessagePublisher adoption and base class refactoring):
+- [x] **7.3** Run the estimation service tests (affected by OutboxMessagePublisher adoption and base class refactoring):
   ```bash
   .\gradlew.bat :services:estimation-service:test
   ```
 
-- [ ] **7.4** Run full test suite:
+- [x] **7.4** Run full test suite:
   ```bash
   .\gradlew.bat test
   ```
@@ -335,11 +335,11 @@ For each dead-code item, apply this decision matrix:
 
 ## Completion Criteria
 
-- [ ] `MessageListener.java` deleted — no compilation errors, no broken imports
-- [ ] `SagaContext.java` deleted — no compilation errors, no broken imports
-- [ ] `EstimationService` uses `OutboxMessagePublisher.publish()` instead of private `saveOutboxEvent()`
-- [ ] `SagaE2ETest` extends `AbstractKafkaIntegrationTest` — duplicate container setup removed
-- [ ] At least one additional test class extends `AbstractIntegrationTest`
-- [ ] Dead E2E test helpers either wired into DLQ test or deleted
-- [ ] `.\gradlew.bat build` passes for all modules
-- [ ] `.\gradlew.bat test` passes — zero regressions
+- [x] `MessageListener.java` deleted — no compilation errors, no broken imports
+- [x] `SagaContext.java` deleted — no compilation errors, no broken imports
+- [x] `EstimationService` uses `OutboxMessagePublisher.publish()` instead of private `saveOutboxEvent()`
+- [x] `SagaE2ETest` extends `AbstractKafkaIntegrationTest` — duplicate container setup removed
+- [x] At least one additional test class extends `AbstractIntegrationTest`
+- [x] Dead E2E test helpers either wired into DLQ test or deleted
+- [x] `.\gradlew.bat build` passes for all modules
+- [x] `.\gradlew.bat test` passes — zero regressions

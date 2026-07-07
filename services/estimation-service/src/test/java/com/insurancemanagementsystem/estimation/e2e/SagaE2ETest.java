@@ -8,15 +8,12 @@ import com.insurancemanagementsystem.common.event.EventEnvelope;
 import com.insurancemanagementsystem.common.event.saga.*;
 import com.insurancemanagementsystem.common.repository.OutboxEventRepository;
 import com.insurancemanagementsystem.common.repository.SagaEventRepository;
+import com.insurancemanagementsystem.common.test.AbstractKafkaIntegrationTest;
 import com.insurancemanagementsystem.estimation.dto.EstimationRequest;
 import com.insurancemanagementsystem.estimation.entity.Estimation;
 import com.insurancemanagementsystem.estimation.repository.EstimationRepository;
 import com.insurancemanagementsystem.estimation.service.SagaTimeoutService;
 import jakarta.persistence.EntityManager;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -29,23 +26,12 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.client.RestTestClient;
 import org.springframework.transaction.support.TransactionTemplate;
-import org.testcontainers.kafka.ConfluentKafkaContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.postgresql.PostgreSQLContainer;
-import org.testcontainers.utility.DockerImageName;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -73,32 +59,12 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureRestTestClient
-@Testcontainers
-class SagaE2ETest {
+class SagaE2ETest extends AbstractKafkaIntegrationTest {
 
     private static final Logger log = LoggerFactory.getLogger(SagaE2ETest.class);
 
-    // ---------------------------------------------------------------
-    // Testcontainers — shared across all tests in this class
-    // ---------------------------------------------------------------
-
-    @Container
-    static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:16-alpine")
-            .withDatabaseName("test_estimation_e2e_db")
-            .withUsername("test")
-            .withPassword("test");
-
-    @Container
-    static ConfluentKafkaContainer kafka = new ConfluentKafkaContainer(
-            DockerImageName.parse("confluentinc/cp-kafka:7.6.0"));
-
     @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgres::getJdbcUrl);
-        registry.add("spring.datasource.username", postgres::getUsername);
-        registry.add("spring.datasource.password", postgres::getPassword);
-        registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
-        registry.add("spring.cloud.stream.kafka.binder.brokers", kafka::getBootstrapServers);
+    static void configureAdditionalProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop");
         registry.add("spring.kafka.consumer.properties.spring.json.trusted.packages", () -> "*");
         // Enable auto topic creation for tests (avoids dependency on kafka-init)
@@ -204,45 +170,6 @@ class SagaE2ETest {
         boolean sent = streamBridge.send(EventConstants.ESTIMATION_SAGA, json);
         if (!sent) {
             throw new RuntimeException("Failed to send event via StreamBridge for sagaId=" + sagaId);
-        }
-    }
-
-    /**
-     * Creates a Kafka consumer for reading events from a topic.
-     */
-    private KafkaConsumer<String, String> createTestConsumer() {
-        Properties props = new Properties();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers());
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "test-e2e-" + UUID.randomUUID());
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
-        return new KafkaConsumer<>(props);
-    }
-
-    /**
-     * Polls records from a Kafka consumer until the timeout expires.
-     */
-    private static List<ConsumerRecord<String, String>> pollForRecords(
-            KafkaConsumer<String, String> consumer, Duration timeout) {
-        List<ConsumerRecord<String, String>> records = new ArrayList<>();
-        Instant deadline = Instant.now().plus(timeout);
-        while (Instant.now().isBefore(deadline) && records.isEmpty()) {
-            consumer.poll(Duration.ofMillis(500)).forEach(records::add);
-        }
-        return records;
-    }
-
-    /**
-     * Decodes a Kafka message through the JSON-string-wrapping + Base64
-     * encoding applied by Spring Cloud Stream's binder serialization.
-     */
-    private String decodeKafkaMessage(String jsonSerializedValue) {
-        try {
-            String base64Value = jsonMapper.readValue(jsonSerializedValue, String.class);
-            return new String(Base64.getDecoder().decode(base64Value), StandardCharsets.UTF_8);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to decode Kafka message: " + jsonSerializedValue, e);
         }
     }
 
