@@ -1,6 +1,6 @@
 # Fix 01 — Transaction Boundary Violations in SAGA Consumers
 
-## Status: NOT STARTED
+## Status: COMPLETED
 ## Parent: Post-Review Fixes (Phase 2 code review, 2026-07-07)
 ## Branch: `phase2-message-queue-event-driven-integration`
 
@@ -89,7 +89,7 @@ private void handleCustomerValidated(EventEnvelope envelope, UUID sagaId, UUID t
 
 ### Step 1: Fix `handleEstimationFailed` in ALL 5 SAGA Consumers
 
-- [ ] **1.1** `EstimationSagaConsumer.java` (estimation-service) — wrap `handleEstimationFailed` body in `transactionTemplate.executeWithoutResult()`:
+- [x] **1.1** `EstimationSagaConsumer.java` (estimation-service) — wrap `handleEstimationFailed` body in `transactionTemplate.executeWithoutResult()`:
 
   **Current (broken):**
   ```java
@@ -121,7 +121,7 @@ private void handleCustomerValidated(EventEnvelope envelope, UUID sagaId, UUID t
 
   Note: The method signature is `handleEstimationFailed(EventEnvelope envelope, UUID sagaId)` — different from other services which take only `EventEnvelope envelope`. This is fine, just note the difference.
 
-- [ ] **1.2** `CustomerSagaConsumer.java` (customer-service) — same fix:
+- [x] **1.2** `CustomerSagaConsumer.java` (customer-service) — same fix:
 
   **Current (broken):**
   ```java
@@ -152,15 +152,15 @@ private void handleCustomerValidated(EventEnvelope envelope, UUID sagaId, UUID t
   }
   ```
 
-- [ ] **1.3** `VehicleSagaConsumer.java` (vehicle-service) — identical fix (same pattern as CustomerSagaConsumer)
+- [x] **1.3** `VehicleSagaConsumer.java` (vehicle-service) — identical fix (same pattern as CustomerSagaConsumer)
 
-- [ ] **1.4** `RealEstateSagaConsumer.java` (realestate-service) — identical fix (same pattern as CustomerSagaConsumer)
+- [x] **1.4** `RealEstateSagaConsumer.java` (realestate-service) — identical fix (same pattern as CustomerSagaConsumer)
 
-- [ ] **1.5** `InsuranceSagaConsumer.java` (insurance-service) — identical fix (same pattern as CustomerSagaConsumer)
+- [x] **1.5** `InsuranceSagaConsumer.java` (insurance-service) — identical fix (same pattern as CustomerSagaConsumer)
 
 ### Step 2: Fix `MessageListener.asConsumer()` Transaction Wrapping
 
-- [ ] **2.1** `MessageListener.java` — wrap the dedup call AND `handleEvent()` in a transaction:
+- [x] **2.1** `MessageListener.java` — wrap the dedup call AND `handleEvent()` in a transaction:
 
   **Current (broken):**
   ```java
@@ -258,11 +258,11 @@ private void handleCustomerValidated(EventEnvelope envelope, UUID sagaId, UUID t
   1. Poison-pill deserialization now throws (routes to DLQ) instead of silently returning — matches the behavior of all 5 existing SAGA consumers after the Subtask 5 fix
   2. The dedup check AND `handleEvent()` are wrapped in `transactionTemplate.executeWithoutResult()` — ensures atomicity between dedup and business logic
 
-- [ ] **2.2** Verify the `TransactionTemplate` field is already injected (line 786 of MessageListener.java confirms it exists). No constructor change needed.
+- [x] **2.2** Verify the `TransactionTemplate` field is already injected (line 786 of MessageListener.java confirms it exists). No constructor change needed.
 
 ### Step 3: Add Top-Level Try-Catch to SagaTimeoutService
 
-- [ ] **3.1** `SagaTimeoutService.java` — add top-level try-catch around the entire `checkForTimedOutSagas()` method body:
+- [x] **3.1** `SagaTimeoutService.java` — add top-level try-catch around the entire `checkForTimedOutSagas()` method body:
 
   **Current (missing try-catch):**
   ```java
@@ -337,7 +337,7 @@ private void handleCustomerValidated(EventEnvelope envelope, UUID sagaId, UUID t
 
 ### Step 4: Build and Verify
 
-- [ ] **4.1** Build all affected modules:
+- [x] **4.1** Build all affected modules:
   ```bash
   .\gradlew.bat :common:common-message:build
   .\gradlew.bat :services:estimation-service:build
@@ -347,17 +347,17 @@ private void handleCustomerValidated(EventEnvelope envelope, UUID sagaId, UUID t
   .\gradlew.bat :services:insurance-service:build
   ```
 
-- [ ] **4.2** Run all tests:
+- [x] **4.2** Run all tests:
   ```bash
   .\gradlew.bat test
   ```
 
-- [ ] **4.3** Run the E2E SAGA tests specifically:
+- [x] **4.3** Run the E2E SAGA tests specifically:
   ```bash
   .\gradlew.bat :services:estimation-service:test --tests "*SagaE2ETest*"
   ```
 
-- [ ] **4.4** Verify `handleEstimationFailed` is exercised in existing tests. If no test covers `EstimationFailed` event consumption, consider adding a unit test in each service's `*SagaConsumerTest.java`.
+- [x] **4.4** Verify `handleEstimationFailed` is exercised in existing tests. If no test covers `EstimationFailed` event consumption, consider adding a unit test in each service's `*SagaConsumerTest.java`.
 
 ---
 
@@ -381,10 +381,11 @@ private void handleCustomerValidated(EventEnvelope envelope, UUID sagaId, UUID t
 
 ## Completion Criteria
 
-- [ ] All 5 `handleEstimationFailed` methods are wrapped in `transactionTemplate.executeWithoutResult()`
-- [ ] `MessageListener.asConsumer()` wraps dedup and `handleEvent()` in transaction
-- [ ] `MessageListener.asConsumer()` throws on deserialization failure (not silent return)
-- [ ] `SagaTimeoutService.checkForTimedOutSagas()` has top-level try-catch
-- [ ] `.\gradlew.bat build` passes for all modules
-- [ ] All existing tests pass (no regression)
-- [ ] `SagaEventRepositoryTest.tryInsertDedup_withoutTransaction_shouldThrow` still passes (verifies the MANDATORY enforcement still works)
+- [x] All 5 `handleEstimationFailed` methods are wrapped in `transactionTemplate.executeWithoutResult()`
+- [x] `MessageListener.asConsumer()` wraps dedup and `handleEvent()` in transaction
+- [x] `MessageListener.asConsumer()` throws on deserialization failure (not silent return)
+- [x] `SagaTimeoutService.checkForTimedOutSagas()` has top-level try-catch
+- [x] `.\gradlew.bat build` passes for all modules
+- [x] All existing tests pass (no regression)
+- [x] `SagaEventRepositoryTest.tryInsertDedup_withoutTransaction_shouldThrow` still passes (verifies the MANDATORY enforcement still works)
+- [x] **Status: COMPLETED**

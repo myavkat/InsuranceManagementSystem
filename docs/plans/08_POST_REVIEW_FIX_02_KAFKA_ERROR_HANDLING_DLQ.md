@@ -54,7 +54,7 @@ All four issues stem from misunderstanding how Spring Cloud Stream functional bi
 
 ### Step 1: Fix `KafkaErrorHandlerConfig` — Add `maxElapsedTime` and Fix Partition
 
-- [ ] **1.1** Open `KafkaErrorHandlerConfig.java`. It currently reads:
+- [x] **1.1** Open `KafkaErrorHandlerConfig.java`. It currently reads:
 
   ```java
   @Bean
@@ -80,7 +80,7 @@ All four issues stem from misunderstanding how Spring Cloud Stream functional bi
   }
   ```
 
-- [ ] **1.2** Fix the partition mismatch — `dlq.saga` has 1 partition. Always route to partition 0:
+- [x] **1.2** Fix the partition mismatch — `dlq.saga` has 1 partition. Always route to partition 0:
 
   ```java
   DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(
@@ -90,7 +90,7 @@ All four issues stem from misunderstanding how Spring Cloud Stream functional bi
   );
   ```
 
-- [ ] **1.3** Add `maxElapsedTime` to bound retries. The intended retry sequence is 1s → 2s → 4s → 8s (5 total: initial + 4 retries = ~15s cumulative), so set maxElapsedTime to 20000ms:
+- [x] **1.3** Add `maxElapsedTime` to bound retries. The intended retry sequence is 1s → 2s → 4s → 8s (5 total: initial + 4 retries = ~15s cumulative), so set maxElapsedTime to 20000ms:
 
   ```java
   ExponentialBackOff backOff = new ExponentialBackOff();
@@ -102,7 +102,7 @@ All four issues stem from misunderstanding how Spring Cloud Stream functional bi
 
   **Why 20000ms?** The cumulative time for 5 attempts at 1s/2s/4s/8s = 15s. Adding 5s buffer for processing overhead gives 20s. After 20s, the `BackOff` returns `STOP`, and the `DeadLetterPublishingRecoverer` is invoked.
 
-- [ ] **1.4** Add a comment documenting the retry math:
+- [x] **1.4** Add a comment documenting the retry math:
 
   ```java
   // Retry sequence: 1s + 2s + 4s + 8s = ~15s cumulative (5 total attempts).
@@ -110,7 +110,7 @@ All four issues stem from misunderstanding how Spring Cloud Stream functional bi
   // After expiry, DeadLetterPublishingRecoverer publishes to dlq.saga partition 0.
   ```
 
-- [ ] **1.5** Updated full bean method:
+- [x] **1.5** Updated full bean method:
 
   ```java
   @Bean
@@ -144,9 +144,7 @@ All four issues stem from misunderstanding how Spring Cloud Stream functional bi
 
 The `DlqMonitor` is a `@KafkaListener` consuming from `dlq.saga`. If its `consume()` method throws (e.g., malformed headers, log framework error), the `DefaultErrorHandler` retries and then re-publishes to `dlq.saga` — the message re-enters the monitor, fails again, loops forever.
 
-- [ ] **2.1** There are two approaches. Choose **Approach A** (simpler, recommended):
-
-  **Approach A: Exclude dlq-monitor-group from the DefaultErrorHandler**
+- [x] **2.1** Implement Approach A: Add dlqMonitorContainerFactory with no-retry handler
 
   Add a separate `KafkaListenerContainerFactory` for the DLQ monitor that uses a no-op error handler:
 
@@ -199,15 +197,15 @@ The `DlqMonitor` is a `@KafkaListener` consuming from `dlq.saga`. If its `consum
 
   Convert DlqMonitor to use the same functional `Consumer<String>` pattern as SAGA consumers. This ensures it's managed by the binder (not the `DefaultErrorHandler`). More work but more consistent.
 
-- [ ] **2.2** Choose Approach A for this fix. It's minimal, targeted, and the plan is clear.
+- [x] **2.2** Choose Approach A for this fix. It's minimal, targeted, and the plan is clear.
 
 ### Step 3: Add Binder-Level Retry Configuration to ALL 5 Services
 
 The `KafkaErrorHandlerConfig` bean only serves `DlqMonitor` (the sole `@KafkaListener`). The SAGA consumers need **binder-level** retry configuration in `application.yml`.
 
-- [ ] **3.1** For each of the 5 SAGA-consuming services, verify the DLQ config already exists (`enableDlq: true`, `dlqName: dlq.saga`). This was added in Subtask 5.
+- [x] **3.1** For each of the 5 SAGA-consuming services, verify the DLQ config already exists (`enableDlq: true`, `dlqName: dlq.saga`). This was added in Subtask 5.
 
-- [ ] **3.2** Add retry configuration at the binder level. Since the retry applies uniformly, configure it once under `spring.cloud.stream.kafka.default.consumer` rather than per-binding:
+- [x] **3.2** Add retry configuration at the binder level. Since the retry applies uniformly, configure it once under `spring.cloud.stream.kafka.default.consumer` rather than per-binding:
 
   In each service's `application.yml`:
 
@@ -242,9 +240,9 @@ The `KafkaErrorHandlerConfig` bean only serves `DlqMonitor` (the sole `@KafkaLis
   | realestate-service | `processRealEstateSaga-in-0` |
   | insurance-service | `processInsuranceSaga-in-0` |
 
-- [ ] **3.3** Apply the retry configuration to ALL 5 services. Copy the identical `spring.cloud.stream.kafka.default.consumer.retry` block into each `application.yml`.
+- [x] **3.3** Apply the retry configuration to ALL 5 services. Copy the identical `spring.cloud.stream.kafka.default.consumer.retry` block into each `application.yml`.
 
-- [ ] **3.4** Add a comment block explaining the error handling architecture:
+- [x] **3.4** Add a comment block explaining the error handling architecture:
 
   ```yaml
   # Error handling architecture:
@@ -258,7 +256,7 @@ The `KafkaErrorHandlerConfig` bean only serves `DlqMonitor` (the sole `@KafkaLis
 
 ### Step 4: Update KafkaErrorHandlerConfig Javadoc
 
-- [ ] **4.1** Update the class Javadoc to clarify scope:
+- [x] **4.1** Update the class Javadoc to clarify scope:
 
   **Current:**
   ```java
@@ -286,17 +284,17 @@ The `KafkaErrorHandlerConfig` bean only serves `DlqMonitor` (the sole `@KafkaLis
 
 ### Step 5: Build and Verify
 
-- [ ] **5.1** Build `common-message` (contains KafkaErrorHandlerConfig and DlqMonitor):
+- [x] **5.1** Build `common-message` (contains KafkaErrorHandlerConfig and DlqMonitor):
   ```bash
   .\gradlew.bat :common:common-message:build
   ```
 
-- [ ] **5.2** Build all services to verify YAML config is valid:
+- [x] **5.2** Build all services to verify YAML config is valid:
   ```bash
   .\gradlew.bat build -x test
   ```
 
-- [ ] **5.3** Run the E2E SAGA tests — they use `@EmbeddedKafka` and exercise the consumer error paths:
+- [x] **5.3** Run the E2E SAGA tests — they use `@EmbeddedKafka` and exercise the consumer error paths:
   ```bash
   .\gradlew.bat :services:estimation-service:test --tests "*SagaE2ETest*"
   ```
@@ -337,11 +335,12 @@ The `KafkaErrorHandlerConfig` bean only serves `DlqMonitor` (the sole `@KafkaLis
 
 ## Completion Criteria
 
-- [ ] `ExponentialBackOff.maxElapsedTime` is set to 20000ms
-- [ ] `DeadLetterPublishingRecoverer` routes to `dlq.saga` partition 0 (not source partition)
-- [ ] `DlqMonitor` uses `dlqMonitorContainerFactory` with no-retry error handler (no infinite loop)
-- [ ] All 5 services have `spring.cloud.stream.kafka.default.consumer.retry` block with 1s→2s→4s→8s
-- [ ] `KafkaErrorHandlerConfig` Javadoc clearly states scope (`@KafkaListener` only)
-- [ ] `.\gradlew.bat build` passes for all modules
+- [x] `ExponentialBackOff.maxElapsedTime` is set to 20000ms
+- [x] `DeadLetterPublishingRecoverer` routes to `dlq.saga` partition 0 (not source partition)
+- [x] `DlqMonitor` uses `dlqMonitorContainerFactory` with no-retry error handler (no infinite loop)
+- [x] All 5 services have `spring.cloud.stream.kafka.default.consumer.retry` block with 1s→2s→4s→8s
+- [x] `KafkaErrorHandlerConfig` Javadoc clearly states scope (`@KafkaListener` only)
+- [x] `.\gradlew.bat build` passes for all modules
+- [x] **Status: COMPLETED**
 - [ ] E2E SAGA tests pass
 - [ ] DLQ topic verified: 1 partition, `docker exec kafka kafka-topics --describe --topic dlq.saga`

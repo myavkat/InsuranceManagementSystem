@@ -47,7 +47,7 @@ All 8 existing events (4 Created + 4 Updated) are published by their respective 
 
 ### Step 1: Fix CustomerEventPublisher — Add firstName/lastName
 
-- [ ] **1.1** Read `CustomerEventPublisher.java`. Currently:
+- [x] **1.1** Read `CustomerEventPublisher.java`. Currently:
   ```java
   public void publishCustomerCreated(Customer customer) {
       CustomerCreatedEvent event = CustomerCreatedEvent.builder()
@@ -59,9 +59,9 @@ All 8 existing events (4 Created + 4 Updated) are published by their respective 
   }
   ```
 
-- [ ] **1.2** Read `Customer.java` entity to verify the getter names (`getFirstName()`, `getLastName()`).
+- [x] **1.2** Read `Customer.java` entity to verify the getter names (`getFirstName()`, `getLastName()`).
 
-- [ ] **1.3** Update `publishCustomerCreated`:
+- [x] **1.3** Update `publishCustomerCreated`:
   ```java
   public void publishCustomerCreated(Customer customer) {
       CustomerCreatedEvent event = CustomerCreatedEvent.builder()
@@ -75,13 +75,13 @@ All 8 existing events (4 Created + 4 Updated) are published by their respective 
   }
   ```
 
-- [ ] **1.4** Update `publishCustomerUpdated` — same addition of `.firstName(customer.getFirstName()).lastName(customer.getLastName())`.
+- [x] **1.4** Update `publishCustomerUpdated` — same addition of `.firstName(customer.getFirstName()).lastName(customer.getLastName())`.
 
-- [ ] **1.5** `publishCustomerDeleted` — `CustomerDeletedEvent` has only `customerId` and `nationalId` (no new fields added). No change needed.
+- [x] **1.5** `publishCustomerDeleted` — `CustomerDeletedEvent` has only `customerId` and `nationalId` (no new fields added). No change needed.
 
 ### Step 2: Fix VehicleEventPublisher — Add customerId/carBrandId
 
-- [ ] **2.1** Read `VehicleEventPublisher.java`. Currently:
+- [x] **2.1** Read `VehicleEventPublisher.java`. Currently:
   ```java
   public void publishVehicleCreated(Vehicle vehicle) {
       VehicleCreatedEvent event = VehicleCreatedEvent.builder()
@@ -92,9 +92,9 @@ All 8 existing events (4 Created + 4 Updated) are published by their respective 
   }
   ```
 
-- [ ] **2.2** Read `Vehicle.java` entity to verify getter names (`getCustomerId()`, `getCarBrandId()`).
+- [x] **2.2** Read `Vehicle.java` entity to verify getter names (`getCustomerId()`, `getCarBrandId()`).
 
-- [ ] **2.3** Update `publishVehicleCreated`:
+- [x] **2.3** Update `publishVehicleCreated`:
   ```java
   public void publishVehicleCreated(Vehicle vehicle) {
       VehicleCreatedEvent event = VehicleCreatedEvent.builder()
@@ -107,13 +107,13 @@ All 8 existing events (4 Created + 4 Updated) are published by their respective 
   }
   ```
 
-- [ ] **2.4** Update `publishVehicleUpdated` — same addition of `.customerId(vehicle.getCustomerId()).carBrandId(vehicle.getCarBrandId())`.
+- [x] **2.4** Update `publishVehicleUpdated` — same addition of `.customerId(vehicle.getCustomerId()).carBrandId(vehicle.getCarBrandId())`.
 
-- [ ] **2.5** `publishVehicleDeleted` — `VehicleDeletedEvent` has only `vehicleId` and `plate`. No change needed.
+- [x] **2.5** `publishVehicleDeleted` — `VehicleDeletedEvent` has only `vehicleId` and `plate`. No change needed.
 
 ### Step 3: Fix RealEstateEventPublisher — Add address/cityId/customerId
 
-- [ ] **3.1** Read `RealEstateEventPublisher.java`. Currently:
+- [x] **3.1** Read `RealEstateEventPublisher.java`. Currently:
   ```java
   public void publishRealEstateCreated(RealEstate realEstate) {
       RealEstateCreatedEvent event = RealEstateCreatedEvent.builder()
@@ -123,9 +123,9 @@ All 8 existing events (4 Created + 4 Updated) are published by their respective 
   }
   ```
 
-- [ ] **3.2** Read `RealEstate.java` entity to verify getter names (`getAddress()`, `getCityId()`, `getCustomerId()`).
+- [x] **3.2** Read `RealEstate.java` entity to verify getter names (`getAddress()`, `getCityId()`, `getCustomerId()`).
 
-- [ ] **3.3** Update `publishRealEstateCreated`:
+- [x] **3.3** Update `publishRealEstateCreated`:
   ```java
   public void publishRealEstateCreated(RealEstate realEstate) {
       RealEstateCreatedEvent event = RealEstateCreatedEvent.builder()
@@ -138,13 +138,13 @@ All 8 existing events (4 Created + 4 Updated) are published by their respective 
   }
   ```
 
-- [ ] **3.4** Update `publishRealEstateUpdated` — same addition.
+- [x] **3.4** Update `publishRealEstateUpdated` — same addition.
 
-- [ ] **3.5** `publishRealEstateDeleted` — `RealEstateDeletedEvent` has only `realEstateId`. No change needed.
+- [x] **3.5** `publishRealEstateDeleted` — `RealEstateDeletedEvent` has only `realEstateId`. No change needed.
 
 ### Step 4: Fix InsuranceEventPublisher — Add name + Add publishInsuranceDeleted
 
-- [ ] **4.1** Read `InsuranceEventPublisher.java`. Currently:
+- [x] **4.1** Read `InsuranceEventPublisher.java`. Currently:
   ```java
   public void publishInsuranceCreated(Insurance insurance) {
       InsuranceCreatedEvent event = InsuranceCreatedEvent.builder()
@@ -156,9 +156,9 @@ All 8 existing events (4 Created + 4 Updated) are published by their respective 
   }
   ```
 
-- [ ] **4.2** Read `Insurance.java` entity to verify getter name (`getName()`).
+- [x] **4.2** Read `Insurance.java` entity to verify getter name (`getName()`).
 
-- [ ] **4.3** Update `publishInsuranceCreated`:
+- [x] **4.3** Update `publishInsuranceCreated`:
   ```java
   public void publishInsuranceCreated(Insurance insurance) {
       InsuranceCreatedEvent event = InsuranceCreatedEvent.builder()
@@ -171,9 +171,9 @@ All 8 existing events (4 Created + 4 Updated) are published by their respective 
   }
   ```
 
-- [ ] **4.4** Update `publishInsuranceUpdated` — same addition of `.name(insurance.getName())`.
+- [x] **4.4** Update `publishInsuranceUpdated` — same addition of `.name(insurance.getName())`.
 
-- [ ] **4.5** Add the missing `publishInsuranceDeleted` method:
+- [x] **4.5** Add the missing `publishInsuranceDeleted` method:
 
   ```java
   public void publishInsuranceDeleted(Insurance insurance) {
@@ -189,7 +189,7 @@ All 8 existing events (4 Created + 4 Updated) are published by their respective 
   }
   ```
 
-- [ ] **4.6** Find where `Insurance` entities are deleted in the insurance-service and add a call to `insuranceEventPublisher.publishInsuranceDeleted(insurance)`.
+- [x] **4.6** Find where `Insurance` entities are deleted in the insurance-service and add a call to `insuranceEventPublisher.publishInsuranceDeleted(insurance)`.
 
   Search for: `insuranceRepository.delete` or `insuranceService.delete` in the insurance-service.
 
@@ -203,7 +203,7 @@ All 8 existing events (4 Created + 4 Updated) are published by their respective 
 
 ### Step 6: Build and Verify
 
-- [ ] **6.1** Build all affected services:
+- [x] **6.1** Build all affected services:
   ```bash
   .\gradlew.bat :services:customer-service:build
   .\gradlew.bat :services:vehicle-service:build
@@ -211,7 +211,7 @@ All 8 existing events (4 Created + 4 Updated) are published by their respective 
   .\gradlew.bat :services:insurance-service:build
   ```
 
-- [ ] **6.2** Run tests for affected services:
+- [x] **6.2** Run tests for affected services:
   ```bash
   .\gradlew.bat :services:customer-service:test
   .\gradlew.bat :services:vehicle-service:test
@@ -219,12 +219,12 @@ All 8 existing events (4 Created + 4 Updated) are published by their respective 
   .\gradlew.bat :services:insurance-service:test
   ```
 
-- [ ] **6.3** Run the serialization tests to verify the new fields survive JSON round-trip:
+- [x] **6.3** Run the serialization tests to verify the new fields survive JSON round-trip:
   ```bash
   .\gradlew.bat :common:common-message:test --tests "*EventSerializationTest*"
   ```
 
-- [ ] **6.4** Run the full test suite:
+- [x] **6.4** Run the full test suite:
   ```bash
   .\gradlew.bat test
   ```
@@ -260,9 +260,10 @@ For each entity, verify the getter returns a value before adding it to the event
 
 ## Completion Criteria
 
-- [ ] All 8 `*Created`/`*Updated` event builders include the new fields with values from the entity
-- [ ] `InsuranceEventPublisher` has `publishInsuranceDeleted()` method
-- [ ] Insurance deletion flow calls `publishInsuranceDeleted()`
-- [ ] `.\gradlew.bat build` passes for all affected services
-- [ ] `EventSerializationTest` passes (verifies field round-trip)
-- [ ] No compilation errors related to missing getter methods
+- [x] All 8 `*Created`/`*Updated` event builders include the new fields with values from the entity
+- [x] `InsuranceEventPublisher` has `publishInsuranceDeleted()` method
+- [x] Insurance deletion flow calls `publishInsuranceDeleted()`
+- [x] `.\gradlew.bat build` passes for all affected services
+- [x] `EventSerializationTest` passes (verifies field round-trip)
+- [x] No compilation errors related to missing getter methods
+- [x] **Status: COMPLETED**
