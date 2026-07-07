@@ -38,6 +38,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.cloud:spring-cloud-stream")
     implementation("org.springframework.cloud:spring-cloud-stream-binder-kafka")
+    implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
     // JSR310 support is built into Jackson 3 jackson-databind natively
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")

@@ -12,6 +12,7 @@ include("services:realestate-service")
 include("services:insurance-service")
 include("services:estimation-service")
 include("services:reference-data-service")
+include("services:eureka-server")
 // include("services:api-gateway")
 
 plugins {

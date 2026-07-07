@@ -1,6 +1,6 @@
 # Plan 01: Eureka Service Discovery Server
 
-> **Status:** Not started
+> **Status:** Completed
 > **Branch:** `phase4-api-gateway`
 > **Depends on:** None (independent — first plan in sequence)
 > **Blocks:** Plan 02 (API Gateway Core), Plan 07 (Infrastructure Integration)
@@ -327,12 +327,12 @@ Place this in a logical location (e.g., near the API Gateway section).
 
 ## Acceptance Criteria
 
-- [ ] `services/eureka-server/` directory exists with `build.gradle.kts`
-- [ ] `.\gradlew.bat :services:eureka-server:build` compiles successfully
-- [ ] `settings.gradle.kts` includes `services:eureka-server`
-- [ ] Eureka dashboard accessible at `http://localhost:8761`
-- [ ] All 6 services have `spring-cloud-starter-netflix-eureka-client` dependency added
-- [ ] All 6 services have `eureka.client.serviceUrl.defaultZone` configured
-- [ ] All 6 services still compile after changes (`.\gradlew.bat :services:<name>:build`)
-- [ ] At least one service registers with Eureka and appears in dashboard when both are running
-- [ ] `.env.template` has `EUREKA_SERVER_URL` entry
+- [x] `services/eureka-server/` directory exists with `build.gradle.kts`
+- [x] `.\gradlew.bat :services:eureka-server:build` compiles successfully
+- [x] `settings.gradle.kts` includes `services:eureka-server`
+- [x] Eureka dashboard accessible at `http://localhost:8761`
+- [x] All 6 services have `spring-cloud-starter-netflix-eureka-client` dependency added
+- [x] All 6 services have `eureka.client.serviceUrl.defaultZone` configured
+- [x] All 6 services still compile after changes (`.\gradlew.bat :services:<name>:build`)
+- [x] At least one service registers with Eureka and appears in dashboard when both are running
+- [x] `.env.template` has `EUREKA_SERVER_URL` entry
