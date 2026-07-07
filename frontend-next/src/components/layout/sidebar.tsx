@@ -47,13 +47,16 @@ export function Sidebar() {
       {/* Sidebar panel */}
       <aside
         className={cn(
-          "fixed top-0 left-0 z-50 flex h-full w-64 flex-col border-r bg-sidebar text-sidebar-foreground transition-transform duration-300",
-          "lg:static lg:z-auto lg:translate-x-0",
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          "flex h-full flex-col border-r bg-sidebar text-sidebar-foreground transition-all duration-300 ease-in-out",
+          "fixed top-0 left-0 z-50",
+          "lg:static lg:z-auto lg:min-w-0",
+          sidebarOpen
+            ? "w-64 translate-x-0"
+            : "w-64 -translate-x-full lg:w-0 lg:overflow-hidden lg:border-r-0"
         )}
       >
         {/* Sidebar header with collapse button */}
-        <div className="flex h-14 items-center justify-between border-b px-4">
+        <div className="flex h-14 items-center justify-between border-b px-4 shrink-0">
           <Link href="/dashboard" className="text-lg font-semibold tracking-tight">
             IMS
           </Link>
@@ -69,7 +72,7 @@ export function Sidebar() {
         </div>
 
         {/* Navigation links */}
-        <nav className="flex-1 space-y-1 p-3">
+        <nav className={cn("flex-1 space-y-1 p-3", !sidebarOpen && "lg:hidden")}>
           {navItems.map((item) => {
             const isActive =
               pathname === item.href || pathname.startsWith(item.href + "/");
