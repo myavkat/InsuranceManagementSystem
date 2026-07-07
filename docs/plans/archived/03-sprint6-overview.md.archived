@@ -1,0 +1,69 @@
+# 03 — Overview: Sprint 6 — Next.js Base Architecture
+
+## Goal
+
+Build the foundational layer of the Next.js frontend: App Router layout with route groups, BFF layer stubs, Zustand state management, React Query provider, API client with JWT handling, and UI layout components (sidebar, header, auth layout).
+
+> **UI Library:** This project uses **shadcn/ui with Base UI React** (`@base-ui/react`), configured with `style: "base-nova"`. Do NOT use Radix UI primitives. All interactive components must be built on `@base-ui/react` via the shadcn/ui wrappers already installed under `src/components/ui/`.
+
+## What Already Exists
+
+The `frontend-next/` directory is a scaffolded Next.js 16 app with:
+- `package.json` — all needed dependencies already installed (zustand, @tanstack/react-query, @base-ui/react, next 16.2.9, react 19.2.4, tailwindcss v4, shadcn v4)
+- `tsconfig.json` — strict mode enabled, path alias `@/*` → `./src/*`
+- `next.config.ts` — image remotePatterns for localhost:8080
+- `components.json` — shadcn/ui config with `style: "base-nova"`, CSS variables enabled
+- `src/app/globals.css` — Tailwind CSS v4 with shadcn/ui theme (base-nova style), CSS custom properties for light/dark
+- `src/app/layout.tsx` — root layout with Geist fonts, but default metadata
+- `src/app/page.tsx` — default create-next-app landing page (needs replacement)
+- `src/components/ui/*` — 8 shadcn/ui primitives (button, input, card, dialog, table, select, badge, skeleton)
+- `src/lib/utils.ts` — `cn()` helper (clsx + tailwind-merge)
+
+## What Gets Built
+
+| Area | Description |
+|------|-------------|
+| Foundation config | Update root metadata, create `.env.local`, update `.env.template`, replace landing page |
+| Layout components | `(auth)` route group layout, `(dashboard)` route group layout with sidebar/header, loading skeletons, responsive breakpoints |
+| State management | Zustand auth-store (JWT, user info, persist to localStorage), UI store (sidebar, theme), React Query provider |
+| API client layer | Base fetch wrapper with JWT attachment, 401 refresh/redirect, `ApiResponse<T>` envelope parsing, per-domain modules |
+| BFF route stubs | Route handlers under `app/api/*` that proxy to Gateway, ready for implementation |
+
+## Plan Files & Implementation Order
+
+Build order matters. Each later plan depends on artifacts from earlier plans.
+
+| Order | File | What It Covers | Depends On |
+|-------|------|----------------|------------|
+| 1 | `04-sprint6-foundation.md` | Root layout metadata, `.env.local`, `.env.template`, landing page replacement | — (prerequisite for all) |
+| 2 | `05-sprint6-state-management.md` | Zustand auth-store + UI-store, React Query provider, wrap root layout | 04 (needs root layout) |
+| 3 | `06-sprint6-layouts.md` | Auth layout, dashboard layout, sidebar, header, skeletons, responsive | 04, 05 (uses stores) |
+| 4 | `07-sprint6-api-client.md` | Base fetch wrapper, `ApiResponse<T>`, per-domain API modules | 04, 05 (uses auth-store for JWT) |
+| 5 | `08-sprint6-bff-stubs.md` | BFF route handlers under `app/api/*` proxying to Gateway | 04, 07 (follows API patterns) |
+
+Each plan file is fully self-contained — the implementing agent needs to read only that one file plus the designated context files listed at the top.
+
+## Context Files Required for All Plans
+
+Every agent should read these before starting:
+- `docs/outlines/05_NEXTJS_FRONTEND.md` — frontend architecture, BFF pattern, component conventions
+- `docs/outlines/06_API_GATEWAY_AUTH.md` — Gateway routes, JWT format, auth endpoints
+- `frontend-next/AGENTS.md` — points to Next.js docs in `node_modules/next/dist/docs/`
+- `frontend-next/package.json` — current dependency versions
+
+## Verification Checklist
+
+After ALL plan files are implemented:
+
+- [ ] `cd frontend-next && npm run build` completes without errors
+- [ ] `cd frontend-next && npm run lint` passes
+- [ ] `cd frontend-next && npm run dev` starts without errors
+- [ ] Root layout renders at `/` with correct metadata (check browser tab title)
+- [ ] `/login` shows auth layout (centered card)
+- [ ] `/dashboard` shows dashboard layout with sidebar and header
+- [ ] Sidebar collapses/expands on mobile breakpoint
+- [ ] Auth store persists token to localStorage
+- [ ] React Query devtools show in browser (development only)
+- [ ] API client attaches `Authorization: Bearer` header using token from auth-store
+- [ ] Each BFF route handler stub returns 200 with a placeholder JSON response
+- [ ] `.env.template` includes `NEXT_PUBLIC_GATEWAY_URL` and `AUTH_SECRET`
