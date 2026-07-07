@@ -29,6 +29,10 @@ CREATE INDEX IF NOT EXISTS idx_estimations_customer ON estimations(customer_id);
 CREATE INDEX IF NOT EXISTS idx_estimations_status ON estimations(status);
 CREATE INDEX IF NOT EXISTS idx_estimations_created ON estimations(created_at);
 
+-- Migration: add trace_id column for databases created before Subtask 6
+-- (CREATE TABLE IF NOT EXISTS skips the column if the table already exists)
+ALTER TABLE estimations ADD COLUMN IF NOT EXISTS trace_id UUID;
+
 CREATE TABLE IF NOT EXISTS outbox_events (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     saga_id UUID,

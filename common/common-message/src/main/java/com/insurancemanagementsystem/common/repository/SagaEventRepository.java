@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -63,4 +64,16 @@ public interface SagaEventRepository extends JpaRepository<SagaEvent, UUID> {
     default boolean tryInsertDedup(UUID sagaId, String eventType) {
         return insertDedupMarker(sagaId, eventType) == 0;
     }
+
+    /**
+     * Delete dedup markers older than the specified cutoff.
+     * SAGA workflows complete within minutes; dedup markers older than
+     * the retention period are no longer needed for idempotency.
+     *
+     * @param cutoff delete rows with received_at before this time
+     * @return number of deleted rows
+     */
+    @Modifying
+    @Query(value = "DELETE FROM saga_events WHERE received_at < :cutoff", nativeQuery = true)
+    int deleteByReceivedAtBefore(@Param("cutoff") Instant cutoff);
 }
