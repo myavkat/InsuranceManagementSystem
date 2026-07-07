@@ -15,7 +15,7 @@ export interface UIState {
 
 export const useUIStore = create<UIState>()((set) => ({
   // Initial state
-  sidebarOpen: false,
+  sidebarOpen: true,
   theme: "system",
 
   // Sidebar actions

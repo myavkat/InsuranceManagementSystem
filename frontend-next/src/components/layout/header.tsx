@@ -30,17 +30,6 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4">
-      {/* Mobile sidebar toggle */}
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={toggleSidebar}
-        className="lg:hidden"
-        aria-label="Toggle sidebar"
-      >
-        <PanelLeft className="h-5 w-5" />
-      </Button>
-
       {/* Spacer */}
       <div className="flex-1" />
 
@@ -51,12 +40,12 @@ export function Header() {
         onClick={cycleTheme}
         aria-label={`Current theme: ${theme}. Click to switch.`}
       >
-        <ThemeIcon className="h-5 w-5" />
+        <ThemeIcon />
       </Button>
 
       {/* Notifications (placeholder) */}
       <Button variant="ghost" size="icon" aria-label="Notifications">
-        <Bell className="h-5 w-5" />
+        <Bell />
       </Button>
 
       {/* User section */}
@@ -67,7 +56,7 @@ export function Header() {
             <p className="text-xs text-muted-foreground">{user.email}</p>
           </div>
           <Button variant="ghost" size="icon" aria-label="User menu">
-            <User className="h-5 w-5" />
+            <User />
           </Button>
           <Button
             variant="ghost"
@@ -75,7 +64,7 @@ export function Header() {
             onClick={logout}
             aria-label="Sign out"
           >
-            <LogOut className="h-5 w-5" />
+            <LogOut />
           </Button>
         </div>
       ) : (

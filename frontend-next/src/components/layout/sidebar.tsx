@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -31,7 +32,14 @@ const navItems: NavItem[] = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { sidebarOpen, toggleSidebar } = useUIStore();
+  const { sidebarOpen, toggleSidebar, setSidebarOpen } = useUIStore();
+
+  // Close sidebar on mobile at initial load
+  useEffect(() => {
+    if (window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
+  }, [setSidebarOpen]);
 
   return (
     <>
@@ -52,27 +60,45 @@ export function Sidebar() {
           "lg:static lg:z-auto lg:min-w-0",
           sidebarOpen
             ? "w-64 translate-x-0"
-            : "w-64 -translate-x-full lg:w-0 lg:overflow-hidden lg:border-r-0"
+            : "w-64 -translate-x-full lg:w-16 lg:translate-x-0",
         )}
       >
-        {/* Sidebar header with collapse button */}
-        <div className="flex h-14 items-center justify-between border-b px-4 shrink-0">
-          <Link href="/dashboard" className="text-lg font-semibold tracking-tight">
-            IMS
-          </Link>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleSidebar}
-            aria-label="Toggle sidebar"
-            className="hidden lg:inline-flex"
-          >
-            <PanelLeftClose className="h-5 w-5" />
-          </Button>
+        {/* Sidebar header */}
+        <div className="flex h-14 shrink-0 items-center border-b px-3">
+          {sidebarOpen ? (
+            <>
+              <Link
+                href="/dashboard"
+                className="text-lg font-semibold tracking-tight"
+              >
+                IMS
+              </Link>
+              <div className="flex-1" />
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleSidebar}
+                aria-label="Collapse sidebar"
+                className="hidden lg:inline-flex"
+              >
+                <PanelLeftClose />
+              </Button>
+            </>
+          ) : (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleSidebar}
+              aria-label="Expand sidebar"
+              className="mx-auto"
+            >
+              <PanelLeft />
+            </Button>
+          )}
         </div>
 
         {/* Navigation links */}
-        <nav className={cn("flex-1 space-y-1 p-3", !sidebarOpen && "lg:hidden")}>
+        <nav className="flex-1 space-y-1 p-2">
           {navItems.map((item) => {
             const isActive =
               pathname === item.href || pathname.startsWith(item.href + "/");
@@ -82,13 +108,14 @@ export function Sidebar() {
                 href={item.href}
                 className={cn(
                   "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                  sidebarOpen ? "justify-start" : "justify-center",
                   isActive
                     ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                    : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+                    : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground",
                 )}
               >
-                <item.icon className="h-4 w-4" />
-                {item.label}
+                <item.icon className="size-4 shrink-0" />
+                {sidebarOpen && <span className="truncate">{item.label}</span>}
               </Link>
             );
           })}
@@ -102,11 +129,11 @@ export function Sidebar() {
         onClick={toggleSidebar}
         className={cn(
           "fixed top-3 left-3 z-50 lg:hidden",
-          sidebarOpen && "hidden"
+          sidebarOpen && "hidden",
         )}
         aria-label="Open sidebar"
       >
-        <PanelLeft className="h-5 w-5" />
+        <PanelLeft />
       </Button>
     </>
   );
