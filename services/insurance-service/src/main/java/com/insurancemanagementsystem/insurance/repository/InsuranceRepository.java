@@ -20,12 +20,6 @@ public interface InsuranceRepository extends JpaRepository<Insurance, UUID> {
     // Filter by type
     Page<Insurance> findByTypeIdAndIsActiveTrue(Integer typeId, Pageable pageable);
 
-    // Filter by company
-    Page<Insurance> findByCompanyIdAndIsActiveTrue(UUID companyId, Pageable pageable);
-
-    // Filter by type AND company
-    Page<Insurance> findByTypeIdAndCompanyIdAndIsActiveTrue(Integer typeId, UUID companyId, Pageable pageable);
-
     // Search by name
     @Query("SELECT i FROM Insurance i WHERE i.isActive = true AND LOWER(i.name) LIKE LOWER(CONCAT('%', :search, '%'))")
     Page<Insurance> searchByName(@Param("search") String search, Pageable pageable);

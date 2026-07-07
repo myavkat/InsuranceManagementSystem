@@ -46,7 +46,6 @@ class EstimationTest {
                 .customerId(customerId)
                 .vehicleId(vehicleId)
                 .insuranceTypeId(1)
-                .companyId(UUID.randomUUID())
                 .status(Estimation.Status.STARTED)
                 .premium(new BigDecimal("1500.00"))
                 .details("{}")

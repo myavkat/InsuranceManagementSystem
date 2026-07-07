@@ -14,7 +14,6 @@ import java.util.UUID;
 public class InsuranceDeletedEvent extends BaseEvent {
     private UUID insuranceId;
     private Integer typeId;
-    private UUID companyId;
 
     @Override
     public String getEventType() {

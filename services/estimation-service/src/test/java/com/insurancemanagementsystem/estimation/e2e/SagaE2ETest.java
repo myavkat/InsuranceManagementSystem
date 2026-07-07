@@ -151,7 +151,6 @@ class SagaE2ETest extends AbstractKafkaIntegrationTest {
         request.setCustomerId(UUID.randomUUID());
         request.setVehicleId(UUID.randomUUID());
         request.setInsuranceTypeId(1);
-        request.setCompanyId(UUID.randomUUID());
         return request;
     }
 

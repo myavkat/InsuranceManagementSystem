@@ -21,7 +21,6 @@ public class EstimationResponse {
     private UUID vehicleId;
     private UUID realEstateId;
     private Integer insuranceTypeId;
-    private UUID companyId;
     private String status;
     private BigDecimal premium;
     private String details;
@@ -36,7 +35,6 @@ public class EstimationResponse {
                 .vehicleId(estimation.getVehicleId())
                 .realEstateId(estimation.getRealEstateId())
                 .insuranceTypeId(estimation.getInsuranceTypeId())
-                .companyId(estimation.getCompanyId())
                 .status(estimation.getStatus().name())
                 .premium(estimation.getPremium())
                 .details(estimation.getDetails())

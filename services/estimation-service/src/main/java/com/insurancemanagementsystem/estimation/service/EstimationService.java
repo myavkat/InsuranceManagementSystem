@@ -67,7 +67,6 @@ public class EstimationService {
                 .vehicleId(request.getVehicleId())
                 .realEstateId(request.getRealEstateId())
                 .insuranceTypeId(request.getInsuranceTypeId())
-                .companyId(request.getCompanyId())
                 .traceId(traceId)
                 .status(Estimation.Status.STARTED)
                 .build();
@@ -81,7 +80,6 @@ public class EstimationService {
                 .vehicleId(request.getVehicleId())
                 .realEstateId(request.getRealEstateId())
                 .insuranceTypeId(request.getInsuranceTypeId())
-                .companyId(request.getCompanyId())
                 .build();
 
         outboxMessagePublisher.publish(event, sagaId, traceId, EventConstants.ESTIMATION_SAGA);

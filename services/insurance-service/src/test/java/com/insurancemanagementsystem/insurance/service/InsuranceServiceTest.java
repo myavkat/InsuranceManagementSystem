@@ -4,9 +4,7 @@ import com.insurancemanagementsystem.insurance.config.InsuranceEventPublisher;
 import com.insurancemanagementsystem.insurance.dto.InsuranceRequest;
 import com.insurancemanagementsystem.insurance.dto.InsuranceResponse;
 import com.insurancemanagementsystem.insurance.entity.Insurance;
-import com.insurancemanagementsystem.insurance.entity.InsuranceCompany;
 import com.insurancemanagementsystem.insurance.entity.InsuranceType;
-import com.insurancemanagementsystem.insurance.repository.InsuranceCompanyRepository;
 import com.insurancemanagementsystem.insurance.repository.InsuranceRepository;
 import com.insurancemanagementsystem.insurance.repository.InsuranceTypeRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -43,9 +41,6 @@ class InsuranceServiceTest {
     private InsuranceTypeRepository insuranceTypeRepository;
 
     @Mock
-    private InsuranceCompanyRepository insuranceCompanyRepository;
-
-    @Mock
     private InsuranceEventPublisher insuranceEventPublisher;
 
     @InjectMocks
@@ -55,14 +50,11 @@ class InsuranceServiceTest {
     private ArgumentCaptor<Insurance> insuranceCaptor;
 
     private static final UUID TEST_ID = UUID.randomUUID();
-    private static final UUID TEST_COMPANY_ID = UUID.randomUUID();
     private static final Integer TEST_TYPE_ID = 1;
     private static final String TEST_NAME = "Health Insurance";
     private static final String TEST_DESCRIPTION = "Comprehensive health coverage";
     private static final BigDecimal TEST_BASE_PREMIUM = new BigDecimal("250.00");
     private static final String TEST_TYPE_NAME = "Health";
-    private static final String TEST_COMPANY_NAME = "Insurance Corp";
-    private static final BigDecimal TEST_COMPANY_RATING = new BigDecimal("4.5");
 
     // ---------------------------------------------------------------
     // Helper methods
@@ -73,7 +65,6 @@ class InsuranceServiceTest {
         request.setName(TEST_NAME);
         request.setDescription(TEST_DESCRIPTION);
         request.setTypeId(TEST_TYPE_ID);
-        request.setCompanyId(TEST_COMPANY_ID);
         request.setBasePremium(TEST_BASE_PREMIUM);
         request.setIsActive(true);
         return request;
@@ -85,7 +76,6 @@ class InsuranceServiceTest {
                 .name(name)
                 .description(TEST_DESCRIPTION)
                 .typeId(TEST_TYPE_ID)
-                .companyId(TEST_COMPANY_ID)
                 .basePremium(TEST_BASE_PREMIUM)
                 .isActive(true)
                 .createdAt(Instant.now())
@@ -97,15 +87,6 @@ class InsuranceServiceTest {
         return new InsuranceType(TEST_TYPE_ID, TEST_TYPE_NAME);
     }
 
-    private InsuranceCompany createActiveCompany() {
-        return InsuranceCompany.builder()
-                .id(TEST_COMPANY_ID)
-                .name(TEST_COMPANY_NAME)
-                .rating(TEST_COMPANY_RATING)
-                .isActive(true)
-                .build();
-    }
-
     // ---------------------------------------------------------------
     // 1. create – valid request
     // ---------------------------------------------------------------
@@ -114,11 +95,9 @@ class InsuranceServiceTest {
         // Arrange
         InsuranceRequest request = createValidRequest();
         InsuranceType insuranceType = createInsuranceType();
-        InsuranceCompany company = createActiveCompany();
         Insurance savedInsurance = createInsurance(TEST_ID, TEST_NAME);
 
         when(insuranceTypeRepository.findById(TEST_TYPE_ID)).thenReturn(Optional.of(insuranceType));
-        when(insuranceCompanyRepository.findById(TEST_COMPANY_ID)).thenReturn(Optional.of(company));
         when(insuranceRepository.findByNameIgnoreCase(TEST_NAME.trim())).thenReturn(Optional.empty());
         when(insuranceRepository.save(any(Insurance.class))).thenReturn(savedInsurance);
 
@@ -131,12 +110,10 @@ class InsuranceServiceTest {
         assertThat(response.getName()).isEqualTo(TEST_NAME);
         assertThat(response.getDescription()).isEqualTo(TEST_DESCRIPTION);
         assertThat(response.getTypeId()).isEqualTo(TEST_TYPE_ID);
-        assertThat(response.getCompanyId()).isEqualTo(TEST_COMPANY_ID);
         assertThat(response.getBasePremium()).isEqualByComparingTo(TEST_BASE_PREMIUM);
         assertThat(response.getIsActive()).isTrue();
 
         verify(insuranceTypeRepository).findById(TEST_TYPE_ID);
-        verify(insuranceCompanyRepository).findById(TEST_COMPANY_ID);
         verify(insuranceRepository).findByNameIgnoreCase(TEST_NAME.trim());
         verify(insuranceRepository).save(any(Insurance.class));
         verify(insuranceEventPublisher).publishInsuranceCreated(any(Insurance.class));
@@ -152,7 +129,6 @@ class InsuranceServiceTest {
         Insurance existingInsurance = createInsurance(UUID.randomUUID(), TEST_NAME);
 
         when(insuranceTypeRepository.findById(TEST_TYPE_ID)).thenReturn(Optional.of(createInsuranceType()));
-        when(insuranceCompanyRepository.findById(TEST_COMPANY_ID)).thenReturn(Optional.of(createActiveCompany()));
         when(insuranceRepository.findByNameIgnoreCase(TEST_NAME.trim())).thenReturn(Optional.of(existingInsurance));
 
         // Act & Assert
@@ -161,7 +137,6 @@ class InsuranceServiceTest {
         assertThat(exception.getMessage()).contains("already exists");
 
         verify(insuranceTypeRepository).findById(TEST_TYPE_ID);
-        verify(insuranceCompanyRepository).findById(TEST_COMPANY_ID);
         verify(insuranceRepository).findByNameIgnoreCase(TEST_NAME.trim());
         verify(insuranceRepository, never()).save(any(Insurance.class));
         verify(insuranceEventPublisher, never()).publishInsuranceCreated(any(Insurance.class));
@@ -183,7 +158,6 @@ class InsuranceServiceTest {
         assertThat(exception.getMessage()).contains("not found");
 
         verify(insuranceTypeRepository).findById(TEST_TYPE_ID);
-        verify(insuranceCompanyRepository, never()).findById(any(UUID.class));
         verify(insuranceRepository, never()).findByNameIgnoreCase(anyString());
         verify(insuranceRepository, never()).save(any(Insurance.class));
     }
@@ -207,7 +181,6 @@ class InsuranceServiceTest {
         assertThat(response.getName()).isEqualTo(TEST_NAME);
         assertThat(response.getDescription()).isEqualTo(TEST_DESCRIPTION);
         assertThat(response.getTypeId()).isEqualTo(TEST_TYPE_ID);
-        assertThat(response.getCompanyId()).isEqualTo(TEST_COMPANY_ID);
         assertThat(response.getBasePremium()).isEqualByComparingTo(TEST_BASE_PREMIUM);
         assertThat(response.getIsActive()).isTrue();
 
@@ -292,7 +265,6 @@ class InsuranceServiceTest {
 
         when(insuranceRepository.findById(TEST_ID)).thenReturn(Optional.of(existingInsurance));
         when(insuranceTypeRepository.findById(TEST_TYPE_ID)).thenReturn(Optional.of(createInsuranceType()));
-        when(insuranceCompanyRepository.findById(TEST_COMPANY_ID)).thenReturn(Optional.of(createActiveCompany()));
         when(insuranceRepository.findByNameIgnoreCase(TEST_NAME.trim())).thenReturn(Optional.empty());
         when(insuranceRepository.save(any(Insurance.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -302,7 +274,6 @@ class InsuranceServiceTest {
         // Assert
         verify(insuranceRepository).findById(TEST_ID);
         verify(insuranceTypeRepository).findById(TEST_TYPE_ID);
-        verify(insuranceCompanyRepository).findById(TEST_COMPANY_ID);
         verify(insuranceRepository).findByNameIgnoreCase(TEST_NAME.trim());
         verify(insuranceRepository).save(insuranceCaptor.capture());
 
@@ -310,7 +281,6 @@ class InsuranceServiceTest {
         assertThat(updatedInsurance.getName()).isEqualTo(TEST_NAME);
         assertThat(updatedInsurance.getDescription()).isEqualTo(TEST_DESCRIPTION);
         assertThat(updatedInsurance.getTypeId()).isEqualTo(TEST_TYPE_ID);
-        assertThat(updatedInsurance.getCompanyId()).isEqualTo(TEST_COMPANY_ID);
         assertThat(updatedInsurance.getBasePremium()).isEqualByComparingTo(TEST_BASE_PREMIUM);
         assertThat(updatedInsurance.getIsActive()).isTrue();
 
@@ -332,7 +302,6 @@ class InsuranceServiceTest {
 
         when(insuranceRepository.findById(TEST_ID)).thenReturn(Optional.of(existingInsurance));
         when(insuranceTypeRepository.findById(TEST_TYPE_ID)).thenReturn(Optional.of(createInsuranceType()));
-        when(insuranceCompanyRepository.findById(TEST_COMPANY_ID)).thenReturn(Optional.of(createActiveCompany()));
         when(insuranceRepository.findByNameIgnoreCase(TEST_NAME.trim())).thenReturn(Optional.of(duplicateInsurance));
 
         // Act & Assert
@@ -342,7 +311,6 @@ class InsuranceServiceTest {
 
         verify(insuranceRepository).findById(TEST_ID);
         verify(insuranceTypeRepository).findById(TEST_TYPE_ID);
-        verify(insuranceCompanyRepository).findById(TEST_COMPANY_ID);
         verify(insuranceRepository).findByNameIgnoreCase(TEST_NAME.trim());
         verify(insuranceRepository, never()).save(any(Insurance.class));
         verify(insuranceEventPublisher, never()).publishInsuranceUpdated(any(Insurance.class));
@@ -361,7 +329,7 @@ class InsuranceServiceTest {
         when(insuranceRepository.findByTypeIdAndIsActiveTrue(TEST_TYPE_ID, pageable)).thenReturn(insurancePage);
 
         // Act
-        Page<InsuranceResponse> result = insuranceService.findAll(TEST_TYPE_ID, null, null, pageable);
+        Page<InsuranceResponse> result = insuranceService.findAll(TEST_TYPE_ID, null, pageable);
 
         // Assert
         assertThat(result).isNotEmpty();
@@ -387,7 +355,7 @@ class InsuranceServiceTest {
         when(insuranceRepository.searchByName(TEST_NAME, pageable)).thenReturn(insurancePage);
 
         // Act
-        Page<InsuranceResponse> result = insuranceService.findAll(null, null, TEST_NAME, pageable);
+        Page<InsuranceResponse> result = insuranceService.findAll(null, TEST_NAME, pageable);
 
         // Assert
         assertThat(result).isNotEmpty();
@@ -412,7 +380,7 @@ class InsuranceServiceTest {
         when(insuranceRepository.findByIsActiveTrue(pageable)).thenReturn(insurancePage);
 
         // Act
-        Page<InsuranceResponse> result = insuranceService.findAll(null, null, null, pageable);
+        Page<InsuranceResponse> result = insuranceService.findAll(null, null, pageable);
 
         // Assert
         assertThat(result).isNotEmpty();
