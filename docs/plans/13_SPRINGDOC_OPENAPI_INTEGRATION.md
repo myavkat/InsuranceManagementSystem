@@ -346,8 +346,12 @@ Springdoc will work correctly in all supported runtime environments.
 | `common/common-web/build.gradle.kts` | Add 1 dependency line | +1 |
 | `common/common-web/src/main/resources/application-common.yml` | Append springdoc block | +15 |
 | `common/common-web/src/main/java/.../common/web/config/OpenAPIConfig.java` | New file | ~70 |
+| `infra/docker/docker-compose.services.yml` | Add `OPENAPI_SERVER_URL` per service | +6 |
+| `.env.template` | Document `OPENAPI_SERVER_URL` | +3 |
 
 No changes to any `services/*/build.gradle.kts` or `services/*/application.yml` files.
+
+> **Docker note:** Services in Docker run on internal port 8080. The `OPENAPI_SERVER_URL` env var per service overrides the server URL to the correct host-mapped port (8081-8086) so Swagger UI's "Try it out" sends requests to the right place.
 
 ---
 
@@ -357,14 +361,14 @@ None. This plan is standalone and does not depend on any other plan completing f
 
 ## Completion Criteria
 
-- [ ] `springdoc-openapi-starter-webmvc-ui:3.0.3` dependency added to `common-web/build.gradle.kts`
-- [ ] Springdoc YAML config appended to `application-common.yml`
-- [ ] `OpenAPIConfig.java` created with `@Configuration` and `OpenAPI` bean
-- [ ] `./gradlew :common:common-web:build` succeeds
-- [ ] Docker Compose starts successfully with the updated services
-- [ ] `curl http://localhost:8081/v3/api-docs | jq '.info.title'` returns `"customer-service API"`
-- [ ] All 6 services return their respective OpenAPI JSON on ports 8081-8086
-- [ ] Swagger UI loads in browser at `http://localhost:8081/swagger-ui.html` with "Try it out" enabled
+- [x] `springdoc-openapi-starter-webmvc-ui:3.0.3` dependency added to `common-web/build.gradle.kts`
+- [x] Springdoc YAML config appended to `application-common.yml`
+- [x] `OpenAPIConfig.java` created with `@Configuration` and `OpenAPI` bean
+- [x] `./gradlew :common:common-web:build` succeeds
+- [x] Docker Compose starts successfully with the updated services
+- [x] `curl http://localhost:8081/v3/api-docs | jq '.info.title'` returns `"customer-service API"`
+- [x] All 6 services return their respective OpenAPI JSON on ports 8081-8086
+- [x] Swagger UI loads in browser at `http://localhost:8081/swagger-ui.html` with "Try it out" enabled
 
 ## Rollback Plan
 
