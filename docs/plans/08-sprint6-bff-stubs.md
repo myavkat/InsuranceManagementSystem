@@ -1,6 +1,6 @@
 # 08 — Sprint 6: BFF Route Handler Stubs
 
-## Status: NOT STARTED
+## Status: COMPLETED
 
 ## Objective
 
@@ -21,7 +21,7 @@ Create BFF (Backend-for-Frontend) route handler stubs under `app/api/*`. Each st
 ## Architecture Notes
 
 - **BFF Route Handlers run on the Next.js server** — they are NOT client code. They can access server-only env vars (without `NEXT_PUBLIC_` prefix) and make backend requests that never reach the browser.
-- **Each domain gets a catch-all route:** `app/api/<domain>/[...path]/route.ts` handles all sub-paths (`/api/customers/123`, `/api/customers/search?name=...`, etc.).
+- **Each domain gets an optional catch-all route:** `app/api/<domain>/[[...path]]/route.ts` handles both base paths and sub-paths (`/api/vehicles`, `/api/customers/123`, `/api/customers/search?name=...`, etc.). Optional catch-all (`[[...path]]`) is used instead of required catch-all (`[...path]`) to also match the domain root (e.g., `/api/vehicles`).
 - **For this sprint: stubs only.** Each handler returns a static JSON success response. The actual Gateway proxying is wired up when the API Gateway service is implemented.
 - **Route Handlers cannot coexist with `page.tsx` at the same route segment.** Since the route handlers are at `app/api/*`, pages are at `app/(dashboard)/*` and `app/(auth)/*`, there's no conflict.
 
@@ -303,17 +303,17 @@ The dashboard route now exists, so this redirect will work.
 
 ## Acceptance Criteria
 
-- [ ] `frontend-next/src/app/api/auth/[...path]/route.ts` exists with GET, POST, PUT, DELETE handlers
-- [ ] `frontend-next/src/app/api/customers/[...path]/route.ts` exists with GET, POST, PUT, DELETE handlers
-- [ ] `frontend-next/src/app/api/insurances/[...path]/route.ts` exists with GET, POST, PUT, DELETE handlers
-- [ ] `frontend-next/src/app/api/estimations/[...path]/route.ts` exists with GET, POST, PUT, DELETE handlers
-- [ ] `frontend-next/src/app/api/vehicles/[...path]/route.ts` exists with GET, POST, PUT, DELETE handlers
-- [ ] `curl http://localhost:3000/api/auth/login` returns `{"success":true,...}` JSON
-- [ ] `curl http://localhost:3000/api/customers/123` returns JSON
-- [ ] `curl http://localhost:3000/api/insurances` returns JSON
-- [ ] `curl http://localhost:3000/api/estimations` returns JSON
-- [ ] `curl http://localhost:3000/api/vehicles` returns JSON
-- [ ] Non-API routes (`/login`, `/dashboard`) still render correctly
-- [ ] Landing page (`/`) redirects to `/dashboard`
-- [ ] `npm run build` passes
-- [ ] `npm run lint` passes
+- [x] `frontend-next/src/app/api/auth/[[...path]]/route.ts` exists with GET, POST, PUT, DELETE handlers
+- [x] `frontend-next/src/app/api/customers/[[...path]]/route.ts` exists with GET, POST, PUT, DELETE handlers
+- [x] `frontend-next/src/app/api/insurances/[[...path]]/route.ts` exists with GET, POST, PUT, DELETE handlers
+- [x] `frontend-next/src/app/api/estimations/[[...path]]/route.ts` exists with GET, POST, PUT, DELETE handlers
+- [x] `frontend-next/src/app/api/vehicles/[[...path]]/route.ts` exists with GET, POST, PUT, DELETE handlers
+- [x] `curl http://localhost:3000/api/auth/login` returns `{"success":true,...}` JSON
+- [x] `curl http://localhost:3000/api/customers/123` returns JSON
+- [x] `curl http://localhost:3000/api/insurances` returns JSON
+- [x] `curl http://localhost:3000/api/estimations` returns JSON
+- [x] `curl http://localhost:3000/api/vehicles` returns JSON
+- [x] Non-API routes (`/login`, `/dashboard`) still render correctly
+- [x] Landing page (`/`) redirects to `/dashboard`
+- [x] `npm run build` passes
+- [x] `npm run lint` passes
