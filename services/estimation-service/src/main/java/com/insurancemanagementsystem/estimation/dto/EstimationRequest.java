@@ -19,7 +19,4 @@ public class EstimationRequest {
 
     @NotNull(message = "Insurance type ID is required")
     private Integer insuranceTypeId;
-
-    @NotNull(message = "Company ID is required")
-    private UUID companyId;
 }

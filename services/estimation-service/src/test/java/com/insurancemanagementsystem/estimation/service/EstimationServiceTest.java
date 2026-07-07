@@ -47,7 +47,6 @@ class EstimationServiceTest {
     private final UUID testId = UUID.randomUUID();
 
     private final UUID customerId = UUID.randomUUID();
-    private final UUID companyId = UUID.randomUUID();
     private final UUID vehicleId = UUID.randomUUID();
     private final Integer insuranceTypeId = 1;
 
@@ -60,7 +59,6 @@ class EstimationServiceTest {
         request.setCustomerId(customerId);
         request.setVehicleId(vehicleId);
         request.setInsuranceTypeId(insuranceTypeId);
-        request.setCompanyId(companyId);
         return request;
     }
 
@@ -71,7 +69,6 @@ class EstimationServiceTest {
                 .customerId(customerId)
                 .vehicleId(vehicleId)
                 .insuranceTypeId(insuranceTypeId)
-                .companyId(companyId)
                 .status(Estimation.Status.STARTED)
                 .createdAt(Instant.now())
                 .updatedAt(Instant.now())
@@ -98,7 +95,6 @@ class EstimationServiceTest {
         assertThat(response.getStatus()).isEqualTo("STARTED");
         assertThat(response.getCustomerId()).isEqualTo(customerId);
         assertThat(response.getVehicleId()).isEqualTo(vehicleId);
-        assertThat(response.getCompanyId()).isEqualTo(companyId);
         assertThat(response.getInsuranceTypeId()).isEqualTo(insuranceTypeId);
         assertThat(response.getSagaId()).isNotNull();
 
@@ -119,7 +115,6 @@ class EstimationServiceTest {
         EstimationRequest request = new EstimationRequest();
         request.setCustomerId(customerId);
         request.setInsuranceTypeId(insuranceTypeId);
-        request.setCompanyId(companyId);
         // vehicleId and realEstateId are both null
 
         // Act & Assert

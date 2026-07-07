@@ -196,7 +196,6 @@ class EstimationServiceIntegrationTest {
         request.setCustomerId(UUID.randomUUID());
         request.setRealEstateId(UUID.randomUUID());
         request.setInsuranceTypeId(1);
-        request.setCompanyId(UUID.randomUUID());
 
         EstimationResponse response = estimationService.create(request);
 
@@ -250,7 +249,6 @@ class EstimationServiceIntegrationTest {
         EstimationRequest request = new EstimationRequest();
         request.setCustomerId(UUID.randomUUID());
         request.setInsuranceTypeId(1);
-        request.setCompanyId(UUID.randomUUID());
         // vehicleId and realEstateId intentionally null
 
         try {
@@ -331,7 +329,6 @@ class EstimationServiceIntegrationTest {
         request.setCustomerId(UUID.randomUUID());
         request.setVehicleId(UUID.randomUUID());
         request.setInsuranceTypeId(1);
-        request.setCompanyId(UUID.randomUUID());
         return request;
     }
 }

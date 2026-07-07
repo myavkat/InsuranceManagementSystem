@@ -52,9 +52,6 @@ public class Estimation {
     @Column(name = "insurance_type_id")
     private Integer insuranceTypeId;
 
-    @Column(name = "company_id")
-    private UUID companyId;
-
     @Column(name = "trace_id")
     private UUID traceId;
 

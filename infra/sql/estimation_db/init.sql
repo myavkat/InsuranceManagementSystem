@@ -7,7 +7,6 @@ CREATE TABLE IF NOT EXISTS estimations (
     vehicle_id UUID,
     real_estate_id UUID,
     insurance_type_id INT,
-    company_id UUID,
     trace_id UUID,
     status VARCHAR(20) NOT NULL CHECK (status IN ('STARTED', 'COMPLETED', 'REJECTED')),
     premium DECIMAL(12,2),
@@ -32,6 +31,9 @@ CREATE INDEX IF NOT EXISTS idx_estimations_created ON estimations(created_at);
 -- Migration: add trace_id column for databases created before Subtask 6
 -- (CREATE TABLE IF NOT EXISTS skips the column if the table already exists)
 ALTER TABLE estimations ADD COLUMN IF NOT EXISTS trace_id UUID;
+
+-- Migration: remove company_id from estimations (multi-company concept removed)
+ALTER TABLE estimations DROP COLUMN IF EXISTS company_id;
 
 CREATE TABLE IF NOT EXISTS outbox_events (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
