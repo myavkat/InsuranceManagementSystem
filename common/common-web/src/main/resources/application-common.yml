@@ -16,3 +16,20 @@ management:
 logging:
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} [%X{traceId:-},%X{spanId:-},%X{sagaId:-}] - %msg%n"
+
+# ------------------------------------------------------------
+# Springdoc OpenAPI (Swagger UI) — shared across all services
+# ------------------------------------------------------------
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    tryItOutEnabled: true
+    display-request-duration: true
+    syntax-highlight:
+      theme: monokai
+  cache:
+    disabled: true
