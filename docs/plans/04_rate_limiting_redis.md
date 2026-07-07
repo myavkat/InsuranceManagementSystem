@@ -1,6 +1,6 @@
 # Plan 04: Rate Limiting with Redis
 
-> **Status:** Not started
+> **Status:** Completed
 > **Branch:** `phase4-api-gateway`
 > **Depends on:** Plan 02 (API Gateway Core) — GatewayConfig.java and application.yml must exist
 > **Blocks:** Plan 06 (Integration Tests)
@@ -389,14 +389,14 @@ After the burst capacity is exhausted, expect `429` responses with `Retry-After`
 
 ## Acceptance Criteria
 
-- [ ] `RateLimitKeyResolver.java` compiles and implements `KeyResolver`
-- [ ] `LoginIpKeyResolver.java` compiles with bean name `loginIpKeyResolver`
-- [ ] `RateLimitExceptionHandler.java` compiles and implements `ErrorWebExceptionHandler`
-- [ ] All 7 routes in `application.yml` have `RequestRateLimiter` filter configured
-- [ ] Auth service route uses `loginIpKeyResolver` with burst=10 (10 req/min)
-- [ ] Authenticated routes use `rateLimitKeyResolver` with burst=100 (100 req/min)
-- [ ] Reference data route uses `rateLimitKeyResolver` with burst=1000 (1000 req/min)
-- [ ] `spring.cloud.gateway.redis-rate-limiter.include-headers: true` is set
-- [ ] 429 response includes `Retry-After` header and standardized `ErrorResponse` JSON
-- [ ] `.\gradlew.bat :services:api-gateway:build` passes
-- [ ] Rapid requests to any route eventually return 429
+- [x] `RateLimitKeyResolver.java` compiles and implements `KeyResolver`
+- [x] `LoginIpKeyResolver.java` compiles with bean name `loginIpKeyResolver`
+- [x] `RateLimitExceptionHandler.java` compiles and implements `ErrorWebExceptionHandler`
+- [x] All 7 routes in `application.yml` have `RequestRateLimiter` filter configured
+- [x] Auth service route uses `loginIpKeyResolver` with burst=10 (10 req/min)
+- [x] Authenticated routes use `rateLimitKeyResolver` with burst=100 (100 req/min)
+- [x] Reference data route uses `rateLimitKeyResolver` with burst=1000 (1000 req/min)
+- [x] `spring.cloud.gateway.redis-rate-limiter.include-headers: true` is set
+- [x] 429 response includes `Retry-After` header and standardized `ErrorResponse` JSON
+- [x] `.\gradlew.bat :services:api-gateway:build` passes
+- [x] Rapid requests to any route eventually return 429

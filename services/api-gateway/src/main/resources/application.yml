@@ -18,6 +18,12 @@ spring:
             - Path=/api/auth/**
           filters:
             - StripPrefix=1
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 1
+                redis-rate-limiter.burstCapacity: 10
+                redis-rate-limiter.requestedTokens: 1
+                key-resolver: "#{@loginIpKeyResolver}"
           metadata:
             auth-required: false
 
@@ -28,6 +34,12 @@ spring:
             - Path=/api/customers/**
           filters:
             - StripPrefix=1
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 1
+                redis-rate-limiter.burstCapacity: 100
+                redis-rate-limiter.requestedTokens: 1
+                key-resolver: "#{@rateLimitKeyResolver}"
           metadata:
             auth-required: true
 
@@ -38,6 +50,12 @@ spring:
             - Path=/api/vehicles/**
           filters:
             - StripPrefix=1
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 1
+                redis-rate-limiter.burstCapacity: 100
+                redis-rate-limiter.requestedTokens: 1
+                key-resolver: "#{@rateLimitKeyResolver}"
           metadata:
             auth-required: true
 
@@ -48,6 +66,12 @@ spring:
             - Path=/api/real-estate/**
           filters:
             - StripPrefix=1
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 1
+                redis-rate-limiter.burstCapacity: 100
+                redis-rate-limiter.requestedTokens: 1
+                key-resolver: "#{@rateLimitKeyResolver}"
           metadata:
             auth-required: true
 
@@ -58,6 +82,12 @@ spring:
             - Path=/api/insurances/**
           filters:
             - StripPrefix=1
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 1
+                redis-rate-limiter.burstCapacity: 100
+                redis-rate-limiter.requestedTokens: 1
+                key-resolver: "#{@rateLimitKeyResolver}"
           metadata:
             auth-required: true
 
@@ -68,6 +98,12 @@ spring:
             - Path=/api/estimations/**
           filters:
             - StripPrefix=1
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 1
+                redis-rate-limiter.burstCapacity: 100
+                redis-rate-limiter.requestedTokens: 1
+                key-resolver: "#{@rateLimitKeyResolver}"
           metadata:
             auth-required: true
 
@@ -78,11 +114,21 @@ spring:
             - Path=/api/reference-data/**
           filters:
             - StripPrefix=1
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 1
+                redis-rate-limiter.burstCapacity: 1000
+                redis-rate-limiter.requestedTokens: 1
+                key-resolver: "#{@rateLimitKeyResolver}"
           metadata:
             auth-required: false
 
       default-filters:
         - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
+
+      # Redis Rate Limiter defaults
+      redis-rate-limiter:
+        include-headers: true   # adds X-RateLimit-Remaining, X-RateLimit-Burst-Limit, X-RateLimit-Retry-After-Seconds
 
       # Global timeouts
       httpclient:
