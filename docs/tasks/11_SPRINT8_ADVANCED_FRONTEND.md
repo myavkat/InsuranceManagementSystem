@@ -8,6 +8,8 @@
 ## Objective
 Add production-grade frontend features: SSR data fetching patterns, real-time notifications, advanced form handling, professional data tables, and full authentication.
 
+> **UI Library:** This project uses **shadcn/ui with Base UI React** (`@base-ui/react`), configured with `style: "base-nova"`. The TanStack Table wrapper, form components, dialog, and toast/sonner integrations must all be built on `@base-ui/react` primitives from `src/components/ui/`. Do NOT use Radix UI primitives.
+
 ### Subtasks
 
 1. **Implement SSR Data Fetching**

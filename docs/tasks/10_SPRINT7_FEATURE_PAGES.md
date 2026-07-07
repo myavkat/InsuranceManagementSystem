@@ -12,6 +12,10 @@
 ## Objective
 Build all feature pages in the Next.js frontend. Each page is a Server Component by default, with client components for interactive elements (forms, tables, search).
 
+> **UI Library:** This project uses **shadcn/ui with Base UI React** (`@base-ui/react`), configured with `style: "base-nova"`. All interactive components (forms, dialogs, selects, tables) must use the `@base-ui/react`-based shadcn/ui wrappers from `src/components/ui/`. Do NOT use Radix UI primitives.
+
+> **Prerequisite:** The API Gateway (`09_PHASE4_API_GATEWAY.md`) must be operational before starting this task. BFF route handlers in `app/api/*` proxy to the Gateway — without it, feature pages cannot fetch real data. If the Gateway is not yet built, mock its responses in BFF handlers during development.
+
 ### Subtasks
 
 1. **Build Customer Management Pages**
