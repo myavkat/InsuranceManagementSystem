@@ -1,6 +1,6 @@
 # 06 — Sprint 6: Layout Components
 
-## Status: NOT STARTED
+## Status: COMPLETED
 
 ## Objective
 
@@ -516,19 +516,19 @@ Fix any lint errors before marking this plan complete.
 
 ## Acceptance Criteria
 
-- [ ] `frontend-next/src/app/(auth)/layout.tsx` exists — centered card layout
-- [ ] `frontend-next/src/app/(auth)/login/page.tsx` exists — placeholder login page
-- [ ] `frontend-next/src/app/(auth)/register/page.tsx` exists — placeholder register page
-- [ ] `frontend-next/src/components/layout/sidebar.tsx` exists — nav links, collapse toggle, mobile overlay
-- [ ] `frontend-next/src/components/layout/header.tsx` exists — user menu, theme toggle, notifications
-- [ ] `frontend-next/src/app/(dashboard)/layout.tsx` exists — sidebar + header + content
-- [ ] `frontend-next/src/app/(dashboard)/dashboard/page.tsx` exists — dashboard index with placeholder cards
-- [ ] `frontend-next/src/app/(dashboard)/dashboard/loading.tsx` exists — dashboard page skeleton
-- [ ] `frontend-next/src/app/(dashboard)/loading.tsx` exists — dashboard group skeleton
-- [ ] `frontend-next/src/app/(auth)/loading.tsx` exists — auth loading skeleton
+- [x] `frontend-next/src/app/(auth)/layout.tsx` exists — centered card layout
+- [x] `frontend-next/src/app/(auth)/login/page.tsx` exists — placeholder login page
+- [x] `frontend-next/src/app/(auth)/register/page.tsx` exists — placeholder register page
+- [x] `frontend-next/src/components/layout/sidebar.tsx` exists — nav links, collapse toggle, mobile overlay
+- [x] `frontend-next/src/components/layout/header.tsx` exists — user menu, theme toggle, notifications
+- [x] `frontend-next/src/app/(dashboard)/layout.tsx` exists — sidebar + header + content
+- [x] `frontend-next/src/app/(dashboard)/dashboard/page.tsx` exists — dashboard index with placeholder cards
+- [x] `frontend-next/src/app/(dashboard)/dashboard/loading.tsx` exists — dashboard page skeleton
+- [x] `frontend-next/src/app/(dashboard)/loading.tsx` exists — dashboard group skeleton
+- [x] `frontend-next/src/app/(auth)/loading.tsx` exists — auth loading skeleton
 - [ ] `http://localhost:3000/login` renders the auth layout with a centered card
 - [ ] `http://localhost:3000/dashboard` renders the dashboard layout with sidebar and header
 - [ ] Sidebar collapses/expands on mobile (viewport < 1024px)
 - [ ] Active nav link is highlighted in sidebar
-- [ ] `npm run build` passes
-- [ ] `npm run lint` passes
+- [x] `npm run build` passes
+- [x] `npm run lint` passes
