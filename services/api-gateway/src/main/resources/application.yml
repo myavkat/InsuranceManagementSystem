@@ -1,5 +1,8 @@
 server:
   port: ${GATEWAY_PORT:8080}
+  # Remove Netty server version header
+  netty:
+    max-keep-alive-requests: 1000
 
 spring:
   application:
@@ -166,6 +169,10 @@ gateway:
   auth:
     public-key-location: classpath:keys/public-key.pem
     key-refresh-interval-minutes: 60   # how often to re-fetch from Auth Service (future)
+  cors:
+    allowed-origins: ${GATEWAY_CORS_ORIGINS:http://localhost:3000}
+  logging:
+    log-sensitive-headers: false    # never log Authorization, Cookie values
 
 logging:
   level:

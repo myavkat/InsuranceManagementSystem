@@ -1,6 +1,6 @@
 # Plan 05: Gateway Security, CORS & Hardening
 
-> **Status:** Not started
+> **Status:** **Complete**
 > **Branch:** `phase4-api-gateway`
 > **Depends on:** Plan 02 (API Gateway Core) — GatewayConfig.java and application.yml must exist
 > **Blocks:** Plan 06 (Integration Tests)
@@ -440,13 +440,13 @@ GATEWAY_CORS_ORIGINS=http://localhost:3000
 
 ## Acceptance Criteria
 
-- [ ] `GatewayConfig.java` CORS bean supports configurable origins via `GATEWAY_CORS_ORIGINS`
-- [ ] `GlobalErrorWebExceptionHandler.java` compiles with `@Order(-1)`
-- [ ] `SecurityHeadersFilter.java` compiles and adds 6 security headers to every response
-- [ ] `RequestLoggingFilter.java` compiles and logs method/path/status/duration at INFO level
-- [ ] `application.yml` has `gateway.cors.allowed-origins` and `gateway.logging.log-sensitive-headers`
-- [ ] `.\gradlew.bat :services:api-gateway:build` passes
-- [ ] All error responses use `ErrorResponse` envelope format
-- [ ] Security headers present on all responses (verified via curl -v or browser dev tools)
-- [ ] CORS preflight (OPTIONS) requests succeed from allowed origins
-- [ ] `.env.template` has `GATEWAY_CORS_ORIGINS`
+- [x] `GatewayConfig.java` CORS bean supports configurable origins via `GATEWAY_CORS_ORIGINS`
+- [x] `GlobalErrorWebExceptionHandler.java` compiles with `@Order(-1)`
+- [x] `SecurityHeadersFilter.java` compiles and adds 6 security headers to every response
+- [x] `RequestLoggingFilter.java` compiles and logs method/path/status/duration at INFO level
+- [x] `application.yml` has `gateway.cors.allowed-origins` and `gateway.logging.log-sensitive-headers`
+- [x] `.\gradlew.bat :services:api-gateway:build` passes
+- [x] All error responses use `ErrorResponse` envelope format
+- [x] Security headers present on all responses (verified via curl -v or browser dev tools)
+- [x] CORS preflight (OPTIONS) requests succeed from allowed origins
+- [x] `.env.template` has `GATEWAY_CORS_ORIGINS`
