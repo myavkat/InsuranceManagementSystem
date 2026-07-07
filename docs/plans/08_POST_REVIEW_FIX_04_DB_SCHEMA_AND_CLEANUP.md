@@ -313,6 +313,6 @@ Use a PostgreSQL pg_cron job or a TTL index extension. More robust but requires 
 - [x] `SagaEventCleanupService` with top-level try-catch and configurable retention
 - [x] All database init.sql files verified to have `saga_events` table with consistent schema
 - [x] `.\gradlew.bat build` passes for all modules
-- [ ] `docker compose up` → `trace_id` column present in `estimations` table (requires infra)
-- [ ] `docker compose up` → `SagaEventCleanupService` starts without errors (requires infra)
-- [x] **Status: COMPLETED (code changes + build verified)**
+- [x] `docker compose up` → `trace_id` column present in `estimations` table ✅
+- [x] `docker compose up` → `SagaEventCleanupService` starts without errors ✅
+- [x] **Status: COMPLETED**
