@@ -1,6 +1,6 @@
 # Plan 02: API Gateway Core Setup & Routing
 
-> **Status:** Not started
+> **Status:** Completed
 > **Branch:** `phase4-api-gateway`
 > **Depends on:** Plan 01 (Eureka Service Discovery) — Eureka server must exist before Gateway can use `lb://` routing
 > **Blocks:** Plan 03 (JWT Filter), Plan 04 (Rate Limiting), Plan 05 (Security/Hardening), Plan 07 (Infrastructure)
@@ -466,12 +466,12 @@ Ensure compilation succeeds. The `build` task runs compilation + tests (tests ar
 
 ## Acceptance Criteria
 
-- [ ] `services/api-gateway/build.gradle.kts` exists with correct dependencies
-- [ ] `services/api-gateway/src/main/resources/application.yml` defines all 7 routes
-- [ ] `GatewayApplication.java` compiles without errors
-- [ ] `ErrorResponse.java` exists with `success()`, `error()` static factory methods
-- [ ] `GatewayConfig.java` has CORS bean skeleton
-- [ ] `.\gradlew.bat :services:api-gateway:build` passes
-- [ ] `settings.gradle.kts` includes `services:api-gateway` (uncommented)
-- [ ] No `spring-boot-starter-web` or `spring-boot-starter-webmvc` in Gateway dependencies
-- [ ] No `common:common-web` or `common:common-message` in Gateway dependencies
+- [x] `services/api-gateway/build.gradle.kts` exists with correct dependencies
+- [x] `services/api-gateway/src/main/resources/application.yml` defines all 7 routes
+- [x] `GatewayApplication.java` compiles without errors
+- [x] `ErrorResponse.java` exists with `of()` static factory methods
+- [x] `GatewayConfig.java` has CORS bean skeleton
+- [x] `.\gradlew.bat :services:api-gateway:build` passes
+- [x] `settings.gradle.kts` includes `services:api-gateway` (uncommented)
+- [x] No `spring-boot-starter-web` or `spring-boot-starter-webmvc` in Gateway dependencies
+- [x] No `common:common-web` or `common:common-message` in Gateway dependencies

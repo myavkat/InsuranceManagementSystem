@@ -13,7 +13,7 @@ include("services:insurance-service")
 include("services:estimation-service")
 include("services:reference-data-service")
 include("services:eureka-server")
-// include("services:api-gateway")
+include("services:api-gateway")
 
 plugins {
     // dependency analysis plugin (https://github.com/autonomousapps/dependency-analysis-gradle-plugin)
