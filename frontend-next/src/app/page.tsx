@@ -1,8 +1,5 @@
+import { redirect } from "next/navigation";
+
 export default function Home() {
-  return (
-    <main className="flex min-h-screen items-center justify-center">
-      <h1 className="text-2xl font-semibold">Insurance Management System</h1>
-    </main>
-  );
+  redirect("/dashboard");
 }
-// TODO: replace with redirect("/dashboard") once dashboard route exists
