@@ -18,8 +18,7 @@ InsuranceManagementSystem/
 │   ├── realestate-service/           # Real estate information management
 │   ├── reference-data-service/       # Reference data (cities, professions, lookups)
 │   ├── api-gateway/                  # Spring Cloud Gateway, routing, auth, rate limiting (stub)
-│   ├── auth-service/                 # Authentication & JWT issuance/validation (stub)
-│   └── reference-skeleton/           # Reference/template Spring Boot service (CRUD, Kafka)
+│   └── auth-service/                 # Authentication & JWT issuance/validation (stub)
 ├── frontend-next/                    # Next.js SSR (App Router) + Tailwind CSS + shadcn/ui
 ├── common/                           # Shared libraries
 │   ├── common-message/               # Event schemas (SAGA + domain events), serialization, constants
@@ -52,7 +51,7 @@ Common modules → Reference Data → Customer/Vehicle/RealEstate → Insurance 
 
 - **Frontend-next** depends only on API Gateway contracts (once gateway is implemented)
 - **common-message** is a dependency of all services — build it first
-- **reference-skeleton** is a template — not in the dependency chain
+
 - **auth-service** and **api-gateway** are stubs without build files — not yet in the build chain
 
 ---

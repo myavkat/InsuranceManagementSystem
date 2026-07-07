@@ -84,7 +84,7 @@ Replace `<service-name>` with one of the active services:
 `realestate-service`, `reference-data-service`
 
 Stub/template services (not yet in the active build):
-`api-gateway`, `auth-service`, `reference-skeleton`
+`api-gateway`, `auth-service`
 
 ### Common Module
 
