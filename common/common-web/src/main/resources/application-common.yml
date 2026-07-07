@@ -1,0 +1,18 @@
+# ============================================================
+# Shared configuration imported by all target services.
+# Reduce copy-paste duplication across 6 application.yml files.
+# ============================================================
+
+# Tracing & Observability — identical across all 6 services
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+    export:
+      zipkin:
+        endpoint: ${ZIPKIN_ENDPOINT:http://localhost:9411/api/v2/spans}
+
+# Logging — consistent MDC pattern with traceId, spanId, sagaId
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} [%X{traceId:-},%X{spanId:-},%X{sagaId:-}] - %msg%n"

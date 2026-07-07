@@ -35,6 +35,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.cloud:spring-cloud-stream")
     implementation("org.springframework.cloud:spring-cloud-stream-binder-kafka")
+    // Jackson 2 required by spring-kafka for Kafka deserializer compatibility.
+    // Known conflict with tools.jackson (Jackson 3) — see docs/outlines/13_ENVIRONMENT_QUIRKS.md
     implementation("com.fasterxml.jackson.core:jackson-databind")
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")

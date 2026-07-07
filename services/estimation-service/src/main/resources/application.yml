@@ -6,6 +6,8 @@ spring:
     name: estimation-service
   profiles:
     active: dev
+  config:
+    import: classpath:application-common.yml
   datasource:
     url: jdbc:postgresql://localhost:5437/estimation_db
     username: ims_user
@@ -68,17 +70,7 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
-management:
-  tracing:
-    sampling:
-      probability: 1.0
-    export:
-      zipkin:
-        endpoint: ${ZIPKIN_ENDPOINT:http://localhost:9411/api/v2/spans}
-
 logging:
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} [%X{traceId:-},%X{spanId:-},%X{sagaId:-}] - %msg%n"
   level:
     com.insurancemanagementsystem: DEBUG
 

@@ -74,8 +74,16 @@ public class SagaTimeoutService {
                     try {
                         estimation.setDetails(jsonMapper.writeValueAsString(Map.of("reason", reason)));
                     } catch (Exception e) {
-                        log.warn("Failed to serialize timeout details for sagaId={}", sagaId, e);
-                        estimation.setDetails("{\"reason\":\"" + reason.replace("\\", "\\\\").replace("\"", "\\\"") + "\"}");
+                        log.warn("Failed to serialize timeout details for sagaId={} — using safe fallback", sagaId, e);
+                        try {
+                            // Nested try with a fresh JsonMapper to avoid any poisoned state
+                            estimation.setDetails(tools.jackson.databind.json.JsonMapper.builder()
+                                    .build().writeValueAsString(Map.of("reason", reason)));
+                        } catch (Exception ex) {
+                            // Absolute last resort — log and set a minimal valid JSON literal
+                            log.error("Safe fallback serialization also failed for sagaId={}: {}", sagaId, ex.getMessage(), ex);
+                            estimation.setDetails("{\"reason\":\"serialization failed\"}");
+                        }
                     }
                     estimationRepository.save(estimation);
                     outboxEventRepository.save(outboxEvent);

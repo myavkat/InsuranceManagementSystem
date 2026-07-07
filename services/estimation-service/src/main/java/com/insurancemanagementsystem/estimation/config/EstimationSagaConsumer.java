@@ -8,6 +8,8 @@ import com.insurancemanagementsystem.common.repository.OutboxEventRepository;
 import com.insurancemanagementsystem.common.repository.SagaEventRepository;
 import com.insurancemanagementsystem.estimation.entity.Estimation;
 import com.insurancemanagementsystem.estimation.repository.EstimationRepository;
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
@@ -32,6 +34,7 @@ public class EstimationSagaConsumer {
     private final OutboxEventRepository outboxEventRepository;
     private final OutboxEventSerializer outboxEventSerializer;
     private final TransactionTemplate transactionTemplate;
+    private final ObservationRegistry observationRegistry;
 
     @Bean
     public Consumer<String> processEstimationSaga(JsonMapper jsonMapper) {
@@ -59,6 +62,13 @@ public class EstimationSagaConsumer {
 
                 // Handle each event type — note: EstimationService already published
                 // EstimationRequested, so we don't consume it here.
+                // Wrap business logic in a Micrometer Observation for Zipkin tracing
+                Observation observation = Observation.createNotStarted("saga.estimation.process", observationRegistry)
+                        .contextualName("process " + eventType)
+                        .lowCardinalityKeyValue("event.type", eventType)
+                        .highCardinalityKeyValue("saga.id", sagaId != null ? sagaId.toString() : "");
+
+                observation.observe(() -> {
                 switch (eventType) {
                     case EventConstants.CUSTOMER_VALIDATED ->
                         handleCustomerValidated(envelope, sagaId, traceId, jsonMapper);
@@ -81,6 +91,7 @@ public class EstimationSagaConsumer {
                     default ->
                         log.warn("Unknown SAGA event type: {}", eventType);
                 }
+                });
             } catch (Exception e) {
                 log.error("Error processing SAGA message: {}", e.getMessage(), e);
                 if (e instanceof RuntimeException re) throw re;
@@ -213,8 +224,16 @@ public class EstimationSagaConsumer {
                 try {
                     estimation.setDetails(jsonMapper.writeValueAsString(Map.of("reason", reason)));
                 } catch (Exception e) {
-                    log.warn("Failed to serialize rejection details for sagaId={}", sagaId, e);
-                    estimation.setDetails("{\"reason\":\"" + reason.replace("\\", "\\\\").replace("\"", "\\\"") + "\"}");
+                    log.warn("Failed to serialize rejection details for sagaId={} — using safe fallback", sagaId, e);
+                    try {
+                        // Nested try with a fresh JsonMapper to avoid any poisoned state
+                        estimation.setDetails(tools.jackson.databind.json.JsonMapper.builder()
+                                .build().writeValueAsString(Map.of("reason", reason)));
+                    } catch (Exception ex) {
+                        // Absolute last resort — log and set a minimal valid JSON literal
+                        log.error("Safe fallback serialization also failed for sagaId={}: {}", sagaId, ex.getMessage(), ex);
+                        estimation.setDetails("{\"reason\":\"serialization failed\"}");
+                    }
                 }
                 estimationRepository.save(estimation);
                 outboxEventRepository.save(outboxEvent);
