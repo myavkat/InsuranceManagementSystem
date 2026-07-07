@@ -3,6 +3,7 @@ package com.insurancemanagementsystem.insurance.config;
 import com.insurancemanagementsystem.common.event.EventConstants;
 import com.insurancemanagementsystem.common.event.EventEnvelope;
 import com.insurancemanagementsystem.common.event.domain.InsuranceCreatedEvent;
+import com.insurancemanagementsystem.common.event.domain.InsuranceDeletedEvent;
 import com.insurancemanagementsystem.common.event.domain.InsuranceUpdatedEvent;
 import com.insurancemanagementsystem.common.messaging.MessagePublisher;
 import com.insurancemanagementsystem.insurance.entity.Insurance;
@@ -24,6 +25,7 @@ public class InsuranceEventPublisher {
                 .insuranceId(insurance.getId())
                 .typeId(insurance.getTypeId())
                 .companyId(insurance.getCompanyId())
+                .name(insurance.getName())
                 .build();
 
         EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
@@ -36,10 +38,23 @@ public class InsuranceEventPublisher {
                 .insuranceId(insurance.getId())
                 .typeId(insurance.getTypeId())
                 .companyId(insurance.getCompanyId())
+                .name(insurance.getName())
                 .build();
 
         EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
         messagePublisher.publish(EventConstants.INSURANCE_EVENTS, envelope);
         log.info("Published InsuranceUpdated event for insurance id: {}", insurance.getId());
+    }
+
+    public void publishInsuranceDeleted(Insurance insurance) {
+        InsuranceDeletedEvent event = InsuranceDeletedEvent.builder()
+                .insuranceId(insurance.getId())
+                .typeId(insurance.getTypeId())
+                .companyId(insurance.getCompanyId())
+                .build();
+
+        EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
+        messagePublisher.publish(EventConstants.INSURANCE_EVENTS, envelope);
+        log.info("Published InsuranceDeleted event for insurance id: {}", insurance.getId());
     }
 }

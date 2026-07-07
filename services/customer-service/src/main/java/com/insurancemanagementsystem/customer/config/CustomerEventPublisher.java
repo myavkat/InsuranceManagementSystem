@@ -25,6 +25,8 @@ public class CustomerEventPublisher {
                 .customerId(customer.getId())
                 .nationalId(customer.getNationalId())
                 .email(customer.getEmail())
+                .firstName(customer.getFirstName())
+                .lastName(customer.getLastName())
                 .build();
 
         EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
@@ -37,6 +39,8 @@ public class CustomerEventPublisher {
                 .customerId(customer.getId())
                 .nationalId(customer.getNationalId())
                 .email(customer.getEmail())
+                .firstName(customer.getFirstName())
+                .lastName(customer.getLastName())
                 .build();
 
         EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());

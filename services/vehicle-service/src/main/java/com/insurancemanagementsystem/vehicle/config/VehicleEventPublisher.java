@@ -24,6 +24,8 @@ public class VehicleEventPublisher {
         VehicleCreatedEvent event = VehicleCreatedEvent.builder()
                 .vehicleId(vehicle.getId())
                 .plate(vehicle.getPlate())
+                .customerId(vehicle.getCustomerId())
+                .carBrandId(vehicle.getCarBrandId())
                 .build();
 
         EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
@@ -35,6 +37,8 @@ public class VehicleEventPublisher {
         VehicleUpdatedEvent event = VehicleUpdatedEvent.builder()
                 .vehicleId(vehicle.getId())
                 .plate(vehicle.getPlate())
+                .customerId(vehicle.getCustomerId())
+                .carBrandId(vehicle.getCarBrandId())
                 .build();
 
         EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
