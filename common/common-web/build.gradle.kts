@@ -33,6 +33,7 @@ dependencies {
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
     implementation("tools.jackson.core:jackson-databind")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3")
     implementation("jakarta.persistence:jakarta.persistence-api")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")

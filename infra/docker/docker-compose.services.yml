@@ -34,6 +34,7 @@ services:
       ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
       SPRING_DATASOURCE_URL: jdbc:postgresql://customer-db:5432/customer_db
       OUTBOX_POLL_INTERVAL_MS: "5000"
+      OPENAPI_SERVER_URL: http://localhost:8081
     networks: [insurance-net]
     restart: unless-stopped
     depends_on:
@@ -60,6 +61,7 @@ services:
       ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
       SPRING_DATASOURCE_URL: jdbc:postgresql://vehicle-db:5432/vehicle_db
       OUTBOX_POLL_INTERVAL_MS: "5000"
+      OPENAPI_SERVER_URL: http://localhost:8082
     networks: [insurance-net]
     restart: unless-stopped
     depends_on:
@@ -86,6 +88,7 @@ services:
       ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
       SPRING_DATASOURCE_URL: jdbc:postgresql://realestate-db:5432/realestate_db
       OUTBOX_POLL_INTERVAL_MS: "5000"
+      OPENAPI_SERVER_URL: http://localhost:8083
     networks: [insurance-net]
     restart: unless-stopped
     depends_on:
@@ -112,6 +115,7 @@ services:
       ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
       SPRING_DATASOURCE_URL: jdbc:postgresql://insurance-db:5432/insurance_db
       OUTBOX_POLL_INTERVAL_MS: "5000"
+      OPENAPI_SERVER_URL: http://localhost:8084
     networks: [insurance-net]
     restart: unless-stopped
     depends_on:
@@ -138,6 +142,7 @@ services:
       ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
       SPRING_DATASOURCE_URL: jdbc:postgresql://estimation-db:5432/estimation_db
       OUTBOX_POLL_INTERVAL_MS: "5000"
+      OPENAPI_SERVER_URL: http://localhost:8085
     networks: [insurance-net]
     restart: unless-stopped
     depends_on:
@@ -164,6 +169,7 @@ services:
       ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
       SPRING_DATASOURCE_URL: jdbc:postgresql://reference-data-db:5432/reference_data_db
       OUTBOX_POLL_INTERVAL_MS: "5000"
+      OPENAPI_SERVER_URL: http://localhost:8086
     networks: [insurance-net]
     restart: unless-stopped
     depends_on:
