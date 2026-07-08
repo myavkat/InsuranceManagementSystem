@@ -35,6 +35,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.cloud:spring-cloud-stream")
     implementation("org.springframework.cloud:spring-cloud-stream-binder-kafka")
+    implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
     // Jackson 2 required by spring-kafka for Kafka deserializer compatibility.
     // Known conflict with tools.jackson (Jackson 3) — see docs/outlines/13_ENVIRONMENT_QUIRKS.md
     implementation("com.fasterxml.jackson.core:jackson-databind")

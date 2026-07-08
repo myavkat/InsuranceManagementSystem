@@ -14,6 +14,36 @@
 # ============================================================
 
 services:
+  # ============================================================
+  # API Gateway — single entry point for all external requests
+  # ============================================================
+  api-gateway:
+    build:
+      context: ../../
+      dockerfile: infra/docker/Dockerfile.service
+      args:
+        JAR_PATH: services/api-gateway/build/libs/api-gateway-0.0.1-SNAPSHOT.jar
+    container_name: api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.5"
+    ports: ["8080:8080"]
+    environment:
+      SERVER_PORT: "8080"
+      SPRING_PROFILES_ACTIVE: dev
+      EUREKA_SERVER_URL: http://eureka-server:8761/eureka/
+      ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      GATEWAY_CORS_ORIGINS: http://localhost:3000
+    networks: [insurance-net]
+    restart: unless-stopped
+    depends_on:
+      eureka-server: { condition: service_healthy }
+      redis: { condition: service_healthy }
+
   customer-service:
     build:
       context: ../../
@@ -32,6 +62,7 @@ services:
       SPRING_PROFILES_ACTIVE: dev
       KAFKA_BOOTSTRAP_SERVERS: kafka:9094
       ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
+      EUREKA_SERVER_URL: http://eureka-server:8761/eureka/
       SPRING_DATASOURCE_URL: jdbc:postgresql://customer-db:5432/customer_db
       OUTBOX_POLL_INTERVAL_MS: "5000"
       OPENAPI_SERVER_URL: http://localhost:8081
@@ -40,6 +71,7 @@ services:
     depends_on:
       kafka: { condition: service_healthy }
       customer-db: { condition: service_healthy }
+      eureka-server: { condition: service_healthy }
 
   vehicle-service:
     build:
@@ -59,6 +91,7 @@ services:
       SPRING_PROFILES_ACTIVE: dev
       KAFKA_BOOTSTRAP_SERVERS: kafka:9094
       ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
+      EUREKA_SERVER_URL: http://eureka-server:8761/eureka/
       SPRING_DATASOURCE_URL: jdbc:postgresql://vehicle-db:5432/vehicle_db
       OUTBOX_POLL_INTERVAL_MS: "5000"
       OPENAPI_SERVER_URL: http://localhost:8082
@@ -67,6 +100,7 @@ services:
     depends_on:
       kafka: { condition: service_healthy }
       vehicle-db: { condition: service_healthy }
+      eureka-server: { condition: service_healthy }
 
   realestate-service:
     build:
@@ -86,6 +120,7 @@ services:
       SPRING_PROFILES_ACTIVE: dev
       KAFKA_BOOTSTRAP_SERVERS: kafka:9094
       ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
+      EUREKA_SERVER_URL: http://eureka-server:8761/eureka/
       SPRING_DATASOURCE_URL: jdbc:postgresql://realestate-db:5432/realestate_db
       OUTBOX_POLL_INTERVAL_MS: "5000"
       OPENAPI_SERVER_URL: http://localhost:8083
@@ -94,6 +129,7 @@ services:
     depends_on:
       kafka: { condition: service_healthy }
       realestate-db: { condition: service_healthy }
+      eureka-server: { condition: service_healthy }
 
   insurance-service:
     build:
@@ -113,6 +149,7 @@ services:
       SPRING_PROFILES_ACTIVE: dev
       KAFKA_BOOTSTRAP_SERVERS: kafka:9094
       ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
+      EUREKA_SERVER_URL: http://eureka-server:8761/eureka/
       SPRING_DATASOURCE_URL: jdbc:postgresql://insurance-db:5432/insurance_db
       OUTBOX_POLL_INTERVAL_MS: "5000"
       OPENAPI_SERVER_URL: http://localhost:8084
@@ -121,6 +158,7 @@ services:
     depends_on:
       kafka: { condition: service_healthy }
       insurance-db: { condition: service_healthy }
+      eureka-server: { condition: service_healthy }
 
   estimation-service:
     build:
@@ -140,6 +178,7 @@ services:
       SPRING_PROFILES_ACTIVE: dev
       KAFKA_BOOTSTRAP_SERVERS: kafka:9094
       ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
+      EUREKA_SERVER_URL: http://eureka-server:8761/eureka/
       SPRING_DATASOURCE_URL: jdbc:postgresql://estimation-db:5432/estimation_db
       OUTBOX_POLL_INTERVAL_MS: "5000"
       OPENAPI_SERVER_URL: http://localhost:8085
@@ -148,6 +187,7 @@ services:
     depends_on:
       kafka: { condition: service_healthy }
       estimation-db: { condition: service_healthy }
+      eureka-server: { condition: service_healthy }
 
   reference-data-service:
     build:
@@ -167,6 +207,7 @@ services:
       SPRING_PROFILES_ACTIVE: dev
       KAFKA_BOOTSTRAP_SERVERS: kafka:9094
       ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
+      EUREKA_SERVER_URL: http://eureka-server:8761/eureka/
       SPRING_DATASOURCE_URL: jdbc:postgresql://reference-data-db:5432/reference_data_db
       OUTBOX_POLL_INTERVAL_MS: "5000"
       OPENAPI_SERVER_URL: http://localhost:8086
@@ -175,6 +216,7 @@ services:
     depends_on:
       kafka: { condition: service_healthy }
       reference-data-db: { condition: service_healthy }
+      eureka-server: { condition: service_healthy }
 
 networks:
   insurance-net:

@@ -1,0 +1,173 @@
+server:
+  port: ${GATEWAY_PORT:8080}
+  # Remove Netty server version header
+  netty:
+    max-keep-alive-requests: 1000
+
+spring:
+  application:
+    name: api-gateway
+  profiles:
+    active: dev
+  config:
+    import: "optional:classpath:application-common.yml"
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            # Auth Service — public endpoints (login, register, refresh)
+            - id: auth-service
+              uri: lb://auth-service
+              predicates:
+                - Path=/api/auth/**
+              filters:
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 1
+                    redis-rate-limiter.burstCapacity: 10
+                    redis-rate-limiter.requestedTokens: 1
+                    key-resolver: "#{@loginIpKeyResolver}"
+                    throwOnLimit: true
+              metadata:
+                auth-required: false
+
+            # Customer Service — authenticated
+            - id: customer-service
+              uri: lb://customer-service
+              predicates:
+                - Path=/api/customers/**
+              filters:
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 1
+                    redis-rate-limiter.burstCapacity: 100
+                    redis-rate-limiter.requestedTokens: 1
+                    key-resolver: "#{@rateLimitKeyResolver}"
+                    throwOnLimit: true
+              metadata:
+                auth-required: true
+
+            # Vehicle Service — authenticated
+            - id: vehicle-service
+              uri: lb://vehicle-service
+              predicates:
+                - Path=/api/vehicles/**
+              filters:
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 1
+                    redis-rate-limiter.burstCapacity: 100
+                    redis-rate-limiter.requestedTokens: 1
+                    key-resolver: "#{@rateLimitKeyResolver}"
+                    throwOnLimit: true
+              metadata:
+                auth-required: true
+
+            # RealEstate Service — authenticated
+            - id: realestate-service
+              uri: lb://realestate-service
+              predicates:
+                - Path=/api/real-estate/**
+              filters:
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 1
+                    redis-rate-limiter.burstCapacity: 100
+                    redis-rate-limiter.requestedTokens: 1
+                    key-resolver: "#{@rateLimitKeyResolver}"
+                    throwOnLimit: true
+              metadata:
+                auth-required: true
+
+            # Insurance Service — authenticated
+            - id: insurance-service
+              uri: lb://insurance-service
+              predicates:
+                - Path=/api/insurances/**
+              filters:
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 1
+                    redis-rate-limiter.burstCapacity: 100
+                    redis-rate-limiter.requestedTokens: 1
+                    key-resolver: "#{@rateLimitKeyResolver}"
+                    throwOnLimit: true
+              metadata:
+                auth-required: true
+
+            # Estimation Service — authenticated
+            - id: estimation-service
+              uri: lb://estimation-service
+              predicates:
+                - Path=/api/estimations/**
+              filters:
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 1
+                    redis-rate-limiter.burstCapacity: 100
+                    redis-rate-limiter.requestedTokens: 1
+                    key-resolver: "#{@rateLimitKeyResolver}"
+                    throwOnLimit: true
+              metadata:
+                auth-required: true
+
+            # Reference Data Service — public (read-only lookup data)
+            - id: reference-data-service
+              uri: lb://reference-data-service
+              predicates:
+                - Path=/api/reference-data/**
+              filters:
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 1
+                    redis-rate-limiter.burstCapacity: 1000
+                    redis-rate-limiter.requestedTokens: 1
+                    key-resolver: "#{@rateLimitKeyResolver}"
+                    throwOnLimit: true
+              metadata:
+                auth-required: false
+
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
+
+      # Redis Rate Limiter defaults
+      redis-rate-limiter:
+        include-headers: true   # adds X-RateLimit-Remaining, X-RateLimit-Burst-Limit, X-RateLimit-Retry-After-Seconds
+
+      # Global timeouts
+      httpclient:
+        connect-timeout: 30000    # 30s connect
+        response-timeout: 60s     # 60s read from downstream
+
+# Eureka Client
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
+  instance:
+    preferIpAddress: true
+
+# Redis (rate limiting — Plan 04, config here for readiness)
+spring.data.redis:
+  host: ${REDIS_HOST:localhost}
+  port: ${REDIS_PORT:6379}
+
+# Request size limit
+spring.codec:
+  max-in-memory-size: 10MB
+
+# JWT Authentication
+gateway:
+  auth:
+    public-key-location: classpath:keys/public-key.pem
+    key-refresh-interval-minutes: 60   # how often to re-fetch from Auth Service (future)
+  cors:
+    allowed-origins: ${GATEWAY_CORS_ORIGINS:http://localhost:3000}
+  logging:
+    log-sensitive-headers: false    # never log Authorization, Cookie values
+
+logging:
+  level:
+    com.insurancemanagementsystem.gateway: DEBUG
+    org.springframework.cloud.gateway: DEBUG

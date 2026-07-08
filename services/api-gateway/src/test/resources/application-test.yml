@@ -1,0 +1,94 @@
+# Test profile — disables Eureka, overrides routes to WireMock
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: auth-service
+              uri: http://localhost:${wiremock.server.port:18080}
+              predicates:
+                - Path=/api/auth/**
+              filters:
+                - StripPrefix=1
+              metadata:
+                auth-required: false
+
+            - id: customer-service
+              uri: http://localhost:${wiremock.server.port:18080}
+              predicates:
+                - Path=/api/customers/**
+              filters:
+                - StripPrefix=1
+              metadata:
+                auth-required: true
+
+            - id: vehicle-service
+              uri: http://localhost:${wiremock.server.port:18080}
+              predicates:
+                - Path=/api/vehicles/**
+              filters:
+                - StripPrefix=1
+              metadata:
+                auth-required: true
+
+            - id: realestate-service
+              uri: http://localhost:${wiremock.server.port:18080}
+              predicates:
+                - Path=/api/real-estate/**
+              filters:
+                - StripPrefix=1
+              metadata:
+                auth-required: true
+
+            - id: insurance-service
+              uri: http://localhost:${wiremock.server.port:18080}
+              predicates:
+                - Path=/api/insurances/**
+              filters:
+                - StripPrefix=1
+              metadata:
+                auth-required: true
+
+            - id: estimation-service
+              uri: http://localhost:${wiremock.server.port:18080}
+              predicates:
+                - Path=/api/estimations/**
+              filters:
+                - StripPrefix=1
+              metadata:
+                auth-required: true
+
+            - id: reference-data-service
+              uri: http://localhost:${wiremock.server.port:18080}
+              predicates:
+                - Path=/api/reference-data/**
+              filters:
+                - StripPrefix=1
+              metadata:
+                auth-required: false
+    discovery:
+      enabled: false
+      blocking:
+        enabled: false
+  autoconfigure:
+    exclude:
+      - org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration
+
+# Disable Eureka client explicitly (prevents EurekaDiscoveryClientConfiguration from activating)
+eureka:
+  client:
+    enabled: false
+
+# Disable Redis rate limiting for most tests (use NoOp implementation)
+# The RateLimitingTest class uses a separate profile with real Redis via Testcontainers
+gateway:
+  auth:
+    public-key-location: classpath:keys/public-key.pem
+    key-refresh-interval-minutes: 60
+  cors:
+    allowed-origins: http://localhost:3000
+
+logging:
+  level:
+    com.insurancemanagementsystem.gateway: DEBUG
