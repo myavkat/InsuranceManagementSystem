@@ -6,7 +6,7 @@ export async function GET(
   { params }: { params: Promise<{ path?: string[] }> },
 ) {
   const { path } = await params;
-  return bffProxy(request, "vehicles", path ?? []);
+  return bffProxy(request, "real-estate", path ?? []);
 }
 
 export async function POST(
@@ -14,7 +14,7 @@ export async function POST(
   { params }: { params: Promise<{ path?: string[] }> },
 ) {
   const { path } = await params;
-  return bffProxy(request, "vehicles", path ?? []);
+  return bffProxy(request, "real-estate", path ?? []);
 }
 
 export async function PUT(
@@ -22,7 +22,7 @@ export async function PUT(
   { params }: { params: Promise<{ path?: string[] }> },
 ) {
   const { path } = await params;
-  return bffProxy(request, "vehicles", path ?? []);
+  return bffProxy(request, "real-estate", path ?? []);
 }
 
 export async function DELETE(
@@ -30,5 +30,5 @@ export async function DELETE(
   { params }: { params: Promise<{ path?: string[] }> },
 ) {
   const { path } = await params;
-  return bffProxy(request, "vehicles", path ?? []);
+  return bffProxy(request, "real-estate", path ?? []);
 }

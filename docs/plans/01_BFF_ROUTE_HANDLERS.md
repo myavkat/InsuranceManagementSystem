@@ -200,9 +200,9 @@ Fix any TypeScript errors before marking this plan complete.
 
 ## Acceptance Criteria
 
-- [ ] `bff-proxy.ts` utility exists and handles 502 errors gracefully
-- [ ] All 5 existing BFF route handlers (auth, customers, insurances, estimations, vehicles) proxy to Gateway instead of returning stubs
-- [ ] New `real-estate` BFF route handler exists and proxies correctly
-- [ ] New `reference-data` BFF route handler exists and proxies correctly
-- [ ] Sidebar includes "Real Estate" navigation item with Building2 icon
-- [ ] `npm run build` succeeds without TypeScript errors
+- [x] `bff-proxy.ts` utility exists and handles 502 errors gracefully
+- [x] All 5 existing BFF route handlers (auth, customers, insurances, estimations, vehicles) proxy to Gateway instead of returning stubs
+- [x] New `real-estate` BFF route handler exists and proxies correctly
+- [x] New `reference-data` BFF route handler exists and proxies correctly
+- [x] Sidebar includes "Real Estate" navigation item with Building2 icon
+- [x] `npm run build` succeeds without TypeScript errors

@@ -1,34 +1,34 @@
-import { NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { bffProxy } from "@/lib/api/bff-proxy";
 
-// Handle all HTTP methods for /api/insurances/*
-export async function GET() {
-  return NextResponse.json({
-    success: true,
-    message: "Insurances BFF stub. Will proxy to API Gateway in a future sprint.",
-    data: null,
-  });
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ path?: string[] }> },
+) {
+  const { path } = await params;
+  return bffProxy(request, "insurances", path ?? []);
 }
 
-export async function POST() {
-  return NextResponse.json({
-    success: true,
-    message: "Insurances BFF stub — POST handler. Will proxy to API Gateway in a future sprint.",
-    data: null,
-  });
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ path?: string[] }> },
+) {
+  const { path } = await params;
+  return bffProxy(request, "insurances", path ?? []);
 }
 
-export async function PUT() {
-  return NextResponse.json({
-    success: true,
-    message: "Insurances BFF stub — PUT handler. Will proxy to API Gateway in a future sprint.",
-    data: null,
-  });
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ path?: string[] }> },
+) {
+  const { path } = await params;
+  return bffProxy(request, "insurances", path ?? []);
 }
 
-export async function DELETE() {
-  return NextResponse.json({
-    success: true,
-    message: "Insurances BFF stub — DELETE handler. Will proxy to API Gateway in a future sprint.",
-    data: null,
-  });
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ path?: string[] }> },
+) {
+  const { path } = await params;
+  return bffProxy(request, "insurances", path ?? []);
 }
