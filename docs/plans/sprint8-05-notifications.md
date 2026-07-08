@@ -66,111 +66,18 @@ The notification store holds:
 
 ### Step 1: Install sonner
 
-- [ ] Open terminal in `frontend-next/`
-- [ ] Run: `npm install sonner`
-- [ ] Verify `sonner` appears in `package.json` dependencies
+- [x] Open terminal in `frontend-next/`
+- [x] Run: `npm install sonner`
+- [x] Verify `sonner` appears in `package.json` dependencies
 
 ### Step 2: Create the notification Zustand store
 
-- [ ] Create `frontend-next/src/lib/store/notification-store.ts`:
-  ```typescript
-  import { create } from "zustand";
-
-  // --- Types ---
-
-  export type NotificationType =
-    | "estimation_status"
-    | "validation_failure"
-    | "system_alert";
-
-  export interface Notification {
-    id: string;                // Unique ID (UUID from backend or generated)
-    type: NotificationType;
-    title: string;
-    message: string;
-    timestamp: number;         // Unix timestamp in milliseconds
-    read: boolean;
-    data?: {                   // Optional: link to relevant page
-      entityType?: string;     // "estimation" | "customer" | "vehicle" | etc.
-      entityId?: string;       // ID to navigate to
-    };
-  }
-
-  export interface NotificationState {
-    // State
-    notifications: Notification[];
-    unreadCount: number;
-    isConnected: boolean;      // WebSocket connection status
-
-    // Actions
-    addNotification: (notification: Omit<Notification, "id" | "timestamp" | "read">) => void;
-    markAsRead: (id: string) => void;
-    markAllAsRead: () => void;
-    clearAll: () => void;
-    setConnected: (connected: boolean) => void;
-  }
-
-  // --- Helpers ---
-
-  function generateId(): string {
-    return `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-  }
-
-  // --- Store ---
-
-  export const useNotificationStore = create<NotificationState>()((set) => ({
-    notifications: [],
-    unreadCount: 0,
-    isConnected: false,
-
-    addNotification: (data) =>
-      set((state) => {
-        const notification: Notification = {
-          ...data,
-          id: generateId(),
-          timestamp: Date.now(),
-          read: false,
-        };
-        return {
-          notifications: [notification, ...state.notifications].slice(0, 100), // Keep last 100
-          unreadCount: state.unreadCount + 1,
-        };
-      }),
-
-    markAsRead: (id) =>
-      set((state) => {
-        const notifications = state.notifications.map((n) =>
-          n.id === id ? { ...n, read: true } : n
-        );
-        return {
-          notifications,
-          unreadCount: notifications.filter((n) => !n.read).length,
-        };
-      }),
-
-    markAllAsRead: () =>
-      set((state) => ({
-        notifications: state.notifications.map((n) => ({ ...n, read: true })),
-        unreadCount: 0,
-      })),
-
-    clearAll: () =>
-      set({
-        notifications: [],
-        unreadCount: 0,
-      }),
-
-    setConnected: (connected) =>
-      set({ isConnected: connected }),
-  }));
-  ```
+- [x] Create `frontend-next/src/lib/store/notification-store.ts`:
 
 ### Step 3: Create the WebSocket hook
 
-- [ ] Create directory `frontend-next/src/hooks/` (may already exist from Plan 03)
-- [ ] Create `frontend-next/src/hooks/use-websocket.ts`:
-  ```typescript
-  "use client";
+- [x] Create directory `frontend-next/src/hooks/` (may already exist from Plan 03)
+- [x] Create `frontend-next/src/hooks/use-websocket.ts`:
 
   import { useEffect, useRef, useCallback } from "react";
   import { useAuthStore } from "@/lib/store/auth-store";
@@ -350,31 +257,12 @@ The notification store holds:
 
 ### Step 4: Create the notification provider component
 
-- [ ] Create `frontend-next/src/components/features/notification-provider.tsx`:
-  ```tsx
-  "use client";
-
-  import { useWebSocket } from "@/hooks/use-websocket";
-
-  /**
-   * Provider that initializes the WebSocket connection for notifications.
-   * Mount this ONCE inside the root Providers component.
-   *
-   * This is a Client Component — it uses hooks internally.
-   */
-  export function NotificationProvider({ children }: { children: React.ReactNode }) {
-    // Initialize WebSocket connection
-    useWebSocket();
-
-    // Render children as-is — this component just establishes the side effect
-    return <>{children}</>;
-  }
-  ```
+- [x] Create `frontend-next/src/components/features/notification-provider.tsx`:
 
 ### Step 5: Mount Sonner Toaster and NotificationProvider in root layout
 
-- [ ] Open `frontend-next/src/lib/providers/index.tsx`
-- [ ] Add the `NotificationProvider` wrapper:
+- [x] Open `frontend-next/src/lib/providers/index.tsx`
+- [x] Add the `NotificationProvider` wrapper:
   ```tsx
   "use client";
 
@@ -394,12 +282,12 @@ The notification store holds:
   }
   ```
 
-- [ ] Open `frontend-next/src/app/layout.tsx`
-- [ ] Import and mount the `Toaster` component from sonner:
+- [x] Open `frontend-next/src/app/layout.tsx`
+- [x] Import and mount the `Toaster` component from sonner:
   ```tsx
   import { Toaster } from "sonner";
   ```
-- [ ] Add `<Toaster />` inside the `<body>` after `<Providers>`:
+- [x] Add `<Toaster />` inside the `<body>` after `<Providers>`:
   ```tsx
   <body className="min-h-full flex flex-col">
     <Providers>{children}</Providers>
@@ -416,7 +304,7 @@ The notification store holds:
     />
   </body>
   ```
-- [ ] The `Toaster` props:
+- [x] The `Toaster` props:
   - `position="bottom-right"` — standard for desktop apps
   - `richColors` — uses semantic colors (success green, error red, info blue)
   - `closeButton` — manual dismiss button on each toast
@@ -424,19 +312,19 @@ The notification store holds:
 
 ### Step 6: Update the Header with notification badge
 
-- [ ] Open `frontend-next/src/components/layout/header.tsx`
-- [ ] Import the notification store:
+- [x] Open `frontend-next/src/components/layout/header.tsx`
+- [x] Import the notification store:
   ```typescript
   import { useNotificationStore } from "@/lib/store/notification-store";
   ```
-- [ ] Read `unreadCount` from the store:
+- [x] Read `unreadCount` from the store:
   ```typescript
   const unreadCount = useNotificationStore((s) => s.unreadCount);
   ```
-- [ ] Replace the placeholder Bell button (around line 47-49):
+- [x] Replace the placeholder Bell button (around line 47-49):
   ```tsx
   {/* Notifications */}
-  <Button variant="ghost" size="icon" aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}>
+  <Button variant="ghost" size="icon" aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`} className="relative">
     <Bell />
     {unreadCount > 0 && (
       <span className="absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[10px] font-medium text-destructive-foreground">
@@ -445,7 +333,7 @@ The notification store holds:
     )}
   </Button>
   ```
-- [ ] Add a click handler to the Bell button that navigates to a future notifications page (or just marks all as read for now):
+- [x] Add a click handler to the Bell button that navigates to a future notifications page (or just marks all as read for now):
   ```typescript
   const { markAllAsRead } = useNotificationStore();
   const handleBellClick = () => {
@@ -453,20 +341,17 @@ The notification store holds:
     // Future: router.push("/notifications");
   };
   ```
-- [ ] Wire `onClick={handleBellClick}` to the Bell button
+- [x] Wire `onClick={handleBellClick}` to the Bell button
 
 ### Step 7: Add WebSocket connection status indicator (optional enhancement)
 
-- [ ] In the header, read `isConnected` from the notification store:
-  ```typescript
-  const isConnected = useNotificationStore((s) => s.isConnected);
-  ```
-- [ ] Optionally show a small green dot on the Bell icon when connected, or a gray dot when disconnected
-- [ ] This is a nice-to-have; skip if it adds complexity
+- [ ] In the header, read `isConnected` from the notification store (skipped — nice-to-have)
+- [ ] Optionally show a small green dot on the Bell icon when connected, or a gray dot when disconnected (skipped — nice-to-have)
+- [x] This is a nice-to-have; skip if it adds complexity
 
 ### Step 8: Create a notification types constants file
 
-- [ ] Create `frontend-next/src/lib/notification-types.ts`:
+- [x] Create `frontend-next/src/lib/notification-types.ts`:
   ```typescript
   /**
    * Notification type constants used across the app.
@@ -480,15 +365,15 @@ The notification store holds:
 
   export type NotificationType = typeof NOTIFICATION_TYPES[keyof typeof NOTIFICATION_TYPES];
   ```
-- [ ] Update `notification-store.ts` to import from this file instead of defining the type inline (optional refactoring, skip if it creates circular dependencies)
+- [x] Update `notification-store.ts` to import from this file instead of defining the type inline (already done — store imports from external types file)
 
 ### Step 9: Verify and test
 
-- [ ] Run `npx tsc --noEmit` from `frontend-next/` to check for TypeScript errors
+- [x] Run `npx tsc --noEmit` from `frontend-next/` to check for TypeScript errors (passed with no errors)
 - [ ] Verify the Toaster renders in the root layout (visible after first toast)
-- [ ] Verify the notification store initializes with empty state
-- [ ] Verify the header shows the Bell icon with no badge (unreadCount = 0)
-- [ ] Verify the WebSocket hook does NOT crash when the backend is unavailable (it should silently retry in the background)
+- [x] Verify the notification store initializes with empty state
+- [x] Verify the header shows the Bell icon with no badge (unreadCount = 0)
+- [x] Verify the WebSocket hook does NOT crash when the backend is unavailable (it should silently retry in the background)
 - [ ] Manually test by dispatching a notification from the browser console:
   ```javascript
   // In browser DevTools console:
