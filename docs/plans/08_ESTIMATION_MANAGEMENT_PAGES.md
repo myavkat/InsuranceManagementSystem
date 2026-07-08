@@ -184,19 +184,19 @@ Run: `cd frontend-next && npm run build`
 
 ## Acceptance Criteria
 
-- [ ] `/estimations` page renders table with status badges, customer names, and filters
-- [ ] Status filter (All/STARTED/COMPLETED/REJECTED) works
-- [ ] Date range filter works
-- [ ] `/estimations/[id]` shows full estimation detail with status badge
-- [ ] Detail page polls every 5 seconds while status is STARTED
-- [ ] Detail page stops polling when status is COMPLETED or REJECTED
-- [ ] COMPLETED estimation shows premium prominently
-- [ ] REJECTED estimation shows error details
-- [ ] `/estimations/new` has multi-step form with step indicator
-- [ ] Step 1: Customer selection (searchable dropdown)
-- [ ] Step 2: Insurance type and company selection
-- [ ] Step 3: Optional vehicle/real estate linkage
-- [ ] Step 4: Review summary and submit
-- [ ] Submit creates estimation and redirects to detail page
-- [ ] Loading, error, and empty states all handled
-- [ ] `npm run build` succeeds without TypeScript errors
+- [x] `/estimations` page renders table with status badges, customer names, and filters
+- [x] Status filter (All/STARTED/COMPLETED/REJECTED) works
+- [x] Date range filter works
+- [x] `/estimations/[id]` shows full estimation detail with status badge
+- [x] Detail page polls every 5 seconds while status is STARTED
+- [x] Detail page stops polling when status is COMPLETED or REJECTED
+- [x] COMPLETED estimation shows premium prominently
+- [x] REJECTED estimation shows error details
+- [x] `/estimations/new` has multi-step form with step indicator
+- [x] Step 1: Customer selection (searchable dropdown)
+- [x] Step 2: Insurance type and company selection
+- [x] Step 3: Optional vehicle/real estate linkage
+- [x] Step 4: Review summary and submit
+- [x] Submit creates estimation and redirects to detail page
+- [x] Loading, error, and empty states all handled
+- [x] `npm run build` succeeds without TypeScript errors
