@@ -78,6 +78,17 @@ Both fields are optional (`?`). If the backend doesn't populate them, the table 
 **No frontend code change expected** for this step — it's an investigation + documentation step.
 If the fields aren't populated by the backend, frontend can't fix it.
 
+**Finding (2026-07-09)**: Backend issue confirmed. The `RealEstateResponse` Java DTO
+(`RealEstateResponse.java`) does **not** include `cityName` or `customerName` fields. The
+`RealEstateService.toResponse()` method only looks up construction/luxury/usage type names from
+local repositories — it never queries city or customer names. The `RealEstate` entity stores
+only `cityId` (Integer) and `customerId` (UUID) as plain columns without JPA relationships.
+Fixing this requires either: (a) inter-service calls to reference-data-service and
+customer-service, or (b) adding local city/customer reference tables to realestate-service.
+The frontend code is correct and handles the `"? —"` fallback properly.
+
+**Result**: ✅ Documented as backend issue. No frontend change needed.
+
 ### Step 2: Fix search not filtering in real estate list
 
 Open `frontend-next/src/components/features/real-estate/real-estate-list.tsx`.
@@ -101,6 +112,16 @@ The search logic is identical to the vehicle list page (see Plan 05, Step 2). Th
 The code looks correct at a static analysis level. Same conclusion as Plan 05 Step 2 — likely a
 backend search implementation gap.
 
+**Finding (2026-07-09)**: Backend issue confirmed. The `RealEstateController.getAll()` only
+accepts `Pageable` — there is no `@RequestParam search` parameter. The service calls
+`realEstateRepository.findAll(pageable)` with no filtering. The repository has no search/filter
+query method (only `findByCustomerId`). The frontend correctly sends the `?search=` parameter
+in the API URL, but the backend ignores it. Fixing this requires adding search support in:
+`RealEstateController` (request param), `RealEstateService` (specification or JPQL query),
+and `RealEstateRepository` (search method).
+
+**Result**: ✅ Documented as backend issue. No frontend change needed.
+
 ### Step 3: Fix city and customer fields not loaded in real estate detail
 
 Open `frontend-next/src/components/features/real-estate/real-estate-detail.tsx`.
@@ -119,6 +140,13 @@ Same investigation as Step 1. Check the `/api/real-estate/{id}` response. If `ci
 `customerName` are not populated, it's a backend issue.
 
 The code correctly renders the value or shows `"—"` when it's `null`/`undefined`.
+
+**Finding (2026-07-09)**: Same root cause as Step 1 — the backend `RealEstateResponse` DTO
+lacks `cityName` and `customerName` fields. The `toResponse()` method for the single-entity
+lookup (`findById()`) goes through the same `RealEstateResponse.fromEntity()` which doesn't
+set these fields. The frontend code is correct.
+
+**Result**: ✅ Documented as backend issue. No frontend change needed.
 
 ### Step 4: Fix stale data after edit save (same pattern as vehicles)
 
@@ -154,19 +182,23 @@ queryKey: ["real-estate", id]
 ```
 So `["real-estate", result.id]` matches both. Good.
 
+**Result**: ✅ Applied. Added `queryClient.invalidateQueries({ queryKey: ["real-estate", result.id] });` to the mutation `onSuccess` callback.
+
 ### Step 5: Type-check
 
 Run `cd frontend-next && npx tsc --noEmit` to verify no type errors.
 
+**Result**: ✅ Passed with no errors.
+
 ## Acceptance Criteria
 
-- [ ] Real estate list shows city names (or documented as backend issue)
-- [ ] Real estate list shows customer names (or documented as backend issue)
-- [ ] Real estate detail page shows city (or documented as backend issue)
-- [ ] Real estate detail page shows customer (or documented as backend issue)
-- [ ] Search on real estate list filters results (or documented as backend issue)
-- [ ] After editing a real estate property and saving, the detail page shows the updated data
-- [ ] Frontend type-checks without errors
+- [x] Real estate list shows city names (or documented as backend issue)
+- [x] Real estate list shows customer names (or documented as backend issue)
+- [x] Real estate detail page shows city (or documented as backend issue)
+- [x] Real estate detail page shows customer (or documented as backend issue)
+- [x] Search on real estate list filters results (or documented as backend issue)
+- [x] After editing a real estate property and saving, the detail page shows the updated data
+- [x] Frontend type-checks without errors
 
 ## Dependencies
 

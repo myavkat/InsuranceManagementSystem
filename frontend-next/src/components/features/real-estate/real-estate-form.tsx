@@ -128,6 +128,7 @@ export function RealEstateForm({ initialData }: RealEstateFormProps) {
     },
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ["real-estate"] });
+      queryClient.invalidateQueries({ queryKey: ["real-estate", result.id] });
       router.push(`/real-estate/${result.id}`);
     },
   });
