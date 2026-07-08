@@ -33,10 +33,14 @@ export interface CustomerRequest {
 export async function getCustomers(
   page = 0,
   size = 20,
-  search?: string
+  search?: string,
+  sort?: string,
+  direction?: string,
 ): Promise<PageResponse<CustomerResponse>> {
   const params = new URLSearchParams({ page: String(page), size: String(size) });
   if (search) params.set("search", search);
+  if (sort) params.set("sort", sort);
+  if (direction) params.set("direction", direction);
   return apiClient<PageResponse<CustomerResponse>>(
     `/api/customers?${params.toString()}`
   );
@@ -67,4 +71,17 @@ export async function updateCustomer(
 
 export async function deleteCustomer(id: string): Promise<void> {
   return apiClient<void>(`/api/customers/${id}`, { method: "DELETE" });
+}
+
+export async function checkNationalId(nationalId: string): Promise<boolean> {
+  // Returns true if the nationalId is available (not taken)
+  // The backend should have an endpoint like GET /api/customers/check-national-id?id=xxx
+  try {
+    const result = await apiClient<{ available: boolean }>(
+      `/api/customers/check-national-id?nationalId=${encodeURIComponent(nationalId)}`
+    );
+    return result.available;
+  } catch {
+    return false; // Assume taken if check fails
+  }
 }

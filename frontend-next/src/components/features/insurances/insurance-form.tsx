@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import {
   createInsurance,
   updateInsurance,
@@ -27,18 +26,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ArrowLeft, Save } from "lucide-react";
-
-const insuranceSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  description: z.string().optional(),
-  typeId: z.string().min(1, "Insurance type is required"),
-  companyId: z.string().min(1, "Company is required"),
-  basePremium: z.string()
-    .refine((v) => Number(v) > 0, "Must be a positive number"),
-  isActive: z.boolean(),
-});
-
-type InsuranceFormData = z.infer<typeof insuranceSchema>;
+import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
+import { insuranceSchema, type InsuranceFormData } from "@/lib/schemas/insurance";
 
 interface InsuranceFormProps {
   initialData?: InsuranceResponse;
@@ -64,7 +53,7 @@ export function InsuranceForm({ initialData }: InsuranceFormProps) {
     handleSubmit,
     setValue,
     watch,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<InsuranceFormData>({
     resolver: zodResolver(insuranceSchema),
     defaultValues: initialData
@@ -106,6 +95,8 @@ export function InsuranceForm({ initialData }: InsuranceFormProps) {
       router.push(`/insurances/${result.id}`);
     },
   });
+
+  useUnsavedChanges(isDirty);
 
   const onSubmit = (data: InsuranceFormData) => {
     mutation.mutate(data);

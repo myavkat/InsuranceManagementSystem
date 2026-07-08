@@ -4,8 +4,7 @@ import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { createCustomer, updateCustomer, type CustomerResponse, type CustomerRequest } from "@/lib/api/customers";
+import { createCustomer, updateCustomer, checkNationalId, type CustomerResponse, type CustomerRequest } from "@/lib/api/customers";
 import { getCities, getProfessions } from "@/lib/api/reference-data";
 import { FormField } from "@/components/features/form-field";
 import { PageHeader } from "@/components/features/page-header";
@@ -21,23 +20,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ArrowLeft, Save } from "lucide-react";
-
-const customerSchema = z.object({
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-  nationalId: z.string()
-    .min(11, "TCKN must be 11 digits")
-    .max(11, "TCKN must be 11 digits")
-    .regex(/^\d{11}$/, "TCKN must be exactly 11 digits"),
-  email: z.string().email("Invalid email address"),
-  phone: z.string().optional(),
-  birthDate: z.string().optional(),
-  address: z.string().optional(),
-  cityId: z.string().optional(),
-  professionId: z.string().optional(),
-});
-
-type CustomerFormData = z.infer<typeof customerSchema>;
+import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
+import { customerSchema, type CustomerFormData } from "@/lib/schemas/customer";
 
 interface CustomerFormProps {
   initialData?: CustomerResponse; // If provided, we're editing
@@ -63,7 +47,8 @@ export function CustomerForm({ initialData }: CustomerFormProps) {
     handleSubmit,
     setValue,
     watch,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
+    setError,
   } = useForm<CustomerFormData>({
     resolver: zodResolver(customerSchema),
     defaultValues: initialData
@@ -114,6 +99,18 @@ export function CustomerForm({ initialData }: CustomerFormProps) {
       router.push(`/customers/${result.id}`);
     },
   });
+
+  useUnsavedChanges(isDirty);
+
+  const handleNationalIdBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value.length === 11 && /^\d{11}$/.test(value)) {
+      const available = await checkNationalId(value);
+      if (!available) {
+        setError("nationalId", { message: "This TCKN is already registered" });
+      }
+    }
+  };
 
   const onSubmit = (data: CustomerFormData) => {
     mutation.mutate(data);
@@ -175,7 +172,7 @@ export function CustomerForm({ initialData }: CustomerFormProps) {
 
             <FormField
               label="National ID (TCKN)"
-              {...register("nationalId")}
+              {...register("nationalId", { onBlur: handleNationalIdBlur })}
               error={errors.nationalId?.message}
               placeholder="12345678901"
               maxLength={11}

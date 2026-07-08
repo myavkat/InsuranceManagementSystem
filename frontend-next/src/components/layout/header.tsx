@@ -2,6 +2,7 @@
 
 import { useUIStore } from "@/lib/store/ui-store";
 import { useAuthStore } from "@/lib/store/auth-store";
+import { useNotificationStore } from "@/lib/store/notification-store";
 import { Button } from "@/components/ui/button";
 import {
   PanelLeft,
@@ -16,6 +17,19 @@ import {
 export function Header() {
   const { toggleSidebar, theme, setTheme } = useUIStore();
   const { user, logout, isAuthenticated } = useAuthStore();
+  const unreadCount = useNotificationStore((s) => s.unreadCount);
+  const markAllAsRead = useNotificationStore((s) => s.markAllAsRead);
+
+  const handleLogout = () => {
+    logout();
+    document.cookie = "auth_token=; path=/; max-age=0; SameSite=Lax";
+    window.location.href = "/login";
+  };
+
+  const handleBellClick = () => {
+    markAllAsRead();
+    // Future: router.push("/notifications");
+  };
 
   const cycleTheme = () => {
     const next: Record<string, "light" | "dark" | "system"> = {
@@ -43,9 +57,20 @@ export function Header() {
         <ThemeIcon />
       </Button>
 
-      {/* Notifications (placeholder) */}
-      <Button variant="ghost" size="icon" aria-label="Notifications">
+      {/* Notifications */}
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={handleBellClick}
+        aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}
+        className="relative"
+      >
         <Bell />
+        {unreadCount > 0 && (
+          <span className="absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[10px] font-medium text-destructive-foreground">
+            {unreadCount > 99 ? "99+" : unreadCount}
+          </span>
+        )}
       </Button>
 
       {/* User section */}
@@ -61,7 +86,7 @@ export function Header() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={logout}
+            onClick={handleLogout}
             aria-label="Sign out"
           >
             <LogOut />

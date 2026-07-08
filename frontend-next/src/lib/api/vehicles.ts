@@ -79,10 +79,14 @@ export interface VehicleRequest {
 export async function getVehicles(
   page = 0,
   size = 20,
-  search?: string
+  search?: string,
+  sort?: string,
+  direction?: string,
 ): Promise<PageResponse<VehicleResponse>> {
   const params = new URLSearchParams({ page: String(page), size: String(size) });
   if (search) params.set("search", search);
+  if (sort) params.set("sort", sort);
+  if (direction) params.set("direction", direction);
   return apiClient<PageResponse<VehicleResponse>>(
     `/api/vehicles?${params.toString()}`
   );
