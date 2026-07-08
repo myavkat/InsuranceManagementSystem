@@ -28,6 +28,8 @@ Build reusable feature-level components that will be shared across all domain pa
 
 Create file: `frontend-next/src/components/features/search-bar.tsx`
 
+- [x] Created `search-bar.tsx` with debounced input and search icon
+
 A controlled search input with debounce. Used at the top of list pages.
 
 ```typescript
@@ -86,6 +88,8 @@ export function SearchBar({
 ### Step 2: Create `PaginationBar` component
 
 Create file: `frontend-next/src/components/features/pagination-bar.tsx`
+
+- [x] Created `pagination-bar.tsx` with Previous/Next, page info, and "Showing X–Y of Z" text
 
 Page navigation with Previous/Next buttons and page info. Uses the `PageResponse` shape from `@/lib/api/types`.
 
@@ -152,6 +156,8 @@ export function PaginationBar({
 
 Create file: `frontend-next/src/components/features/status-badge.tsx`
 
+- [x] Created `status-badge.tsx` mapping STARTED/COMPLETED/REJECTED/PENDING/ACTIVE/INACTIVE to badge variants
+
 A badge that shows estimation status with appropriate color variant.
 
 ```typescript
@@ -181,6 +187,8 @@ export function StatusBadge({ status }: StatusBadgeProps) {
 ### Step 4: Create `EmptyState` component
 
 Create file: `frontend-next/src/components/features/empty-state.tsx`
+
+- [x] Created `empty-state.tsx` with icon, title, description, and optional action slot
 
 Shown when a list or search returns no results.
 
@@ -219,6 +227,8 @@ export function EmptyState({
 
 Create file: `frontend-next/src/components/features/error-alert.tsx`
 
+- [x] Created `error-alert.tsx` with retry button
+
 Shown when a page or query fails to load.
 
 ```typescript
@@ -255,6 +265,8 @@ export function ErrorAlert({
 
 Create file: `frontend-next/src/components/features/page-header.tsx`
 
+- [x] Created `page-header.tsx` with title, description, and optional action slot
+
 Consistent page title + action button layout used at the top of every list/detail page.
 
 ```typescript
@@ -282,6 +294,8 @@ export function PageHeader({ title, description, action }: PageHeaderProps) {
 ### Step 7: Create `ConfirmDialog` component
 
 Create file: `frontend-next/src/components/features/confirm-dialog.tsx`
+
+- [x] Created `confirm-dialog.tsx` wrapping Dialog with confirm/cancel buttons and loading state
 
 A reusable confirmation dialog for destructive actions (delete, deactivate).
 
@@ -354,6 +368,8 @@ export function ConfirmDialog({
 
 Create file: `frontend-next/src/components/features/data-table-skeleton.tsx`
 
+- [x] Created `data-table-skeleton.tsx` with configurable columns and rows
+
 A skeleton placeholder shown while table data loads.
 
 ```typescript
@@ -406,6 +422,8 @@ export function DataTableSkeleton({ columns, rows = 5 }: DataTableSkeletonProps)
 
 Create file: `frontend-next/src/components/features/form-field.tsx`
 
+- [x] Created `form-field.tsx` with label, forwarded ref, and error display
+
 A wrapper that pairs a label, input, and error message. Uses `react-hook-form`'s `register()` return.
 
 ```typescript
@@ -454,16 +472,18 @@ Run: `cd frontend-next && npm run build`
 
 Fix any TypeScript errors before marking this plan complete.
 
+- [x] Build succeeds without TypeScript errors
+
 ## Acceptance Criteria
 
-- [ ] `search-bar.tsx` exists with debounced input and search icon
-- [ ] `pagination-bar.tsx` exists with Previous/Next, page info, and "Showing X–Y of Z" text
-- [ ] `status-badge.tsx` exists mapping STARTED/COMPLETED/REJECTED/PENDING/ACTIVE/INACTIVE to badge variants
-- [ ] `empty-state.tsx` exists with icon, title, description, and optional action slot
-- [ ] `error-alert.tsx` exists with retry button
-- [ ] `page-header.tsx` exists with title, description, and optional action slot
-- [ ] `confirm-dialog.tsx` exists wrapping Dialog with confirm/cancel buttons and loading state
-- [ ] `data-table-skeleton.tsx` exists with configurable columns and rows
-- [ ] `form-field.tsx` exists with label, forwarded ref, and error display
-- [ ] `npm run build` succeeds without TypeScript errors
-- [ ] All components use `"use client"` directive where they use hooks or event handlers
+- [x] `search-bar.tsx` exists with debounced input and search icon
+- [x] `pagination-bar.tsx` exists with Previous/Next, page info, and "Showing X–Y of Z" text
+- [x] `status-badge.tsx` exists mapping STARTED/COMPLETED/REJECTED/PENDING/ACTIVE/INACTIVE to badge variants
+- [x] `empty-state.tsx` exists with icon, title, description, and optional action slot
+- [x] `error-alert.tsx` exists with retry button
+- [x] `page-header.tsx` exists with title, description, and optional action slot
+- [x] `confirm-dialog.tsx` exists wrapping Dialog with confirm/cancel buttons and loading state
+- [x] `data-table-skeleton.tsx` exists with configurable columns and rows
+- [x] `form-field.tsx` exists with label, forwarded ref, and error display
+- [x] `npm run build` succeeds without TypeScript errors
+- [x] All components use `"use client"` directive where they use hooks or event handlers
