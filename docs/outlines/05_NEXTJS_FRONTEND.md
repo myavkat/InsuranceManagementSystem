@@ -44,10 +44,12 @@ frontend-next/
 
 ## Key Architectural Decisions
 
-### 1. BFF (Backend-for-Frontend) Pattern
-- Route handlers in `app/api/*` proxy requests to the API Gateway.
-- Server Components fetch data through the BFF on the server (no direct Gateway calls from the browser).
-- Client Components use **React Query** to call the same BFF routes with caching, deduplication, and background refetching.
+### 1. Server-Side Data Fetching
+- Server Components fetch data directly from the API Gateway via `serverFetch()` in `lib/api/server-fetch.ts`.
+- The API Gateway URL is configured via `NEXT_PUBLIC_GATEWAY_URL` environment variable.
+- Authorization headers are forwarded from the incoming request (set by `middleware.ts` from the `auth_token` cookie).
+- Client Components use **React Query** via `apiClient()` in `lib/api/client.ts` which also calls the Gateway directly, with the JWT from the Zustand auth store.
+- Legacy BFF route handlers in `app/api/*` have been removed. Previously they proxied requests to the API Gateway, but Next.js Server Components running server-side can call the Gateway directly without an extra network hop.
 
 ### 2. Server Components by Default
 - All pages are Server Components unless interactivity is required (forms, real-time updates, client-side filtering).
@@ -67,7 +69,7 @@ frontend-next/
 ### 5. Authentication
 - JWT stored in HTTP-only cookie (preferred) or localStorage.
 - Auth state checked in root layout/middleware; unauthenticated users redirected to `/login`.
-- BFF route handlers validate JWT with Auth Service or Gateway.
+- The API Gateway validates JWTs and forwards authenticated requests to downstream microservices.
 
 ---
 
@@ -76,29 +78,25 @@ frontend-next/
 ```
 Browser Request
       │
-      ▼
-Next.js Server (Server Component)
+      ├── Server Component
+      │         │
+      │         ▼
+      │   API Gateway ──► Microservice ──► (JSON response)
+      │         │
+      │         ◄──────────────┘
+      │         │
+      │         ▼
+      │   Server Component renders HTML
       │
-      ▼
-BFF (app/api/* route handler)
-      │
-      ▼
-API Gateway (external)
-      │
-      ▼
-Microservice
-      │
-      ▼ (JSON response)
-API Gateway
-      │
-      ▼
-BFF (returns response to Server Component)
-      │
-      ▼
-Server Component renders HTML
-      │
-      ▼ (if client component needed)
-React Query hydrates from same BFF endpoint
+      └── Client Component ("use client")
+                │
+                ▼
+          React Query ──► apiClient() ──► API Gateway ──► Microservice
+                │                                           │
+                ◄──────────────────────────────────────────────┘
+                │
+                ▼
+          Client Component hydrates / re-renders
 ```
 
 ---
