@@ -37,6 +37,14 @@ CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_refresh_tokens_hash ON refresh_tokens(token_hash);
 
+CREATE TABLE IF NOT EXISTS saga_events (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    saga_id UUID NOT NULL,
+    event_type VARCHAR(50) NOT NULL,
+    received_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(saga_id, event_type)
+);
+
 CREATE TABLE IF NOT EXISTS outbox_events (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     saga_id UUID,
