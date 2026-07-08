@@ -2,6 +2,7 @@ package com.insurancemanagementsystem.common.messaging;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
  * DLQ messages after fixing the root cause.
  */
 @Component
+@ConditionalOnProperty(value = "app.messaging.dlq-monitor.enabled", havingValue = "true", matchIfMissing = true)
 @Slf4j
 public class DlqMonitor {
 
