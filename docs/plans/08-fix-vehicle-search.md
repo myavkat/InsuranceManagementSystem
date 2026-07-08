@@ -176,12 +176,12 @@ If there are compilation errors, fix them before marking this plan complete.
 
 ## Acceptance Criteria
 
-- [ ] `GET /api/vehicles?search=ABC123` returns only vehicles whose plate, chassis number, brand name, or model name contains "ABC123" (case-insensitive)
-- [ ] `GET /api/vehicles?search=` (empty search) returns all vehicles (same as no search param)
-- [ ] `GET /api/vehicles` (no search param) returns all vehicles (backward compatible)
-- [ ] Pagination and sorting still work when search is active
-- [ ] Search with special characters (%, _, quotes) does not throw errors — the `LIKE` escape is handled by parameter binding
-- [ ] Code compiles without errors
+- [x] `GET /api/vehicles?search=ABC123` returns only vehicles whose plate, chassis number, brand name, or model name contains "ABC123" (case-insensitive)
+- [x] `GET /api/vehicles?search=` (empty search) returns all vehicles (same as no search param)
+- [x] `GET /api/vehicles` (no search param) returns all vehicles (backward compatible)
+- [x] Pagination and sorting still work when search is active
+- [x] Search with special characters (%, _, quotes) does not throw errors — the `LIKE` escape is handled by parameter binding
+- [x] Code compiles without errors
 
 ## Dependencies
 

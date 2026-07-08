@@ -35,8 +35,13 @@ public class VehicleService {
     // ---------- Vehicle CRUD ----------
 
     @Transactional(readOnly = true)
-    public Page<VehicleResponse> findAll(Pageable pageable) {
-        Page<Vehicle> vehiclePage = vehicleRepository.findAll(pageable);
+    public Page<VehicleResponse> findAll(Pageable pageable, String search) {
+        Page<Vehicle> vehiclePage;
+        if (search != null && !search.isBlank()) {
+            vehiclePage = vehicleRepository.search(search.trim(), pageable);
+        } else {
+            vehiclePage = vehicleRepository.findAll(pageable);
+        }
 
         // Collect unique non-null customer IDs from the page
         java.util.Set<UUID> customerIds = vehiclePage.getContent().stream()

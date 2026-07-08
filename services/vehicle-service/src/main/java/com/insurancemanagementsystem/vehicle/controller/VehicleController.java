@@ -29,8 +29,9 @@ public class VehicleController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<Page<VehicleResponse>>> getAll(
-            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<VehicleResponse> vehicles = vehicleService.findAll(pageable);
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestParam(value = "search", required = false) String search) {
+        Page<VehicleResponse> vehicles = vehicleService.findAll(pageable, search);
         return ResponseEntity.ok(ApiResponse.success(vehicles));
     }
 
