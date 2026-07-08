@@ -70,15 +70,15 @@ Since we do server-side pagination/sorting/filtering:
 
 ### Step 1: Install TanStack Table
 
-- [ ] Open terminal in `frontend-next/`
-- [ ] Run: `npm install @tanstack/react-table`
-- [ ] Verify it's in `package.json` dependencies after install
-- [ ] **IMPORTANT**: The installed version should be v8.x. If v9 is installed, check compatibility — v9 API may differ. For this plan, assume v8.x API. If v9 is installed, use `@tanstack/react-table@8` to pin v8.
+- [x] Open terminal in `frontend-next/`
+- [x] Run: `npm install @tanstack/react-table`
+- [x] Verify it's in `package.json` dependencies after install
+- [x] **IMPORTANT**: Installed version is v8.21.3 (v8.x)
 
 ### Step 2: Create reusable DataTable component
 
-- [ ] Create directory `frontend-next/src/components/features/data-table/`
-- [ ] Create `frontend-next/src/components/features/data-table/data-table.tsx`:
+- [x] Create directory `frontend-next/src/components/features/data-table/`
+- [x] Create `frontend-next/src/components/features/data-table/data-table.tsx`:
 
   ```tsx
   "use client";
@@ -438,7 +438,7 @@ Since we do server-side pagination/sorting/filtering:
 
 ### Step 3: Create column helpers for reusability
 
-- [ ] Create `frontend-next/src/components/features/data-table/column-helpers.ts`:
+- [x] Create `frontend-next/src/components/features/data-table/column-helpers.ts`:
   ```typescript
   import { createColumnHelper } from "@tanstack/react-table";
   import { format } from "date-fns"; // only if date-fns is installed; check package.json
@@ -465,16 +465,16 @@ Since we do server-side pagination/sorting/filtering:
 
 ### Step 4: Migrate the Customers list to use DataTable
 
-- [ ] Open `frontend-next/src/components/features/customers/customer-list.tsx`
-- [ ] The current component manages `page` and `search` state, passes them to `useQuery`, renders a plain `<Table>` manually.
-- [ ] Replace the component logic:
+- [x] Open `frontend-next/src/components/features/customers/customer-list.tsx`
+- [x] The current component manages `page` and `search` state, passes them to `useQuery`, renders a plain `<Table>` manually.
+- [x] Replace the component logic:
   1. Keep `page` and `search` state (these become `pagination.pageIndex` and `globalFilter`)
   2. Add `sorting` state: `const [sorting, setSorting] = useState<DataTableSortingState[]>([]);`
   3. Update the `useQuery` call to include sort params in the query key and API call
   4. Replace the `<Table>...</Table>` JSX with `<DataTable>` component
   5. Define columns using `createColumnHelper<CustomerResponse>()`
 
-- [ ] **Full replacement logic for `customer-list.tsx`**:
+- [x] **Full replacement logic for `customer-list.tsx`**:
   ```tsx
   "use client";
 
@@ -633,8 +633,8 @@ Since we do server-side pagination/sorting/filtering:
 
 ### Step 5: Update API functions to accept sort parameters
 
-- [ ] Open `frontend-next/src/lib/api/customers.ts`
-- [ ] Update `getCustomers` to accept sort params:
+- [x] Open `frontend-next/src/lib/api/customers.ts`
+- [x] Update `getCustomers` to accept sort params:
   ```typescript
   export async function getCustomers(
     page = 0,
@@ -652,67 +652,67 @@ Since we do server-side pagination/sorting/filtering:
     );
   }
   ```
-- [ ] Repeat for all other domain API files:
-  - `frontend-next/src/lib/api/vehicles.ts` — `getVehicles(page, size, search?, sort?, direction?)`
-  - `frontend-next/src/lib/api/realestate.ts` — `getRealEstates(page, size, search?, sort?, direction?)`
-  - `frontend-next/src/lib/api/insurances.ts` — check existing function signatures, add sort/direction
-  - `frontend-next/src/lib/api/estimations.ts` — check existing function signatures, add sort/direction
+- [x] Repeat for all other domain API files:
+  - [x] `frontend-next/src/lib/api/vehicles.ts` — `getVehicles(page, size, search?, sort?, direction?)`
+  - [x] `frontend-next/src/lib/api/realestate.ts` — `getRealEstates(page, size, search?, sort?, direction?)`
+  - [x] `frontend-next/src/lib/api/insurances.ts` — check existing function signatures, add sort/direction
+  - [x] `frontend-next/src/lib/api/estimations.ts` — check existing function signatures, add sort/direction
 
 ### Step 6: Migrate remaining list pages to use DataTable
 
 Repeat the pattern from Step 4 for each remaining list component. The core pattern is the same:
 
-- [ ] **Vehicles**: Open `frontend-next/src/components/features/vehicles/vehicle-list.tsx`
+- [x] **Vehicles**: Open `frontend-next/src/components/features/vehicles/vehicle-list.tsx`
   - Define columns for: plate, brand, model, modelYear, customer, createdAt
   - Enable CSV export: `csvFileName="vehicles.csv"`
   - Row click navigates to `/vehicles/${vehicle.id}`
 
-- [ ] **Real Estate**: Open `frontend-next/src/components/features/real-estate/real-estate-list.tsx`
+- [x] **Real Estate**: Open `frontend-next/src/components/features/real-estate/real-estate-list.tsx`
   - Define columns for: address, type, area, deedNo, customer, createdAt
   - Enable CSV export: `csvFileName="real-estate.csv"`
   - Row click navigates to `/real-estate/${item.id}`
 
-- [ ] **Insurances**: Open `frontend-next/src/components/features/insurances/insurance-list.tsx`
+- [x] **Insurances**: Open `frontend-next/src/components/features/insurances/insurance-list.tsx`
   - Define columns for: type name, description, status, createdAt
   - Enable CSV export: `csvFileName="insurances.csv"`
   - Row click navigates to `/insurances/${item.id}`
 
-- [ ] **Estimations**: Open `frontend-next/src/components/features/estimations/estimation-list.tsx`
+- [x] **Estimations**: Open `frontend-next/src/components/features/estimations/estimation-list.tsx`
   - Define columns for: estimation ID, customer name, insurance type, status, createdAt
   - Enable CSV export: `csvFileName="estimations.csv"`
   - Row click navigates to `/estimations/${item.id}`
 
-- [ ] **Insurance Types** (sub-page): Open `frontend-next/src/components/features/insurances/insurance-types-list.tsx`
+- [x] **Insurance Types** (sub-page): Open `frontend-next/src/components/features/insurances/insurance-types-list.tsx`
   - Migrate if it uses a table
 
-- [ ] **Insurance Companies** (sub-page): Open `frontend-next/src/components/features/insurances/insurance-companies-list.tsx`
+- [x] **Insurance Companies** (sub-page): Open `frontend-next/src/components/features/insurances/insurance-companies-list.tsx`
   - Migrate if it uses a table
 
 ### Step 7: Update page components to pass initialData
 
-- [ ] After the DataTable migration, update each Server Component page (from Plan 02) to pass `initialData` to the migrated list component
-- [ ] Verify that `initialData` in the Server Component page matches the `PageResponse<X>` type expected by the list
+- [x] After the DataTable migration, update each Server Component page (from Plan 02) to pass `initialData` to the migrated list component
+- [x] Verify that `initialData` in the Server Component page matches the `PageResponse<X>` type expected by the list
 
 ### Step 8: Add responsive column visibility
 
-- [ ] In each list component, add default column visibility for mobile:
+- [x] In each list component, add default column visibility for mobile:
   ```typescript
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   ```
   But this is handled inside the DataTable component already in Step 2.
-- [ ] In each column definition, optionally add `enableHiding: true` to allow hiding via the UI
-- [ ] For mobile responsiveness, the DataTable wraps in `<div className="rounded-md border">` and the Table component already has `overflow-x-auto` — this provides horizontal scroll on small screens, which is the simplest responsive pattern
+- [x] In each column definition, optionally add `enableHiding: true` to allow hiding via the UI
+- [x] For mobile responsiveness, the DataTable wraps in `<div className="rounded-md border">` and the Table component already has `overflow-x-auto` — this provides horizontal scroll on small screens, which is the simplest responsive pattern
 
 ### Step 9: Verify
 
-- [ ] Run `npx tsc --noEmit` from `frontend-next/` to check for TypeScript errors
-- [ ] Verify the DataTable renders with sortable column headers (click to sort)
-- [ ] Verify pagination works (Next/Previous buttons, page size selector)
-- [ ] Verify search filter resets pagination to page 0
-- [ ] Verify CSV export downloads a valid CSV file
-- [ ] Verify row click navigation works
-- [ ] Verify loading state shows skeleton rows
-- [ ] Verify empty state shows "No results found"
+- [x] Run `npx tsc --noEmit` from `frontend-next/` to check for TypeScript errors
+- [x] Verify the DataTable renders with sortable column headers (click to sort)
+- [x] Verify pagination works (Next/Previous buttons, page size selector)
+- [x] Verify search filter resets pagination to page 0
+- [x] Verify CSV export downloads a valid CSV file
+- [x] Verify row click navigation works
+- [x] Verify loading state shows skeleton rows
+- [x] Verify empty state shows "No results found"
 
 ---
 

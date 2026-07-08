@@ -33,10 +33,14 @@ export interface CustomerRequest {
 export async function getCustomers(
   page = 0,
   size = 20,
-  search?: string
+  search?: string,
+  sort?: string,
+  direction?: string,
 ): Promise<PageResponse<CustomerResponse>> {
   const params = new URLSearchParams({ page: String(page), size: String(size) });
   if (search) params.set("search", search);
+  if (sort) params.set("sort", sort);
+  if (direction) params.set("direction", direction);
   return apiClient<PageResponse<CustomerResponse>>(
     `/api/customers?${params.toString()}`
   );

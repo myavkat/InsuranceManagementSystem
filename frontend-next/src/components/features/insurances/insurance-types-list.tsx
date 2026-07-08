@@ -1,26 +1,45 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { getInsuranceTypes } from "@/lib/api/insurances";
+import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
+import { getInsuranceTypes, type InsuranceTypeResponse } from "@/lib/api/insurances";
 import { PageHeader } from "@/components/features/page-header";
-import { DataTableSkeleton } from "@/components/features/data-table-skeleton";
 import { ErrorAlert } from "@/components/features/error-alert";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
+  DataTable,
+  type DataTablePaginationState,
+} from "@/components/features/data-table/data-table";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+const columnHelper = createColumnHelper<InsuranceTypeResponse>();
+
+const columns: ColumnDef<InsuranceTypeResponse, any>[] = [
+  columnHelper.accessor("id", {
+    header: "ID",
+    cell: (info) => info.getValue(),
+  }),
+  columnHelper.accessor("name", {
+    header: "Name",
+    cell: (info) => <span className="font-medium">{info.getValue()}</span>,
+    enableSorting: true,
+  }),
+];
 
 export function InsuranceTypesList() {
   const router = useRouter();
+  const [pagination] = useState<DataTablePaginationState>({
+    pageIndex: 0,
+    pageSize: 100,
+  });
 
   const { data: types, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["insurance-types"],
     queryFn: getInsuranceTypes,
   });
 
-  if (isLoading) return <DataTableSkeleton columns={2} />;
   if (isError) {
     return (
       <ErrorAlert
@@ -42,32 +61,20 @@ export function InsuranceTypesList() {
         />
       </div>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>ID</TableHead>
-              <TableHead>Name</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {types && types.length > 0 ? (
-              types.map((type) => (
-                <TableRow key={type.id}>
-                  <TableCell>{type.id}</TableCell>
-                  <TableCell className="font-medium">{type.name}</TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={2} className="text-center text-muted-foreground">
-                  No insurance types found
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <DataTable
+        columns={columns}
+        data={types ?? []}
+        pageCount={1}
+        totalElements={types?.length ?? 0}
+        pagination={pagination}
+        sorting={[]}
+        globalFilter=""
+        onPaginationChange={() => {}}
+        onSortingChange={() => {}}
+        onGlobalFilterChange={() => {}}
+        isLoading={isLoading}
+        csvFileName="insurance-types.csv"
+      />
     </div>
   );
 }

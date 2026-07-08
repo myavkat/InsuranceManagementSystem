@@ -3,19 +3,61 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import { getVehicles, type VehicleResponse } from "@/lib/api/vehicles";
-import type { PageResponse } from "@/lib/api/types";
 import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/features/search-bar";
-import { PaginationBar } from "@/components/features/pagination-bar";
-import { DataTableSkeleton } from "@/components/features/data-table-skeleton";
 import { EmptyState } from "@/components/features/empty-state";
 import { ErrorAlert } from "@/components/features/error-alert";
 import { PageHeader } from "@/components/features/page-header";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
+  DataTable,
+  type DataTablePaginationState,
+  type DataTableSortingState,
+} from "@/components/features/data-table/data-table";
+import { formatDate } from "@/components/features/data-table/column-helpers";
 import { Car, Plus } from "lucide-react";
+import type { PageResponse } from "@/lib/api/types";
+
+const columnHelper = createColumnHelper<VehicleResponse>();
+
+const columns: ColumnDef<VehicleResponse, any>[] = [
+  columnHelper.accessor("plate", {
+    header: "Plate",
+    cell: (info) => info.getValue() ?? "—",
+    enableSorting: true,
+  }),
+  columnHelper.accessor("carBrandName", {
+    header: "Brand / Model",
+    cell: (info) => {
+      const brand = info.getValue();
+      const model = info.row.original.carModelName;
+      return brand && model
+        ? `${brand} / ${model}`
+        : brand ?? model ?? "—";
+    },
+    enableSorting: true,
+  }),
+  columnHelper.accessor("customerName", {
+    header: "Customer",
+    cell: (info) => info.getValue() ?? "—",
+  }),
+  columnHelper.accessor("licenseFirstDate", {
+    header: "License Date",
+    cell: (info) => (info.getValue() ? formatDate(info.getValue()!) : "—"),
+  }),
+  columnHelper.accessor("chassisNumber", {
+    header: "Chassis Number",
+    cell: (info) => (
+      <span className="font-mono text-xs">{info.getValue() ?? "—"}</span>
+    ),
+  }),
+  columnHelper.accessor("createdAt", {
+    header: "Created",
+    cell: (info) => formatDate(info.getValue()),
+    enableSorting: true,
+  }),
+];
 
 interface VehicleListProps {
   initialData?: PageResponse<VehicleResponse>;
@@ -23,17 +65,24 @@ interface VehicleListProps {
 
 export function VehicleList({ initialData }: VehicleListProps) {
   const router = useRouter();
-  const [page, setPage] = useState(0);
+  const [pagination, setPagination] = useState<DataTablePaginationState>({
+    pageIndex: 0,
+    pageSize: 20,
+  });
+  const [sorting, setSorting] = useState<DataTableSortingState[]>([]);
   const [search, setSearch] = useState("");
-  const pageSize = 20;
+
+  const sortField = sorting[0]?.id;
+  const sortDirection = sorting[0]?.desc ? "desc" : "asc";
 
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ["vehicles", page, search],
-    queryFn: () => getVehicles(page, pageSize, search || undefined),
-    initialData: page === 0 && !search ? initialData : undefined,
+    queryKey: ["vehicles", pagination.pageIndex, pagination.pageSize, search, sortField, sortDirection],
+    queryFn: () =>
+      getVehicles(pagination.pageIndex, pagination.pageSize, search || undefined, sortField, sortDirection),
+    initialData:
+      pagination.pageIndex === 0 && !search && !sortField ? initialData : undefined,
   });
 
-  if (isLoading) return <DataTableSkeleton columns={6} />;
   if (isError) {
     return (
       <ErrorAlert
@@ -58,78 +107,47 @@ export function VehicleList({ initialData }: VehicleListProps) {
         }
       />
 
-      <SearchBar
-        placeholder="Search by plate or brand..."
-        onSearch={(value) => {
-          setSearch(value);
-          setPage(0);
-        }}
-      />
-
-      {vehicles.length === 0 ? (
+      {!isLoading && vehicles.length === 0 && !search ? (
         <EmptyState
           icon={Car}
           title="No vehicles found"
-          description={search ? "Try adjusting your search." : "Get started by creating a new vehicle."}
+          description="Get started by creating a new vehicle."
           action={
-            !search && (
-              <Button onClick={() => router.push("/vehicles/new")}>
-                <Plus className="size-4" />
-                New Vehicle
-              </Button>
-            )
+            <Button onClick={() => router.push("/vehicles/new")}>
+              <Plus className="size-4" />
+              New Vehicle
+            </Button>
           }
         />
       ) : (
-        <>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Plate</TableHead>
-                  <TableHead>Brand / Model</TableHead>
-                  <TableHead>Customer</TableHead>
-                  <TableHead>License Date</TableHead>
-                  <TableHead>Chassis Number</TableHead>
-                  <TableHead>Created</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {vehicles.map((vehicle) => (
-                  <TableRow
-                    key={vehicle.id}
-                    className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => router.push(`/vehicles/${vehicle.id}`)}
-                  >
-                    <TableCell className="font-medium">{vehicle.plate ?? "—"}</TableCell>
-                    <TableCell>
-                      {vehicle.carBrandName && vehicle.carModelName
-                        ? `${vehicle.carBrandName} / ${vehicle.carModelName}`
-                        : vehicle.carBrandName ?? vehicle.carModelName ?? "—"}
-                    </TableCell>
-                    <TableCell>{vehicle.customerName ?? "—"}</TableCell>
-                    <TableCell>
-                      {vehicle.licenseFirstDate
-                        ? new Date(vehicle.licenseFirstDate).toLocaleDateString()
-                        : "—"}
-                    </TableCell>
-                    <TableCell className="font-mono text-xs">{vehicle.chassisNumber ?? "—"}</TableCell>
-                    <TableCell>
-                      {new Date(vehicle.createdAt).toLocaleDateString()}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-          <PaginationBar
-            currentPage={page}
-            totalPages={data?.totalPages ?? 1}
-            totalElements={data?.totalElements ?? 0}
-            pageSize={pageSize}
-            onPageChange={setPage}
-          />
-        </>
+        <DataTable
+          columns={columns}
+          data={vehicles}
+          pageCount={data?.totalPages ?? 1}
+          totalElements={data?.totalElements ?? 0}
+          pagination={pagination}
+          sorting={sorting}
+          globalFilter={search}
+          onPaginationChange={setPagination}
+          onSortingChange={setSorting}
+          onGlobalFilterChange={(value) => {
+            setSearch(value);
+            setPagination({ pageIndex: 0, pageSize: pagination.pageSize });
+          }}
+          onRowClick={(vehicle) => router.push(`/vehicles/${vehicle.id}`)}
+          enableCsvExport
+          csvFileName="vehicles.csv"
+          isLoading={isLoading}
+          toolbar={
+            <SearchBar
+              placeholder="Search by plate or brand..."
+              onSearch={(value) => {
+                setSearch(value);
+                setPagination({ pageIndex: 0, pageSize: pagination.pageSize });
+              }}
+            />
+          }
+        />
       )}
     </div>
   );

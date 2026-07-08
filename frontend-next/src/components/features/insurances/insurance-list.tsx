@@ -3,23 +3,62 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import { getInsurances, getInsuranceTypes, getInsuranceCompanies, type InsuranceResponse } from "@/lib/api/insurances";
-import type { PageResponse } from "@/lib/api/types";
 import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/features/search-bar";
-import { PaginationBar } from "@/components/features/pagination-bar";
-import { DataTableSkeleton } from "@/components/features/data-table-skeleton";
 import { EmptyState } from "@/components/features/empty-state";
 import { ErrorAlert } from "@/components/features/error-alert";
 import { PageHeader } from "@/components/features/page-header";
 import { StatusBadge } from "@/components/features/status-badge";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
+  DataTable,
+  type DataTablePaginationState,
+  type DataTableSortingState,
+} from "@/components/features/data-table/data-table";
+import { formatCurrency, formatDate } from "@/components/features/data-table/column-helpers";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Shield, Plus } from "lucide-react";
+import type { PageResponse } from "@/lib/api/types";
+
+const columnHelper = createColumnHelper<InsuranceResponse>();
+
+const columns: ColumnDef<InsuranceResponse, any>[] = [
+  columnHelper.accessor("name", {
+    header: "Name",
+    cell: (info) => <span className="font-medium">{info.getValue()}</span>,
+    enableSorting: true,
+  }),
+  columnHelper.accessor("typeName", {
+    header: "Type",
+    cell: (info) => info.getValue() ?? "—",
+  }),
+  columnHelper.accessor("companyName", {
+    header: "Company",
+    cell: (info) => info.getValue() ?? "—",
+  }),
+  columnHelper.accessor("basePremium", {
+    header: "Base Premium",
+    cell: (info) => formatCurrency(info.getValue()),
+    enableSorting: true,
+  }),
+  columnHelper.accessor("isActive", {
+    header: "Status",
+    cell: (info) => <StatusBadge status={info.getValue() ? "ACTIVE" : "INACTIVE"} />,
+    enableSorting: true,
+  }),
+  columnHelper.accessor("createdAt", {
+    header: "Created",
+    cell: (info) => formatDate(info.getValue()),
+    enableSorting: true,
+  }),
+];
 
 interface InsuranceListProps {
   initialData?: PageResponse<InsuranceResponse>;
@@ -27,22 +66,32 @@ interface InsuranceListProps {
 
 export function InsuranceList({ initialData }: InsuranceListProps) {
   const router = useRouter();
-  const [page, setPage] = useState(0);
+  const [pagination, setPagination] = useState<DataTablePaginationState>({
+    pageIndex: 0,
+    pageSize: 20,
+  });
+  const [sorting, setSorting] = useState<DataTableSortingState[]>([]);
   const [search, setSearch] = useState("");
   const [typeId, setTypeId] = useState<string>("");
   const [companyId, setCompanyId] = useState<string>("");
-  const pageSize = 20;
+
+  const sortField = sorting[0]?.id;
+  const sortDirection = sorting[0]?.desc ? "desc" : "asc";
 
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ["insurances", page, typeId, companyId, search],
-    queryFn: () => getInsurances(
-      page,
-      pageSize,
-      typeId ? Number(typeId) : undefined,
-      companyId ? Number(companyId) : undefined,
-      search || undefined
-    ),
-    initialData: page === 0 && !search && !typeId && !companyId ? initialData : undefined,
+    queryKey: ["insurances", pagination.pageIndex, pagination.pageSize, search, typeId, companyId, sortField, sortDirection],
+    queryFn: () =>
+      getInsurances(
+        pagination.pageIndex,
+        pagination.pageSize,
+        typeId ? Number(typeId) : undefined,
+        companyId ? Number(companyId) : undefined,
+        search || undefined,
+        sortField,
+        sortDirection,
+      ),
+    initialData:
+      pagination.pageIndex === 0 && !search && !typeId && !companyId && !sortField ? initialData : undefined,
   });
 
   const { data: types } = useQuery({
@@ -55,7 +104,6 @@ export function InsuranceList({ initialData }: InsuranceListProps) {
     queryFn: getInsuranceCompanies,
   });
 
-  if (isLoading) return <DataTableSkeleton columns={6} />;
   if (isError) {
     return (
       <ErrorAlert
@@ -80,114 +128,83 @@ export function InsuranceList({ initialData }: InsuranceListProps) {
         }
       />
 
-      <div className="flex flex-wrap gap-3">
-        <div className="flex-1 min-w-[200px]">
-          <SearchBar
-            placeholder="Search by name..."
-            onSearch={(value) => {
-              setSearch(value);
-              setPage(0);
-            }}
-          />
-        </div>
-        <Select
-          value={typeId || undefined}
-          onValueChange={(value) => {
-            setTypeId(value ?? "");
-            setPage(0);
-          }}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="All types" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All types</SelectItem>
-            {types?.map((type) => (
-              <SelectItem key={type.id} value={type.id.toString()}>{type.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select
-          value={companyId || undefined}
-          onValueChange={(value) => {
-            setCompanyId(value ?? "");
-            setPage(0);
-          }}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="All companies" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All companies</SelectItem>
-            {companies?.map((company) => (
-              <SelectItem key={company.id} value={company.id.toString()}>{company.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {insurances.length === 0 ? (
+      {!isLoading && insurances.length === 0 && !search && !typeId && !companyId ? (
         <EmptyState
           icon={Shield}
           title="No insurance products found"
-          description={search || typeId || companyId ? "Try adjusting your filters." : "Get started by creating a new insurance product."}
+          description="Get started by creating a new insurance product."
           action={
-            !search && !typeId && !companyId && (
-              <Button onClick={() => router.push("/insurances/new")}>
-                <Plus className="size-4" />
-                New Product
-              </Button>
-            )
+            <Button onClick={() => router.push("/insurances/new")}>
+              <Plus className="size-4" />
+              New Product
+            </Button>
           }
         />
       ) : (
-        <>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Company</TableHead>
-                  <TableHead>Base Premium</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Created</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {insurances.map((insurance) => (
-                  <TableRow
-                    key={insurance.id}
-                    className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => router.push(`/insurances/${insurance.id}`)}
-                  >
-                    <TableCell className="font-medium">{insurance.name}</TableCell>
-                    <TableCell>{insurance.typeName ?? "—"}</TableCell>
-                    <TableCell>{insurance.companyName ?? "—"}</TableCell>
-                    <TableCell>
-                      {insurance.basePremium != null
-                        ? new Intl.NumberFormat("tr-TR", { style: "currency", currency: "TRY" }).format(insurance.basePremium)
-                        : "—"}
-                    </TableCell>
-                    <TableCell>
-                      <StatusBadge status={insurance.isActive ? "ACTIVE" : "INACTIVE"} />
-                    </TableCell>
-                    <TableCell>
-                      {new Date(insurance.createdAt).toLocaleDateString()}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-          <PaginationBar
-            currentPage={page}
-            totalPages={data?.totalPages ?? 1}
-            totalElements={data?.totalElements ?? 0}
-            pageSize={pageSize}
-            onPageChange={setPage}
-          />
-        </>
+        <DataTable
+          columns={columns}
+          data={insurances}
+          pageCount={data?.totalPages ?? 1}
+          totalElements={data?.totalElements ?? 0}
+          pagination={pagination}
+          sorting={sorting}
+          globalFilter={search}
+          onPaginationChange={setPagination}
+          onSortingChange={setSorting}
+          onGlobalFilterChange={(value) => {
+            setSearch(value);
+            setPagination({ pageIndex: 0, pageSize: pagination.pageSize });
+          }}
+          onRowClick={(insurance) => router.push(`/insurances/${insurance.id}`)}
+          enableCsvExport
+          csvFileName="insurances.csv"
+          isLoading={isLoading}
+          toolbar={
+            <>
+              <SearchBar
+                placeholder="Search by name..."
+                onSearch={(value) => {
+                  setSearch(value);
+                  setPagination({ pageIndex: 0, pageSize: pagination.pageSize });
+                }}
+              />
+              <Select
+                value={typeId || undefined}
+                onValueChange={(value) => {
+                  setTypeId(value ?? "");
+                  setPagination({ pageIndex: 0, pageSize: pagination.pageSize });
+                }}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="All types" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All types</SelectItem>
+                  {types?.map((type) => (
+                    <SelectItem key={type.id} value={type.id.toString()}>{type.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select
+                value={companyId || undefined}
+                onValueChange={(value) => {
+                  setCompanyId(value ?? "");
+                  setPagination({ pageIndex: 0, pageSize: pagination.pageSize });
+                }}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="All companies" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All companies</SelectItem>
+                  {companies?.map((company) => (
+                    <SelectItem key={company.id} value={company.id.toString()}>{company.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </>
+          }
+        />
       )}
     </div>
   );

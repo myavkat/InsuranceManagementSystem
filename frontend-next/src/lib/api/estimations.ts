@@ -38,17 +38,21 @@ export interface EstimationListParams {
   customerId?: string;
   dateFrom?: string;
   dateTo?: string;
+  sort?: string;
+  direction?: string;
 }
 
 export async function getEstimations(
   params: EstimationListParams = {}
 ): Promise<PageResponse<EstimationResponse>> {
-  const { page = 0, size = 20, status, customerId, dateFrom, dateTo } = params;
+  const { page = 0, size = 20, status, customerId, dateFrom, dateTo, sort, direction } = params;
   const searchParams = new URLSearchParams({ page: String(page), size: String(size) });
   if (status) searchParams.set("status", status);
   if (customerId) searchParams.set("customerId", customerId);
   if (dateFrom) searchParams.set("dateFrom", dateFrom);
   if (dateTo) searchParams.set("dateTo", dateTo);
+  if (sort) searchParams.set("sort", sort);
+  if (direction) searchParams.set("direction", direction);
   return apiClient<PageResponse<EstimationResponse>>(
     `/api/estimations?${searchParams.toString()}`
   );

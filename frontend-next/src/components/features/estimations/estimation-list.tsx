@@ -3,21 +3,27 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import { getEstimations, type EstimationResponse, type EstimationStatus } from "@/lib/api/estimations";
 import type { PageResponse } from "@/lib/api/types";
 import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/features/search-bar";
-import { PaginationBar } from "@/components/features/pagination-bar";
-import { DataTableSkeleton } from "@/components/features/data-table-skeleton";
 import { EmptyState } from "@/components/features/empty-state";
 import { ErrorAlert } from "@/components/features/error-alert";
 import { PageHeader } from "@/components/features/page-header";
 import { StatusBadge } from "@/components/features/status-badge";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
+  DataTable,
+  type DataTablePaginationState,
+  type DataTableSortingState,
+} from "@/components/features/data-table/data-table";
+import { formatCurrency, formatDate } from "@/components/features/data-table/column-helpers";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { ClipboardList, Plus } from "lucide-react";
 
@@ -28,33 +34,71 @@ const statusOptions: { value: string; label: string }[] = [
   { value: "REJECTED", label: "Rejected" },
 ];
 
+const columnHelper = createColumnHelper<EstimationResponse>();
+
+const columns: ColumnDef<EstimationResponse, any>[] = [
+  columnHelper.accessor("customerName", {
+    header: "Customer",
+    cell: (info) => <span className="font-medium">{info.getValue() ?? "—"}</span>,
+    enableSorting: true,
+  }),
+  columnHelper.accessor("insuranceTypeName", {
+    header: "Insurance Type",
+    cell: (info) => info.getValue() ?? "—",
+  }),
+  columnHelper.accessor("status", {
+    header: "Status",
+    cell: (info) => <StatusBadge status={info.getValue()} />,
+    enableSorting: true,
+  }),
+  columnHelper.accessor("premium", {
+    header: "Premium",
+    cell: (info) => formatCurrency(info.getValue()),
+  }),
+  columnHelper.accessor("createdAt", {
+    header: "Created",
+    cell: (info) => formatDate(info.getValue()),
+    enableSorting: true,
+  }),
+];
+
 interface EstimationListProps {
   initialData?: PageResponse<EstimationResponse>;
 }
 
 export function EstimationList({ initialData }: EstimationListProps) {
   const router = useRouter();
-  const [page, setPage] = useState(0);
-  const [status, setStatus] = useState("");
+  const [pagination, setPagination] = useState<DataTablePaginationState>({
+    pageIndex: 0,
+    pageSize: 20,
+  });
+  const [sorting, setSorting] = useState<DataTableSortingState[]>([]);
   const [customerSearch, setCustomerSearch] = useState("");
+  const [status, setStatus] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
-  const pageSize = 20;
+
+  const sortField = sorting[0]?.id;
+  const sortDirection = sorting[0]?.desc ? "desc" : "asc";
 
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ["estimations", page, status, customerSearch, dateFrom, dateTo],
+    queryKey: ["estimations", pagination.pageIndex, pagination.pageSize, status, customerSearch, dateFrom, dateTo, sortField, sortDirection],
     queryFn: () => getEstimations({
-      page,
-      size: pageSize,
+      page: pagination.pageIndex,
+      size: pagination.pageSize,
       status: (status || undefined) as EstimationStatus | undefined,
       customerId: customerSearch || undefined,
       dateFrom: dateFrom || undefined,
       dateTo: dateTo || undefined,
+      sort: sortField,
+      direction: sortDirection,
     }),
-    initialData: page === 0 && !status && !customerSearch && !dateFrom && !dateTo ? initialData : undefined,
+    initialData:
+      pagination.pageIndex === 0 && !status && !customerSearch && !dateFrom && !dateTo && !sortField
+        ? initialData
+        : undefined,
   });
 
-  if (isLoading) return <DataTableSkeleton columns={6} />;
   if (isError) {
     return (
       <ErrorAlert
@@ -79,117 +123,85 @@ export function EstimationList({ initialData }: EstimationListProps) {
         }
       />
 
-      {/* Filter bar */}
-      <div className="flex flex-wrap gap-3">
-        <div className="flex-1 min-w-[200px]">
-          <SearchBar
-            placeholder="Search by customer name or ID..."
-            onSearch={(value) => {
-              setCustomerSearch(value);
-              setPage(0);
-            }}
-          />
-        </div>
-        <Select
-          value={status || undefined}
-          onValueChange={(value) => {
-            setStatus(value ?? "");
-            setPage(0);
-          }}
-        >
-          <SelectTrigger className="w-[160px]">
-            <SelectValue placeholder="All statuses" />
-          </SelectTrigger>
-          <SelectContent>
-            {statusOptions.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <input
-          type="date"
-          value={dateFrom}
-          onChange={(e) => {
-            setDateFrom(e.target.value);
-            setPage(0);
-          }}
-          className="flex h-10 w-[160px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-          placeholder="From date"
-        />
-        <input
-          type="date"
-          value={dateTo}
-          onChange={(e) => {
-            setDateTo(e.target.value);
-            setPage(0);
-          }}
-          className="flex h-10 w-[160px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-          placeholder="To date"
-        />
-      </div>
-
-      {estimations.length === 0 ? (
+      {!isLoading && estimations.length === 0 && !status && !customerSearch && !dateFrom && !dateTo ? (
         <EmptyState
           icon={ClipboardList}
           title="No estimations found"
-          description={status || customerSearch || dateFrom || dateTo ? "Try adjusting your filters." : "Get started by creating a new estimation."}
+          description="Get started by creating a new estimation."
           action={
-            !status && !customerSearch && !dateFrom && !dateTo && (
-              <Button onClick={() => router.push("/estimations/new")}>
-                <Plus className="size-4" />
-                New Estimation
-              </Button>
-            )
+            <Button onClick={() => router.push("/estimations/new")}>
+              <Plus className="size-4" />
+              New Estimation
+            </Button>
           }
         />
       ) : (
-        <>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Customer</TableHead>
-                  <TableHead>Insurance Type</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Premium</TableHead>
-                  <TableHead>Created</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {estimations.map((estimation) => (
-                  <TableRow
-                    key={estimation.id}
-                    className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => router.push(`/estimations/${estimation.id}`)}
-                  >
-                    <TableCell className="font-medium">
-                      {estimation.customerName ?? "—"}
-                    </TableCell>
-                    <TableCell>{estimation.insuranceTypeName ?? "—"}</TableCell>
-                    <TableCell>
-                      <StatusBadge status={estimation.status} />
-                    </TableCell>
-                    <TableCell>
-                      {estimation.premium != null
-                        ? new Intl.NumberFormat("tr-TR", { style: "currency", currency: "TRY" }).format(estimation.premium)
-                        : "—"}
-                    </TableCell>
-                    <TableCell>
-                      {new Date(estimation.createdAt).toLocaleDateString()}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-          <PaginationBar
-            currentPage={page}
-            totalPages={data?.totalPages ?? 1}
-            totalElements={data?.totalElements ?? 0}
-            pageSize={pageSize}
-            onPageChange={setPage}
-          />
-        </>
+        <DataTable
+          columns={columns}
+          data={estimations}
+          pageCount={data?.totalPages ?? 1}
+          totalElements={data?.totalElements ?? 0}
+          pagination={pagination}
+          sorting={sorting}
+          globalFilter={customerSearch}
+          onPaginationChange={setPagination}
+          onSortingChange={setSorting}
+          onGlobalFilterChange={(value) => {
+            setCustomerSearch(value);
+            setPagination({ pageIndex: 0, pageSize: pagination.pageSize });
+          }}
+          onRowClick={(estimation) => router.push(`/estimations/${estimation.id}`)}
+          enableCsvExport
+          csvFileName="estimations.csv"
+          isLoading={isLoading}
+          toolbar={
+            <>
+              <SearchBar
+                placeholder="Search by customer name or ID..."
+                onSearch={(value) => {
+                  setCustomerSearch(value);
+                  setPagination({ pageIndex: 0, pageSize: pagination.pageSize });
+                }}
+              />
+              <Select
+                value={status || undefined}
+                onValueChange={(value) => {
+                  setStatus(value ?? "");
+                  setPagination({ pageIndex: 0, pageSize: pagination.pageSize });
+                }}
+              >
+                <SelectTrigger className="w-[160px]">
+                  <SelectValue placeholder="All statuses" />
+                </SelectTrigger>
+                <SelectContent>
+                  {statusOptions.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <input
+                type="date"
+                value={dateFrom}
+                onChange={(e) => {
+                  setDateFrom(e.target.value);
+                  setPagination({ pageIndex: 0, pageSize: pagination.pageSize });
+                }}
+                className="flex h-8 w-[160px] rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50"
+                placeholder="From date"
+              />
+              <input
+                type="date"
+                value={dateTo}
+                onChange={(e) => {
+                  setDateTo(e.target.value);
+                  setPagination({ pageIndex: 0, pageSize: pagination.pageSize });
+                }}
+                className="flex h-8 w-[160px] rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50"
+                placeholder="To date"
+              />
+            </>
+          }
+        />
       )}
     </div>
   );
