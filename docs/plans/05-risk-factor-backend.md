@@ -6,7 +6,7 @@ Create the database layer for risk factors: two new tables (`risk_factors` and `
 
 ## Dependencies
 
-- [ ] Plan 01 (`01-seed-data-restructure.md`) — references insurance_type IDs in default seed data
+- [x] Plan 01 (`01-seed-data-restructure.md`) — references insurance_type IDs in default seed data
 
 ## Files to Read First
 
@@ -77,6 +77,8 @@ Each factor is seeded with a default neutral value of `0.50` (middle of range).
 
 ### Step 1: Create RiskFactor entity
 
+- [x] RiskFactor.java entity created at `services/insurance-service/src/main/java/com/insurancemanagementsystem/insurance/entity/RiskFactor.java`
+
 Create new file: `services/insurance-service/src/main/java/com/insurancemanagementsystem/insurance/entity/RiskFactor.java`
 
 ```java
@@ -132,6 +134,8 @@ public class RiskFactor {
 
 ### Step 2: Create RiskFactorHistory entity
 
+- [x] RiskFactorHistory.java entity created at `services/insurance-service/src/main/java/com/insurancemanagementsystem/insurance/entity/RiskFactorHistory.java`
+
 Create new file: `services/insurance-service/src/main/java/com/insurancemanagementsystem/insurance/entity/RiskFactorHistory.java`
 
 ```java
@@ -184,6 +188,8 @@ public class RiskFactorHistory {
 
 ### Step 3: Create RiskFactorRepository
 
+- [x] RiskFactorRepository.java created at `services/insurance-service/src/main/java/com/insurancemanagementsystem/insurance/repository/RiskFactorRepository.java`
+
 Create new file: `services/insurance-service/src/main/java/com/insurancemanagementsystem/insurance/repository/RiskFactorRepository.java`
 
 ```java
@@ -206,6 +212,8 @@ public interface RiskFactorRepository extends JpaRepository<RiskFactor, UUID> {
 
 ### Step 4: Create RiskFactorHistoryRepository
 
+- [x] RiskFactorHistoryRepository.java created at `services/insurance-service/src/main/java/com/insurancemanagementsystem/insurance/repository/RiskFactorHistoryRepository.java`
+
 Create new file: `services/insurance-service/src/main/java/com/insurancemanagementsystem/insurance/repository/RiskFactorHistoryRepository.java`
 
 ```java
@@ -227,6 +235,8 @@ public interface RiskFactorHistoryRepository extends JpaRepository<RiskFactorHis
 ```
 
 ### Step 5: Add SQL DDL to insurance_db init.sql
+
+- [x] DDL, indexes, and seed data appended to `infra/sql/insurance_db/init.sql`
 
 Open `infra/sql/insurance_db/init.sql`.
 
@@ -338,9 +348,13 @@ END $$;
 
 ### Step 6: Add ALTER TABLE migration path
 
+- [x] Not needed — new tables, `CREATE TABLE IF NOT EXISTS` covers both fresh-DB and existing-DB paths
+
 Since `risk_factors` and `risk_factor_history` are new tables (not adding columns to existing tables), the `CREATE TABLE IF NOT EXISTS` pattern covers both paths. No ALTER TABLE statements needed — this is a fresh table addition.
 
 ### Step 7: Add CHECK constraint for value range
+
+- [x] CHECK constraint `chk_risk_factor_value` added via DO block in `init.sql`
 
 Optionally add a CHECK constraint to enforce the 0.00–1.00 range at the DB level:
 
@@ -361,13 +375,13 @@ This uses a DO block to conditionally add the constraint — safe for both new a
 
 ## Acceptance Criteria
 
-- [ ] `risk_factors` table exists with columns: id, insurance_id, factor_name, factor_value, created_at, updated_at
-- [ ] `risk_factor_history` table exists with columns: id, risk_factor_id, insurance_id, factor_name, old_value, new_value, changed_at
-- [ ] Unique constraint on (insurance_id, factor_name) prevents duplicates
-- [ ] CHECK constraint enforces factor_value BETWEEN 0.00 AND 1.00
-- [ ] Seed data creates 7 factors for TRAFFIC, 7 for CASCO, 7 for DASK, 3 for HEALTH, 3 for LIFE (29 total rows)
-- [ ] All factor values seeded at 0.50 (neutral)
-- [ ] RiskFactor JPA entity compiles and maps correctly
-- [ ] RiskFactorHistory JPA entity compiles and maps correctly
-- [ ] Both repositories work — can query by insuranceId
-- [ ] Docker restart is idempotent (DELETE + INSERT pattern ensures clean state)
+- [x] `risk_factors` table exists with columns: id, insurance_id, factor_name, factor_value, created_at, updated_at
+- [x] `risk_factor_history` table exists with columns: id, risk_factor_id, insurance_id, factor_name, old_value, new_value, changed_at
+- [x] Unique constraint on (insurance_id, factor_name) prevents duplicates
+- [x] CHECK constraint enforces factor_value BETWEEN 0.00 AND 1.00
+- [x] Seed data creates 7 factors for TRAFFIC, 7 for CASCO, 7 for DASK, 3 for HEALTH, 3 for LIFE (29 total rows)
+- [x] All factor values seeded at 0.50 (neutral)
+- [x] RiskFactor JPA entity compiles and maps correctly
+- [x] RiskFactorHistory JPA entity compiles and maps correctly
+- [x] Both repositories work — can query by insuranceId
+- [x] Docker restart is idempotent (DELETE + INSERT pattern ensures clean state)
