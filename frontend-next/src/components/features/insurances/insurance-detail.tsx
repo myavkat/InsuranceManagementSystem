@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getInsurance, deleteInsurance, updateInsurance } from "@/lib/api/insurances";
+import { getInsurance, deleteInsurance, updateInsurance, deactivateInsurance } from "@/lib/api/insurances";
 import { PageHeader } from "@/components/features/page-header";
 import { ErrorAlert } from "@/components/features/error-alert";
 import { ConfirmDialog } from "@/components/features/confirm-dialog";
@@ -35,7 +35,7 @@ export function InsuranceDetail() {
   });
 
   const deactivateMutation = useMutation({
-    mutationFn: () => updateInsurance(id, { isActive: false }),
+    mutationFn: () => deactivateInsurance(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["insurance", id] });
       queryClient.invalidateQueries({ queryKey: ["insurances"] });

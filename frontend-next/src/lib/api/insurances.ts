@@ -94,6 +94,12 @@ export async function getInsuranceTypes(): Promise<InsuranceTypeResponse[]> {
   return apiClient<InsuranceTypeResponse[]>("/api/insurances/types");
 }
 
+export async function deactivateInsurance(id: string): Promise<InsuranceResponse> {
+  return apiClient<InsuranceResponse>(`/api/insurances/${id}/deactivate`, {
+    method: "PATCH",
+  });
+}
+
 export async function getInsuranceCompanies(): Promise<InsuranceCompanyResponse[]> {
   return apiClient<InsuranceCompanyResponse[]>("/api/insurances/companies");
 }

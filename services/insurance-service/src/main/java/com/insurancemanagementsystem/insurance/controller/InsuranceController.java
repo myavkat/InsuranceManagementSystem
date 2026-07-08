@@ -63,7 +63,13 @@ public class InsuranceController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<InsuranceResponse>> delete(@PathVariable UUID id) {
         InsuranceResponse deleted = insuranceService.softDelete(id);
-        return ResponseEntity.ok(ApiResponse.success("Insurance deactivated successfully", deleted));
+        return ResponseEntity.ok(ApiResponse.success("Insurance deleted successfully", deleted));
+    }
+
+    @PatchMapping("/{id}/deactivate")
+    public ResponseEntity<ApiResponse<InsuranceResponse>> deactivate(@PathVariable UUID id) {
+        InsuranceResponse updated = insuranceService.softDelete(id);
+        return ResponseEntity.ok(ApiResponse.success("Insurance deactivated successfully", updated));
     }
 
     // ---------------------------------------------------------------

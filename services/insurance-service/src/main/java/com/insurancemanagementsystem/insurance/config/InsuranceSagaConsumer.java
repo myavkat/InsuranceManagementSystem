@@ -207,10 +207,12 @@ public class InsuranceSagaConsumer {
         VehicleValidatedEvent vehicleEvent = jsonMapper.convertValue(
                 state.getVehicleValidated().getPayload(), VehicleValidatedEvent.class);
 
-        // Look up insurance by typeId only — single provider system
+        // Look up insurance by typeId — use only active ones for estimation
         Optional<Insurance> insuranceOpt = insuranceRepository
-                .findByTypeIdAndIsActiveTrue(insuranceTypeId, Pageable.unpaged())
-                .stream().findFirst();
+                .findByTypeId(insuranceTypeId, Pageable.unpaged())
+                .getContent().stream()
+                .filter(Insurance::getIsActive)
+                .findFirst();
 
         if (insuranceOpt.isEmpty()) {
             publishCalculationFailed(sagaId, traceId,

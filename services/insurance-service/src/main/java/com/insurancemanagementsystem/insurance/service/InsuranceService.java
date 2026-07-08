@@ -37,12 +37,14 @@ public class InsuranceService {
         boolean hasSearch = search != null && !search.isBlank();
 
         Page<Insurance> page;
-        if (hasType) {
-            page = insuranceRepository.findByTypeIdAndIsActiveTrue(typeId, pageable);
+        if (hasType && hasSearch) {
+            page = insuranceRepository.searchByName(search, pageable);
+        } else if (hasType) {
+            page = insuranceRepository.findByTypeId(typeId, pageable);
         } else if (hasSearch) {
             page = insuranceRepository.searchByName(search, pageable);
         } else {
-            page = insuranceRepository.findByIsActiveTrue(pageable);
+            page = insuranceRepository.findAll(pageable);
         }
         return page.map(InsuranceResponse::fromEntity);
     }
@@ -50,7 +52,6 @@ public class InsuranceService {
     @Transactional(readOnly = true)
     public InsuranceResponse findById(UUID id) {
         Insurance insurance = insuranceRepository.findById(id)
-                .filter(i -> i.getIsActive())
                 .orElseThrow(() -> new EntityNotFoundException("Insurance not found with id: " + id));
         return InsuranceResponse.fromEntity(insurance);
     }
@@ -86,7 +87,6 @@ public class InsuranceService {
     @Transactional
     public InsuranceResponse update(UUID id, InsuranceRequest request) {
         Insurance insurance = insuranceRepository.findById(id)
-                .filter(i -> i.getIsActive())
                 .orElseThrow(() -> new EntityNotFoundException("Insurance not found with id: " + id));
 
         // Validate type exists
@@ -118,7 +118,6 @@ public class InsuranceService {
     @Transactional
     public InsuranceResponse softDelete(UUID id) {
         Insurance insurance = insuranceRepository.findById(id)
-                .filter(i -> i.getIsActive())
                 .orElseThrow(() -> new EntityNotFoundException("Insurance not found with id: " + id));
 
         insurance.setIsActive(false);
