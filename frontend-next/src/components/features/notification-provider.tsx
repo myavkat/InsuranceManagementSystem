@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useWebSocket } from "@/hooks/use-websocket";
 
 /**
@@ -13,8 +14,10 @@ export function NotificationProvider({
 }: {
   children: React.ReactNode;
 }) {
-  // Initialize WebSocket connection
-  useWebSocket();
+  const router = useRouter();
+
+  // Initialize WebSocket connection with client-side navigation support
+  useWebSocket({ onNavigate: (path) => router.push(path) });
 
   // Render children as-is — this component just establishes the side effect
   return <>{children}</>;
