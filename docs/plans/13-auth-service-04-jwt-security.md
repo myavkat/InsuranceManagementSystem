@@ -305,8 +305,8 @@ Key points:
 
 ## Acceptance Criteria
 
-- [ ] `services/auth-service/src/main/resources/keys/private-key.pem` exists (copy of gateway's private key)
-- [ ] `services/auth-service/src/main/resources/keys/public-key.pem` exists (copy of gateway's public key)
-- [ ] `JwtTokenProvider.java` exists with `generateAccessToken`, `generateRefreshToken`, `hashToken`, `validateToken`, `getPublicKeyPem`, `getRefreshTokenExpiry`, `getAccessTokenExpiryMs`
-- [ ] `SecurityConfig.java` exists with `BCryptPasswordEncoder(12)` bean and permissive security for `/api/auth/**`
-- [ ] `./gradlew :services:auth-service:compileJava` succeeds
+- [x] `services/auth-service/src/main/resources/keys/private-key.pem` exists (copy of gateway's private key)
+- [x] `services/auth-service/src/main/resources/keys/public-key.pem` exists (copy of gateway's public key)
+- [x] `JwtTokenProvider.java` exists with `generateAccessToken`, `generateRefreshToken`, `hashToken`, `validateToken`, `getPublicKeyPem`, `getRefreshTokenExpiry`, `getAccessTokenExpiryMs`
+- [x] `SecurityConfig.java` exists with `BCryptPasswordEncoder(12)` bean and permissive security for `/api/auth/**`
+- [x] `./gradlew :services:auth-service:compileJava` succeeds

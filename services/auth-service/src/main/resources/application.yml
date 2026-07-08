@@ -49,6 +49,11 @@ eureka:
   instance:
     preferIpAddress: true
 
+auth:
+  jwt:
+    access-token-expiry-ms: 900000
+    refresh-token-expiry-ms: 604800000
+
 logging:
   level:
     com.insurancemanagementsystem: DEBUG
