@@ -141,7 +141,7 @@ class RealEstateServiceTest {
         mockReferenceDataNames();
 
         // Act
-        Page<RealEstateResponse> result = realEstateService.findAll(pageable);
+        Page<RealEstateResponse> result = realEstateService.findAll(pageable, null, null);
 
         // Assert
         assertThat(result).isNotEmpty();

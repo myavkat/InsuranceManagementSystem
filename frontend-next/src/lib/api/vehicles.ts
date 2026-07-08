@@ -82,6 +82,7 @@ export async function getVehicles(
   search?: string,
   sort?: string,
   direction?: string,
+  customerId?: string,
 ): Promise<PageResponse<VehicleResponse>> {
   const params = new URLSearchParams({ page: String(page), size: String(size) });
   if (search) params.set("search", search);
@@ -90,6 +91,7 @@ export async function getVehicles(
   } else if (sort) {
     params.set("sort", sort);
   }
+  if (customerId) params.set("customerId", customerId);
   return apiClient<PageResponse<VehicleResponse>>(
     `/api/vehicles?${params.toString()}`
   );

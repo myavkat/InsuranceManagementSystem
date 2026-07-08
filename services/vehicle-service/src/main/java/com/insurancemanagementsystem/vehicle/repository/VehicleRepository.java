@@ -26,4 +26,18 @@ public interface VehicleRepository extends JpaRepository<Vehicle, UUID> {
            OR LOWER(m.name) LIKE CONCAT('%', LOWER(:search), '%')
     """)
     Page<Vehicle> search(@Param("search") String search, Pageable pageable);
+
+    @Query("""
+        SELECT DISTINCT v FROM Vehicle v
+        LEFT JOIN CarBrand b ON b.id = v.carBrandId
+        LEFT JOIN CarModel m ON m.id = v.carModelId
+        WHERE v.customerId = :customerId
+          AND (LOWER(v.plate) LIKE CONCAT('%', LOWER(:search), '%')
+               OR LOWER(v.chassisNumber) LIKE CONCAT('%', LOWER(:search), '%')
+               OR LOWER(b.name) LIKE CONCAT('%', LOWER(:search), '%')
+               OR LOWER(m.name) LIKE CONCAT('%', LOWER(:search), '%'))
+    """)
+    Page<Vehicle> searchByCustomerIdAndSearch(@Param("customerId") UUID customerId,
+                                              @Param("search") String search,
+                                              Pageable pageable);
 }

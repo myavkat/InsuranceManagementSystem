@@ -174,10 +174,10 @@ Open `frontend-next/src/lib/api/realestate.ts`.
 
 ## Acceptance Criteria
 
-- [ ] `GET /api/vehicles?customerId=<uuid>` returns only vehicles belonging to that customer
-- [ ] `GET /api/vehicles?search=plate&customerId=<uuid>` returns vehicles matching BOTH search AND customer
-- [ ] `GET /api/vehicles` (without customerId) still returns all vehicles (backward compatible)
-- [ ] `GET /api/real-estate?customerId=<uuid>` returns only real estate belonging to that customer
-- [ ] `GET /api/real-estate?search=address&customerId=<uuid>` returns real estate matching both
-- [ ] `GET /api/real-estate` (without customerId) still returns all (backward compatible)
-- [ ] Frontend API client functions accept and forward the `customerId` parameter
+- [x] `GET /api/vehicles?customerId=<uuid>` returns only vehicles belonging to that customer
+- [x] `GET /api/vehicles?search=plate&customerId=<uuid>` returns vehicles matching BOTH search AND customer
+- [x] `GET /api/vehicles` (without customerId) still returns all vehicles (backward compatible)
+- [x] `GET /api/real-estate?customerId=<uuid>` returns only real estate belonging to that customer
+- [x] `GET /api/real-estate?search=address&customerId=<uuid>` returns real estate matching both
+- [x] `GET /api/real-estate` (without customerId) still returns all (backward compatible)
+- [x] Frontend API client functions accept and forward the `customerId` parameter
