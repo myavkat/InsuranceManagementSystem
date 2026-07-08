@@ -191,7 +191,15 @@ export function EstimationForm() {
                     }}
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Search and select a customer" />
+                      <SelectValue>
+                        {(value: any) => {
+                          if (!value) return "Search and select a customer";
+                          const fromList = customers.find((c) => c.id === value);
+                          if (fromList) return `${fromList.firstName} ${fromList.lastName} (${fromList.nationalId})`;
+                          if (selectedCustomer) return `${selectedCustomer.firstName} ${selectedCustomer.lastName} (${selectedCustomer.nationalId})`;
+                          return "";
+                        }}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <div
@@ -247,7 +255,12 @@ export function EstimationForm() {
                     onValueChange={(value) => setValue("insuranceTypeId", value ?? "", { shouldDirty: true })}
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select insurance type" />
+                      <SelectValue>
+                        {(value: any) => {
+                          if (!value) return "Select insurance type";
+                          return types?.find((t) => t.id.toString() === value)?.name ?? "";
+                        }}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {types?.map((type) => (
@@ -289,7 +302,13 @@ export function EstimationForm() {
                     }}
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select a vehicle (optional)" />
+                      <SelectValue>
+                        {(value: any) => {
+                          if (!value) return "Select a vehicle (optional)";
+                          // Vehicle search is not yet implemented — placeholder for when it is
+                          return "";
+                        }}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <div
@@ -325,7 +344,13 @@ export function EstimationForm() {
                     }}
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select a property (optional)" />
+                      <SelectValue>
+                        {(value: any) => {
+                          if (!value) return "Select a property (optional)";
+                          // Real estate search is not yet implemented — placeholder for when it is
+                          return "";
+                        }}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <div

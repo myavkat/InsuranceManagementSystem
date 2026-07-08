@@ -245,7 +245,14 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
                 }}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Search and select a customer" />
+                  <SelectValue>
+                    {(value: any) => {
+                      if (!value) return "Search and select a customer";
+                      const c = customers.find((c) => c.id === value);
+                      if (c) return `${c.firstName} ${c.lastName} (${c.nationalId})`;
+                      return "";
+                    }}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <div
@@ -289,7 +296,12 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
                   onValueChange={handleBrandChange}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select a brand" />
+                    <SelectValue>
+                      {(value: any) => {
+                        if (!value) return "Select a brand";
+                        return brands?.find((b) => b.id.toString() === value)?.name ?? "";
+                      }}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {brands?.map((brand) => (
@@ -309,15 +321,16 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
                   disabled={!watchBrandId || watchBrandId === ""}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue
-                      placeholder={
-                        !watchBrandId
-                          ? "Select a brand first"
-                          : modelsLoading
-                            ? "Loading models..."
-                            : "Select a model"
-                      }
-                    />
+                    <SelectValue>
+                      {(value: any) => {
+                        if (!value) {
+                          if (!watchBrandId) return "Select a brand first";
+                          if (modelsLoading) return "Loading models...";
+                          return "Select a model";
+                        }
+                        return models?.find((m) => m.id.toString() === value)?.name ?? "";
+                      }}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {models?.map((model) => (
@@ -339,7 +352,12 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
                   onValueChange={(value) => setValue("carEngineId", value ?? "")}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select engine" />
+                    <SelectValue>
+                      {(value: any) => {
+                        if (!value) return "Select engine";
+                        return engines?.find((e) => e.id.toString() === value)?.name ?? "";
+                      }}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {engines?.map((engine) => (
@@ -358,7 +376,12 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
                   onValueChange={(value) => setValue("carFuelTypeId", value ?? "")}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select fuel type" />
+                    <SelectValue>
+                      {(value: any) => {
+                        if (!value) return "Select fuel type";
+                        return fuelTypes?.find((f) => f.id.toString() === value)?.name ?? "";
+                      }}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {fuelTypes?.map((fuel) => (
@@ -380,7 +403,12 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
                   onValueChange={(value) => setValue("carTypeId", value ?? "")}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select type" />
+                    <SelectValue>
+                      {(value: any) => {
+                        if (!value) return "Select type";
+                        return types?.find((t) => t.id.toString() === value)?.name ?? "";
+                      }}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {types?.map((type) => (
@@ -399,7 +427,12 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
                   onValueChange={(value) => setValue("carPackageId", value ?? "")}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select package" />
+                    <SelectValue>
+                      {(value: any) => {
+                        if (!value) return "Select package";
+                        return packages?.find((p) => p.id.toString() === value)?.name ?? "";
+                      }}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {packages?.map((pkg) => (

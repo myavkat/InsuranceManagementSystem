@@ -179,7 +179,12 @@ export function RealEstateForm({ initialData }: RealEstateFormProps) {
                   onValueChange={(value) => setValue("cityId", value ?? "")}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select a city" />
+                    <SelectValue>
+                      {(value: any) => {
+                        if (!value) return "Select a city";
+                        return cities?.find((c) => c.id.toString() === value)?.name ?? "";
+                      }}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {cities?.map((city) => (
@@ -232,7 +237,14 @@ export function RealEstateForm({ initialData }: RealEstateFormProps) {
                 }}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Search and select a customer" />
+                  <SelectValue>
+                    {(value: any) => {
+                      if (!value) return "Search and select a customer";
+                      const c = customers.find((c) => c.id === value);
+                      if (c) return `${c.firstName} ${c.lastName} (${c.nationalId})`;
+                      return "";
+                    }}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <div
@@ -276,7 +288,12 @@ export function RealEstateForm({ initialData }: RealEstateFormProps) {
                   onValueChange={(value) => setValue("constructionTypeId", value ?? "")}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select type" />
+                    <SelectValue>
+                      {(value: any) => {
+                        if (!value) return "Select type";
+                        return constructionTypes?.find((t) => t.id.toString() === value)?.name ?? "";
+                      }}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {constructionTypes?.map((type) => (
@@ -295,7 +312,12 @@ export function RealEstateForm({ initialData }: RealEstateFormProps) {
                   onValueChange={(value) => setValue("luxuryClassId", value ?? "")}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select class" />
+                    <SelectValue>
+                      {(value: any) => {
+                        if (!value) return "Select class";
+                        return luxuryClasses?.find((c) => c.id.toString() === value)?.name ?? "";
+                      }}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {luxuryClasses?.map((cls) => (
@@ -314,7 +336,12 @@ export function RealEstateForm({ initialData }: RealEstateFormProps) {
                   onValueChange={(value) => setValue("usageTypeId", value ?? "")}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select type" />
+                    <SelectValue>
+                      {(value: any) => {
+                        if (!value) return "Select type";
+                        return usageTypes?.find((t) => t.id.toString() === value)?.name ?? "";
+                      }}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {usageTypes?.map((type) => (

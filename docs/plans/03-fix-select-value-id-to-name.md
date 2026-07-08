@@ -20,24 +20,31 @@ automatically — no change needed to the wrapper component.
 
 Every `<SelectValue placeholder="..." />` must become:
 ```tsx
-<SelectValue
-  placeholder="Select something"
-  render={(value) => optionsArray?.find(o => o.id.toString() === value)?.name ?? ""}
-/>
+<SelectValue>
+  {(value) => {
+    if (!value) return "Select something";
+    return optionsArray?.find(o => o.id.toString() === value)?.name ?? "";
+  }}
+</SelectValue>
 ```
 
 Where `optionsArray` is the data array used to populate the `SelectItem` elements (e.g., `types`,
 `brands`, `models`, `cities`, etc.).
 
 **Important behavior notes:**
-- The `render` function receives the current `value` string (the same value you pass to the `Select`'s
-  `value` prop).
-- Return `""` (empty string) when no match is found — this causes the `placeholder` to be shown.
-- The render function MUST handle `undefined`/`null` options arrays gracefully (use optional chaining
+- The `children` function receives the current `value` string (the same value you pass to the `Select`'s
+  `value` prop). When no value is selected, `value` is `null`.
+- Return `""` (empty string) when no match is found — this keeps the trigger empty until options load.
+- Return the placeholder text when `!value` — this replaces the `placeholder` prop since `children`
+  overrides it.
+- The children function MUST handle `undefined`/`null` options arrays gracefully (use optional chaining
   `?.` and nullish coalescing `?? ""`).
 - For edit forms loading with initial data: the options array may not be loaded yet when the form
-  first renders. The render function returns `""`, showing the placeholder, and once options load,
-  React re-renders with the correct name. No special handling needed.
+  first renders. The children function returns `""`, and once options load, React re-renders with the
+  correct name. No special handling needed.
+- **API note:** This uses the `children` prop as a function (signature `(value: any) => ReactNode`),
+  not the `render` prop. Base UI's `render` prop requires a `ReactElement` return, while `children`
+  accepts `ReactNode` (including plain strings), making it simpler for text-label rendering.
 
 ## Files to Read First
 
@@ -348,15 +355,15 @@ Start the frontend dev server and verify these scenarios:
 
 ## Acceptance Criteria
 
-- [ ] Insurance Type dropdown in insurance-form shows type name (e.g., "Health Insurance"), not `"1"`
-- [ ] Insurance Type dropdown in estimation-form shows type name, not `"3"`
-- [ ] Customer dropdown in estimation-form shows full name + TCKN, not GUID
-- [ ] Brand, Model, Engine, Fuel, Type, Package dropdowns in vehicle-form all show names
-- [ ] Customer dropdown in vehicle-form shows full name + TCKN
-- [ ] City, Construction Type, Luxury Class, Usage Type dropdowns in real-estate-form all show names
-- [ ] Customer dropdown in real-estate-form shows full name + TCKN
-- [ ] All `render` functions handle missing options (`?.` and `?? ""`) without crashing
-- [ ] Frontend type-checks without errors
+- [x] Insurance Type dropdown in insurance-form shows type name (e.g., "Health Insurance"), not `"1"`
+- [x] Insurance Type dropdown in estimation-form shows type name, not `"3"`
+- [x] Customer dropdown in estimation-form shows full name + TCKN, not GUID
+- [x] Brand, Model, Engine, Fuel, Type, Package dropdowns in vehicle-form all show names
+- [x] Customer dropdown in vehicle-form shows full name + TCKN
+- [x] City, Construction Type, Luxury Class, Usage Type dropdowns in real-estate-form all show names
+- [x] Customer dropdown in real-estate-form shows full name + TCKN
+- [x] All `children` functions handle missing values (`?.` and `??`) without crashing
+- [x] Frontend type-checks without errors
 
 ## Dependencies
 

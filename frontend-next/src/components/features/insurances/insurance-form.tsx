@@ -141,7 +141,12 @@ export function InsuranceForm({ initialData }: InsuranceFormProps) {
                 onValueChange={(value) => setValue("typeId", value ?? "")}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select type" />
+                  <SelectValue>
+                    {(value: any) => {
+                      if (!value) return "Select type";
+                      return types?.find((t) => t.id.toString() === value)?.name ?? "";
+                    }}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {types?.map((type) => (
