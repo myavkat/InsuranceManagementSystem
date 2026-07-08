@@ -46,7 +46,7 @@ The plate field should validate Turkish plate format: `XX 1234` or `XX 1234 YY`.
 
 ## Steps
 
-### Step 1: Create directory structure
+### ✅ Step 1: Create directory structure
 
 ```
 frontend-next/src/app/(dashboard)/vehicles/
@@ -56,7 +56,7 @@ frontend-next/src/app/(dashboard)/vehicles/[id]/edit/
 frontend-next/src/components/features/vehicles/
 ```
 
-### Step 2: Build Vehicle List page
+### ✅ Step 2: Build Vehicle List page
 
 Create `frontend-next/src/components/features/vehicles/vehicle-list.tsx` — Client Component with:
 - `useQuery` fetching `getVehicles(page, pageSize, search)`
@@ -70,7 +70,7 @@ Create `frontend-next/src/components/features/vehicles/vehicle-list.tsx` — Cli
 
 Create `frontend-next/src/app/(dashboard)/vehicles/page.tsx` — Server Component rendering `<VehicleList />`.
 
-### Step 3: Build Vehicle Detail page
+### ✅ Step 3: Build Vehicle Detail page
 
 Create `frontend-next/src/components/features/vehicles/vehicle-detail.tsx` — Client Component with:
 - `useQuery` fetching `getVehicle(id)`
@@ -83,7 +83,7 @@ Create `frontend-next/src/components/features/vehicles/vehicle-detail.tsx` — C
 
 Create `frontend-next/src/app/(dashboard)/vehicles/[id]/page.tsx` — Server Component rendering `<VehicleDetail />`.
 
-### Step 4: Build Vehicle Form (shared)
+### ✅ Step 4: Build Vehicle Form (shared)
 
 Create `frontend-next/src/components/features/vehicles/vehicle-form.tsx` — Client Component.
 
@@ -125,7 +125,7 @@ const vehicleSchema = z.object({
 - Type + Package row
 - Cancel + Save buttons
 
-### Step 5: Create page files
+### ✅ Step 5: Create page files
 
 Create:
 - `frontend-next/src/app/(dashboard)/vehicles/new/page.tsx` — renders `<VehicleForm />`
@@ -133,20 +133,20 @@ Create:
 
 Create `frontend-next/src/components/features/vehicles/edit-vehicle-form.tsx` — fetches vehicle by ID, passes `initialData` to `VehicleForm`.
 
-### Step 6: Verify build
+### ✅ Step 6: Verify build
 
 Run: `cd frontend-next && npm run build`
 
 ## Acceptance Criteria
 
-- [ ] `/vehicles` page renders paginated table with search
-- [ ] `/vehicles/[id]` shows full vehicle details with Edit and Delete buttons
-- [ ] `/vehicles/new` renders form with cascading brand→model dropdown
-- [ ] Selecting a brand populates the model dropdown
-- [ ] Changing brand resets model selection
-- [ ] Customer dropdown is required and searchable
-- [ ] Plate validates Turkish plate format
-- [ ] Chassis number validates 17-character alphanumeric
-- [ ] Delete shows confirmation dialog
-- [ ] Loading, error, and empty states all handled
-- [ ] `npm run build` succeeds without TypeScript errors
+- [x] `/vehicles` page renders paginated table with search
+- [x] `/vehicles/[id]` shows full vehicle details with Edit and Delete buttons
+- [x] `/vehicles/new` renders form with cascading brand→model dropdown
+- [x] Selecting a brand populates the model dropdown
+- [x] Changing brand resets model selection
+- [x] Customer dropdown is required and searchable
+- [x] Plate validates Turkish plate format
+- [x] Chassis number validates 17-character alphanumeric
+- [x] Delete shows confirmation dialog
+- [x] Loading, error, and empty states all handled
+- [x] `npm run build` succeeds without TypeScript errors
