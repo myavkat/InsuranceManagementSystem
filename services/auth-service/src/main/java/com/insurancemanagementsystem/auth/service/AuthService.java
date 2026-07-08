@@ -73,7 +73,6 @@ public class AuthService {
     // LOGIN
     // ================================================================
 
-    @Transactional
     public LoginResponse login(LoginRequest request) {
         // 1. Find user
         User user = userRepository.findByUsername(request.getUsername())

@@ -457,12 +457,12 @@ If tests fail with Docker connectivity issues on Windows, see `docs/outlines/13_
 
 ## Acceptance Criteria
 
-- [ ] `application-test.yml` exists with `create-drop` DDL, disabled cloud stream, short token expiries
-- [ ] `AuthControllerIntegrationTest.java` exists with all test methods
-- [ ] Registration tests: success, duplicate rejection, field validation
-- [ ] Login tests: success with tokens, invalid password rejection, account lockout after 5 failures
-- [ ] Refresh tests: token rotation, old token revocation
-- [ ] Validate tests: valid token, missing token, tampered token
-- [ ] Public key test: PEM format returned
-- [ ] `./gradlew :services:auth-service:compileTestJava` succeeds
-- [ ] `./gradlew :services:auth-service:test` passes (all tests green)
+- [x] `application-test.yml` exists with `create-drop` DDL, disabled cloud stream, short token expiries
+- [x] `AuthControllerIntegrationTest.java` exists with all test methods
+- [x] Registration tests: success, duplicate rejection, field validation
+- [x] Login tests: success with tokens, invalid password rejection, account lockout after 5 failures
+- [x] Refresh tests: token rotation, old token revocation
+- [x] Validate tests: valid token, missing token, tampered token
+- [x] Public key test: PEM format returned
+- [x] `./gradlew :services:auth-service:compileTestJava` succeeds
+- [x] `./gradlew :services:auth-service:test` passes (all tests green)

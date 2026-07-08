@@ -1,0 +1,20 @@
+# Test configuration for auth-service integration tests
+spring:
+  jpa:
+    show-sql: true
+  cloud:
+    stream:
+      enabled: false
+
+eureka:
+  client:
+    enabled: false
+
+auth:
+  jwt:
+    access-token-expiry-ms: 5000       # 5 seconds for testing expiry
+    refresh-token-expiry-ms: 10000     # 10 seconds for testing expiry
+
+logging:
+  level:
+    com.insurancemanagementsystem: DEBUG
