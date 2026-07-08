@@ -180,7 +180,7 @@ export function InsuranceList({ initialData }: InsuranceListProps) {
                   <SelectValue placeholder="All types" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All types</SelectItem>
+                  <SelectItem value="">All types</SelectItem>
                   {types?.map((type) => (
                     <SelectItem key={type.id} value={type.id.toString()}>{type.name}</SelectItem>
                   ))}
@@ -197,7 +197,7 @@ export function InsuranceList({ initialData }: InsuranceListProps) {
                   <SelectValue placeholder="All companies" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All companies</SelectItem>
+                  <SelectItem value="">All companies</SelectItem>
                   {companies?.map((company) => (
                     <SelectItem key={company.id} value={company.id.toString()}>{company.name}</SelectItem>
                   ))}

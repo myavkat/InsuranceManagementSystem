@@ -101,12 +101,12 @@ This is simpler and preserves the "All" UX. The key difference from the buggy ve
 
 ## Acceptance Criteria
 
-- [ ] Select an insurance type filter → API call includes `typeId=<number>` (correct)
-- [ ] Select "All types" (clear filter) → API call does NOT include `typeId` parameter
-- [ ] Select an insurance company filter → API call includes `companyId=<number>` (correct)
-- [ ] Select "All companies" → API call does NOT include `companyId` parameter
-- [ ] No `NaN` appears in any API request URL parameters
-- [ ] Existing filter behavior (resetting to page 0 on filter change) is preserved
+- [x] Select an insurance type filter → API call includes `typeId=<number>` (correct)
+- [x] Select "All types" (clear filter) → API call does NOT include `typeId` parameter
+- [x] Select an insurance company filter → API call includes `companyId=<number>` (correct)
+- [x] Select "All companies" → API call does NOT include `companyId` parameter
+- [x] No `NaN` appears in any API request URL parameters
+- [x] Existing filter behavior (resetting to page 0 on filter change) is preserved
 
 ---
 
