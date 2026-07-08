@@ -245,13 +245,13 @@ Run `cd frontend-next && npx tsc --noEmit` to verify no type errors.
 
 ## Acceptance Criteria
 
-- [ ] Vehicle list shows customer names (or verified as backend issue with documented findings)
-- [ ] Vehicle detail page shows customer name (or verified as backend issue)
-- [ ] Search on vehicle list filters results (or verified as backend issue with documented findings)
-- [ ] Re-selecting the same brand in vehicle form does NOT reset the model dropdown
-- [ ] Changing the brand in vehicle form DOES reset the model dropdown
-- [ ] After editing a vehicle and saving, the detail page shows the updated data (not stale)
-- [ ] Frontend type-checks without errors
+- [x] Vehicle list shows customer names (or verified as backend issue with documented findings)
+- [x] Vehicle detail page shows customer name (or verified as backend issue)
+- [x] Search on vehicle list filters results (or verified as backend issue with documented findings)
+- [x] Re-selecting the same brand in vehicle form does NOT reset the model dropdown
+- [x] Changing the brand in vehicle form DOES reset the model dropdown
+- [x] After editing a vehicle and saving, the detail page shows the updated data (not stale)
+- [x] Frontend type-checks without errors
 
 ## Dependencies
 

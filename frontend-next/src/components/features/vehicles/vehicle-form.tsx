@@ -126,13 +126,20 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
 
   const customers = customerData?.content ?? [];
 
-  // Handle brand change — reset model selection
+  // Handle brand change — reset model selection only if brand actually changed
   const handleBrandChange = useCallback(
     (value: string | null) => {
-      setValue("carBrandId", value ?? "");
-      setValue("carModelId", "");
+      const newBrandId = value ?? "";
+      const currentBrandId = watch("carBrandId");
+
+      setValue("carBrandId", newBrandId);
+
+      // Only reset model if brand actually changed
+      if (newBrandId !== currentBrandId) {
+        setValue("carModelId", "");
+      }
     },
-    [setValue]
+    [setValue, watch]
   );
 
   const mutation = useMutation({
@@ -156,6 +163,7 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
     },
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ["vehicles"] });
+      queryClient.invalidateQueries({ queryKey: ["vehicle", result.id] });
       router.push(`/vehicles/${result.id}`);
     },
   });
