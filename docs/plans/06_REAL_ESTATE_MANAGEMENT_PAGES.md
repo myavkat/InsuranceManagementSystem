@@ -126,15 +126,15 @@ Run: `cd frontend-next && npm run build`
 
 ## Acceptance Criteria
 
-- [ ] `/real-estate` page renders paginated table with search
-- [ ] `/real-estate/[id]` shows full property details with Edit and Delete buttons
-- [ ] `/real-estate/new` renders form with all reference data dropdowns populated
-- [ ] Construction Type, Luxury Class, and Usage Type are dropdowns from API
-- [ ] City dropdown populated from reference data API
-- [ ] Customer dropdown is required
-- [ ] Square meters validates positive number
-- [ ] Construction year validates not in future
-- [ ] Address is required
-- [ ] Delete shows confirmation dialog
-- [ ] Loading, error, and empty states all handled
-- [ ] `npm run build` succeeds without TypeScript errors
+- [x] `/real-estate` page renders paginated table with search
+- [x] `/real-estate/[id]` shows full property details with Edit and Delete buttons
+- [x] `/real-estate/new` renders form with all reference data dropdowns populated
+- [x] Construction Type, Luxury Class, and Usage Type are dropdowns from API
+- [x] City dropdown populated from reference data API
+- [x] Customer dropdown is required
+- [x] Square meters validates positive number
+- [x] Construction year validates not in future
+- [x] Address is required
+- [x] Delete shows confirmation dialog
+- [x] Loading, error, and empty states all handled
+- [x] `npm run build` succeeds without TypeScript errors
