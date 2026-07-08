@@ -40,6 +40,12 @@ Currently, every navigation to a list page triggers **two** API calls: one SSR `
 
 **Change each file as follows**:
 
+- [x] Add `staleTime` to `useQuery` in **customer-list.tsx**
+- [x] Add `staleTime` to `useQuery` in **estimation-list.tsx**
+- [x] Add `staleTime` to `useQuery` in **insurance-list.tsx**
+- [x] Add `staleTime` to `useQuery` in **real-estate-list.tsx**
+- [x] Add `staleTime` to `useQuery` in **vehicle-list.tsx**
+
 ### File 1: `customer-list.tsx`
 
 Find the `useQuery` call (around line 51). It currently looks like:

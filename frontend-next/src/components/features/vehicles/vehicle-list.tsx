@@ -81,6 +81,7 @@ export function VehicleList({ initialData }: VehicleListProps) {
       getVehicles(pagination.pageIndex, pagination.pageSize, search || undefined, sortField, sortDirection),
     initialData:
       pagination.pageIndex === 0 && !search && !sortField ? initialData : undefined,
+    staleTime: 30_000, // SSR data is fresh for 30s — skip immediate refetch
   });
 
   if (isError) {

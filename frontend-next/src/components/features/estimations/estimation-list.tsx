@@ -97,6 +97,7 @@ export function EstimationList({ initialData }: EstimationListProps) {
       pagination.pageIndex === 0 && !status && !customerSearch && !dateFrom && !dateTo && !sortField
         ? initialData
         : undefined,
+    staleTime: 30_000, // SSR data is fresh for 30s — skip immediate refetch
   });
 
   if (isError) {

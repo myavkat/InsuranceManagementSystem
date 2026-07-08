@@ -92,6 +92,7 @@ export function InsuranceList({ initialData }: InsuranceListProps) {
       ),
     initialData:
       pagination.pageIndex === 0 && !search && !typeId && !companyId && !sortField ? initialData : undefined,
+    staleTime: 30_000, // SSR data is fresh for 30s — skip immediate refetch
   });
 
   const { data: types } = useQuery({
