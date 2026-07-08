@@ -74,12 +74,12 @@ const isPublicPage = PUBLIC_PATHS.some(
 
 ## Acceptance Criteria
 
-- [ ] `/login` → allowed through without redirect (existing behavior preserved)
-- [ ] `/register` → allowed through without redirect (existing behavior preserved)
-- [ ] `/login-callback` → redirected to `/login?redirect=/login-callback` (NEW: auth enforced)
-- [ ] `/register-sso` → redirected to `/login?redirect=/register-sso` (NEW: auth enforced)
-- [ ] `/dashboard` → redirected to `/login?redirect=/dashboard` (existing behavior preserved)
-- [ ] API routes (`/api/*`) are still allowed through without redirect (existing behavior preserved)
+- [x] `/login` → allowed through without redirect (existing behavior preserved)
+- [x] `/register` → allowed through without redirect (existing behavior preserved)
+- [x] `/login-callback` → redirected to `/login?redirect=/login-callback` (NEW: auth enforced)
+- [x] `/register-sso` → redirected to `/login?redirect=/register-sso` (NEW: auth enforced)
+- [x] `/dashboard` → redirected to `/login?redirect=/dashboard` (existing behavior preserved)
+- [x] API routes (`/api/*`) are still allowed through without redirect (existing behavior preserved)
 
 ---
 
