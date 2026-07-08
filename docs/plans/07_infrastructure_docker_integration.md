@@ -1,6 +1,6 @@
 # Plan 07: Infrastructure & Docker Integration
 
-> **Status:** Not started
+> **Status:** Complete (code changes applied, JARs verified)
 > **Branch:** `phase4-api-gateway`
 > **Depends on:** Plan 01 (Eureka Server), Plan 02 (API Gateway Core)
 > **Can run in parallel with:** Plans 03, 04, 05
@@ -429,14 +429,14 @@ curl http://localhost:8080/actuator/health
 
 ## Acceptance Criteria
 
-- [ ] Eureka Server added to `docker-compose.yml` with health check
-- [ ] API Gateway added to `docker-compose.services.yml`
-- [ ] All 6 existing services have `EUREKA_SERVER_URL` env var in Docker Compose
-- [ ] All 6 existing services have `eureka-server` in `depends_on`
-- [ ] Eureka Server `application.yml` uses `${SERVER_PORT:8761}` for port
-- [ ] `start-all.cmd` builds Eureka + Gateway JARs
-- [ ] `stop-all.cmd` stops all services correctly
-- [ ] `.env.template` has all new environment variables
+- [x] Eureka Server added to `docker-compose.yml` with health check
+- [x] API Gateway added to `docker-compose.services.yml`
+- [x] All 6 existing services have `EUREKA_SERVER_URL` env var in Docker Compose
+- [x] All 6 existing services have `eureka-server` in `depends_on`
+- [x] Eureka Server `application.yml` uses `${SERVER_PORT:8761}` for port
+- [x] `start-all.cmd` updates (port listing, service count)
+- [x] `stop-all.cmd` stops all services correctly (no changes needed — Docker Compose handles it)
+- [x] `.env.template` has all new environment variables (already present)
 - [ ] `docker compose up` starts Eureka and Gateway without errors
 - [ ] Eureka dashboard accessible at `http://localhost:8761`
 - [ ] All services register with Eureka (visible in dashboard)

@@ -23,9 +23,10 @@ echo === Starting infrastructure + services ===
 docker compose -f docker-compose.yml -f docker-compose.override.yml -f docker-compose.services.yml up -d --build
 
 echo.
-echo === Done: 6 services running ===
+echo === Done: 8 services running ===
 echo   Stop:  stop-all
-echo   Logs:  docker logs -f customer-service
+echo   Logs:  docker logs -f api-gateway
 echo.
-echo Ports: 8081=customer 8082=vehicle 8083=realestate 8084=insurance 8085=estimation 8086=reference-data
+echo Ports: 8080=gateway 8081=customer 8082=vehicle 8083=realestate 8084=insurance 8085=estimation 8086=reference-data
+echo   Eureka: http://localhost:8761
 endlocal
