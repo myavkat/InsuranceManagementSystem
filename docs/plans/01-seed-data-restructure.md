@@ -34,7 +34,7 @@ Reshape the `insurance_types` and `insurances` seed data so that:
 
 ## Steps
 
-### Step 1: Update insurance_types seed data
+### Step 1: ✅ Update insurance_types seed data
 
 Open `infra/sql/insurance_db/init.sql`.
 
@@ -56,7 +56,7 @@ ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name;
 
 This uses `ON CONFLICT DO UPDATE` so existing DBs get the type names updated (from TRAFFIC→Vehicle, CASCO deleted, DASK→Real Estate, HEALTH→Health, LIFE→Life).
 
-### Step 2: Add cleanup + new seed for insurances
+### Step 2: ✅ Add cleanup + new seed for insurances
 
 **Replace** the existing insurance products seed block:
 ```sql
@@ -87,19 +87,19 @@ INSERT INTO insurances (name, description, type_id, base_premium, is_active) VAL
 ('LIFE', 'Life insurance', 4, 1500.00, TRUE);
 ```
 
-### Step 3: Handle FK constraint for DELETE
+### Step 3: ✅ Handle FK constraint for DELETE
 
 Since `insurances` has `type_id INT NOT NULL REFERENCES insurance_types(id)`, the DELETE is safe because we DELETE from insurances first, then UPDATE insurance_types.
 
 But note: if there are `estimations` rows in a separate DB that reference old `insurance_type_id` values (especially id=5 for LIFE which will now be id=4), those would become orphaned. This is acceptable for dev seed data. The estimation DB is separate and its data is transient.
 
-### Step 4: Verify the InsuranceType entity
+### Step 4: ✅ Verify the InsuranceType entity
 
 Open `services/insurance-service/src/main/java/com/insurancemanagementsystem/insurance/entity/InsuranceType.java`.
 
 Verify the entity has only `id` (Integer, `@Id`) and `name` (String, max 50). No changes needed — the entity is just a simple lookup.
 
-### Step 5: Verify Insurance entity still correct
+### Step 5: ✅ Verify Insurance entity still correct
 
 Open `services/insurance-service/src/main/java/com/insurancemanagementsystem/insurance/entity/Insurance.java`.
 
@@ -107,8 +107,8 @@ Verify: `typeId` field (Integer) maps to `type_id` column with `@ManyToOne` read
 
 ## Acceptance Criteria
 
-- [ ] `insurance_types` table has exactly 4 rows: Vehicle(1), Real Estate(2), Health(3), Life(4)
-- [ ] `insurances` table has exactly 5 active products: TRAFFIC(type=1), CASCO(type=1), DASK(type=2), HEALTH(type=3), LIFE(type=4)
-- [ ] `GET /api/insurances/types` returns the 4 new type names
-- [ ] `GET /api/insurances` returns the 5 new product names
-- [ ] Docker Compose down/up cycle produces same clean state (idempotent)
+- [x] `insurance_types` table has exactly 4 rows: Vehicle(1), Real Estate(2), Health(3), Life(4)
+- [x] `insurances` table has exactly 5 active products: TRAFFIC(type=1), CASCO(type=1), DASK(type=2), HEALTH(type=3), LIFE(type=4)
+- [x] `GET /api/insurances/types` returns the 4 new type names
+- [x] `GET /api/insurances` returns the 5 new product names
+- [x] Docker Compose down/up cycle produces same clean state (idempotent)

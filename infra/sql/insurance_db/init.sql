@@ -18,18 +18,25 @@ CREATE TABLE IF NOT EXISTS insurances (
 
 CREATE INDEX IF NOT EXISTS idx_insurances_type ON insurances(type_id);
 
--- Seed insurance types
+-- Seed insurance types (asset categories — determines which asset to link in estimation)
 INSERT INTO insurance_types (id, name) VALUES
-(1, 'TRAFFIC'), (2, 'CASCO'), (3, 'DASK'), (4, 'HEALTH'), (5, 'LIFE')
-ON CONFLICT (id) DO NOTHING;
+(1, 'Vehicle'), (2, 'Real Estate'), (3, 'Health'), (4, 'Life')
+ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name;
 
--- Seed insurance products (single-provider system — one product per type)
+-- Seed insurance products
+-- Clean up old seed rows by name before re-inserting (idempotent across restarts)
+DELETE FROM insurances WHERE name IN (
+    'TRAFFIC', 'CASCO', 'DASK', 'HEALTH', 'LIFE',
+    'Zorunlu Trafik Sigortası', 'Kapsamlı Kasko', 'Doğal Afet Sigortası (DASK)',
+    'Tamamlayıcı Sağlık Sigortası', 'Hayat Sigortası'
+);
+
 INSERT INTO insurances (name, description, type_id, base_premium, is_active) VALUES
-('Zorunlu Trafik Sigortası', 'Legal required traffic insurance', 1, 1250.00, TRUE),
-('Kapsamlı Kasko', 'Full comprehensive insurance', 2, 3500.00, TRUE),
-('Doğal Afet Sigortası (DASK)', 'Earthquake insurance', 3, 450.00, TRUE),
-('Tamamlayıcı Sağlık Sigortası', 'Complementary health insurance', 4, 2800.00, TRUE),
-('Hayat Sigortası', 'Life insurance', 5, 1500.00, TRUE);
+('TRAFFIC', 'Mandatory traffic insurance', 1, 1250.00, TRUE),
+('CASCO', 'Comprehensive auto insurance', 1, 3500.00, TRUE),
+('DASK', 'Earthquake insurance for real estate', 2, 450.00, TRUE),
+('HEALTH', 'Complementary health insurance', 3, 2800.00, TRUE),
+('LIFE', 'Life insurance', 4, 1500.00, TRUE);
 
 -- Migration: drop insurance_companies table and remove company_id FK (multi-company concept removed)
 ALTER TABLE insurances DROP COLUMN IF EXISTS company_id;
