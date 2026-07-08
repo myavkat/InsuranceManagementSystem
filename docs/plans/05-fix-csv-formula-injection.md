@@ -78,11 +78,11 @@ The tab prefix (`\t`, U+0009) is the recommended mitigation because:
 
 ## Acceptance Criteria
 
-- [ ] Export CSV from any data table (customers, estimations, insurances, vehicles, real-estate)
-- [ ] Open CSV in Excel: cells starting with `=`, `+`, `-`, `@` display as literal text, NOT as formulas
-- [ ] Open CSV in Google Sheets: same — no formula execution
-- [ ] Normal text cells (no formula prefixes) are unaffected and display correctly
-- [ ] Cells containing commas, double quotes, and newlines are still properly escaped (no regression)
+- [x] Export CSV from any data table (customers, estimations, insurances, vehicles, real-estate)
+- [x] Open CSV in Excel: cells starting with `=`, `+`, `-`, `@` display as literal text, NOT as formulas
+- [x] Open CSV in Google Sheets: same — no formula execution
+- [x] Normal text cells (no formula prefixes) are unaffected and display correctly
+- [x] Cells containing commas, double quotes, and newlines are still properly escaped (no regression)
 
 ---
 
