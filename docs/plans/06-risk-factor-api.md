@@ -6,7 +6,7 @@ Add REST API endpoints for reading and updating risk factor values on an insuran
 
 ## Dependencies
 
-- [ ] Plan 05 (`05-risk-factor-backend.md`) — entities and repositories must exist
+- [x] Plan 05 (`05-risk-factor-backend.md`) — entities and repositories must exist
 
 ## Files to Read First
 
@@ -289,10 +289,10 @@ public ResponseEntity<ApiResponse<Page<RiskFactorHistoryResponse>>> getRiskFacto
 
 ## Acceptance Criteria
 
-- [ ] `GET /api/insurances/{id}/risk-factors` returns all risk factors for that insurance (list of RiskFactorResponse)
-- [ ] `PUT /api/insurances/{id}/risk-factors` accepts a JSON array, updates matching factors, and records history entries
-- [ ] `PUT /api/insurances/{id}/risk-factors` returns 404 if factor_name doesn't exist for that insurance
-- [ ] `PUT /api/insurances/{id}/risk-factors` skips factors where old_value == new_value (no history noise)
-- [ ] `GET /api/insurances/{id}/risk-factors/history` returns paginated history, most recent first
-- [ ] History entries show old_value (null for first creation — or handled by seed), new_value, and changed_at
-- [ ] All responses use `ApiResponse` wrapper
+- [x] `GET /api/insurances/{id}/risk-factors` returns all risk factors for that insurance (list of RiskFactorResponse)
+- [x] `PUT /api/insurances/{id}/risk-factors` accepts a JSON array, updates matching factors, and records history entries
+- [x] `PUT /api/insurances/{id}/risk-factors` returns 404 if factor_name doesn't exist for that insurance
+- [x] `PUT /api/insurances/{id}/risk-factors` skips factors where old_value == new_value (no history noise)
+- [x] `GET /api/insurances/{id}/risk-factors/history` returns paginated history, most recent first
+- [x] History entries show old_value (null for first creation — or handled by seed), new_value, and changed_at
+- [x] All responses use `ApiResponse` wrapper

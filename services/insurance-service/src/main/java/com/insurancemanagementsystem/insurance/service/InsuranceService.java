@@ -3,10 +3,17 @@ package com.insurancemanagementsystem.insurance.service;
 import com.insurancemanagementsystem.insurance.config.InsuranceEventPublisher;
 import com.insurancemanagementsystem.insurance.dto.InsuranceRequest;
 import com.insurancemanagementsystem.insurance.dto.InsuranceResponse;
+import com.insurancemanagementsystem.insurance.dto.RiskFactorHistoryResponse;
+import com.insurancemanagementsystem.insurance.dto.RiskFactorResponse;
+import com.insurancemanagementsystem.insurance.dto.RiskFactorUpdateRequest;
 import com.insurancemanagementsystem.insurance.entity.Insurance;
 import com.insurancemanagementsystem.insurance.entity.InsuranceType;
+import com.insurancemanagementsystem.insurance.entity.RiskFactor;
+import com.insurancemanagementsystem.insurance.entity.RiskFactorHistory;
 import com.insurancemanagementsystem.insurance.repository.InsuranceRepository;
 import com.insurancemanagementsystem.insurance.repository.InsuranceTypeRepository;
+import com.insurancemanagementsystem.insurance.repository.RiskFactorHistoryRepository;
+import com.insurancemanagementsystem.insurance.repository.RiskFactorRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +22,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,6 +35,8 @@ public class InsuranceService {
     private final InsuranceRepository insuranceRepository;
     private final InsuranceTypeRepository insuranceTypeRepository;
     private final InsuranceEventPublisher insuranceEventPublisher;
+    private final RiskFactorRepository riskFactorRepository;
+    private final RiskFactorHistoryRepository riskFactorHistoryRepository;
 
     // ============================================================
     // Insurance CRUD
@@ -134,5 +145,65 @@ public class InsuranceService {
     @Transactional(readOnly = true)
     public List<InsuranceType> getAllTypes() {
         return insuranceTypeRepository.findAll();
+    }
+
+    // ============================================================
+    // Risk Factors
+    // ============================================================
+
+    @Transactional(readOnly = true)
+    public List<RiskFactorResponse> getRiskFactors(UUID insuranceId) {
+        return riskFactorRepository.findByInsuranceId(insuranceId).stream()
+                .map(RiskFactorResponse::fromEntity)
+                .toList();
+    }
+
+    @Transactional
+    public List<RiskFactorResponse> updateRiskFactors(UUID insuranceId,
+                                                       List<RiskFactorUpdateRequest> updates) {
+        List<RiskFactorResponse> results = new java.util.ArrayList<>();
+
+        for (RiskFactorUpdateRequest update : updates) {
+            RiskFactor factor = riskFactorRepository
+                    .findByInsuranceIdAndFactorName(insuranceId, update.getFactorName())
+                    .orElseThrow(() -> new EntityNotFoundException(
+                        "Risk factor '" + update.getFactorName() +
+                        "' not found for insurance " + insuranceId));
+
+            BigDecimal oldValue = factor.getFactorValue();
+            BigDecimal newValue = update.getFactorValue();
+
+            // Skip if no change
+            if (oldValue.compareTo(newValue) == 0) {
+                results.add(RiskFactorResponse.fromEntity(factor));
+                continue;
+            }
+
+            // Update the factor
+            factor.setFactorValue(newValue);
+            factor = riskFactorRepository.save(factor);
+
+            // Record history
+            RiskFactorHistory history = RiskFactorHistory.builder()
+                    .riskFactorId(factor.getId())
+                    .insuranceId(insuranceId)
+                    .factorName(factor.getFactorName())
+                    .oldValue(oldValue)
+                    .newValue(newValue)
+                    .changedAt(Instant.now())
+                    .build();
+            riskFactorHistoryRepository.save(history);
+
+            results.add(RiskFactorResponse.fromEntity(factor));
+        }
+
+        return results;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<RiskFactorHistoryResponse> getRiskFactorHistory(UUID insuranceId, Pageable pageable) {
+        return riskFactorHistoryRepository
+                .findByInsuranceIdOrderByChangedAtDesc(insuranceId, pageable)
+                .map(RiskFactorHistoryResponse::fromEntity);
     }
 }
