@@ -1,7 +1,9 @@
 # Plan 07: Infrastructure & Docker Integration
 
-> **Status:** Complete (all code changes verified with Docker Compose)
+> **Status:** Complete (all code changes and runtime verification done)
 > **Branch:** `phase4-api-gateway`
+> **Verified:** 2026-07-08 — all 19 containers up, all 7 services in Eureka, Gateway routes correctly
+> **Commits:** `3b472cb` (infra changes), `f25b2ac` (StripPrefix fix)
 > **Depends on:** Plan 01 (Eureka Server), Plan 02 (API Gateway Core)
 > **Can run in parallel with:** Plans 03, 04, 05
 > **Blocks:** End-to-end testing via Docker Compose
@@ -441,5 +443,5 @@ curl http://localhost:8080/actuator/health
 - [x] Eureka dashboard accessible at `http://localhost:8761`
 - [x] All services register with Eureka (visible in dashboard)
 - [x] Gateway accessible at `http://localhost:8080`
-- [ ] Gateway forwards requests to downstream services (test with reference-data) — pre-existing service 500, not a routing issue
+- [x] Gateway forwards requests to downstream services (test with reference-data — 200 with cities data, 35 professions)
 - [x] Gateway returns 401 for authenticated routes without token
