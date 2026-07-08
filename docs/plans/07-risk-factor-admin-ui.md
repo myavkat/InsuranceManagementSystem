@@ -6,7 +6,7 @@ Add a risk factor management section to the insurance detail page. Each risk fac
 
 ## Dependencies
 
-- [ ] Plan 06 (`06-risk-factor-api.md`) — API endpoints for GET/PUT risk factors and GET history must exist
+- [x] Plan 06 (`06-risk-factor-api.md`) — API endpoints for GET/PUT risk factors and GET history must exist
 
 ## Files to Read First
 
@@ -425,7 +425,7 @@ The `RiskFactorEditor` uses `toast.success()` and `toast.error()`. Verify that `
 
 ## Acceptance Criteria
 
-- [ ] Slider component (`BaseSlider`) exists in `components/ui/` and works with 0.00–1.00 range
+- [x] Slider component (`BaseSlider`) exists in `components/ui/` and works with 0.00–1.00 range
 - [ ] Insurance detail page shows a "Risk Factors" card with sliders grouped by category
 - [ ] Sliders reflect current database values on load
 - [ ] Moving a slider updates the displayed value in real-time (local state)
