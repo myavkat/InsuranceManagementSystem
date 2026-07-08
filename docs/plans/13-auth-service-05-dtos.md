@@ -225,12 +225,12 @@ public class ValidateResponse {
 
 ## Acceptance Criteria
 
-- [ ] `LoginRequest.java` — username, password with `@NotBlank` validation
-- [ ] `RegisterRequest.java` — username, email, password with `@NotBlank`, `@Email`, `@Size` validation
-- [ ] `RefreshTokenRequest.java` — refreshToken with `@NotBlank` validation
-- [ ] `LoginResponse.java` — accessToken, refreshToken, expiresIn (seconds), tokenType ("Bearer")
-- [ ] `UserResponse.java` — userId, username, email, roles
-- [ ] `ValidateResponse.java` — valid, userId, roles
-- [ ] All DTOs use Lombok `@Data`, `@Builder`, `@NoArgsConstructor`, `@AllArgsConstructor`
-- [ ] Property names match the frontend's TypeScript interfaces exactly (camelCase)
-- [ ] `./gradlew :services:auth-service:compileJava` succeeds
+- [x] `LoginRequest.java` — username, password with `@NotBlank` validation
+- [x] `RegisterRequest.java` — username, email, password with `@NotBlank`, `@Email`, `@Size` validation
+- [x] `RefreshTokenRequest.java` — refreshToken with `@NotBlank` validation
+- [x] `LoginResponse.java` — accessToken, refreshToken, expiresIn (seconds), tokenType ("Bearer")
+- [x] `UserResponse.java` — userId, username, email, roles
+- [x] `ValidateResponse.java` — valid, userId, roles
+- [x] All DTOs use Lombok `@Data`, `@Builder`, `@NoArgsConstructor`, `@AllArgsConstructor`
+- [x] Property names match the frontend's TypeScript interfaces exactly (camelCase)
+- [x] `./gradlew :services:auth-service:compileJava` succeeds
