@@ -6,7 +6,7 @@ Update the `EstimationService.create()` validation so that Health and Life insur
 
 ## Dependencies
 
-- [ ] Plan 01 (`01-seed-data-restructure.md`) — needs the new insurance type IDs (Health=3, Life=4)
+- [x] Plan 01 (`01-seed-data-restructure.md`) — needs the new insurance type IDs (Health=3, Life=4)
 
 ## Files to Read First
 
@@ -109,9 +109,9 @@ The `EstimationRequestedEvent`, `CustomerValidatedEvent`, `VehicleValidatedEvent
 
 ## Acceptance Criteria
 
-- [ ] Creating an estimation with Vehicle type (1) and no vehicleId → rejected with clear error
-- [ ] Creating an estimation with Real Estate type (2) and no realEstateId → rejected with clear error
-- [ ] Creating an estimation with Health type (3) and no assets → accepted, proceeds through SAGA
-- [ ] Creating an estimation with Life type (4) and no assets → accepted, proceeds through SAGA
-- [ ] Creating an estimation with Vehicle type AND vehicleId → accepted (existing behavior preserved)
-- [ ] Creating an estimation with Real Estate type AND realEstateId → accepted (existing behavior preserved)
+- [x] Creating an estimation with Vehicle type (1) and no vehicleId → rejected with clear error
+- [x] Creating an estimation with Real Estate type (2) and no realEstateId → rejected with clear error
+- [x] Creating an estimation with Health type (3) and no assets → accepted, proceeds through SAGA
+- [x] Creating an estimation with Life type (4) and no assets → accepted, proceeds through SAGA
+- [x] Creating an estimation with Vehicle type AND vehicleId → accepted (existing behavior preserved)
+- [x] Creating an estimation with Real Estate type AND realEstateId → accepted (existing behavior preserved)
