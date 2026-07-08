@@ -7,7 +7,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createEstimation } from "@/lib/api/estimations";
 import { getCustomers } from "@/lib/api/customers";
-import { getInsuranceTypes } from "@/lib/api/insurances";
+import { getInsurances, getInsuranceTypes } from "@/lib/api/insurances";
+import { getVehicles } from "@/lib/api/vehicles";
+import { getRealEstates } from "@/lib/api/realestate";
 import { PageHeader } from "@/components/features/page-header";
 import { ErrorAlert } from "@/components/features/error-alert";
 import { Button } from "@/components/ui/button";
@@ -43,6 +45,8 @@ export function EstimationForm() {
   const [vehicleDropdownOpen, setVehicleDropdownOpen] = useState(false);
   const [realEstateSearch, setRealEstateSearch] = useState("");
   const [realEstateDropdownOpen, setRealEstateDropdownOpen] = useState(false);
+  const [selectedInsuranceId, setSelectedInsuranceId] = useState<string>("");
+  const [selectedInsuranceTypeId, setSelectedInsuranceTypeId] = useState<number | null>(null);
 
   const {
     handleSubmit,
@@ -77,6 +81,24 @@ export function EstimationForm() {
     queryFn: getInsuranceTypes,
   });
 
+  const { data: insurances } = useQuery({
+    queryKey: ["insurances"],
+    queryFn: () => getInsurances(0, 50),
+  });
+
+  // Step 3 asset queries (customer-filtered, enabled when dropdowns open)
+  const { data: vehicleData } = useQuery({
+    queryKey: ["vehicles", "customer", watchedCustomerId, vehicleSearch],
+    queryFn: () => getVehicles(0, 20, vehicleSearch || undefined, undefined, undefined, watchedCustomerId),
+    enabled: vehicleDropdownOpen && watchedCustomerId !== "",
+  });
+
+  const { data: realEstateData } = useQuery({
+    queryKey: ["real-estate", "customer", watchedCustomerId, realEstateSearch],
+    queryFn: () => getRealEstates(0, 20, realEstateSearch || undefined, undefined, undefined, watchedCustomerId),
+    enabled: realEstateDropdownOpen && watchedCustomerId !== "",
+  });
+
   const customers = customerData?.content ?? [];
   const selectedCustomer = customers.find((c) => c.id === watchedCustomerId);
 
@@ -97,8 +119,11 @@ export function EstimationForm() {
   useUnsavedChanges(isDirty);
 
   const canProceedStep1 = watchedCustomerId !== "";
-  const canProceedStep2 = watchedTypeId !== "";
-  const canProceedStep3 = watchedVehicleId !== "" || watchedRealEstateId !== "";
+  const canProceedStep2 = watchedTypeId !== "" && selectedInsuranceTypeId !== null;
+  const canProceedStep3 =
+    (selectedInsuranceTypeId === 1 && watchedVehicleId !== "") ||
+    (selectedInsuranceTypeId === 2 && watchedRealEstateId !== "") ||
+    (selectedInsuranceTypeId === 3 || selectedInsuranceTypeId === 4);
 
   const handleNext = () => {
     if (step < 4) setStep(step + 1);
@@ -113,7 +138,7 @@ export function EstimationForm() {
   };
 
   // Find selected names for review
-  const selectedType = types?.find((t) => t.id.toString() === watchedTypeId);
+  const selectedInsurance = insurances?.content?.find((i) => i.id === selectedInsuranceId);
 
   return (
     <div className="space-y-6">
@@ -251,23 +276,29 @@ export function EstimationForm() {
             {step === 2 && (
               <div className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium">Insurance Type *</label>
+                  <label className="text-sm font-medium">Insurance *</label>
                   <Select
-                    value={watchedTypeId || undefined}
-                    onValueChange={(value) => setValue("insuranceTypeId", value ?? "", { shouldDirty: true })}
+                    value={selectedInsuranceId || undefined}
+                    onValueChange={(value) => {
+                      setSelectedInsuranceId(value ?? "");
+                      const ins = insurances?.content?.find((i) => i.id === value);
+                      const typeId = ins?.typeId ?? null;
+                      setSelectedInsuranceTypeId(typeId);
+                      setValue("insuranceTypeId", typeId?.toString() ?? "", { shouldDirty: true });
+                    }}
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue>
                         {(value: any) => {
-                          if (!value) return "Select insurance type";
-                          return types?.find((t) => t.id.toString() === value)?.name ?? "";
+                          if (!value) return "Select insurance";
+                          return insurances?.content?.find((i) => i.id === value)?.name ?? "";
                         }}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      {types?.map((type) => (
-                        <SelectItem key={type.id} value={type.id.toString()}>
-                          {type.name}
+                      {insurances?.content?.map((insurance) => (
+                        <SelectItem key={insurance.id} value={insurance.id}>
+                          {insurance.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -279,9 +310,10 @@ export function EstimationForm() {
                   )}
                 </div>
 
-                {selectedType && (
+                {selectedInsurance && (
                   <div className="rounded-lg bg-muted p-3 text-sm">
-                    <p className="font-medium">{selectedType.name}</p>
+                    <p className="font-medium">{selectedInsurance.name}</p>
+                    <p className="text-muted-foreground">{selectedInsurance.description ?? ""}</p>
                   </div>
                 )}
               </div>
@@ -290,103 +322,139 @@ export function EstimationForm() {
             {/* Step 3: Optional Linkage */}
             {step === 3 && (
               <div className="space-y-6">
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium">Link a Vehicle (optional)</label>
-                  <Select
-                    value={watchedVehicleId || undefined}
-                    onValueChange={(value) => {
-                      setValue("vehicleId", value ?? "", { shouldDirty: true });
-                      setVehicleDropdownOpen(false);
-                    }}
-                    onOpenChange={(open) => {
-                      setVehicleDropdownOpen(open);
-                      if (open) setVehicleSearch("");
-                    }}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue>
-                        {(value: any) => {
-                          if (!value) return "Select a vehicle (optional)";
-                          // Vehicle search is not yet implemented — placeholder for when it is
-                          return "";
-                        }}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      <div
-                        className="flex items-center gap-2 px-2 pb-2"
-                        onPointerDown={(e) => e.stopPropagation()}
-                      >
-                        <Search className="size-4 text-muted-foreground shrink-0" />
-                        <Input
-                          placeholder="Search by plate..."
-                          value={vehicleSearch}
-                          onChange={(e) => setVehicleSearch(e.target.value)}
-                          onKeyDown={(e) => e.stopPropagation()}
-                          className="h-8"
-                        />
-                      </div>
-                      <div className="px-2 py-4 text-center text-sm text-muted-foreground">
-                        Type to search vehicles by plate
-                      </div>
-                    </SelectContent>
-                  </Select>
-                </div>
+                {selectedInsuranceTypeId === 1 && (
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-medium">Link a Vehicle *</label>
+                    <Select
+                      value={watchedVehicleId || undefined}
+                      onValueChange={(value) => {
+                        setValue("vehicleId", value ?? "", { shouldDirty: true });
+                        setVehicleDropdownOpen(false);
+                      }}
+                      onOpenChange={(open) => {
+                        setVehicleDropdownOpen(open);
+                        if (open) setVehicleSearch("");
+                      }}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue>
+                          {(value: any) => {
+                            if (!value) return "Select a vehicle";
+                            const fromList = vehicleData?.content?.find((v) => v.id === value);
+                            if (fromList) return `${fromList.plate} — ${fromList.carBrandName} ${fromList.carModelName}`;
+                            return "";
+                          }}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <div
+                          className="flex items-center gap-2 px-2 pb-2"
+                          onPointerDown={(e) => e.stopPropagation()}
+                        >
+                          <Search className="size-4 text-muted-foreground shrink-0" />
+                          <Input
+                            placeholder="Search by plate..."
+                            value={vehicleSearch}
+                            onChange={(e) => setVehicleSearch(e.target.value)}
+                            onKeyDown={(e) => e.stopPropagation()}
+                            className="h-8"
+                          />
+                        </div>
+                        {!vehicleData?.content?.length ? (
+                          <div className="px-2 py-4 text-center text-sm text-muted-foreground">
+                            {vehicleSearch ? "No vehicles found" : "Type to search your vehicles..."}
+                          </div>
+                        ) : (
+                          vehicleData.content.map((v) => (
+                            <SelectItem key={v.id} value={v.id}>
+                              {v.plate} — {v.carBrandName} {v.carModelName}
+                            </SelectItem>
+                          ))
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
 
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium">Link Real Estate (optional)</label>
-                  <Select
-                    value={watchedRealEstateId || undefined}
-                    onValueChange={(value) => {
-                      setValue("realEstateId", value ?? "", { shouldDirty: true });
-                      setRealEstateDropdownOpen(false);
-                    }}
-                    onOpenChange={(open) => {
-                      setRealEstateDropdownOpen(open);
-                      if (open) setRealEstateSearch("");
-                    }}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue>
-                        {(value: any) => {
-                          if (!value) return "Select a property (optional)";
-                          // Real estate search is not yet implemented — placeholder for when it is
-                          return "";
-                        }}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      <div
-                        className="flex items-center gap-2 px-2 pb-2"
-                        onPointerDown={(e) => e.stopPropagation()}
-                      >
-                        <Search className="size-4 text-muted-foreground shrink-0" />
-                        <Input
-                          placeholder="Search by address..."
-                          value={realEstateSearch}
-                          onChange={(e) => setRealEstateSearch(e.target.value)}
-                          onKeyDown={(e) => e.stopPropagation()}
-                          className="h-8"
-                        />
-                      </div>
-                      <div className="px-2 py-4 text-center text-sm text-muted-foreground">
-                        Type to search properties by address
-                      </div>
-                    </SelectContent>
-                  </Select>
-                </div>
+                {selectedInsuranceTypeId === 2 && (
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-medium">Link Real Estate *</label>
+                    <Select
+                      value={watchedRealEstateId || undefined}
+                      onValueChange={(value) => {
+                        setValue("realEstateId", value ?? "", { shouldDirty: true });
+                        setRealEstateDropdownOpen(false);
+                      }}
+                      onOpenChange={(open) => {
+                        setRealEstateDropdownOpen(open);
+                        if (open) setRealEstateSearch("");
+                      }}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue>
+                          {(value: any) => {
+                            if (!value) return "Select a property";
+                            const fromList = realEstateData?.content?.find((re) => re.id === value);
+                            if (fromList) return `${fromList.address}${fromList.cityName ? `, ${fromList.cityName}` : ""}`;
+                            return "";
+                          }}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <div
+                          className="flex items-center gap-2 px-2 pb-2"
+                          onPointerDown={(e) => e.stopPropagation()}
+                        >
+                          <Search className="size-4 text-muted-foreground shrink-0" />
+                          <Input
+                            placeholder="Search by address..."
+                            value={realEstateSearch}
+                            onChange={(e) => setRealEstateSearch(e.target.value)}
+                            onKeyDown={(e) => e.stopPropagation()}
+                            className="h-8"
+                          />
+                        </div>
+                        {!realEstateData?.content?.length ? (
+                          <div className="px-2 py-4 text-center text-sm text-muted-foreground">
+                            {realEstateSearch ? "No properties found" : "Type to search your properties..."}
+                          </div>
+                        ) : (
+                          realEstateData.content.map((re) => (
+                            <SelectItem key={re.id} value={re.id}>
+                              {re.address}{re.cityName ? `, ${re.cityName}` : ""}
+                            </SelectItem>
+                          ))
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
+                {(selectedInsuranceTypeId === 3 || selectedInsuranceTypeId === 4) && (
+                  <div className="rounded-lg bg-muted p-4 text-sm text-muted-foreground">
+                    No asset linking is required for this insurance type. You can proceed to review.
+                  </div>
+                )}
 
                 {/* Summary of selections so far */}
                 <div className="rounded-lg bg-muted p-3 text-sm space-y-1">
                   <p><span className="text-muted-foreground">Customer:</span> {selectedCustomer?.firstName} {selectedCustomer?.lastName}</p>
-                  <p><span className="text-muted-foreground">Insurance:</span> {selectedType?.name}</p>
-                  <p><span className="text-muted-foreground">Vehicle:</span> {watchedVehicleId ? "Selected" : "None"}</p>
-                  <p><span className="text-muted-foreground">Real Estate:</span> {watchedRealEstateId ? "Selected" : "None"}</p>
+                  <p><span className="text-muted-foreground">Insurance:</span> {selectedInsurance?.name}</p>
+                  {selectedInsuranceTypeId === 1 && (
+                    <p><span className="text-muted-foreground">Vehicle:</span> {watchedVehicleId ? "Selected" : "Not selected"}</p>
+                  )}
+                  {selectedInsuranceTypeId === 2 && (
+                    <p><span className="text-muted-foreground">Real Estate:</span> {watchedRealEstateId ? "Selected" : "Not selected"}</p>
+                  )}
                 </div>
 
-                {!canProceedStep3 && (
+                {!canProceedStep3 && selectedInsuranceTypeId != null && (
                   <p className="text-sm text-muted-foreground">
-                    Select at least one asset (vehicle or real estate) to continue.
+                    {selectedInsuranceTypeId === 1
+                      ? "Select a vehicle to continue."
+                      : selectedInsuranceTypeId === 2
+                        ? "Select a property to continue."
+                        : ""}
                   </p>
                 )}
               </div>
@@ -401,17 +469,21 @@ export function EstimationForm() {
                     <p className="text-sm">{selectedCustomer?.firstName} {selectedCustomer?.lastName}</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Insurance Type</p>
-                    <p className="text-sm">{selectedType?.name ?? "—"}</p>
+                    <p className="text-sm font-medium text-muted-foreground">Insurance</p>
+                    <p className="text-sm">{selectedInsurance?.name ?? "—"}</p>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Vehicle</p>
-                    <p className="text-sm">{watchedVehicleId ? "Linked" : "None"}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Real Estate</p>
-                    <p className="text-sm">{watchedRealEstateId ? "Linked" : "None"}</p>
-                  </div>
+                  {selectedInsuranceTypeId === 1 && (
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Vehicle</p>
+                      <p className="text-sm">{watchedVehicleId ? "Linked" : "None"}</p>
+                    </div>
+                  )}
+                  {selectedInsuranceTypeId === 2 && (
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Real Estate</p>
+                      <p className="text-sm">{watchedRealEstateId ? "Linked" : "None"}</p>
+                    </div>
+                  )}
                 </div>
 
                 {mutation.isError && (

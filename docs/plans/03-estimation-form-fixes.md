@@ -8,8 +8,8 @@ Fix the estimation wizard:
 
 ## Dependencies
 
-- [ ] Plan 01 (`01-seed-data-restructure.md`) — needs the new insurance types/products structure
-- [ ] Plan 02 (`02-asset-api-customer-filter.md`) — needs `customerId` query param on vehicle & real estate endpoints
+- [x] Plan 01 (`01-seed-data-restructure.md`) — needs the new insurance types/products structure
+- [x] Plan 02 (`02-asset-api-customer-filter.md`) — needs `customerId` query param on vehicle & real estate endpoints
 
 ## Files to Read First
 
@@ -276,15 +276,15 @@ const [selectedInsuranceTypeId, setSelectedInsuranceTypeId] = useState<number | 
 
 ## Acceptance Criteria
 
-- [ ] Step 2 shows a dropdown with insurance products: "TRAFFIC", "CASCO", "DASK", "HEALTH", "LIFE"
-- [ ] Selecting a product stores its `typeId` to drive step 3 behavior
-- [ ] Step 3 shows ONLY vehicle selector when Vehicle-type insurance selected
-- [ ] Step 3 shows ONLY real estate selector when Real Estate-type insurance selected
-- [ ] Step 3 shows "No asset required" message for Health/Life types
-- [ ] Vehicle selector loads the customer's vehicles by plate search using `customerId` filter
-- [ ] Real estate selector loads the customer's properties by address search using `customerId` filter
-- [ ] Can proceed to Step 4 from Step 3 with Health/Life (no asset needed)
-- [ ] Can proceed to Step 4 from Step 3 with Vehicle type only when a vehicle is selected
-- [ ] Can proceed to Step 4 from Step 3 with Real Estate type only when a real estate is selected
-- [ ] Step 4 Review shows the selected insurance product name and linked asset
-- [ ] Submitting the form sends correct `insuranceTypeId` (integer type ID) to the backend
+- [x] Step 2 shows a dropdown with insurance products: "TRAFFIC", "CASCO", "DASK", "HEALTH", "LIFE"
+- [x] Selecting a product stores its `typeId` to drive step 3 behavior
+- [x] Step 3 shows ONLY vehicle selector when Vehicle-type insurance selected
+- [x] Step 3 shows ONLY real estate selector when Real Estate-type insurance selected
+- [x] Step 3 shows "No asset required" message for Health/Life types
+- [x] Vehicle selector loads the customer's vehicles by plate search using `customerId` filter
+- [x] Real estate selector loads the customer's properties by address search using `customerId` filter
+- [x] Can proceed to Step 4 from Step 3 with Health/Life (no asset needed)
+- [x] Can proceed to Step 4 from Step 3 with Vehicle type only when a vehicle is selected
+- [x] Can proceed to Step 4 from Step 3 with Real Estate type only when a real estate is selected
+- [x] Step 4 Review shows the selected insurance product name and linked asset
+- [x] Submitting the form sends correct `insuranceTypeId` (integer type ID) to the backend
