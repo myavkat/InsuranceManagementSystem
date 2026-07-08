@@ -187,11 +187,11 @@ Key design decisions:
 
 ## Acceptance Criteria
 
-- [ ] `AuthController.java` exists with `@RestController` and `@RequestMapping("/api/auth")`
-- [ ] `POST /register` — accepts `@Valid RegisterRequest`, returns 200 with `UserResponse` or 400 on error
-- [ ] `POST /login` — accepts `@Valid LoginRequest`, returns 200 with `LoginResponse` or 401 on error
-- [ ] `POST /refresh` — accepts `@Valid RefreshTokenRequest`, returns 200 with `LoginResponse` or 401 on error
-- [ ] `POST /validate` — reads `Authorization` header, returns 200 with `ValidateResponse` (valid=true/false)
-- [ ] `GET /public-key` — returns PEM string as `text/plain` (NOT wrapped in ApiResponse)
-- [ ] All error responses use `ApiResponse.error(message)` with appropriate HTTP status codes
-- [ ] `./gradlew :services:auth-service:compileJava` succeeds
+- [x] `AuthController.java` exists with `@RestController` and `@RequestMapping("/api/auth")`
+- [x] `POST /register` — accepts `@Valid RegisterRequest`, returns 200 with `UserResponse` or 400 on error
+- [x] `POST /login` — accepts `@Valid LoginRequest`, returns 200 with `LoginResponse` or 401 on error
+- [x] `POST /refresh` — accepts `@Valid RefreshTokenRequest`, returns 200 with `LoginResponse` or 401 on error
+- [x] `POST /validate` — reads `Authorization` header, returns 200 with `ValidateResponse` (valid=true/false)
+- [x] `GET /public-key` — returns PEM string as `text/plain` (NOT wrapped in ApiResponse)
+- [x] All error responses use `ApiResponse.error(message)` with appropriate HTTP status codes
+- [x] `./gradlew :services:auth-service:compileJava` succeeds
