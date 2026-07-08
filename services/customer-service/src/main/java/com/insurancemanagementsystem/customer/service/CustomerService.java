@@ -36,14 +36,10 @@ public class CustomerService {
         boolean hasNationalId = nationalId != null && !nationalId.isBlank();
 
         if (hasName && hasNationalId) {
-            // TODO: Replace with combined name+nationalId search once CustomerRepository
-            //       adds a dedicated method (e.g., findByDeletedAtIsNullAndNameAndNationalId).
-            //       Currently falls back to name-only search — nationalId is logged/audited
-            //       but not applied as a DB filter.
-            return customerRepository.findByNameSearch(name, pageable)
+            return customerRepository.findBySearchAll(name, pageable)
                     .map(CustomerResponse::fromEntity);
         } else if (hasName) {
-            return customerRepository.findByNameSearch(name, pageable)
+            return customerRepository.findBySearchAll(name, pageable)
                     .map(CustomerResponse::fromEntity);
         } else if (hasNationalId) {
             return customerRepository.findByNationalIdContaining(nationalId, pageable)

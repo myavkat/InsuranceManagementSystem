@@ -22,5 +22,10 @@ public interface CustomerRepository extends JpaRepository<Customer, UUID> {
 
     Page<Customer> findByNationalIdContaining(String nationalId, Pageable pageable);
 
+    @Query("SELECT c FROM Customer c WHERE c.deletedAt IS NULL AND (" +
+           "LOWER(CONCAT(c.firstName, ' ', c.lastName)) LIKE LOWER(CONCAT('%', :search, '%')) " +
+           "OR c.nationalId LIKE CONCAT('%', :search, '%'))")
+    Page<Customer> findBySearchAll(@Param("search") String search, Pageable pageable);
+
     Optional<Customer> findByNationalId(String nationalId);
 }
