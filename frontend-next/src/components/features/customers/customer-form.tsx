@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ArrowLeft, Save } from "lucide-react";
+import { useRef } from "react";
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
 import { customerSchema, type CustomerFormData } from "@/lib/schemas/customer";
 
@@ -76,6 +77,8 @@ export function CustomerForm({ initialData }: CustomerFormProps) {
         },
   });
 
+  const nationalIdAbortRef = useRef<AbortController | null>(null);
+
   const mutation = useMutation({
     mutationFn: (data: CustomerFormData) => {
       const payload: CustomerRequest = {
@@ -105,9 +108,28 @@ export function CustomerForm({ initialData }: CustomerFormProps) {
   const handleNationalIdBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
     const value = e.target.value;
     if (value.length === 11 && /^\d{11}$/.test(value)) {
-      const available = await checkNationalId(value);
-      if (!available) {
-        setError("nationalId", { message: "This TCKN is already registered" });
+      // Skip availability check when editing — the customer's own TCKN would
+      // falsely appear as "already registered" against the backend.
+      if (isEdit) return;
+
+      // Cancel any in-flight check from a previous blur
+      if (nationalIdAbortRef.current) {
+        nationalIdAbortRef.current.abort();
+      }
+      const controller = new AbortController();
+      nationalIdAbortRef.current = controller;
+
+      try {
+        const available = await checkNationalId(value, controller.signal);
+        // Only set error if this is still the latest blur (not aborted)
+        if (!controller.signal.aborted && !available) {
+          setError("nationalId", { message: "This TCKN is already registered" });
+        }
+      } catch (err: unknown) {
+        // If aborted, ignore — a newer blur is in flight
+        if (err instanceof DOMException && err.name === "AbortError") return;
+        // On real network error, don't block submission with a false error
+        console.error("National ID check failed:", err);
       }
     }
   };

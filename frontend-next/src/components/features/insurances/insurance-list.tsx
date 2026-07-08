@@ -92,6 +92,7 @@ export function InsuranceList({ initialData }: InsuranceListProps) {
       ),
     initialData:
       pagination.pageIndex === 0 && !search && !typeId && !companyId && !sortField ? initialData : undefined,
+    staleTime: 30_000, // SSR data is fresh for 30s — skip immediate refetch
   });
 
   const { data: types } = useQuery({
@@ -179,7 +180,7 @@ export function InsuranceList({ initialData }: InsuranceListProps) {
                   <SelectValue placeholder="All types" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All types</SelectItem>
+                  <SelectItem value="">All types</SelectItem>
                   {types?.map((type) => (
                     <SelectItem key={type.id} value={type.id.toString()}>{type.name}</SelectItem>
                   ))}
@@ -196,7 +197,7 @@ export function InsuranceList({ initialData }: InsuranceListProps) {
                   <SelectValue placeholder="All companies" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All companies</SelectItem>
+                  <SelectItem value="">All companies</SelectItem>
                   {companies?.map((company) => (
                     <SelectItem key={company.id} value={company.id.toString()}>{company.name}</SelectItem>
                   ))}

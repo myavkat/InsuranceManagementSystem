@@ -36,7 +36,11 @@ interface ServerNotification {
  *
  * Call this ONCE in a top-level provider or layout component.
  */
-export function useWebSocket() {
+export function useWebSocket({
+  onNavigate,
+}: {
+  onNavigate?: (path: string) => void;
+} = {}) {
   const accessToken = useAuthStore((s) => s.accessToken);
   const addNotification = useNotificationStore((s) => s.addNotification);
   const setConnected = useNotificationStore((s) => s.setConnected);
@@ -45,6 +49,9 @@ export function useWebSocket() {
   const reconnectDelayRef = useRef(INITIAL_RECONNECT_DELAY);
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const mountedRef = useRef(true);
+  const accessTokenRef = useRef(accessToken);
+  // Always keep the ref in sync with the latest token
+  accessTokenRef.current = accessToken;
 
   const connect = useCallback(() => {
     if (!accessToken) return; // Don't connect without auth
@@ -56,7 +63,9 @@ export function useWebSocket() {
     }
 
     // Build URL with auth token as query param
-    const url = `${WS_URL}?token=${encodeURIComponent(accessToken)}`;
+    // Use accessTokenRef.current to avoid stale closures in reconnect timers.
+    // The non-null assertion is safe because the guard above ensures accessToken is truthy.
+    const url = `${WS_URL}?token=${encodeURIComponent(accessTokenRef.current!)}`;
 
     try {
       const ws = new WebSocket(url);
@@ -86,7 +95,8 @@ export function useWebSocket() {
                   ? {
                       label: "View",
                       onClick: () => {
-                        window.location.href = `/estimations/${data.data!.entityId}`;
+                        const entityId = data.data?.entityId as string;
+                        onNavigate?.(`/estimations/${entityId}`);
                       },
                     }
                   : undefined,
@@ -125,7 +135,7 @@ export function useWebSocket() {
 
         // Only reconnect on abnormal closure (not intentional close)
         // event.code 1000 = normal closure, 1001 = going away
-        if (event.code !== 1000 && event.code !== 1001) {
+        if (event.code !== 1000) {
           const delay = reconnectDelayRef.current;
           reconnectTimerRef.current = setTimeout(() => {
             if (mountedRef.current) {

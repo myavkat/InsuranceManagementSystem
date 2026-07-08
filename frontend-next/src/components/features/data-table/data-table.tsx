@@ -345,6 +345,16 @@ function SortIcon({ sorted }: { sorted: false | "asc" | "desc" }) {
 }
 
 function escapeCsvField(value: string): string {
+  // Prevent CSV formula injection: prefix with a tab character
+  // when the value starts with a formula-trigger character.
+  // Spreadsheet apps treat cells starting with '=', '+', '-', '@',
+  // tab, or carriage return as formulas unless quoted or prefixed.
+  // The tab prefix (U+0009) makes the cell render as literal text
+  // in Excel, Google Sheets, and LibreOffice without visible artifact.
+  if (/^[=+\-@\t\r]/.test(value)) {
+    value = "\t" + value;
+  }
+
   if (value.includes(",") || value.includes('"') || value.includes("\n")) {
     return `"${value.replace(/"/g, '""')}"`;
   }

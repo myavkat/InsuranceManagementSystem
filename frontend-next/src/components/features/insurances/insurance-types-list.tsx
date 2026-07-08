@@ -24,7 +24,6 @@ const columns: ColumnDef<InsuranceTypeResponse, any>[] = [
   columnHelper.accessor("name", {
     header: "Name",
     cell: (info) => <span className="font-medium">{info.getValue()}</span>,
-    enableSorting: true,
   }),
 ];
 

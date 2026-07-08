@@ -10,7 +10,9 @@ const API_PREFIX = "/api";
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isApiRoute = pathname.startsWith(API_PREFIX);
-  const isPublicPage = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
+  const isPublicPage = PUBLIC_PATHS.some(
+    (p) => pathname === p || pathname.startsWith(p + "/")
+  );
 
   // Read auth_token cookie — middleware can access cookies directly.
   const rawToken = request.cookies.get("auth_token")?.value;
