@@ -35,6 +35,7 @@ public class VehicleResponse {
     private Integer carPackageId;
     private String carPackageName;
     private UUID customerId;
+    private String customerName;
     private Instant createdAt;
     private Instant updatedAt;
 
@@ -46,7 +47,8 @@ public class VehicleResponse {
                                               Integer enginePower,
                                               String fuelTypeName,
                                               String typeName,
-                                              String packageName) {
+                                              String packageName,
+                                              String customerName) {
         return VehicleResponse.builder()
                 .id(vehicle.getId())
                 .plate(vehicle.getPlate())
@@ -67,6 +69,7 @@ public class VehicleResponse {
                 .carPackageId(vehicle.getCarPackageId())
                 .carPackageName(packageName)
                 .customerId(vehicle.getCustomerId())
+                .customerName(customerName)
                 .createdAt(vehicle.getCreatedAt())
                 .updatedAt(vehicle.getUpdatedAt())
                 .build();

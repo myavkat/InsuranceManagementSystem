@@ -1,5 +1,6 @@
 package com.insurancemanagementsystem.vehicle.service;
 
+import com.insurancemanagementsystem.vehicle.client.CustomerServiceClient;
 import com.insurancemanagementsystem.vehicle.config.VehicleEventPublisher;
 import com.insurancemanagementsystem.vehicle.dto.VehicleRequest;
 import com.insurancemanagementsystem.vehicle.dto.VehicleResponse;
@@ -29,19 +30,42 @@ public class VehicleService {
     private final CarTypeRepository carTypeRepository;
     private final CarPackageRepository carPackageRepository;
     private final VehicleEventPublisher vehicleEventPublisher;
+    private final CustomerServiceClient customerServiceClient;
 
     // ---------- Vehicle CRUD ----------
 
     @Transactional(readOnly = true)
     public Page<VehicleResponse> findAll(Pageable pageable) {
-        return vehicleRepository.findAll(pageable).map(this::toResponse);
+        Page<Vehicle> vehiclePage = vehicleRepository.findAll(pageable);
+
+        // Collect unique non-null customer IDs from the page
+        java.util.Set<UUID> customerIds = vehiclePage.getContent().stream()
+                .map(Vehicle::getCustomerId)
+                .filter(id -> id != null)
+                .collect(java.util.stream.Collectors.toSet());
+
+        // Resolve each customer name once into a lookup map
+        java.util.Map<UUID, String> customerNameMap = new java.util.HashMap<>();
+        for (UUID customerId : customerIds) {
+            String name = customerServiceClient.getCustomerName(customerId);
+            if (name != null) {
+                customerNameMap.put(customerId, name);
+            }
+        }
+
+        // Map entities to DTOs using pre-resolved names
+        return vehiclePage.map(vehicle -> {
+            String customerName = customerNameMap.get(vehicle.getCustomerId());
+            return toResponse(vehicle, customerName);
+        });
     }
 
     @Transactional(readOnly = true)
     public VehicleResponse findById(UUID id) {
         Vehicle vehicle = vehicleRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Vehicle not found with id: " + id));
-        return toResponse(vehicle);
+        String customerName = customerServiceClient.getCustomerName(vehicle.getCustomerId());
+        return toResponse(vehicle, customerName);
     }
 
     @Transactional
@@ -71,7 +95,8 @@ public class VehicleService {
         Vehicle saved = vehicleRepository.save(vehicle);
         log.info("Vehicle created with id: {} and plate: {}", saved.getId(), saved.getPlate());
         vehicleEventPublisher.publishVehicleCreated(saved);
-        return toResponse(saved);
+        String customerName = customerServiceClient.getCustomerName(saved.getCustomerId());
+        return toResponse(saved, customerName);
     }
 
     @Transactional
@@ -103,7 +128,8 @@ public class VehicleService {
         Vehicle saved = vehicleRepository.save(vehicle);
         log.info("Vehicle updated with id: {}", saved.getId());
         vehicleEventPublisher.publishVehicleUpdated(saved);
-        return toResponse(saved);
+        String customerName = customerServiceClient.getCustomerName(saved.getCustomerId());
+        return toResponse(saved, customerName);
     }
 
     @Transactional
@@ -149,7 +175,7 @@ public class VehicleService {
 
     // ---------- Helper methods ----------
 
-    private VehicleResponse toResponse(Vehicle vehicle) {
+    private VehicleResponse toResponse(Vehicle vehicle, String customerName) {
         CarBrand brand = carBrandRepository.findById(vehicle.getCarBrandId()).orElse(null);
         CarModel model = carModelRepository.findById(vehicle.getCarModelId()).orElse(null);
         CarEngine engine = carEngineRepository.findById(vehicle.getCarEngineId()).orElse(null);
@@ -165,7 +191,8 @@ public class VehicleService {
                 engine != null ? engine.getPower() : null,
                 fuelType != null ? fuelType.getName() : null,
                 type != null ? type.getName() : null,
-                pkg != null ? pkg.getName() : null);
+                pkg != null ? pkg.getName() : null,
+                customerName);
     }
 
     private void validateReferenceIds(VehicleRequest request) {

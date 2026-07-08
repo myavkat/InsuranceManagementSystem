@@ -88,6 +88,7 @@ vehicle:
     batch-size: 10
     max-retries: 3
     failed-ttl-minutes: 60
+  customer-service-url: ${CUSTOMER_SERVICE_URL:http://localhost:8081}
 
 outbox:
   poll-interval-ms: ${vehicle.outbox.poll-interval-ms:1000}
