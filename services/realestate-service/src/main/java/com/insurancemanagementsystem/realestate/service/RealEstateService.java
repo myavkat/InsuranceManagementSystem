@@ -41,8 +41,13 @@ public class RealEstateService {
     // ---------- RealEstate CRUD ----------
 
     @Transactional(readOnly = true)
-    public Page<RealEstateResponse> findAll(Pageable pageable) {
-        Page<RealEstate> page = realEstateRepository.findAll(pageable);
+    public Page<RealEstateResponse> findAll(Pageable pageable, String search) {
+        Page<RealEstate> page;
+        if (search != null && !search.isBlank()) {
+            page = realEstateRepository.search(search.trim(), pageable);
+        } else {
+            page = realEstateRepository.findAll(pageable);
+        }
 
         // Collect unique non-null city IDs and customer IDs from the page
         java.util.Set<Integer> cityIds = page.getContent().stream()

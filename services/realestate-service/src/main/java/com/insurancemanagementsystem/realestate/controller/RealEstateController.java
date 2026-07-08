@@ -29,8 +29,9 @@ public class RealEstateController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<Page<RealEstateResponse>>> getAll(
-            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<RealEstateResponse> realEstates = realEstateService.findAll(pageable);
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestParam(value = "search", required = false) String search) {
+        Page<RealEstateResponse> realEstates = realEstateService.findAll(pageable, search);
         return ResponseEntity.ok(ApiResponse.success(realEstates));
     }
 

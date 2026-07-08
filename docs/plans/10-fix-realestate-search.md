@@ -34,6 +34,11 @@ The search should match against: **address** (primary), **district**.
 
 ## Steps
 
+- [x] Step 1: Add search query method to `RealEstateRepository`
+- [x] Step 2: Update `RealEstateService.findAll()` to accept and use search term
+- [x] Step 3: Update `RealEstateController.getAll()` to accept search param
+- [x] Step 4: Verify compilation
+
 ### Step 1: Add search query method to `RealEstateRepository`
 
 Open `services/realestate-service/src/main/java/com/insurancemanagementsystem/realestate/repository/RealEstateRepository.java`.
@@ -178,12 +183,12 @@ If there are compilation errors, fix them before marking this plan complete.
 
 ## Acceptance Criteria
 
-- [ ] `GET /api/real-estate?search=Istanbul` returns only real estate properties whose address or district contains "Istanbul" (case-insensitive)
-- [ ] `GET /api/real-estate?search=` (empty search) returns all real estate (same as no search param)
-- [ ] `GET /api/real-estate` (no search param) returns all real estate (backward compatible)
-- [ ] Pagination and sorting still work when search is active
-- [ ] Search with special characters (%, _, quotes) does not throw errors — the `LIKE` escape is handled by parameter binding
-- [ ] Code compiles without errors
+- [x] `GET /api/real-estate?search=Istanbul` returns only real estate properties whose address or district contains "Istanbul" (case-insensitive)
+- [x] `GET /api/real-estate?search=` (empty search) returns all real estate (same as no search param)
+- [x] `GET /api/real-estate` (no search param) returns all real estate (backward compatible)
+- [x] Pagination and sorting still work when search is active
+- [x] Search with special characters (%, _, quotes) does not throw errors — the `LIKE` escape is handled by parameter binding
+- [x] Code compiles without errors
 
 ## Dependencies
 
