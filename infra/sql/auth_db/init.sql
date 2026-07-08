@@ -65,7 +65,7 @@ INSERT INTO roles (name) VALUES ('ADMIN') ON CONFLICT (name) DO NOTHING;
 INSERT INTO roles (name) VALUES ('AGENT') ON CONFLICT (name) DO NOTHING;
 INSERT INTO roles (name) VALUES ('CUSTOMER') ON CONFLICT (name) DO NOTHING;
 
--- Seed admin user (bcrypt placeholder - update with real hash)
-INSERT INTO users (username, email, password_hash, enabled) 
-VALUES ('admin', 'admin@insurance.com', '$2a$12$LJ3m4ys3Lk0TSwHnbfOMiOXPm1Qlq5xVsONsQlJn5u', TRUE)
+-- Seed admin user (password is password)
+INSERT INTO users (username, email, password_hash, enabled)
+VALUES ('admin', 'admin@insurance.com', '$2a$12$H7tWAtLLq.ghHmh.7oKSM.A1a1NqhVeBayJC2ox8un3ny9w0RZaqa', TRUE)
 ON CONFLICT (username) DO NOTHING;
