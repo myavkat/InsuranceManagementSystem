@@ -8,7 +8,6 @@ import {
   createInsurance,
   updateInsurance,
   getInsuranceTypes,
-  getInsuranceCompanies,
   type InsuranceResponse,
   type InsuranceRequest,
 } from "@/lib/api/insurances";
@@ -43,11 +42,6 @@ export function InsuranceForm({ initialData }: InsuranceFormProps) {
     queryFn: getInsuranceTypes,
   });
 
-  const { data: companies } = useQuery({
-    queryKey: ["insurance-companies"],
-    queryFn: getInsuranceCompanies,
-  });
-
   const {
     register,
     handleSubmit,
@@ -61,7 +55,6 @@ export function InsuranceForm({ initialData }: InsuranceFormProps) {
           name: initialData.name ?? "",
           description: initialData.description ?? "",
           typeId: initialData.typeId?.toString() ?? "",
-          companyId: initialData.companyId?.toString() ?? "",
           basePremium: initialData.basePremium?.toString() ?? "",
           isActive: initialData.isActive ?? true,
         }
@@ -69,7 +62,6 @@ export function InsuranceForm({ initialData }: InsuranceFormProps) {
           name: "",
           description: "",
           typeId: "",
-          companyId: "",
           basePremium: "",
           isActive: true,
         },
@@ -81,7 +73,6 @@ export function InsuranceForm({ initialData }: InsuranceFormProps) {
         name: data.name,
         description: data.description || undefined,
         typeId: Number(data.typeId),
-        companyId: Number(data.companyId),
         basePremium: Number(data.basePremium),
         isActive: data.isActive,
       };
@@ -142,55 +133,29 @@ export function InsuranceForm({ initialData }: InsuranceFormProps) {
               placeholder="Product description"
             />
 
-            {/* Type + Company row */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium">Insurance Type *</label>
-                <Select
-                  value={watch("typeId") || undefined}
-                  onValueChange={(value) => setValue("typeId", value ?? "")}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {types?.map((type) => (
-                      <SelectItem key={type.id} value={type.id.toString()}>
-                        {type.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.typeId?.message && (
-                  <p className="text-sm text-destructive" role="alert">
-                    {errors.typeId.message}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium">Company *</label>
-                <Select
-                  value={watch("companyId") || undefined}
-                  onValueChange={(value) => setValue("companyId", value ?? "")}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select company" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {companies?.map((company) => (
-                      <SelectItem key={company.id} value={company.id.toString()}>
-                        {company.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.companyId?.message && (
-                  <p className="text-sm text-destructive" role="alert">
-                    {errors.companyId.message}
-                  </p>
-                )}
-              </div>
+            {/* Insurance Type */}
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium">Insurance Type *</label>
+              <Select
+                value={watch("typeId") || undefined}
+                onValueChange={(value) => setValue("typeId", value ?? "")}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {types?.map((type) => (
+                    <SelectItem key={type.id} value={type.id.toString()}>
+                      {type.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.typeId?.message && (
+                <p className="text-sm text-destructive" role="alert">
+                  {errors.typeId.message}
+                </p>
+              )}
             </div>
 
             {/* Base Premium */}

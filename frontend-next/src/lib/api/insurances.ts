@@ -33,7 +33,7 @@ export interface InsuranceRequest {
   name: string;
   description?: string;
   typeId: number;
-  companyId: number;
+  companyId?: number;
   basePremium: number;
   isActive: boolean;
 }

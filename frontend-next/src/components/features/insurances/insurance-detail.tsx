@@ -40,6 +40,10 @@ export function InsuranceDetail() {
       queryClient.invalidateQueries({ queryKey: ["insurance", id] });
       queryClient.invalidateQueries({ queryKey: ["insurances"] });
       setDeactivateOpen(false);
+      refetch();
+    },
+    onError: (error) => {
+      console.error("Failed to deactivate insurance:", error);
     },
   });
 
@@ -116,7 +120,6 @@ export function InsuranceDetail() {
             <DetailItem label="Name" value={insurance.name} />
             <DetailItem label="Description" value={insurance.description ?? "—"} />
             <DetailItem label="Insurance Type" value={insurance.typeName ?? "—"} />
-            <DetailItem label="Company" value={insurance.companyName ?? "—"} />
             <DetailItem label="Base Premium" value={formattedPremium} />
           </dl>
         </CardContent>

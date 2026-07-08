@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
-import { getInsurances, getInsuranceTypes, getInsuranceCompanies, type InsuranceResponse } from "@/lib/api/insurances";
+import { getInsurances, getInsuranceTypes, type InsuranceResponse } from "@/lib/api/insurances";
 import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/features/search-bar";
 import { EmptyState } from "@/components/features/empty-state";
@@ -39,10 +39,6 @@ const columns: ColumnDef<InsuranceResponse, any>[] = [
     header: "Type",
     cell: (info) => info.getValue() ?? "—",
   }),
-  columnHelper.accessor("companyName", {
-    header: "Company",
-    cell: (info) => info.getValue() ?? "—",
-  }),
   columnHelper.accessor("basePremium", {
     header: "Base Premium",
     cell: (info) => formatCurrency(info.getValue()),
@@ -73,36 +69,29 @@ export function InsuranceList({ initialData }: InsuranceListProps) {
   const [sorting, setSorting] = useState<DataTableSortingState[]>([]);
   const [search, setSearch] = useState("");
   const [typeId, setTypeId] = useState<string>("");
-  const [companyId, setCompanyId] = useState<string>("");
-
   const sortField = sorting[0]?.id;
   const sortDirection = sorting[0]?.desc ? "desc" : "asc";
 
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ["insurances", pagination.pageIndex, pagination.pageSize, search, typeId, companyId, sortField, sortDirection],
+    queryKey: ["insurances", pagination.pageIndex, pagination.pageSize, search, typeId, sortField, sortDirection],
     queryFn: () =>
       getInsurances(
         pagination.pageIndex,
         pagination.pageSize,
         typeId ? Number(typeId) : undefined,
-        companyId ? Number(companyId) : undefined,
+        undefined, // companyId — removed
         search || undefined,
         sortField,
         sortDirection,
       ),
     initialData:
-      pagination.pageIndex === 0 && !search && !typeId && !companyId && !sortField ? initialData : undefined,
+      pagination.pageIndex === 0 && !search && !typeId && !sortField ? initialData : undefined,
     staleTime: 30_000, // SSR data is fresh for 30s — skip immediate refetch
   });
 
   const { data: types } = useQuery({
     queryKey: ["insurance-types"],
     queryFn: getInsuranceTypes,
-  });
-
-  const { data: companies } = useQuery({
-    queryKey: ["insurance-companies"],
-    queryFn: getInsuranceCompanies,
   });
 
   if (isError) {
@@ -129,7 +118,7 @@ export function InsuranceList({ initialData }: InsuranceListProps) {
         }
       />
 
-      {!isLoading && insurances.length === 0 && !search && !typeId && !companyId ? (
+      {!isLoading && insurances.length === 0 && !search && !typeId ? (
         <EmptyState
           icon={Shield}
           title="No insurance products found"
@@ -183,23 +172,6 @@ export function InsuranceList({ initialData }: InsuranceListProps) {
                   <SelectItem value="">All types</SelectItem>
                   {types?.map((type) => (
                     <SelectItem key={type.id} value={type.id.toString()}>{type.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select
-                value={companyId || undefined}
-                onValueChange={(value) => {
-                  setCompanyId(value ?? "");
-                  setPagination({ pageIndex: 0, pageSize: pagination.pageSize });
-                }}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="All companies" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">All companies</SelectItem>
-                  {companies?.map((company) => (
-                    <SelectItem key={company.id} value={company.id.toString()}>{company.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>

@@ -354,14 +354,14 @@ Run `cd frontend-next && npx tsc --noEmit` to verify no type errors remain.
 
 ## Acceptance Criteria
 
-- [ ] Insurance list page has no "Company" column and no "All companies" filter dropdown
-- [ ] Insurance form (new + edit) has no company dropdown field
-- [ ] Insurance detail page has no "Company" row in the info section
-- [ ] Estimation form has no company dropdown in step 2 and no company row in step 4 review
-- [ ] Clicking the Deactivate button on an insurance detail page opens a confirm dialog
-- [ ] Confirming deactivation calls the API and updates the page with the new inactive status
-- [ ] No `getInsuranceCompanies` imports remain in any of the four modified files
-- [ ] Frontend type-checks without errors
+- [x] Insurance list page has no "Company" column and no "All companies" filter dropdown
+- [x] Insurance form (new + edit) has no company dropdown field
+- [x] Insurance detail page has no "Company" row in the info section
+- [x] Estimation form has no company dropdown in step 2 and no company row in step 4 review
+- [x] Clicking the Deactivate button on an insurance detail page opens a confirm dialog
+- [x] Confirming deactivation calls the API and updates the page with the new inactive status
+- [x] No `getInsuranceCompanies` imports remain in any of the four modified files
+- [x] Frontend type-checks without errors
 
 ## Dependencies
 

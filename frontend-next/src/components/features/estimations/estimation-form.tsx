@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createEstimation } from "@/lib/api/estimations";
 import { getCustomers } from "@/lib/api/customers";
-import { getInsuranceTypes, getInsuranceCompanies } from "@/lib/api/insurances";
+import { getInsuranceTypes } from "@/lib/api/insurances";
 import { PageHeader } from "@/components/features/page-header";
 import { ErrorAlert } from "@/components/features/error-alert";
 import { Button } from "@/components/ui/button";
@@ -54,7 +54,6 @@ export function EstimationForm() {
     defaultValues: {
       customerId: "",
       insuranceTypeId: "",
-      companyId: "",
       vehicleId: "",
       realEstateId: "",
     },
@@ -62,7 +61,6 @@ export function EstimationForm() {
 
   const watchedCustomerId = watch("customerId");
   const watchedTypeId = watch("insuranceTypeId");
-  const watchedCompanyId = watch("companyId");
   const watchedVehicleId = watch("vehicleId");
   const watchedRealEstateId = watch("realEstateId");
 
@@ -79,11 +77,6 @@ export function EstimationForm() {
     queryFn: getInsuranceTypes,
   });
 
-  const { data: companies } = useQuery({
-    queryKey: ["insurance-companies"],
-    queryFn: getInsuranceCompanies,
-  });
-
   const customers = customerData?.content ?? [];
   const selectedCustomer = customers.find((c) => c.id === watchedCustomerId);
 
@@ -92,7 +85,6 @@ export function EstimationForm() {
       return createEstimation({
         customerId: data.customerId,
         insuranceTypeId: Number(data.insuranceTypeId),
-        companyId: data.companyId ? Number(data.companyId) : undefined,
         vehicleId: data.vehicleId || undefined,
         realEstateId: data.realEstateId || undefined,
       });
@@ -272,33 +264,9 @@ export function EstimationForm() {
                   )}
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium">Company</label>
-                  <Select
-                    value={watchedCompanyId || undefined}
-                    onValueChange={(value) => setValue("companyId", value ?? "", { shouldDirty: true })}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select company (optional)" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {companies?.map((company) => (
-                        <SelectItem key={company.id} value={company.id.toString()}>
-                          {company.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
                 {selectedType && (
                   <div className="rounded-lg bg-muted p-3 text-sm">
                     <p className="font-medium">{selectedType.name}</p>
-                    {watchedCompanyId && (
-                      <p className="text-muted-foreground">
-                        Company: {companies?.find((c) => c.id.toString() === watchedCompanyId)?.name}
-                      </p>
-                    )}
                   </div>
                 )}
               </div>
@@ -400,14 +368,6 @@ export function EstimationForm() {
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Insurance Type</p>
                     <p className="text-sm">{selectedType?.name ?? "—"}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Company</p>
-                    <p className="text-sm">
-                      {watchedCompanyId
-                        ? companies?.find((c) => c.id.toString() === watchedCompanyId)?.name
-                        : "None selected"}
-                    </p>
                   </div>
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Vehicle</p>
