@@ -137,10 +137,10 @@ Remove `enableSorting: true` from the `name` column.
 
 ## Acceptance Criteria
 
-- [ ] Insurance Companies List: no sort icons appear on column headers — no dead interactions
-- [ ] Insurance Types List: no sort icons appear on column headers — no dead interactions
-- [ ] Data tables still render correctly (no regression)
-- [ ] CSV export still works (no regression — `enableCsvExport` is passed separately)
+- [x] Insurance Companies List: no sort icons appear on column headers — no dead interactions
+- [x] Insurance Types List: no sort icons appear on column headers — no dead interactions
+- [x] Data tables still render correctly (no regression)
+- [x] CSV export still works (no regression — `enableCsvExport` is passed separately)
 
 ## Dependencies
 
