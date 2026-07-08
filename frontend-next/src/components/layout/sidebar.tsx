@@ -12,6 +12,7 @@ import {
   Shield,
   Calculator,
   Car,
+  Building2,
   PanelLeftClose,
   PanelLeft,
 } from "lucide-react";
@@ -28,6 +29,7 @@ const navItems: NavItem[] = [
   { href: "/insurances", label: "Insurances", icon: Shield },
   { href: "/estimations", label: "Estimations", icon: Calculator },
   { href: "/vehicles", label: "Vehicles", icon: Car },
+  { href: "/real-estate", label: "Real Estate", icon: Building2 },
 ];
 
 export function Sidebar() {

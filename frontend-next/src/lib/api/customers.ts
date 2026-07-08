@@ -5,18 +5,29 @@ export interface CustomerResponse {
   id: string;
   firstName: string;
   lastName: string;
+  nationalId: string;
   email: string;
   phone?: string;
   birthDate?: string;
+  address?: string;
+  cityId?: number;
+  cityName?: string;
+  professionId?: number;
+  professionName?: string;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface CustomerRequest {
   firstName: string;
   lastName: string;
+  nationalId: string;
   email: string;
   phone?: string;
   birthDate?: string;
+  address?: string;
+  cityId?: number;
+  professionId?: number;
 }
 
 export async function getCustomers(
@@ -46,7 +57,7 @@ export async function createCustomer(
 
 export async function updateCustomer(
   id: string,
-  data: CustomerRequest
+  data: Partial<CustomerRequest>
 ): Promise<CustomerResponse> {
   return apiClient<CustomerResponse>(`/api/customers/${id}`, {
     method: "PUT",

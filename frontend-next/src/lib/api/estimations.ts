@@ -1,15 +1,26 @@
 import { apiClient } from "./client";
 import type { PageResponse } from "./types";
 
+export type EstimationStatus = "STARTED" | "COMPLETED" | "REJECTED";
+
 export interface EstimationResponse {
   id: string;
+  sagaId?: string;
   customerId: string;
+  customerName?: string;
   vehicleId?: string;
+  vehiclePlate?: string;
   realEstateId?: string;
+  realEstateAddress?: string;
   insuranceTypeId: number;
+  insuranceTypeName?: string;
+  companyId?: number;
+  companyName?: string;
   premium?: number;
-  status: string;
+  status: EstimationStatus;
+  details?: string;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface EstimationRequest {
@@ -17,21 +28,33 @@ export interface EstimationRequest {
   vehicleId?: string;
   realEstateId?: string;
   insuranceTypeId: number;
+  companyId?: number;
+}
+
+export interface EstimationListParams {
+  page?: number;
+  size?: number;
+  status?: EstimationStatus;
+  customerId?: string;
+  dateFrom?: string;
+  dateTo?: string;
 }
 
 export async function getEstimations(
-  page = 0,
-  size = 20
+  params: EstimationListParams = {}
 ): Promise<PageResponse<EstimationResponse>> {
-  const params = new URLSearchParams({ page: String(page), size: String(size) });
+  const { page = 0, size = 20, status, customerId, dateFrom, dateTo } = params;
+  const searchParams = new URLSearchParams({ page: String(page), size: String(size) });
+  if (status) searchParams.set("status", status);
+  if (customerId) searchParams.set("customerId", customerId);
+  if (dateFrom) searchParams.set("dateFrom", dateFrom);
+  if (dateTo) searchParams.set("dateTo", dateTo);
   return apiClient<PageResponse<EstimationResponse>>(
-    `/api/estimations?${params.toString()}`
+    `/api/estimations?${searchParams.toString()}`
   );
 }
 
-export async function getEstimation(
-  id: string
-): Promise<EstimationResponse> {
+export async function getEstimation(id: string): Promise<EstimationResponse> {
   return apiClient<EstimationResponse>(`/api/estimations/${id}`);
 }
 
