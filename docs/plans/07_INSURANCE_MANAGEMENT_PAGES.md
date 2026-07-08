@@ -148,14 +148,14 @@ Run: `cd frontend-next && npm run build`
 
 ## Acceptance Criteria
 
-- [ ] `/insurances` page renders filtered table with type/company/status filters
-- [ ] `/insurances/[id]` shows product details with status badge
-- [ ] `/insurances/new` renders form with type and company dropdowns
-- [ ] `/insurances/[id]/edit` pre-fills form with existing data
-- [ ] Base premium validates positive number
-- [ ] Active status can be toggled
-- [ ] `/insurances/types` shows read-only list of insurance types
-- [ ] `/insurances/companies` shows read-only list of companies with ratings and status
-- [ ] Deactivate shows confirmation dialog
-- [ ] Loading, error, and empty states all handled
-- [ ] `npm run build` succeeds without TypeScript errors
+- [x] `/insurances` page renders filtered table with type/company/status filters
+- [x] `/insurances/[id]` shows product details with status badge
+- [x] `/insurances/new` renders form with type and company dropdowns
+- [x] `/insurances/[id]/edit` pre-fills form with existing data
+- [x] Base premium validates positive number
+- [x] Active status can be toggled
+- [x] `/insurances/types` shows read-only list of insurance types
+- [x] `/insurances/companies` shows read-only list of companies with ratings and status
+- [x] Deactivate shows confirmation dialog
+- [x] Loading, error, and empty states all handled
+- [x] `npm run build` succeeds without TypeScript errors
