@@ -16,8 +16,8 @@ export default async function VehiclesPage() {
       "/api/vehicles?page=0&size=20",
       { cache: "no-store" },
     );
-  } catch {
-    throw new Error("Failed to load vehicles");
+  } catch (e) {
+    throw new Error(e instanceof Error ? e.message : "Failed to load vehicles");
   }
 
   return <VehicleList initialData={initialData} />;

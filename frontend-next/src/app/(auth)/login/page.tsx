@@ -44,8 +44,10 @@ function userFromToken(token: string): UserInfo {
   };
 }
 
-function setAuthCookie(expiresIn: number): void {
-  document.cookie = `auth_token=1; path=/; max-age=${expiresIn}; SameSite=Lax`;
+function setAuthCookie(token: string, expiresIn: number): void {
+  // URL-encode the JWT to avoid any issues with special characters (=, +, /, etc.)
+  // in the cookie value. Decoded on read in serverFetch or middleware if needed.
+  document.cookie = `auth_token=${encodeURIComponent(token)}; path=/; max-age=${expiresIn}; SameSite=Lax`;
 }
 
 function clearAuthCookie(): void {
@@ -87,8 +89,8 @@ export default function LoginPage() {
         user
       );
 
-      // Set auth cookie so middleware.ts can check it server-side
-      setAuthCookie(response.expiresIn);
+      // Set auth cookie so middleware.ts and Server Components can use it
+      setAuthCookie(response.accessToken, response.expiresIn);
 
       return { redirectTo };
     },

@@ -16,8 +16,8 @@ export default async function RealEstatePage() {
       "/api/real-estate?page=0&size=20",
       { cache: "no-store" },
     );
-  } catch {
-    throw new Error("Failed to load real estate properties");
+  } catch (e) {
+    throw new Error(e instanceof Error ? e.message : "Failed to load real estate properties");
   }
 
   return <RealEstateList initialData={initialData} />;

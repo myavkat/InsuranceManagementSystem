@@ -16,8 +16,8 @@ export default async function EstimationsPage() {
       "/api/estimations?page=0&size=20",
       { cache: "no-store" },
     );
-  } catch {
-    throw new Error("Failed to load estimations");
+  } catch (e) {
+    throw new Error(e instanceof Error ? e.message : "Failed to load estimations");
   }
 
   return <EstimationList initialData={initialData} />;

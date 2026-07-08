@@ -16,9 +16,8 @@ export default async function CustomersPage() {
       "/api/customers?page=0&size=20",
       { cache: "no-store" },
     );
-  } catch {
-    // Let the error boundary handle it
-    throw new Error("Failed to load customers");
+  } catch (e) {
+    throw new Error(e instanceof Error ? e.message : "Failed to load customers");
   }
 
   return <CustomerList initialData={initialData} />;

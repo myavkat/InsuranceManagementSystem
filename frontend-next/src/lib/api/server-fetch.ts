@@ -1,17 +1,20 @@
-import { cookies } from "next/headers";
+import { headers } from "next/headers";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+const GATEWAY_URL = process.env.NEXT_PUBLIC_GATEWAY_URL || "http://localhost:8080";
 
 /**
- * Fetch data from the Next.js BFF route handler.
+ * Fetch data from the API Gateway directly.
  * For use in Server Components only.
  *
- * This utility:
- * 1. Reads the auth_token cookie (set by the auth flow)
- * 2. Passes it as a Bearer token to the BFF route handler
- * 3. Parses the ApiResponse envelope and returns the data payload
+ * Next.js 16 guidance: Server Components should fetch data directly from its
+ * source (the API Gateway), NOT via Route Handlers (BFF). Self-referencing
+ * fetch calls to the Next.js dev server are unreliable during development.
  *
- * @param path - BFF API path (e.g., "/api/customers?page=0&size=20")
+ * This utility reads the Authorization header from the incoming request
+ * (set by middleware.ts from the auth_token cookie) and forwards it to
+ * the API Gateway.
+ *
+ * @param path - API path (e.g., "/api/customers?page=0&size=20")
  * @param options - Cache and revalidation options
  */
 export async function serverFetch<T>(
@@ -22,25 +25,21 @@ export async function serverFetch<T>(
     tags?: string[];
   } = {},
 ): Promise<T> {
-  const cookieStore = await cookies();
-  const headers: Record<string, string> = {};
+  const headerStore = await headers();
+  const requestHeaders: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
 
-  // Forward all cookies (including auth_token) to the BFF route handler.
-  // The BFF proxy reads the Authorization header, so we also derive
-  // the Bearer token from the auth_token cookie below.
-  headers["Cookie"] = cookieStore.toString();
-
-  // Forward auth_token cookie as Authorization Bearer header.
-  // The bffProxy utility reads the Authorization header to authenticate
-  // proxied requests to the API Gateway.
-  const authToken = cookieStore.get("auth_token")?.value;
-  if (authToken) {
-    headers["Authorization"] = `Bearer ${authToken}`;
+  // Read the Authorization header set by middleware.ts from the auth_token cookie.
+  // This avoids any cookie encoding/decoding issues and keeps the token in one place.
+  const authHeader = headerStore.get("authorization");
+  if (authHeader) {
+    requestHeaders["Authorization"] = authHeader;
   }
 
-  const url = `${APP_URL}${path}`;
+  const url = `${GATEWAY_URL}${path}`;
   const res = await fetch(url, {
-    headers,
+    headers: requestHeaders,
     next: {
       revalidate: options.revalidate,
       tags: options.tags,
@@ -49,8 +48,9 @@ export async function serverFetch<T>(
   });
 
   if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
     throw new Error(
-      `Server fetch failed: ${res.status} ${res.statusText} for ${path}`,
+      body.message || `Server fetch failed: ${res.status} ${res.statusText} for ${path}`,
     );
   }
 
