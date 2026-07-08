@@ -154,12 +154,12 @@ class InsuranceServiceApplicationTests {
                 .expectBody()
                 .jsonPath("$.success").isEqualTo(true);
 
-        // GET returns 404 after soft delete
+        // GET returns 200 but isActive=false after soft delete
         restTestClient.get().uri("/api/insurances/{id}", insuranceId)
                 .exchange()
-                .expectStatus().isNotFound()
+                .expectStatus().isOk()
                 .expectBody()
-                .jsonPath("$.success").isEqualTo(false);
+                .jsonPath("$.data.isActive").isEqualTo(false);
 
         // Verify isActive=false in DB
         Optional<Insurance> found = insuranceRepository.findById(insuranceId);

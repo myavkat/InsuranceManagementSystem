@@ -263,7 +263,7 @@ class InsuranceControllerTest {
                 .expectStatus().isOk()
                 .expectBody()
                 .jsonPath("$.success").isEqualTo(true)
-                .jsonPath("$.message").isEqualTo("Insurance deactivated successfully")
+                .jsonPath("$.message").isEqualTo("Insurance deleted successfully")
                 .jsonPath("$.data.name").isEqualTo("Kasko Sigortası");
 
         verify(insuranceService).softDelete(any(UUID.class));

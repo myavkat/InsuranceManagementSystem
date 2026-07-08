@@ -7,8 +7,10 @@ import com.insurancemanagementsystem.common.event.EventEnvelope;
 import com.insurancemanagementsystem.common.event.saga.*;
 import com.insurancemanagementsystem.insurance.entity.Insurance;
 import com.insurancemanagementsystem.insurance.entity.InsuranceType;
+import com.insurancemanagementsystem.insurance.entity.RiskFactor;
 import com.insurancemanagementsystem.insurance.repository.InsuranceRepository;
 import com.insurancemanagementsystem.insurance.repository.InsuranceTypeRepository;
+import com.insurancemanagementsystem.insurance.repository.RiskFactorRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +67,9 @@ class InsuranceSagaConsumerTest {
     private InsuranceTypeRepository insuranceTypeRepository;
 
     @Autowired
+    private RiskFactorRepository riskFactorRepository;
+
+    @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
 
     @MockitoBean
@@ -88,10 +93,22 @@ class InsuranceSagaConsumerTest {
         // Seed test data
         insuranceTypeRepository.save(new InsuranceType(1, "TRAFFIC"));
 
-        insuranceRepository.save(Insurance.builder()
+        Insurance savedInsurance = insuranceRepository.save(Insurance.builder()
                 .name("Traffic Insurance")
                 .typeId(1)
                 .basePremium(BigDecimal.valueOf(1000))
+                .build());
+
+        // Seed risk factors so premium calculation uses known composite risk
+        riskFactorRepository.save(RiskFactor.builder()
+                .insuranceId(savedInsurance.getId())
+                .factorName("vehicleAge")
+                .factorValue(new BigDecimal("1.00"))
+                .build());
+        riskFactorRepository.save(RiskFactor.builder()
+                .insuranceId(savedInsurance.getId())
+                .factorName("driverAge")
+                .factorValue(new BigDecimal("1.00"))
                 .build());
 
         // Capture saved outbox events

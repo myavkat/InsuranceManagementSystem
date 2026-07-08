@@ -6,8 +6,8 @@ Replace the hardcoded `BigDecimal.ONE` placeholder in `InsuranceSagaConsumer.cal
 
 ## Dependencies
 
-- [ ] Plan 05 (`05-risk-factor-backend.md`) — RiskFactor entity, repository, and seed data must exist
-- [ ] Plan 01 (`01-seed-data-restructure.md`) — insurance type IDs (Vehicle=1, RealEstate=2, Health=3, Life=4)
+- [x] Plan 05 (`05-risk-factor-backend.md`) — RiskFactor entity, repository, and seed data must exist
+- [x] Plan 01 (`01-seed-data-restructure.md`) — insurance type IDs (Vehicle=1, RealEstate=2, Health=3, Life=4)
 
 ## Files to Read First
 
@@ -168,12 +168,12 @@ cd services/estimation-service && ../gradlew build
 
 ## Acceptance Criteria
 
-- [ ] `calculatePremium()` loads risk factors from `RiskFactorRepository` instead of using `BigDecimal.ONE`
-- [ ] Composite risk is the arithmetic mean of all applicable factor values
-- [ ] When no risk factors exist, falls back to 0.50 (neutral)
-- [ ] Each factor value is recorded in the `breakdown` map (keyed as `factor.<name>`)
-- [ ] `compositeRisk` and `totalPremium` are in the breakdown
-- [ ] The breakdown is serialized into `Estimation.details` (JSONB) for historical reference
-- [ ] Changing risk factor values through the admin UI affects future estimations
-- [ ] Historical estimations retain their original breakdown (old factor values)
-- [ ] Build succeeds for insurance-service and estimation-service
+- [x] `calculatePremium()` loads risk factors from `RiskFactorRepository` instead of using `BigDecimal.ONE`
+- [x] Composite risk is the arithmetic mean of all applicable factor values
+- [x] When no risk factors exist, falls back to 0.50 (neutral)
+- [x] Each factor value is recorded in the `breakdown` map (keyed as `factor.<name>`)
+- [x] `compositeRisk` and `totalPremium` are in the breakdown
+- [x] The breakdown is serialized into `Estimation.details` (JSONB) for historical reference
+- [x] Changing risk factor values through the admin UI affects future estimations
+- [x] Historical estimations retain their original breakdown (old factor values)
+- [x] Build succeeds for insurance-service and estimation-service
