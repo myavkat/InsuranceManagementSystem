@@ -264,10 +264,10 @@ Fix any compilation errors before marking this plan complete.
 
 ## Acceptance Criteria
 
-- [ ] `User.java` exists with all columns mapped correctly to the `users` table
-- [ ] `Role.java` exists with `name` column mapped
-- [ ] `RefreshToken.java` exists with `@ManyToOne` to User and all columns mapped
-- [ ] All three entities use `Instant` for timestamp fields
-- [ ] All three entities follow the Lombok annotation order: `@Data`, `@Builder`, `@NoArgsConstructor`, `@AllArgsConstructor`, then JPA
-- [ ] All three entities use `GenerationType.UUID` for ID generation
-- [ ] `./gradlew :services:auth-service:compileJava` succeeds
+- [x] `User.java` exists with all columns mapped correctly to the `users` table
+- [x] `Role.java` exists with `name` column mapped
+- [x] `RefreshToken.java` exists with `@ManyToOne` to User and all columns mapped
+- [x] All three entities use `Instant` for timestamp fields
+- [x] All three entities follow the Lombok annotation order: `@Data`, `@Builder`, `@NoArgsConstructor`, `@AllArgsConstructor`, then JPA
+- [x] All three entities use `GenerationType.UUID` for ID generation
+- [x] `./gradlew :services:auth-service:compileJava` succeeds
