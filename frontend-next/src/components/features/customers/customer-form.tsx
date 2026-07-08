@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ArrowLeft, Save } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
 import { customerSchema, type CustomerFormData } from "@/lib/schemas/customer";
 
@@ -48,6 +48,7 @@ export function CustomerForm({ initialData }: CustomerFormProps) {
     handleSubmit,
     setValue,
     watch,
+    reset,
     formState: { errors, isSubmitting, isDirty },
     setError,
   } = useForm<CustomerFormData>({
@@ -77,6 +78,22 @@ export function CustomerForm({ initialData }: CustomerFormProps) {
         },
   });
 
+  useEffect(() => {
+    if (initialData) {
+      reset({
+        firstName: initialData.firstName,
+        lastName: initialData.lastName,
+        nationalId: initialData.nationalId,
+        email: initialData.email,
+        phone: initialData.phone ?? "",
+        birthDate: initialData.birthDate ?? "",
+        address: initialData.address ?? "",
+        cityId: initialData.cityId?.toString() ?? "",
+        professionId: initialData.professionId?.toString() ?? "",
+      });
+    }
+  }, [initialData, reset]);
+
   const nationalIdAbortRef = useRef<AbortController | null>(null);
 
   const mutation = useMutation({
@@ -99,6 +116,7 @@ export function CustomerForm({ initialData }: CustomerFormProps) {
     },
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ["customers"] });
+      queryClient.invalidateQueries({ queryKey: ["customer", result.id] });
       router.push(`/customers/${result.id}`);
     },
   });
@@ -133,6 +151,13 @@ export function CustomerForm({ initialData }: CustomerFormProps) {
       }
     }
   };
+
+  const selectedCityName = cities?.find(
+    (c) => c.id === Number(watch("cityId")),
+  )?.name;
+  const selectedProfessionName = professions?.find(
+    (p) => p.id === Number(watch("professionId")),
+  )?.name;
 
   const onSubmit = (data: CustomerFormData) => {
     mutation.mutate(data);
@@ -231,7 +256,9 @@ export function CustomerForm({ initialData }: CustomerFormProps) {
                   onValueChange={(value) => setValue("cityId", value ?? "")}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select a city" />
+                    <SelectValue placeholder="Select a city">
+                      {() => selectedCityName ?? undefined}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {cities?.map((city) => (
@@ -251,7 +278,9 @@ export function CustomerForm({ initialData }: CustomerFormProps) {
                   onValueChange={(value) => setValue("professionId", value ?? "")}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select a profession" />
+                    <SelectValue placeholder="Select a profession">
+                      {() => selectedProfessionName ?? undefined}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {professions?.map((prof) => (

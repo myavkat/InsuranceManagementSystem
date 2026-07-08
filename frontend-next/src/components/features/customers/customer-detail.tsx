@@ -3,6 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getCustomer, deleteCustomer } from "@/lib/api/customers";
+import { getCities, getProfessions } from "@/lib/api/reference-data";
 import { PageHeader } from "@/components/features/page-header";
 import { ErrorAlert } from "@/components/features/error-alert";
 import { ConfirmDialog } from "@/components/features/confirm-dialog";
@@ -10,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 export function CustomerDetail() {
   const params = useParams();
@@ -23,6 +24,26 @@ export function CustomerDetail() {
     queryKey: ["customer", id],
     queryFn: () => getCustomer(id),
   });
+
+  const { data: cities = [] } = useQuery({
+    queryKey: ["cities"],
+    queryFn: getCities,
+  });
+
+  const { data: professions = [] } = useQuery({
+    queryKey: ["professions"],
+    queryFn: getProfessions,
+  });
+
+  const cityMap = useMemo(
+    () => new Map<number, string>(cities.map((c) => [c.id, c.name])),
+    [cities],
+  );
+
+  const professionMap = useMemo(
+    () => new Map<number, string>(professions.map((p) => [p.id, p.name])),
+    [professions],
+  );
 
   const deleteMutation = useMutation({
     mutationFn: () => deleteCustomer(id),
@@ -92,8 +113,8 @@ export function CustomerDetail() {
             <DetailItem label="Email" value={customer.email} />
             <DetailItem label="Phone" value={customer.phone ?? "—"} />
             <DetailItem label="Birth Date" value={customer.birthDate ? new Date(customer.birthDate).toLocaleDateString() : "—"} />
-            <DetailItem label="City" value={customer.cityName ?? "—"} />
-            <DetailItem label="Profession" value={customer.professionName ?? "—"} />
+            <DetailItem label="City" value={customer.cityId ? cityMap.get(customer.cityId) ?? "—" : "—"} />
+            <DetailItem label="Profession" value={customer.professionId ? professionMap.get(customer.professionId) ?? "—" : "—"} />
             <DetailItem label="Address" value={customer.address ?? "—"} className="sm:col-span-2" />
           </dl>
         </CardContent>
