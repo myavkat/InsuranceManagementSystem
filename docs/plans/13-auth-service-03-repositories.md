@@ -124,9 +124,9 @@ Fix any compilation errors before marking this plan complete.
 
 ## Acceptance Criteria
 
-- [ ] `UserRepository.java` exists with `findByUsername`, `findByEmail`, `existsByUsername`, `existsByEmail`
-- [ ] `RoleRepository.java` exists with `findByName`
-- [ ] `RefreshTokenRepository.java` exists with `findByTokenHash` and `revokeAllForUser`
-- [ ] All three extend `JpaRepository` with correct entity + ID types
-- [ ] All three have `@Repository` annotation
-- [ ] `./gradlew :services:auth-service:compileJava` succeeds
+- [x] `UserRepository.java` exists with `findByUsername`, `findByEmail`, `existsByUsername`, `existsByEmail`
+- [x] `RoleRepository.java` exists with `findByName`
+- [x] `RefreshTokenRepository.java` exists with `findByTokenHash` and `revokeAllForUser`
+- [x] All three extend `JpaRepository` with correct entity + ID types
+- [x] All three have `@Repository` annotation
+- [x] `./gradlew :services:auth-service:compileJava` succeeds
