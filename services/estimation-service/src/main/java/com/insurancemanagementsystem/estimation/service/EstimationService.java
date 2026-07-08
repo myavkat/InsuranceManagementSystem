@@ -54,9 +54,23 @@ public class EstimationService {
 
     @Transactional
     public EstimationResponse create(EstimationRequest request) {
-        if (request.getVehicleId() == null && request.getRealEstateId() == null) {
-            throw new IllegalArgumentException("Either vehicleId or realEstateId must be provided");
+        // Validate asset linkage based on insurance type
+        Integer typeId = request.getInsuranceTypeId();
+        if (typeId == null) {
+            throw new IllegalArgumentException("insuranceTypeId is required");
         }
+
+        // Type 1 = Vehicle → vehicleId required
+        if (typeId == 1 && request.getVehicleId() == null) {
+            throw new IllegalArgumentException("vehicleId is required for Vehicle-type insurance");
+        }
+
+        // Type 2 = Real Estate → realEstateId required
+        if (typeId == 2 && request.getRealEstateId() == null) {
+            throw new IllegalArgumentException("realEstateId is required for Real Estate-type insurance");
+        }
+
+        // Type 3 = Health, Type 4 = Life → no asset required (nothing to validate)
 
         UUID sagaId = CorrelationIdGenerator.generateSagaId();
         UUID traceId = CorrelationIdGenerator.generateTraceId();

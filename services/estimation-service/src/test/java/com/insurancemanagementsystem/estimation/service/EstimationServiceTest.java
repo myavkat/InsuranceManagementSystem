@@ -120,7 +120,7 @@ class EstimationServiceTest {
         // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> estimationService.create(request));
-        assertThat(exception.getMessage()).contains("Either vehicleId or realEstateId must be provided");
+        assertThat(exception.getMessage()).contains("vehicleId is required for Vehicle-type insurance");
 
         verify(estimationRepository, never()).save(any(Estimation.class));
         verify(outboxMessagePublisher, never()).publish(any(), any(), any(), any());

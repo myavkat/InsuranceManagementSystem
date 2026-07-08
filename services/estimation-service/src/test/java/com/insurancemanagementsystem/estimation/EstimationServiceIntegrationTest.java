@@ -195,7 +195,7 @@ class EstimationServiceIntegrationTest {
         EstimationRequest request = new EstimationRequest();
         request.setCustomerId(UUID.randomUUID());
         request.setRealEstateId(UUID.randomUUID());
-        request.setInsuranceTypeId(1);
+        request.setInsuranceTypeId(2); // Real Estate type
 
         EstimationResponse response = estimationService.create(request);
 
@@ -255,7 +255,7 @@ class EstimationServiceIntegrationTest {
             estimationService.create(request);
             assertThat(false).isTrue(); // should not reach here
         } catch (IllegalArgumentException e) {
-            assertThat(e.getMessage()).contains("Either vehicleId or realEstateId must be provided");
+            assertThat(e.getMessage()).contains("vehicleId is required for Vehicle-type insurance");
         }
 
         // No outbox event should have been saved
