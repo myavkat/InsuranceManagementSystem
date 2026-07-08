@@ -623,12 +623,12 @@ Fix any TypeScript errors before marking this plan complete.
 
 ## Acceptance Criteria
 
-- [ ] `customers.ts` has all Customer entity fields in `CustomerResponse` and `CustomerRequest`
-- [ ] `insurances.ts` has `createInsurance`, `updateInsurance`, `deleteInsurance`, `getInsuranceTypes`, `getInsuranceCompanies`
-- [ ] `estimations.ts` has `EstimationStatus` type, extended filter params, `details` field
-- [ ] `vehicles.ts` has CRUD functions plus all 6 reference data functions
-- [ ] `realestate.ts` exists with CRUD functions plus 3 reference data functions
-- [ ] `reference-data.ts` exists with `getCities()` and `getProfessions()`
-- [ ] `index.ts` exports all 7 domain modules
-- [ ] `npm run build` succeeds without TypeScript errors
-- [ ] All functions use `apiClient<T>()` — no direct `fetch()` calls
+- [x] `customers.ts` has all Customer entity fields in `CustomerResponse` and `CustomerRequest`
+- [x] `insurances.ts` has `createInsurance`, `updateInsurance`, `deleteInsurance`, `getInsuranceTypes`, `getInsuranceCompanies`
+- [x] `estimations.ts` has `EstimationStatus` type, extended filter params, `details` field
+- [x] `vehicles.ts` has CRUD functions plus all 6 reference data functions
+- [x] `realestate.ts` exists with CRUD functions plus 3 reference data functions
+- [x] `reference-data.ts` exists with `getCities()` and `getProfessions()`
+- [x] `index.ts` exports all 7 domain modules
+- [x] `npm run build` succeeds without TypeScript errors
+- [x] All functions use `apiClient<T>()` — no direct `fetch()` calls
