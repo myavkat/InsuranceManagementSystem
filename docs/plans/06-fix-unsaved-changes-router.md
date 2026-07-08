@@ -128,19 +128,19 @@ export function useUnsavedChanges(
 }
 ```
 
-**Important caveat**: This approach patches `window.history.pushState`. Next.js may have its own navigation interception mechanism in v16 — check `node_modules/next/dist/docs/` per the `frontend-next/AGENTS.md` instruction. If Next.js provides a first-party API (e.g., `useNavigationGuard`), use that instead.
+**Implementation note**: Next.js v16 provides a first-party `onNavigate` prop on `<Link>` with `e.preventDefault()`, used together with a `NavigationBlockerContext`. However, this only covers `<Link>` clicks, not `router.push()` calls or browser back/forward. The history API patching approach was chosen for comprehensive coverage of all navigation paths.
 
 ---
 
 ## Acceptance Criteria
 
-- [ ] Fill a form (isDirty=true), click a sidebar `<Link>` → confirmation dialog appears
-- [ ] Click "Cancel" on the dialog → navigation is blocked, user stays on the form
-- [ ] Click "OK" on the dialog → navigation proceeds
-- [ ] Fill a form, press browser back button → confirmation dialog appears
-- [ ] Fill a form, close the browser tab → browser's built-in "unsaved changes" dialog appears
-- [ ] Form is clean (isDirty=false) → no confirmation dialog on any navigation (no regression)
-- [ ] Component unmount properly restores original `history.pushState` (no memory leak / broken navigation after form is closed)
+- [x] Fill a form (isDirty=true), click a sidebar `<Link>` → confirmation dialog appears
+- [x] Click "Cancel" on the dialog → navigation is blocked, user stays on the form
+- [x] Click "OK" on the dialog → navigation proceeds
+- [x] Fill a form, press browser back button → confirmation dialog appears
+- [x] Fill a form, close the browser tab → browser's built-in "unsaved changes" dialog appears
+- [x] Form is clean (isDirty=false) → no confirmation dialog on any navigation (no regression)
+- [x] Component unmount properly restores original `history.pushState` (no memory leak / broken navigation after form is closed)
 
 ---
 
