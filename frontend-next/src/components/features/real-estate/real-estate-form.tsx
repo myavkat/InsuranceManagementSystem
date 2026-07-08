@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import {
   createRealEstate,
   updateRealEstate,
@@ -32,22 +31,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Save, Search } from "lucide-react";
 import { useState } from "react";
-
-const realEstateSchema = z.object({
-  address: z.string().min(1, "Address is required"),
-  cityId: z.string().optional(),
-  district: z.string().optional(),
-  squareMeters: z.string()
-    .refine((v) => !v || Number(v) > 0, "Must be a positive number"),
-  constructionYear: z.string()
-    .refine((v) => !v || Number(v) <= new Date().getFullYear(), "Cannot be in the future"),
-  constructionTypeId: z.string().optional(),
-  luxuryClassId: z.string().optional(),
-  usageTypeId: z.string().optional(),
-  customerId: z.string().min(1, "Customer is required"),
-});
-
-type RealEstateFormData = z.infer<typeof realEstateSchema>;
+import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
+import { realEstateSchema, type RealEstateFormData } from "@/lib/schemas/real-estate";
 
 interface RealEstateFormProps {
   initialData?: RealEstateResponse;
@@ -86,7 +71,7 @@ export function RealEstateForm({ initialData }: RealEstateFormProps) {
     handleSubmit,
     setValue,
     watch,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<RealEstateFormData>({
     resolver: zodResolver(realEstateSchema),
     defaultValues: initialData
@@ -146,6 +131,8 @@ export function RealEstateForm({ initialData }: RealEstateFormProps) {
       router.push(`/real-estate/${result.id}`);
     },
   });
+
+  useUnsavedChanges(isDirty);
 
   const onSubmit = (data: RealEstateFormData) => {
     mutation.mutate(data);

@@ -85,12 +85,12 @@ To prevent accidental navigation away with unsaved changes, use the browser's `b
 
 ### Step 1: Create centralized Zod schemas directory
 
-- [ ] Create directory `frontend-next/src/lib/schemas/` (may already exist from Plan 01 if `auth.ts` was created there)
+- [x] Create directory `frontend-next/src/lib/schemas/` (may already exist from Plan 01 if `auth.ts` was created there)
 
 ### Step 2: Create customer Zod schema (extract from existing form)
 
-- [ ] Open `frontend-next/src/components/features/customers/customer-form.tsx` to see the existing inline schema (lines 25-38)
-- [ ] Create `frontend-next/src/lib/schemas/customer.ts`:
+- [x] Open `frontend-next/src/components/features/customers/customer-form.tsx` to see the existing inline schema (lines 25-38)
+- [x] Create `frontend-next/src/lib/schemas/customer.ts`:
   ```typescript
   import { z } from "zod";
 
@@ -111,15 +111,15 @@ To prevent accidental navigation away with unsaved changes, use the browser's `b
 
   export type CustomerFormData = z.infer<typeof customerSchema>;
   ```
-- [ ] Open `frontend-next/src/components/features/customers/customer-form.tsx`
-- [ ] Replace the inline `customerSchema` and `CustomerFormData` with imports from `@/lib/schemas/customer`
-- [ ] Do the same for `edit-customer-form.tsx` if it has its own inline schema — update to import the shared one
-- [ ] **Verify no TypeScript errors** after the change
+- [x] Open `frontend-next/src/components/features/customers/customer-form.tsx`
+- [x] Replace the inline `customerSchema` and `CustomerFormData` with imports from `@/lib/schemas/customer`
+- [x] Do the same for `edit-customer-form.tsx` if it has its own inline schema — update to import the shared one
+- [x] **Verify no TypeScript errors** after the change
 
 ### Step 3: Create vehicle Zod schema
 
-- [ ] Read `frontend-next/src/lib/api/vehicles.ts` to see the `VehicleRequest` interface fields
-- [ ] Create `frontend-next/src/lib/schemas/vehicle.ts`:
+- [x] Read `frontend-next/src/lib/api/vehicles.ts` to see the `VehicleRequest` interface fields
+- [x] Create `frontend-next/src/lib/schemas/vehicle.ts`:
   ```typescript
   import { z } from "zod";
 
@@ -139,21 +139,21 @@ To prevent accidental navigation away with unsaved changes, use the browser's `b
 
   export type VehicleFormData = z.infer<typeof vehicleSchema>;
   ```
-- [ ] Open `frontend-next/src/components/features/vehicles/vehicle-form.tsx`
-- [ ] If it already uses Zod + RHF, update it to import the shared schema
-- [ ] If it uses manual state, migrate it to Zod + RHF following the customer-form pattern exactly:
+- [x] Open `frontend-next/src/components/features/vehicles/vehicle-form.tsx`
+- [x] If it already uses Zod + RHF, update it to import the shared schema
+- [x] If it uses manual state, migrate it to Zod + RHF following the customer-form pattern exactly:
   1. Import `useForm` + `zodResolver`
   2. Import `vehicleSchema`, `VehicleFormData`
   3. Replace `useState` fields with `register()` calls
   4. Use `FormField` component for each field
   5. Keep the same layout (Card, CardHeader, CardContent, grid)
   6. Wire `handleSubmit` to the mutation
-- [ ] Do the same for `edit-vehicle-form.tsx`
+- [x] Do the same for `edit-vehicle-form.tsx`
 
 ### Step 4: Create real-estate Zod schema
 
-- [ ] Read `frontend-next/src/lib/api/realestate.ts` to see the `RealEstateRequest` interface fields
-- [ ] Create `frontend-next/src/lib/schemas/real-estate.ts`:
+- [x] Read `frontend-next/src/lib/api/realestate.ts` to see the `RealEstateRequest` interface fields
+- [x] Create `frontend-next/src/lib/schemas/real-estate.ts`:
   ```typescript
   import { z } from "zod";
 
@@ -169,14 +169,14 @@ To prevent accidental navigation away with unsaved changes, use the browser's `b
 
   export type RealEstateFormData = z.infer<typeof realEstateSchema>;
   ```
-- [ ] Open `frontend-next/src/components/features/real-estate/real-estate-form.tsx`
-- [ ] Migrate to Zod + RHF if not already (same pattern as customer-form)
-- [ ] Do the same for `edit-real-estate-form.tsx`
+- [x] Open `frontend-next/src/components/features/real-estate/real-estate-form.tsx`
+- [x] Migrate to Zod + RHF if not already (same pattern as customer-form)
+- [x] Do the same for `edit-real-estate-form.tsx`
 
 ### Step 5: Create insurance Zod schemas
 
-- [ ] Read `frontend-next/src/lib/api/insurances.ts` to see various request interfaces
-- [ ] Create `frontend-next/src/lib/schemas/insurance.ts`:
+- [x] Read `frontend-next/src/lib/api/insurances.ts` to see various request interfaces
+- [x] Create `frontend-next/src/lib/schemas/insurance.ts`:
   ```typescript
   import { z } from "zod";
 
@@ -195,18 +195,18 @@ To prevent accidental navigation away with unsaved changes, use the browser's `b
   export type InsuranceTypeFormData = z.infer<typeof insuranceTypeSchema>;
   export type InsuranceCompanyFormData = z.infer<typeof insuranceCompanySchema>;
   ```
-- [ ] Open `frontend-next/src/components/features/insurances/insurance-form.tsx` and migrate to Zod + RHF
-- [ ] Do the same for `edit-insurance-form.tsx`
+- [x] Open `frontend-next/src/components/features/insurances/insurance-form.tsx` and migrate to Zod + RHF
+- [x] Do the same for `edit-insurance-form.tsx`
 
 ### Step 6: Create estimation Zod schema and migrate the multi-step form
 
-- [ ] Read the estimation form at `frontend-next/src/components/features/estimations/estimation-form.tsx`
-- [ ] Analyze the fields across all 4 steps:
+- [x] Read the estimation form at `frontend-next/src/components/features/estimations/estimation-form.tsx`
+- [x] Analyze the fields across all 4 steps:
   - Step 1 (Customer): `selectedCustomerId` (string, required)
   - Step 2 (Insurance): `selectedTypeId` (string, required), `selectedCompanyId` (string, optional)
   - Step 3 (Link Assets): `selectedVehicleId` (string, optional), `selectedRealEstateId` (string, optional)
   - Step 4 (Review): no new fields
-- [ ] Create `frontend-next/src/lib/schemas/estimation.ts`:
+- [x] Create `frontend-next/src/lib/schemas/estimation.ts`:
   ```typescript
   import { z } from "zod";
 
@@ -220,8 +220,8 @@ To prevent accidental navigation away with unsaved changes, use the browser's `b
 
   export type EstimationFormData = z.infer<typeof estimationSchema>;
   ```
-- [ ] Open `frontend-next/src/components/features/estimations/estimation-form.tsx`
-- [ ] Replace all `useState` calls with a single `useForm<EstimationFormData>`:
+- [x] Open `frontend-next/src/components/features/estimations/estimation-form.tsx`
+- [x] Replace all `useState` calls with a single `useForm<EstimationFormData>`:
   ```typescript
   const {
     register,
@@ -240,13 +240,13 @@ To prevent accidental navigation away with unsaved changes, use the browser's `b
     },
   });
   ```
-- [ ] Replace `selectedCustomerId` state → `watch("customerId")`
-- [ ] Replace `selectedTypeId` state → `watch("insuranceTypeId")`
-- [ ] Replace `selectedCompanyId` state → `watch("companyId")`
-- [ ] Replace `selectedVehicleId` state → `watch("vehicleId")`
-- [ ] Replace `selectedRealEstateId` state → `watch("realEstateId")`
-- [ ] Replace all `setSelectedCustomerId(value)` calls → `setValue("customerId", value)`
-- [ ] Replace the mutation to use `handleSubmit`:
+- [x] Replace `selectedCustomerId` state → `watch("customerId")`
+- [x] Replace `selectedTypeId` state → `watch("insuranceTypeId")`
+- [x] Replace `selectedCompanyId` state → `watch("companyId")`
+- [x] Replace `selectedVehicleId` state → `watch("vehicleId")`
+- [x] Replace `selectedRealEstateId` state → `watch("realEstateId")`
+- [x] Replace all `setSelectedCustomerId(value)` calls → `setValue("customerId", value)`
+- [x] Replace the mutation to use `handleSubmit`:
   ```typescript
   const mutation = useMutation({
     mutationFn: (data: EstimationFormData) => {
@@ -266,16 +266,16 @@ To prevent accidental navigation away with unsaved changes, use the browser's `b
   // In JSX:
   <form onSubmit={handleSubmit((data) => mutation.mutate(data))}>
   ```
-- [ ] Keep the step mechanism as-is (step 1-4 with Next/Back buttons) — just wire it to RHF
-- [ ] Update step validation:
+- [x] Keep the step mechanism as-is (step 1-4 with Next/Back buttons) — just wire it to RHF
+- [x] Update step validation:
   - Replace `canProceedStep1` → `!!watch("customerId")`
   - Replace `canProceedStep2` → `!!watch("insuranceTypeId")`
-- [ ] The step 4 submit button should call `handleSubmit` (which validates ALL fields, not just the current step's)
-- [ ] **IMPORTANT**: Since the multi-step form only shows some fields at a time, RHF's full validation on submit works correctly — it validates ALL fields from ALL steps. If you want per-step validation, you need partial schemas. For simplicity, validate all fields at once on final submit.
+- [x] The step 4 submit button should call `handleSubmit` (which validates ALL fields, not just the current step's)
+- [x] **IMPORTANT**: Since the multi-step form only shows some fields at a time, RHF's full validation on submit works correctly — it validates ALL fields from ALL steps. If you want per-step validation, you need partial schemas. For simplicity, validate all fields at once on final submit.
 
 ### Step 7: Add navigation guard (unsaved changes warning)
 
-- [ ] Create a custom hook `frontend-next/src/hooks/use-unsaved-changes.ts`:
+- [x] Create a custom hook `frontend-next/src/hooks/use-unsaved-changes.ts`:
   ```typescript
   "use client";
 
@@ -313,16 +313,16 @@ To prevent accidental navigation away with unsaved changes, use the browser's `b
     // (forms are on their own routes), so the beforeunload covers the main cases.
   }
   ```
-- [ ] Add the hook to each form component:
+- [x] Add the hook to each form component:
   ```typescript
   const { formState: { isDirty } } = useForm(...);
   useUnsavedChanges(isDirty);
   ```
-- [ ] Add this to: `customer-form.tsx`, `vehicle-form.tsx`, `real-estate-form.tsx`, `insurance-form.tsx`, `estimation-form.tsx`, and both edit-form variants
+- [x] Add this to: `customer-form.tsx`, `vehicle-form.tsx`, `real-estate-form.tsx`, `insurance-form.tsx`, `estimation-form.tsx`, and both edit-form variants
 
 ### Step 8: Add async validation for national ID uniqueness (Customer form)
 
-- [ ] Create `frontend-next/src/lib/api/customers.ts` — add a new function if it doesn't exist:
+- [x] Create `frontend-next/src/lib/api/customers.ts` — add a new function if it doesn't exist:
   ```typescript
   export async function checkNationalId(nationalId: string): Promise<boolean> {
     // Returns true if the nationalId is available (not taken)
@@ -338,10 +338,10 @@ To prevent accidental navigation away with unsaved changes, use the browser's `b
     }
   }
   ```
-- [ ] In the customer schema, add async validation using RHF's `useForm` async validation (not Zod, since Zod is synchronous):
+- [x] In the customer schema, add async validation using RHF's `useForm` async validation (not Zod, since Zod is synchronous):
   - Use React Hook Form's `trigger` + `setError` pattern for async validation on blur
   - Or use Zod's `z.string().refine()` with a promise (Zod 4 supports async refinements via `.refine(async (val) => ..., { message: "..." })`)
-- [ ] In `customer-form.tsx`, add a blur handler on the nationalId field:
+- [x] In `customer-form.tsx`, add a blur handler on the nationalId field:
   ```typescript
   const handleNationalIdBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -353,19 +353,19 @@ To prevent accidental navigation away with unsaved changes, use the browser's `b
     }
   };
   ```
-- [ ] Pass this to `FormField` via the standard `onBlur` prop: `{...register("nationalId", { onBlur: handleNationalIdBlur })}`
+- [x] Pass this to `FormField` via the standard `onBlur` prop: `{...register("nationalId", { onBlur: handleNationalIdBlur })}`
 
 ### Step 9: Verify all forms
 
-- [ ] Run `npx tsc --noEmit` from `frontend-next/` to check for TypeScript errors
-- [ ] Verify each form:
+- [x] Run `npx tsc --noEmit` from `frontend-next/` to check for TypeScript errors
+- [x] Verify each form:
   1. All fields have labels
   2. Inline errors appear per-field (not just at the top)
   3. Submit button is disabled while `isSubmitting` or `mutation.isPending`
   4. Loading state shows during reference data fetch
   5. Error state shows API errors via `ErrorAlert`
   6. Empty/initial state shows placeholder text in fields
-- [ ] Verify the estimation multi-step form still navigates through steps correctly after RHF migration
+- [x] Verify the estimation multi-step form still navigates through steps correctly after RHF migration
 
 ---
 

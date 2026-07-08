@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import {
   createVehicle,
   updateVehicle,
@@ -34,26 +33,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Save, Search } from "lucide-react";
 import { useState, useCallback } from "react";
-
-const vehicleSchema = z.object({
-  plate: z.string()
-    .regex(/^\d{2}\s?[A-Z]{1,3}\s?\d{2,4}(\s?[A-Z]{2})?$/, "Invalid Turkish plate format (e.g., 34 ABC 1234)"),
-  chassisNumber: z.string()
-    .min(17, "Chassis number must be 17 characters")
-    .max(17, "Chassis number must be 17 characters")
-    .optional()
-    .or(z.literal("")),
-  licenseFirstDate: z.string().optional(),
-  carBrandId: z.string().optional(),
-  carModelId: z.string().optional(),
-  carEngineId: z.string().optional(),
-  carFuelTypeId: z.string().optional(),
-  carTypeId: z.string().optional(),
-  carPackageId: z.string().optional(),
-  customerId: z.string().min(1, "Customer is required"),
-});
-
-type VehicleFormData = z.infer<typeof vehicleSchema>;
+import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
+import { vehicleSchema, type VehicleFormData } from "@/lib/schemas/vehicle";
 
 interface VehicleFormProps {
   initialData?: VehicleResponse; // If provided, we're editing
@@ -97,7 +78,7 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
     handleSubmit,
     setValue,
     watch,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<VehicleFormData>({
     resolver: zodResolver(vehicleSchema),
     defaultValues: initialData
@@ -178,6 +159,8 @@ export function VehicleForm({ initialData }: VehicleFormProps) {
       router.push(`/vehicles/${result.id}`);
     },
   });
+
+  useUnsavedChanges(isDirty);
 
   const onSubmit = (data: VehicleFormData) => {
     mutation.mutate(data);

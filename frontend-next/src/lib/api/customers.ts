@@ -68,3 +68,16 @@ export async function updateCustomer(
 export async function deleteCustomer(id: string): Promise<void> {
   return apiClient<void>(`/api/customers/${id}`, { method: "DELETE" });
 }
+
+export async function checkNationalId(nationalId: string): Promise<boolean> {
+  // Returns true if the nationalId is available (not taken)
+  // The backend should have an endpoint like GET /api/customers/check-national-id?id=xxx
+  try {
+    const result = await apiClient<{ available: boolean }>(
+      `/api/customers/check-national-id?nationalId=${encodeURIComponent(nationalId)}`
+    );
+    return result.available;
+  } catch {
+    return false; // Assume taken if check fails
+  }
+}
