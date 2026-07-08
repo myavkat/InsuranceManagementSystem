@@ -78,8 +78,12 @@ frontend-next/src/app/(dashboard)/customers/[id]/
 frontend-next/src/app/(dashboard)/customers/[id]/edit/
 frontend-next/src/components/features/customers/
 ```
+- [x] Create directory structure
 
 ### Step 2: Build Customer List page
+
+- [x] Create `customer-list.tsx` component
+- [x] Create `page.tsx` route
 
 #### 2a. Create the list client component
 
@@ -231,6 +235,9 @@ export default function CustomersPage() {
 ```
 
 ### Step 3: Build Customer Detail page
+
+- [x] Create `customer-detail.tsx` component
+- [x] Create `[id]/page.tsx` route
 
 #### 3a. Create the detail client component
 
@@ -419,6 +426,11 @@ export default function CustomerDetailPage() {
 ```
 
 ### Step 4: Build Customer Form (shared by create and edit)
+
+- [x] Create `customer-form.tsx` component
+- [x] Create `new/page.tsx` route
+- [x] Create `edit-customer-form.tsx` wrapper
+- [x] Create `[id]/edit/page.tsx` route
 
 #### 4a. Create the form component
 
@@ -793,18 +805,20 @@ Run: `cd frontend-next && npm run build`
 
 Fix any TypeScript errors before marking this plan complete.
 
+- [x] Build succeeds without TypeScript errors
+
 ## Acceptance Criteria
 
-- [ ] `/customers` page renders a paginated table with search
-- [ ] `/customers/new` renders a form with all fields and validation
-- [ ] `/customers/[id]` shows full customer details in a card layout
-- [ ] `/customers/[id]/edit` pre-fills form with existing data
-- [ ] TCKN field validates 11-digit numeric format
-- [ ] Email field validates email format
-- [ ] City and Profession are dropdown selects populated from reference data API
-- [ ] Delete shows a confirmation dialog, then soft-deletes and redirects to list
-- [ ] Loading states (skeleton) shown while data fetches
-- [ ] Error states shown with retry button
-- [ ] Empty state shown when list has no results
-- [ ] Form shows validation errors inline below each field
-- [ ] `npm run build` succeeds without TypeScript errors
+- [x] `/customers` page renders a paginated table with search
+- [x] `/customers/new` renders a form with all fields and validation
+- [x] `/customers/[id]` shows full customer details in a card layout
+- [x] `/customers/[id]/edit` pre-fills form with existing data
+- [x] TCKN field validates 11-digit numeric format
+- [x] Email field validates email format
+- [x] City and Profession are dropdown selects populated from reference data API
+- [x] Delete shows a confirmation dialog, then soft-deletes and redirects to list
+- [x] Loading states (skeleton) shown while data fetches
+- [x] Error states shown with retry button
+- [x] Empty state shown when list has no results
+- [x] Form shows validation errors inline below each field
+- [x] `npm run build` succeeds without TypeScript errors
