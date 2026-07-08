@@ -1,5 +1,7 @@
 package com.insurancemanagementsystem.realestate.service;
 
+import com.insurancemanagementsystem.realestate.client.CustomerServiceClient;
+import com.insurancemanagementsystem.realestate.client.ReferenceDataServiceClient;
 import com.insurancemanagementsystem.realestate.config.RealEstateEventPublisher;
 import com.insurancemanagementsystem.realestate.dto.RealEstateRequest;
 import com.insurancemanagementsystem.realestate.dto.RealEstateResponse;
@@ -53,6 +55,12 @@ class RealEstateServiceTest {
 
     @Mock
     private RealEstateUsageTypeRepository usageTypeRepository;
+
+    @Mock
+    private CustomerServiceClient customerServiceClient;
+
+    @Mock
+    private ReferenceDataServiceClient referenceDataServiceClient;
 
     @InjectMocks
     private RealEstateService realEstateService;
@@ -115,6 +123,8 @@ class RealEstateServiceTest {
                 .thenReturn(Optional.of(new RealEstateLuxuryClass(LUXURY_CLASS_ID, "A")));
         when(usageTypeRepository.findById(USAGE_TYPE_ID))
                 .thenReturn(Optional.of(new RealEstateUsageType(USAGE_TYPE_ID, "Residential")));
+        when(referenceDataServiceClient.getCityName(CITY_ID)).thenReturn("Istanbul");
+        when(customerServiceClient.getCustomerName(CUSTOMER_ID)).thenReturn("John Doe");
     }
 
     // ---------------------------------------------------------------
@@ -141,6 +151,8 @@ class RealEstateServiceTest {
         assertThat(result.getContent().getFirst().getConstructionTypeName()).isEqualTo("Concrete");
         assertThat(result.getContent().getFirst().getLuxuryClassName()).isEqualTo("A");
         assertThat(result.getContent().getFirst().getUsageTypeName()).isEqualTo("Residential");
+        assertThat(result.getContent().getFirst().getCityName()).isEqualTo("Istanbul");
+        assertThat(result.getContent().getFirst().getCustomerName()).isEqualTo("John Doe");
 
         verify(realEstateRepository).findAll(pageable);
     }
@@ -167,6 +179,8 @@ class RealEstateServiceTest {
         assertThat(response.getConstructionTypeName()).isEqualTo("Concrete");
         assertThat(response.getLuxuryClassName()).isEqualTo("A");
         assertThat(response.getUsageTypeName()).isEqualTo("Residential");
+        assertThat(response.getCityName()).isEqualTo("Istanbul");
+        assertThat(response.getCustomerName()).isEqualTo("John Doe");
 
         verify(realEstateRepository).findById(TEST_ID);
     }
@@ -215,6 +229,8 @@ class RealEstateServiceTest {
         assertThat(response.getLuxuryClassId()).isEqualTo(LUXURY_CLASS_ID);
         assertThat(response.getUsageTypeId()).isEqualTo(USAGE_TYPE_ID);
         assertThat(response.getCustomerId()).isEqualTo(CUSTOMER_ID);
+        assertThat(response.getCityName()).isEqualTo("Istanbul");
+        assertThat(response.getCustomerName()).isEqualTo("John Doe");
 
         verify(constructionTypeRepository).existsById(CONSTRUCTION_TYPE_ID);
         verify(luxuryClassRepository).existsById(LUXURY_CLASS_ID);
@@ -302,6 +318,8 @@ class RealEstateServiceTest {
         assertThat(response.getId()).isEqualTo(TEST_ID);
         assertThat(response.getAddress()).isEqualTo(ADDRESS);
         assertThat(response.getCityId()).isEqualTo(CITY_ID);
+        assertThat(response.getCityName()).isEqualTo("Istanbul");
+        assertThat(response.getCustomerName()).isEqualTo("John Doe");
 
         verify(realEstateRepository).findById(TEST_ID);
         verify(realEstateRepository).save(any(RealEstate.class));

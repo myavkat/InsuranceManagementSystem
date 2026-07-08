@@ -28,13 +28,17 @@ public class RealEstateResponse {
     private Integer usageTypeId;
     private String usageTypeName;
     private UUID customerId;
+    private String cityName;
+    private String customerName;
     private Instant createdAt;
     private Instant updatedAt;
 
     public static RealEstateResponse fromEntity(RealEstate realEstate,
                                                  String constructionTypeName,
                                                  String luxuryClassName,
-                                                 String usageTypeName) {
+                                                 String usageTypeName,
+                                                 String cityName,
+                                                 String customerName) {
         return RealEstateResponse.builder()
                 .id(realEstate.getId())
                 .address(realEstate.getAddress())
@@ -49,6 +53,8 @@ public class RealEstateResponse {
                 .usageTypeId(realEstate.getUsageTypeId())
                 .usageTypeName(usageTypeName)
                 .customerId(realEstate.getCustomerId())
+                .cityName(cityName)
+                .customerName(customerName)
                 .createdAt(realEstate.getCreatedAt())
                 .updatedAt(realEstate.getUpdatedAt())
                 .build();

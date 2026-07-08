@@ -441,16 +441,16 @@ If there are compilation errors, fix them before marking this plan complete.
 
 ## Acceptance Criteria
 
-- [ ] `RealEstateResponse` has `cityName` (String) and `customerName` (String) fields
-- [ ] `RealEstateResponse.fromEntity()` accepts and sets both new fields
-- [ ] `CustomerServiceClient` successfully calls `GET /api/customers/{id}` and returns `"firstName lastName"`
-- [ ] `ReferenceDataServiceClient` fetches the full cities list from `GET /api/reference-data/cities`, builds a lookup map, and caches it for 5 minutes
-- [ ] `RealEstateService.findAll()` batch-resolves city and customer names using lookup maps
-- [ ] `RealEstateService.findById()` resolves and returns both city name and customer name
-- [ ] `RealEstateService.create()` and `update()` return responses with both names populated
-- [ ] When `cityId` or `customerId` is null, the corresponding name is returned as null (no NPE)
-- [ ] When an external service call fails (network error, 404), the code logs a warning and returns null for that name instead of throwing
-- [ ] Code compiles without errors
+- [x] `RealEstateResponse` has `cityName` (String) and `customerName` (String) fields
+- [x] `RealEstateResponse.fromEntity()` accepts and sets both new fields
+- [x] `CustomerServiceClient` successfully calls `GET /api/customers/{id}` and returns `"firstName lastName"`
+- [x] `ReferenceDataServiceClient` fetches the full cities list from `GET /api/reference-data/cities`, builds a lookup map, and caches it for 5 minutes
+- [x] `RealEstateService.findAll()` batch-resolves city and customer names using lookup maps
+- [x] `RealEstateService.findById()` resolves and returns both city name and customer name
+- [x] `RealEstateService.create()` and `update()` return responses with both names populated
+- [x] When `cityId` or `customerId` is null, the corresponding name is returned as null (no NPE)
+- [x] When an external service call fails (network error, 404), the code logs a warning and returns null for that name instead of throwing
+- [x] Code compiles without errors
 
 ## Dependencies
 

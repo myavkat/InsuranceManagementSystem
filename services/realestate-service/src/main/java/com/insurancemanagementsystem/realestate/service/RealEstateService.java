@@ -1,5 +1,7 @@
 package com.insurancemanagementsystem.realestate.service;
 
+import com.insurancemanagementsystem.realestate.client.CustomerServiceClient;
+import com.insurancemanagementsystem.realestate.client.ReferenceDataServiceClient;
 import com.insurancemanagementsystem.realestate.config.RealEstateEventPublisher;
 import com.insurancemanagementsystem.realestate.dto.RealEstateRequest;
 import com.insurancemanagementsystem.realestate.dto.RealEstateResponse;
@@ -33,19 +35,59 @@ public class RealEstateService {
     private final RealEstateConstructionTypeRepository constructionTypeRepository;
     private final RealEstateLuxuryClassRepository luxuryClassRepository;
     private final RealEstateUsageTypeRepository usageTypeRepository;
+    private final CustomerServiceClient customerServiceClient;
+    private final ReferenceDataServiceClient referenceDataServiceClient;
 
     // ---------- RealEstate CRUD ----------
 
     @Transactional(readOnly = true)
     public Page<RealEstateResponse> findAll(Pageable pageable) {
-        return realEstateRepository.findAll(pageable).map(this::toResponse);
+        Page<RealEstate> page = realEstateRepository.findAll(pageable);
+
+        // Collect unique non-null city IDs and customer IDs from the page
+        java.util.Set<Integer> cityIds = page.getContent().stream()
+                .map(RealEstate::getCityId)
+                .filter(id -> id != null)
+                .collect(java.util.stream.Collectors.toSet());
+
+        java.util.Set<UUID> customerIds = page.getContent().stream()
+                .map(RealEstate::getCustomerId)
+                .filter(id -> id != null)
+                .collect(java.util.stream.Collectors.toSet());
+
+        // Resolve city names (the client already caches the full list)
+        java.util.Map<Integer, String> cityNameMap = new java.util.HashMap<>();
+        for (Integer cityId : cityIds) {
+            String name = referenceDataServiceClient.getCityName(cityId);
+            if (name != null) {
+                cityNameMap.put(cityId, name);
+            }
+        }
+
+        // Resolve customer names (one REST call per unique customer)
+        java.util.Map<UUID, String> customerNameMap = new java.util.HashMap<>();
+        for (UUID customerId : customerIds) {
+            String name = customerServiceClient.getCustomerName(customerId);
+            if (name != null) {
+                customerNameMap.put(customerId, name);
+            }
+        }
+
+        // Map entities to DTOs using pre-resolved names
+        return page.map(realEstate -> {
+            String cityName = cityNameMap.get(realEstate.getCityId());
+            String customerName = customerNameMap.get(realEstate.getCustomerId());
+            return toResponse(realEstate, cityName, customerName);
+        });
     }
 
     @Transactional(readOnly = true)
     public RealEstateResponse findById(UUID id) {
         RealEstate realEstate = realEstateRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("RealEstate not found with id: " + id));
-        return toResponse(realEstate);
+        String cityName = referenceDataServiceClient.getCityName(realEstate.getCityId());
+        String customerName = customerServiceClient.getCustomerName(realEstate.getCustomerId());
+        return toResponse(realEstate, cityName, customerName);
     }
 
     @Transactional
@@ -68,7 +110,9 @@ public class RealEstateService {
         RealEstate saved = realEstateRepository.save(realEstate);
         realEstateEventPublisher.publishRealEstateCreated(saved);
         log.info("RealEstate created with id: {}", saved.getId());
-        return toResponse(saved);
+        String cityName = referenceDataServiceClient.getCityName(saved.getCityId());
+        String customerName = customerServiceClient.getCustomerName(saved.getCustomerId());
+        return toResponse(saved, cityName, customerName);
     }
 
     @Transactional
@@ -92,7 +136,9 @@ public class RealEstateService {
         RealEstate saved = realEstateRepository.save(realEstate);
         realEstateEventPublisher.publishRealEstateUpdated(saved);
         log.info("RealEstate updated with id: {}", saved.getId());
-        return toResponse(saved);
+        String cityName = referenceDataServiceClient.getCityName(saved.getCityId());
+        String customerName = customerServiceClient.getCustomerName(saved.getCustomerId());
+        return toResponse(saved, cityName, customerName);
     }
 
     @Transactional
@@ -123,7 +169,7 @@ public class RealEstateService {
 
     // ---------- Helper methods ----------
 
-    private RealEstateResponse toResponse(RealEstate realEstate) {
+    private RealEstateResponse toResponse(RealEstate realEstate, String cityName, String customerName) {
         String constructionTypeName = constructionTypeRepository
                 .findById(realEstate.getConstructionTypeId())
                 .map(RealEstateConstructionType::getName)
@@ -137,7 +183,9 @@ public class RealEstateService {
                 .map(RealEstateUsageType::getName)
                 .orElse(null);
 
-        return RealEstateResponse.fromEntity(realEstate, constructionTypeName, luxuryClassName, usageTypeName);
+        return RealEstateResponse.fromEntity(realEstate,
+                constructionTypeName, luxuryClassName, usageTypeName,
+                cityName, customerName);
     }
 
     private void validateConstructionYear(RealEstateRequest request) {

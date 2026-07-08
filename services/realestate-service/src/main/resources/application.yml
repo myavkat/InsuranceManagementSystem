@@ -88,6 +88,8 @@ realestate:
     batch-size: 10
     max-retries: 3
     failed-ttl-minutes: 60
+  customer-service-url: ${CUSTOMER_SERVICE_URL:http://localhost:8081}
+  reference-data-service-url: ${REFERENCE_DATA_SERVICE_URL:http://localhost:8085}
 
 outbox:
   poll-interval-ms: ${realestate.outbox.poll-interval-ms:1000}
