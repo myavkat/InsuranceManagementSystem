@@ -132,13 +132,13 @@ Note: This requires `apiClient` in `client.ts` to accept an optional `signal` pa
 
 ## Acceptance Criteria
 
-- [ ] Rapidly blur two different TCKN values: only the validation result for the LATEST value is displayed — no stale error
-- [ ] Backend is unreachable during the check: no "already registered" error is displayed; the form remains submittable
-- [ ] Form submission with a valid TCKN still works (including when `checkNationalId` succeeds)
-- [ ] Editing an existing customer (where `initialData` is provided) does NOT trigger the availability check on blur (the check should only fire for new records — verify this is the current behavior; if the check fires during edit, it may incorrectly flag the customer's OWN TCKN as "already registered")
+- [x] Rapidly blur two different TCKN values: only the validation result for the LATEST value is displayed — no stale error
+- [x] Backend is unreachable during the check: no "already registered" error is displayed; the form remains submittable
+- [x] Form submission with a valid TCKN still works (including when `checkNationalId` succeeds)
+- [x] Editing an existing customer (where `initialData` is provided) does NOT trigger the availability check on blur (the check should only fire for new records — verified: `isEdit` guard added to `handleNationalIdBlur`)
 
 ---
 
 ## Dependencies
 
-- Depends on `apiClient` in `frontend-next/src/lib/api/client.ts` supporting an `AbortSignal` parameter. If it doesn't, that file must be updated first.
+- Depends on `apiClient` in `frontend-next/src/lib/api/client.ts` supporting an `AbortSignal` parameter. ✅ Verified: `apiClient` already accepts `options: RequestInit` and spreads it into `fetch()`, so `AbortSignal` passes through natively. No changes needed.
