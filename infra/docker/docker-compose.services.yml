@@ -218,6 +218,36 @@ services:
       reference-data-db: { condition: service_healthy }
       eureka-server: { condition: service_healthy }
 
+  # ============================================================
+  # Auth Service — Authentication, JWT issuing & validation
+  # No Kafka dependency (synchronous-only service)
+  # ============================================================
+  auth-service:
+    build:
+      context: ../../
+      dockerfile: infra/docker/Dockerfile.service
+      args:
+        JAR_PATH: services/auth-service/build/libs/auth-service-0.0.1-SNAPSHOT.jar
+    container_name: auth-service
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.5"
+    ports: ["8087:8080"]
+    environment:
+      SERVER_PORT: "8080"
+      SPRING_PROFILES_ACTIVE: dev
+      ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
+      EUREKA_SERVER_URL: http://eureka-server:8761/eureka/
+      SPRING_DATASOURCE_URL: jdbc:postgresql://auth-db:5432/auth_db
+      OPENAPI_SERVER_URL: http://localhost:8087
+    networks: [insurance-net]
+    restart: unless-stopped
+    depends_on:
+      auth-db: { condition: service_healthy }
+      eureka-server: { condition: service_healthy }
+
 networks:
   insurance-net:
     driver: bridge

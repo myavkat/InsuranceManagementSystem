@@ -5,7 +5,7 @@ include("common:common-web")
 
 // Future services (uncomment when build files are created):
 include("common:common-test")
-// include("services:auth-service")
+include("services:auth-service")
 include("services:customer-service")
 include("services:vehicle-service")
 include("services:realestate-service")
