@@ -98,6 +98,7 @@ export function EstimationForm() {
 
   const canProceedStep1 = watchedCustomerId !== "";
   const canProceedStep2 = watchedTypeId !== "";
+  const canProceedStep3 = watchedVehicleId !== "" || watchedRealEstateId !== "";
 
   const handleNext = () => {
     if (step < 4) setStep(step + 1);
@@ -163,7 +164,7 @@ export function EstimationForm() {
         ))}
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form>
         <Card>
           <CardHeader>
             <CardTitle>
@@ -211,6 +212,7 @@ export function EstimationForm() {
                           placeholder="Search customers..."
                           value={customerSearch}
                           onChange={(e) => setCustomerSearch(e.target.value)}
+                          onKeyDown={(e) => e.stopPropagation()}
                           className="h-8"
                         />
                       </div>
@@ -320,6 +322,7 @@ export function EstimationForm() {
                           placeholder="Search by plate..."
                           value={vehicleSearch}
                           onChange={(e) => setVehicleSearch(e.target.value)}
+                          onKeyDown={(e) => e.stopPropagation()}
                           className="h-8"
                         />
                       </div>
@@ -362,6 +365,7 @@ export function EstimationForm() {
                           placeholder="Search by address..."
                           value={realEstateSearch}
                           onChange={(e) => setRealEstateSearch(e.target.value)}
+                          onKeyDown={(e) => e.stopPropagation()}
                           className="h-8"
                         />
                       </div>
@@ -379,6 +383,12 @@ export function EstimationForm() {
                   <p><span className="text-muted-foreground">Vehicle:</span> {watchedVehicleId ? "Selected" : "None"}</p>
                   <p><span className="text-muted-foreground">Real Estate:</span> {watchedRealEstateId ? "Selected" : "None"}</p>
                 </div>
+
+                {!canProceedStep3 && (
+                  <p className="text-sm text-muted-foreground">
+                    Select at least one asset (vehicle or real estate) to continue.
+                  </p>
+                )}
               </div>
             )}
 
@@ -427,15 +437,16 @@ export function EstimationForm() {
                   <Button
                     type="button"
                     onClick={handleNext}
-                    disabled={(step === 1 && !canProceedStep1) || (step === 2 && !canProceedStep2)}
+                    disabled={(step === 1 && !canProceedStep1) || (step === 2 && !canProceedStep2) || (step === 3 && !canProceedStep3)}
                   >
                     Next
                     <ChevronRight className="size-4" />
                   </Button>
                 ) : (
                   <Button
-                    type="submit"
+                    type="button"
                     disabled={isSubmitting || mutation.isPending}
+                    onClick={handleSubmit(onSubmit)}
                   >
                     <Send className="size-4" />
                     {isSubmitting || mutation.isPending ? "Submitting..." : "Submit Estimation"}

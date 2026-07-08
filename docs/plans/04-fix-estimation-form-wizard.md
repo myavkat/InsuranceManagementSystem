@@ -230,14 +230,14 @@ Run `cd frontend-next && npx tsc --noEmit` to verify no type errors.
 
 ## Acceptance Criteria
 
-- [ ] Typing text into the customer search input filters the customer list (not just jumps by first letter)
-- [ ] Typing in the search inputs works — characters appear as typed, not intercepted by the Select
-- [ ] Pressing Enter key anywhere in the form does NOT submit the estimation
-- [ ] Clicking "Submit Estimation" button in Step 4 calls the API and navigates to the estimation detail page
-- [ ] "Next" button in Step 3 is disabled when no asset is selected
-- [ ] "Next" button in Step 3 is enabled when at least one asset (vehicle or real estate) is selected
-- [ ] Informational message is shown in Step 3 when no asset is selected
-- [ ] Frontend type-checks without errors
+- [x] Typing text into the customer search input filters the customer list (not just jumps by first letter)
+- [x] Typing in the search inputs works — characters appear as typed, not intercepted by the Select
+- [x] Pressing Enter key anywhere in the form does NOT submit the estimation
+- [x] Clicking "Submit Estimation" button in Step 4 calls the API and navigates to the estimation detail page
+- [x] "Next" button in Step 3 is disabled when no asset is selected
+- [x] "Next" button in Step 3 is enabled when at least one asset (vehicle or real estate) is selected
+- [x] Informational message is shown in Step 3 when no asset is selected
+- [x] Frontend type-checks without errors
 
 ## Dependencies
 
