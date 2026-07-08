@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { getRealEstates } from "@/lib/api/realestate";
+import { getRealEstates, type RealEstateResponse } from "@/lib/api/realestate";
+import type { PageResponse } from "@/lib/api/types";
 import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/features/search-bar";
 import { PaginationBar } from "@/components/features/pagination-bar";
@@ -16,7 +17,11 @@ import {
 } from "@/components/ui/table";
 import { Building2, Plus } from "lucide-react";
 
-export function RealEstateList() {
+interface RealEstateListProps {
+  initialData?: PageResponse<RealEstateResponse>;
+}
+
+export function RealEstateList({ initialData }: RealEstateListProps) {
   const router = useRouter();
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState("");
@@ -25,6 +30,7 @@ export function RealEstateList() {
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["real-estate", page, search],
     queryFn: () => getRealEstates(page, pageSize, search || undefined),
+    initialData: page === 0 && !search ? initialData : undefined,
   });
 
   if (isLoading) return <DataTableSkeleton columns={6} />;

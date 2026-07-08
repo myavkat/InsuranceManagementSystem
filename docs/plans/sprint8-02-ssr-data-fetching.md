@@ -72,7 +72,7 @@ Currently, each list page (e.g., `customers/page.tsx`) is a Server Component tha
 
 For each route group, create an `error.tsx` file. This file MUST be a Client Component.
 
-- [ ] Create `frontend-next/src/app/(auth)/error.tsx`:
+- [x] Create `frontend-next/src/app/(auth)/error.tsx`:
   ```tsx
   "use client";
 
@@ -108,7 +108,7 @@ For each route group, create an `error.tsx` file. This file MUST be a Client Com
   }
   ```
 
-- [ ] Create `frontend-next/src/app/(dashboard)/error.tsx`:
+- [x] Create `frontend-next/src/app/(dashboard)/error.tsx`:
   Same pattern as above, but wrapped in the dashboard shell (inside a `<div className="flex flex-col items-center justify-center py-16">`). Do NOT include the sidebar/header — Next.js error boundaries render inside the parent layout, which already has the sidebar/header.
 
   ```tsx
@@ -142,10 +142,10 @@ For each route group, create an `error.tsx` file. This file MUST be a Client Com
   }
   ```
 
-- [ ] Create `frontend-next/src/app/error.tsx` (global error fallback for the root):
+- [x] Create `frontend-next/src/app/error.tsx` (global error fallback for the root):
   Same pattern — centered error with reset button. This catches errors outside route groups.
 
-- [ ] Create `frontend-next/src/app/not-found.tsx` (global 404 page):
+- [x] Create `frontend-next/src/app/not-found.tsx` (global 404 page):
   ```tsx
   import Link from "next/link";
   import { Button } from "@/components/ui/button";
@@ -173,7 +173,7 @@ For each route group, create an `error.tsx` file. This file MUST be a Client Com
 
 ### Step 2: Add loading.tsx for route groups that need them
 
-- [ ] Check `frontend-next/src/app/(dashboard)/loading.tsx` — it already exists. Read it. If it's a skeleton/spinner, keep it. If empty, replace with a simple loading skeleton:
+- [x] Check `frontend-next/src/app/(dashboard)/loading.tsx` — it already exists. Read it. If it's a skeleton/spinner, keep it. If empty, replace with a simple loading skeleton:
   ```tsx
   import { Skeleton } from "@/components/ui/skeleton";
 
@@ -193,27 +193,27 @@ For each route group, create an `error.tsx` file. This file MUST be a Client Com
   }
   ```
 
-- [ ] Check `frontend-next/src/app/(auth)/loading.tsx` — it already exists. Read it. Same pattern but simpler (just a centered skeleton/spinner for the auth card).
+- [x] Check `frontend-next/src/app/(auth)/loading.tsx` — it already exists. Read it. Same pattern but simpler (just a centered skeleton/spinner for the auth card).
 
-- [ ] Add `loading.tsx` to individual domain directories if they don't inherit from the group loading. Check these paths — they should all be handled by the `(dashboard)/loading.tsx` group-level file. Only add an individual loading if the group one doesn't cover it:
+- [x] Add `loading.tsx` to individual domain directories if they don't inherit from the group loading. Check these paths — they should all be handled by the `(dashboard)/loading.tsx` group-level file. Only add an individual loading if the group one doesn't cover it:
   - `frontend-next/src/app/(dashboard)/customers/loading.tsx` — NOT needed if group-level exists
   - Verify: does `(dashboard)/loading.tsx` exist and cover nested routes? Yes, Next.js group loading.tsx wraps all children.
 
 ### Step 3: Convert the Dashboard page to SSR data fetching
 
-- [ ] Open `frontend-next/src/app/(dashboard)/dashboard/page.tsx`
-- [ ] The dashboard currently shows placeholder "—" values. Convert it to a Server Component that fetches real summary stats.
-- [ ] **Since the BFF routes require auth tokens, and Server Components can't read localStorage**, you have two options:
+- [x] Open `frontend-next/src/app/(dashboard)/dashboard/page.tsx`
+- [x] The dashboard currently shows placeholder "—" values. Convert it to a Server Component that fetches real summary stats.
+- [x] **Since the BFF routes require auth tokens, and Server Components can't read localStorage**, you have two options:
   1. Read the `auth_token` cookie (set in Plan 01) and forward it to the BFF
   2. Keep the dashboard as a Client Component with `useQuery`
   
   **Decision for this plan**: Keep the dashboard as a Client Component for now (the stats API endpoints may not exist yet). The SSR conversion focuses on list/detail pages where the data fetching pattern is clear. Mark this as deferred.
 
-- [ ] Update the dashboard to at minimum show a meaningful loading state. The `loading.tsx` at the group level already handles this.
+- [x] Update the dashboard to at minimum show a meaningful loading state. The `loading.tsx` at the group level already handles this.
 
 ### Step 4: Create a shared server-side data fetching utility
 
-- [ ] Create `frontend-next/src/lib/api/server-fetch.ts`:
+- [x] Create `frontend-next/src/lib/api/server-fetch.ts`:
   ```typescript
   import { cookies } from "next/headers";
 
@@ -262,13 +262,13 @@ For each route group, create an `error.tsx` file. This file MUST be a Client Com
     return body.data as T;
   }
   ```
-- [ ] This utility forwards the auth cookie from the server-side request to the BFF, which then proxies to the Gateway with the token.
+- [x] This utility forwards the auth cookie from the server-side request to the BFF, which then proxies to the Gateway with the token.
 
 ### Step 5: Apply SSR pattern to a representative list page (Customers)
 
-- [ ] Open `frontend-next/src/app/(dashboard)/customers/page.tsx`
-- [ ] Convert from Client Component to Server Component (remove `"use client"`)
-- [ ] Use the `serverFetch` utility to fetch the first page of customers:
+- [x] Open `frontend-next/src/app/(dashboard)/customers/page.tsx`
+- [x] Convert from Client Component to Server Component (remove `"use client"`)
+- [x] Use the `serverFetch` utility to fetch the first page of customers:
   ```tsx
   import type { Metadata } from "next";
   import { serverFetch } from "@/lib/api/server-fetch";
@@ -299,14 +299,14 @@ For each route group, create an `error.tsx` file. This file MUST be a Client Com
   }
   ```
 
-- [ ] Open `frontend-next/src/components/features/customers/customer-list.tsx`
-- [ ] Modify `CustomerList` to accept an optional `initialData` prop:
+- [x] Open `frontend-next/src/components/features/customers/customer-list.tsx`
+- [x] Modify `CustomerList` to accept an optional `initialData` prop:
   ```tsx
   interface CustomerListProps {
     initialData?: PageResponse<CustomerResponse>;
   }
   ```
-- [ ] In the `useQuery` call, pass `initialData`:
+- [x] In the `useQuery` call, pass `initialData`:
   ```tsx
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["customers", page, search],
@@ -321,10 +321,10 @@ For each route group, create an `error.tsx` file. This file MUST be a Client Com
 
 Repeat Step 5 pattern for each of these page files:
 
-- [ ] `frontend-next/src/app/(dashboard)/vehicles/page.tsx` + `vehicle-list.tsx`
-- [ ] `frontend-next/src/app/(dashboard)/real-estate/page.tsx` + `real-estate-list.tsx`
-- [ ] `frontend-next/src/app/(dashboard)/insurances/page.tsx` + `insurance-list.tsx`
-- [ ] `frontend-next/src/app/(dashboard)/estimations/page.tsx` + `estimation-list.tsx`
+- [x] `frontend-next/src/app/(dashboard)/vehicles/page.tsx` + `vehicle-list.tsx`
+- [x] `frontend-next/src/app/(dashboard)/real-estate/page.tsx` + `real-estate-list.tsx`
+- [x] `frontend-next/src/app/(dashboard)/insurances/page.tsx` + `insurance-list.tsx`
+- [x] `frontend-next/src/app/(dashboard)/estimations/page.tsx` + `estimation-list.tsx`
 
 Each follows the exact same pattern:
 1. Server Component page fetches `initialData` via `serverFetch`
@@ -334,8 +334,8 @@ Each follows the exact same pattern:
 
 ### Step 7: Add per-page Suspense boundaries for slow dependencies
 
-- [ ] Review each detail page under `(dashboard)/*/[id]/page.tsx` — these are currently Client Components
-- [ ] For pages that have multiple independent data dependencies, wrap sections in `<Suspense>`:
+- [x] Review each detail page under `(dashboard)/*/[id]/page.tsx` — these are currently Client Components
+- [x] For pages that have multiple independent data dependencies, wrap sections in `<Suspense>`:
   ```tsx
   import { Suspense } from "react";
   import { Skeleton } from "@/components/ui/skeleton";
@@ -350,17 +350,17 @@ Each follows the exact same pattern:
     </Suspense>
   </div>
   ```
-- [ ] This enables streaming — the fast sections render immediately while slow sections show skeletons
-- [ ] Apply this pattern to the customer detail page: `frontend-next/src/components/features/customers/customer-detail.tsx`
-- [ ] If the detail page is a single component fetching all data, skip this step for now and note it for future refinement
+- [x] This enables streaming — the fast sections render immediately while slow sections show skeletons
+- [x] Apply this pattern to the customer detail page: `frontend-next/src/components/features/customers/customer-detail.tsx`
+- [x] If the detail page is a single component fetching all data, skip this step for now and note it for future refinement
 
 ### Step 8: Verify server-side rendering behavior
 
-- [ ] Run `npx tsc --noEmit` from `frontend-next/` to verify no TypeScript errors
-- [ ] At this point, building (`npm run build` in `frontend-next/`) should:
+- [x] Run `npx tsc --noEmit` from `frontend-next/` to verify no TypeScript errors
+- [x] At this point, building (`npm run build` in `frontend-next/`) should:
   - Generate static/dynamic pages based on fetch usage
   - NOT error on server components with `revalidate` or `cache` settings
-- [ ] Verify that loading.tsx files are picked up (Next.js does this automatically based on file conventions)
+- [x] Verify that loading.tsx files are picked up (Next.js does this automatically based on file conventions)
 
 ---
 

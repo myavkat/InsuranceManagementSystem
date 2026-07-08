@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { getVehicles } from "@/lib/api/vehicles";
+import { getVehicles, type VehicleResponse } from "@/lib/api/vehicles";
+import type { PageResponse } from "@/lib/api/types";
 import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/features/search-bar";
 import { PaginationBar } from "@/components/features/pagination-bar";
@@ -16,7 +17,11 @@ import {
 } from "@/components/ui/table";
 import { Car, Plus } from "lucide-react";
 
-export function VehicleList() {
+interface VehicleListProps {
+  initialData?: PageResponse<VehicleResponse>;
+}
+
+export function VehicleList({ initialData }: VehicleListProps) {
   const router = useRouter();
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState("");
@@ -25,6 +30,7 @@ export function VehicleList() {
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["vehicles", page, search],
     queryFn: () => getVehicles(page, pageSize, search || undefined),
+    initialData: page === 0 && !search ? initialData : undefined,
   });
 
   if (isLoading) return <DataTableSkeleton columns={6} />;

@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { getEstimations, type EstimationStatus } from "@/lib/api/estimations";
+import { getEstimations, type EstimationResponse, type EstimationStatus } from "@/lib/api/estimations";
+import type { PageResponse } from "@/lib/api/types";
 import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/features/search-bar";
 import { PaginationBar } from "@/components/features/pagination-bar";
@@ -27,7 +28,11 @@ const statusOptions: { value: string; label: string }[] = [
   { value: "REJECTED", label: "Rejected" },
 ];
 
-export function EstimationList() {
+interface EstimationListProps {
+  initialData?: PageResponse<EstimationResponse>;
+}
+
+export function EstimationList({ initialData }: EstimationListProps) {
   const router = useRouter();
   const [page, setPage] = useState(0);
   const [status, setStatus] = useState("");
@@ -46,6 +51,7 @@ export function EstimationList() {
       dateFrom: dateFrom || undefined,
       dateTo: dateTo || undefined,
     }),
+    initialData: page === 0 && !status && !customerSearch && !dateFrom && !dateTo ? initialData : undefined,
   });
 
   if (isLoading) return <DataTableSkeleton columns={6} />;

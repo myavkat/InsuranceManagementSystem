@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { getCustomers } from "@/lib/api/customers";
+import { getCustomers, type CustomerResponse } from "@/lib/api/customers";
+import type { PageResponse } from "@/lib/api/types";
 import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/features/search-bar";
 import { PaginationBar } from "@/components/features/pagination-bar";
@@ -16,7 +17,11 @@ import {
 } from "@/components/ui/table";
 import { Users, Plus } from "lucide-react";
 
-export function CustomerList() {
+interface CustomerListProps {
+  initialData?: PageResponse<CustomerResponse>;
+}
+
+export function CustomerList({ initialData }: CustomerListProps) {
   const router = useRouter();
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState("");
@@ -25,6 +30,7 @@ export function CustomerList() {
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["customers", page, search],
     queryFn: () => getCustomers(page, pageSize, search || undefined),
+    initialData: page === 0 && !search ? initialData : undefined,
   });
 
   if (isLoading) return <DataTableSkeleton columns={6} />;

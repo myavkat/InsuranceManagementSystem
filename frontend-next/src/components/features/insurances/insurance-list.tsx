@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { getInsurances, getInsuranceTypes, getInsuranceCompanies } from "@/lib/api/insurances";
+import { getInsurances, getInsuranceTypes, getInsuranceCompanies, type InsuranceResponse } from "@/lib/api/insurances";
+import type { PageResponse } from "@/lib/api/types";
 import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/features/search-bar";
 import { PaginationBar } from "@/components/features/pagination-bar";
@@ -20,7 +21,11 @@ import {
 } from "@/components/ui/select";
 import { Shield, Plus } from "lucide-react";
 
-export function InsuranceList() {
+interface InsuranceListProps {
+  initialData?: PageResponse<InsuranceResponse>;
+}
+
+export function InsuranceList({ initialData }: InsuranceListProps) {
   const router = useRouter();
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState("");
@@ -37,6 +42,7 @@ export function InsuranceList() {
       companyId ? Number(companyId) : undefined,
       search || undefined
     ),
+    initialData: page === 0 && !search && !typeId && !companyId ? initialData : undefined,
   });
 
   const { data: types } = useQuery({
