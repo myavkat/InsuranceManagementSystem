@@ -131,13 +131,13 @@ Or at minimum, verify the YAML is syntactically valid by inspecting the file.
 
 ## Acceptance Criteria
 
-- [ ] Auth-service container block added to `infra/docker/docker-compose.services.yml` before the `networks:` block
-- [ ] Container name: `auth-service`
-- [ ] Port mapping: `8087:8080`
-- [ ] `depends_on` includes `auth-db` and `eureka-server` (NOT kafka)
-- [ ] `SPRING_DATASOURCE_URL` points to `jdbc:postgresql://auth-db:5432/auth_db`
-- [ ] `OPENAPI_SERVER_URL` is `http://localhost:8087`
-- [ ] Environment includes `SERVER_PORT`, `SPRING_PROFILES_ACTIVE`, `ZIPKIN_ENDPOINT`, `EUREKA_SERVER_URL`
-- [ ] No Kafka-related environment variables
-- [ ] Resource limits: 512M memory, 0.5 CPU
-- [ ] File parses as valid YAML (no syntax errors)
+- [x] Auth-service container block added to `infra/docker/docker-compose.services.yml` before the `networks:` block
+- [x] Container name: `auth-service`
+- [x] Port mapping: `8087:8080`
+- [x] `depends_on` includes `auth-db` and `eureka-server` (NOT kafka)
+- [x] `SPRING_DATASOURCE_URL` points to `jdbc:postgresql://auth-db:5432/auth_db`
+- [x] `OPENAPI_SERVER_URL` is `http://localhost:8087`
+- [x] Environment includes `SERVER_PORT`, `SPRING_PROFILES_ACTIVE`, `ZIPKIN_ENDPOINT`, `EUREKA_SERVER_URL`
+- [x] No Kafka-related environment variables
+- [x] Resource limits: 512M memory, 0.5 CPU
+- [x] File parses as valid YAML (no syntax errors)
