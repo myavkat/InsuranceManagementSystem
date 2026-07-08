@@ -17,6 +17,12 @@ export function Header() {
   const { toggleSidebar, theme, setTheme } = useUIStore();
   const { user, logout, isAuthenticated } = useAuthStore();
 
+  const handleLogout = () => {
+    logout();
+    document.cookie = "auth_token=; path=/; max-age=0; SameSite=Lax";
+    window.location.href = "/login";
+  };
+
   const cycleTheme = () => {
     const next: Record<string, "light" | "dark" | "system"> = {
       light: "dark",
@@ -61,7 +67,7 @@ export function Header() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={logout}
+            onClick={handleLogout}
             aria-label="Sign out"
           >
             <LogOut />

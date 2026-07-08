@@ -102,8 +102,8 @@ useAuthStore() returns:
 
 ### Step 1: Create auth Zod schemas
 
-- [ ] Create file `frontend-next/src/lib/schemas/auth.ts`
-- [ ] Define `loginSchema` using Zod:
+- [x] Create file `frontend-next/src/lib/schemas/auth.ts`
+- [x] Define `loginSchema` using Zod:
   ```
   z.object({
     username: z.string().min(3, "Username must be at least 3 characters"),
@@ -111,7 +111,7 @@ useAuthStore() returns:
   })
   ```
   Export the inferred type: `export type LoginFormData = z.infer<typeof loginSchema>;`
-- [ ] Define `registerSchema` using Zod:
+- [x] Define `registerSchema` using Zod:
   ```
   z.object({
     username: z.string().min(3, "Username must be at least 3 characters"),
@@ -151,9 +151,9 @@ useAuthStore() returns:
 
 ### Step 2: Build the Login page
 
-- [ ] Open `frontend-next/src/app/(auth)/login/page.tsx` — replace full content
-- [ ] The page MUST be a Client Component (add `"use client"` at top)
-- [ ] Import:
+- [x] Open `frontend-next/src/app/(auth)/login/page.tsx` — replace full content
+- [x] The page MUST be a Client Component (add `"use client"` at top)
+- [x] Import:
   - `useForm` from `react-hook-form`
   - `zodResolver` from `@hookform/resolvers/zod`
   - `loginSchema` and `LoginFormData` from `@/lib/schemas/auth`
@@ -168,29 +168,29 @@ useAuthStore() returns:
   - `AlertCircle`, `Loader2` from `lucide-react`
   - `Link` from `next/link`
   - `useState` from `react`
-- [ ] Set up `useForm<LoginFormData>` with `resolver: zodResolver(loginSchema)` and `defaultValues: { username: "", password: "" }`
-- [ ] Set up `useMutation` that calls the `login()` API function, then on success:
+- [x] Set up `useForm<LoginFormData>` with `resolver: zodResolver(loginSchema)` and `defaultValues: { username: "", password: "" }`
+- [x] Set up `useMutation` that calls the `login()` API function, then on success:
   1. Call `authStore.login(response.accessToken, response.refreshToken, response.expiresIn, user)` — NOTE: login() from the API returns `LoginResponse` which does NOT include user info. You must decode the JWT or call a separate endpoint. **Handle this**: after login, call `validateToken()` (or decode the JWT payload) to get userId, username, roles. The simplest approach: decode the access token on the client side using `JSON.parse(atob(token.split('.')[1]))` to extract `sub`, `username`, `roles` from the JWT claims.
   2. Redirect to `/dashboard` using `router.push("/dashboard")`
-- [ ] On mutation error, display the error: the `ApiError` message (server-rejected credentials) or a generic message
-- [ ] The form MUST have:
+- [x] On mutation error, display the error: the `ApiError` message (server-rejected credentials) or a generic message
+- [x] The form MUST have:
   - Username input with label "Username", placeholder "Enter your username"
   - Password input with type="password", label "Password", placeholder "Enter your password"
   - Submit button that shows "Signing in..." spinner when `mutation.isPending` and is disabled while pending
   - Link to `/register` below the form: "Don't have an account? Register"
-- [ ] Wrap the form in the same Card layout used by the current stub (Card → CardHeader → CardTitle "Sign In" + CardDescription → CardContent → form)
-- [ ] Add a state-level error alert above the form (not inside — use the existing `ErrorAlert` component) that shows when `mutation.isError` and clears when user starts typing (use `useEffect` or watch field changes)
+- [x] Wrap the form in the same Card layout used by the current stub (Card → CardHeader → CardTitle "Sign In" + CardDescription → CardContent → form)
+- [x] Add a state-level error alert above the form (not inside — use the existing `ErrorAlert` component) that shows when `mutation.isError` and clears when user starts typing (use `useEffect` or watch field changes)
 
 ### Step 3: Build the Register page
 
-- [ ] Open `frontend-next/src/app/(auth)/register/page.tsx` — replace full content
-- [ ] Client Component with `"use client"`
-- [ ] Import same patterns as login page, plus `registerSchema`, `RegisterFormData`, and the `register` API function
-- [ ] Set up `useForm<RegisterFormData>` with `resolver: zodResolver(registerSchema)` and default values for all 4 fields
-- [ ] Set up `useMutation` that calls `register()` API function, then on success:
+- [x] Open `frontend-next/src/app/(auth)/register/page.tsx` — replace full content
+- [x] Client Component with `"use client"`
+- [x] Import same patterns as login page, plus `registerSchema`, `RegisterFormData`, and the `register` API function
+- [x] Set up `useForm<RegisterFormData>` with `resolver: zodResolver(registerSchema)` and default values for all 4 fields
+- [x] Set up `useMutation` that calls `register()` API function, then on success:
   1. Show a success message (or redirect to `/login` with a query param like `?registered=true`)
   2. Use `router.push("/login?registered=true")` — the login page can optionally show a success toast
-- [ ] The form MUST have:
+- [x] The form MUST have:
   - Username input
   - Email input with type="email"
   - Password input with type="password"
@@ -198,13 +198,13 @@ useAuthStore() returns:
   - Each field shows inline validation errors via `FormField` component
   - Submit button disabled while pending, shows "Creating account..." with spinner
   - Link to `/login`: "Already have an account? Sign in"
-- [ ] Display mutation errors via `ErrorAlert` — e.g., "Username already taken" from the API
+- [x] Display mutation errors via `ErrorAlert` — e.g., "Username already taken" from the API
 
 ### Step 4: Create middleware.ts for route protection
 
-- [ ] Create file `frontend-next/src/middleware.ts`
-- [ ] The middleware MUST check if the user has a valid auth token when accessing any route under `/(dashboard)/*`
-- [ ] Implementation pattern:
+- [x] Create file `frontend-next/src/middleware.ts`
+- [x] The middleware MUST check if the user has a valid auth token when accessing any route under `/(dashboard)/*`
+- [x] Implementation pattern:
   ```typescript
   import { NextRequest, NextResponse } from "next/server";
 
@@ -257,25 +257,25 @@ useAuthStore() returns:
     ],
   };
   ```
-- [ ] IMPORTANT: The middleware matcher must NOT match `/login`, `/register`, `/api/*`, or static assets (`/_next/*`)
-- [ ] Test: navigating to `/customers` while not logged in should redirect to `/login?redirect=%2Fcustomers`
+- [x] IMPORTANT: The middleware matcher must NOT match `/login`, `/register`, `/api/*`, or static assets (`/_next/*`)
+- [x] Test: navigating to `/customers` while not logged in should redirect to `/login?redirect=%2Fcustomers`
 
 ### Step 5: Set auth cookie on login (dual cookie + Zustand)
 
-- [ ] In the login page's `onSuccess` handler, after calling `authStore.login(...)`, also set a cookie:
+- [x] In the login page's `onSuccess` handler, after calling `authStore.login(...)`, also set a cookie:
   ```typescript
   document.cookie = `auth_token=1; path=/; max-age=${expiresIn}; SameSite=Lax`;
   ```
   Where `expiresIn` comes from the login response (in seconds, so use directly as max-age seconds).
-- [ ] On logout, clear this cookie:
+- [x] On logout, clear this cookie:
   ```typescript
   document.cookie = "auth_token=; path=/; max-age=0; SameSite=Lax";
   ```
 
 ### Step 6: Enhance logout to clear the cookie
 
-- [ ] The header component (`frontend-next/src/components/layout/header.tsx`) already calls `useAuthStore().logout()` on the logout button click
-- [ ] Update the logout handler in the header to ALSO clear the auth cookie AND redirect to `/login`:
+- [x] The header component (`frontend-next/src/components/layout/header.tsx`) already calls `useAuthStore().logout()` on the logout button click
+- [x] Update the logout handler in the header to ALSO clear the auth cookie AND redirect to `/login`:
   ```typescript
   const handleLogout = () => {
     logout();
@@ -283,35 +283,35 @@ useAuthStore() returns:
     window.location.href = "/login";
   };
   ```
-- [ ] Replace the current `onClick={logout}` on the LogOut button with `onClick={handleLogout}`
+- [x] Replace the current `onClick={logout}` on the LogOut button with `onClick={handleLogout}`
 
 ### Step 7: Handle redirect after login
 
-- [ ] In the login page, after successful login, check for the `redirect` query parameter:
+- [x] In the login page, after successful login, check for the `redirect` query parameter:
   ```typescript
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/dashboard";
   router.push(redirectTo);
   ```
-- [ ] The `useSearchParams` import is from `next/navigation` (Next.js 16 App Router)
+- [x] The `useSearchParams` import is from `next/navigation` (Next.js 16 App Router)
 
 ### Step 8: Update the auth layout to redirect authenticated users
 
-- [ ] Open `frontend-next/src/app/(auth)/layout.tsx`
-- [ ] This is currently a Server Component. Make it a Client Component (add `"use client"`)
-- [ ] Import `useAuthStore` and `useRouter` and `useEffect`
-- [ ] Add a `useEffect` that checks if `isAuthenticated` is true — if so, redirect to `/dashboard`
-- [ ] This prevents authenticated users from seeing the login/register pages
+- [x] Open `frontend-next/src/app/(auth)/layout.tsx`
+- [x] This is currently a Server Component. Make it a Client Component (add `"use client"`)
+- [x] Import `useAuthStore` and `useRouter` and `useEffect`
+- [x] Add a `useEffect` that checks if `isAuthenticated` is true — if so, redirect to `/dashboard`
+- [x] This prevents authenticated users from seeing the login/register pages
 
 ### Step 9: Verify and test
 
-- [ ] Verify the login form renders with all fields
-- [ ] Verify validation errors show inline (try submitting empty form)
-- [ ] Verify the register form renders with password confirmation validation
-- [ ] Verify the middleware redirects unauthenticated users to `/login`
-- [ ] Verify logout clears the cookie and redirects to `/login`
-- [ ] Verify the `auth_token` cookie is set on login and cleared on logout
-- [ ] Run `npx tsc --noEmit` from `frontend-next/` to check for TypeScript errors
+- [x] Verify the login form renders with all fields
+- [x] Verify validation errors show inline (try submitting empty form)
+- [x] Verify the register form renders with password confirmation validation
+- [x] Verify the middleware redirects unauthenticated users to `/login`
+- [x] Verify logout clears the cookie and redirects to `/login`
+- [x] Verify the `auth_token` cookie is set on login and cleared on logout
+- [x] Run `npx tsc --noEmit` from `frontend-next/` to check for TypeScript errors
 
 ---
 
