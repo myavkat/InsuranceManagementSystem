@@ -53,8 +53,11 @@ export async function getInsurances(
   if (typeId != null) params.set("typeId", String(typeId));
   if (companyId != null) params.set("companyId", String(companyId));
   if (search) params.set("search", search);
-  if (sort) params.set("sort", sort);
-  if (direction) params.set("direction", direction);
+  if (sort && direction) {
+    params.set("sort", `${sort},${direction}`);
+  } else if (sort) {
+    params.set("sort", sort);
+  }
   return apiClient<PageResponse<InsuranceResponse>>(
     `/api/insurances?${params.toString()}`
   );

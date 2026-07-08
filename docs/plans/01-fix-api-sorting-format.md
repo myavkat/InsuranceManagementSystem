@@ -116,11 +116,11 @@ After making all three changes, verify:
 
 ## Acceptance Criteria
 
-- [ ] `getInsurances()` sends `sort=name,asc` (compound) instead of `sort=name&direction=asc` (separate)
-- [ ] `getVehicles()` sends `sort=plate,desc` (compound) instead of `sort=plate&direction=desc` (separate)
-- [ ] `getRealEstates()` sends `sort=address,asc` (compound) instead of `sort=address&direction=asc` (separate)
-- [ ] No remaining `params.set("direction", ...)` calls in any of the three files
-- [ ] Frontend type-checks without errors (`npx tsc --noEmit`)
+- [x] `getInsurances()` sends `sort=name,asc` (compound) instead of `sort=name&direction=asc` (separate)
+- [x] `getVehicles()` sends `sort=plate,desc` (compound) instead of `sort=plate&direction=desc` (separate)
+- [x] `getRealEstates()` sends `sort=address,asc` (compound) instead of `sort=address&direction=asc` (separate)
+- [x] No remaining `params.set("direction", ...)` calls in any of the three files
+- [x] Frontend type-checks without errors (`npx tsc --noEmit`)
 
 ## Dependencies
 
