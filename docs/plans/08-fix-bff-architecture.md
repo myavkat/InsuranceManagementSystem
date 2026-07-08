@@ -102,10 +102,10 @@ If the team prefers to restore the BFF pattern:
 
 ## Acceptance Criteria
 
-- [ ] Architecture document (`05_NEXTJS_FRONTEND.md`) accurately describes the current data flow
-- [ ] No contradiction between docs and implementation
-- [ ] (If Option B): Dead BFF route handlers are identified and either removed or marked with a deprecation comment
-- [ ] `NEXT_PUBLIC_GATEWAY_URL` is documented in `.env.template` or equivalent
+- [x] Architecture document (`05_NEXTJS_FRONTEND.md`) accurately describes the current data flow
+- [x] No contradiction between docs and implementation
+- [x] (If Option B): Dead BFF route handlers are identified and removed (7 files + bff-proxy.ts)
+- [x] `NEXT_PUBLIC_GATEWAY_URL` is documented in `.env.template` or equivalent
 
 ---
 
