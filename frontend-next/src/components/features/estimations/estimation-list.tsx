@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import { getEstimations, type EstimationResponse, type EstimationStatus } from "@/lib/api/estimations";
 import { getCustomer } from "@/lib/api/customers";
+import { getInsurance } from "@/lib/api/insurances";
 import type { PageResponse } from "@/lib/api/types";
 import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/features/search-bar";
@@ -48,10 +49,6 @@ const columns: ColumnDef<EstimationResponse, any>[] = [
   }),
   columnHelper.accessor("insuranceName", {
     header: "Insurance",
-    cell: (info) => info.getValue() ?? "—",
-  }),
-  columnHelper.accessor("insuranceTypeName", {
-    header: "Insurance Type",
     cell: (info) => info.getValue() ?? "—",
   }),
   columnHelper.accessor("status", {
@@ -119,6 +116,35 @@ export function EstimationList({ initialData }: EstimationListProps) {
     return Array.from(ids);
   }, [estimations]);
 
+  // Collect unique insurance IDs from the current page for name resolution
+  const uniqueInsuranceIds = useMemo(() => {
+    const ids = new Set<string>();
+    estimations.forEach((e) => {
+      if (e.insuranceId) ids.add(e.insuranceId);
+    });
+    return Array.from(ids);
+  }, [estimations]);
+
+  // Fetch insurance names for all unique insurance IDs on this page
+  const { data: insuranceNames } = useQuery({
+    queryKey: ["insurance-names", ...uniqueInsuranceIds],
+    queryFn: async () => {
+      const results = await Promise.allSettled(
+        uniqueInsuranceIds.map((id) => getInsurance(id))
+      );
+      const nameMap: Record<string, string> = {};
+      results.forEach((result) => {
+        if (result.status === "fulfilled") {
+          const insurance = result.value;
+          nameMap[insurance.id] = insurance.name;
+        }
+      });
+      return nameMap;
+    },
+    enabled: uniqueInsuranceIds.length > 0,
+    staleTime: 60_000,
+  });
+
   // Fetch customer names for all unique customer IDs on this page
   const { data: customerNames } = useQuery({
     queryKey: ["customer-names", ...uniqueCustomerIds],
@@ -139,14 +165,14 @@ export function EstimationList({ initialData }: EstimationListProps) {
     staleTime: 60_000,
   });
 
-  // Enrich estimation rows with resolved customer and insurance type names
+  // Enrich estimation rows with resolved customer and insurance names
   const enrichedData = useMemo(() => {
     return estimations.map((estimation) => ({
       ...estimation,
       customerName: estimation.customerName ?? customerNames?.[estimation.customerId] ?? undefined,
-      insuranceTypeName: estimation.insuranceTypeName ?? undefined,
+      insuranceName: estimation.insuranceName ?? insuranceNames?.[estimation.insuranceId] ?? undefined,
     }));
-  }, [estimations, customerNames]);
+  }, [estimations, customerNames, insuranceNames]);
 
   if (isError) {
     return (

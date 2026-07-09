@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getEstimation } from "@/lib/api/estimations";
 import { getCustomer } from "@/lib/api/customers";
+import { getInsurance } from "@/lib/api/insurances";
 import { getVehicle } from "@/lib/api/vehicles";
 import { PageHeader } from "@/components/features/page-header";
 import { ErrorAlert } from "@/components/features/error-alert";
@@ -47,6 +48,15 @@ export function EstimationDetail() {
     staleTime: 60_000,
   });
 
+  // Client-side enrichment fallback: resolve insurance name
+  const insuranceId = estimation?.insuranceId;
+  const { data: insurance } = useQuery({
+    queryKey: ["insurance", insuranceId],
+    queryFn: () => getInsurance(insuranceId!),
+    enabled: !!insuranceId && !estimation?.insuranceName,
+    staleTime: 60_000,
+  });
+
   // Resolved display values: prefer backend enrichment, fall back to client-side
   const resolvedCustomerName = estimation?.customerName
     ?? (customer ? `${customer.firstName} ${customer.lastName}` : null);
@@ -55,8 +65,7 @@ export function EstimationDetail() {
     ?? null;
   const resolvedVehiclePlate = estimation?.vehiclePlate ?? vehicle?.plate ?? null;
   const resolvedVehicleChassisNumber = estimation?.vehicleChassisNumber ?? vehicle?.chassisNumber ?? null;
-  const resolvedInsuranceTypeName = estimation?.insuranceTypeName ?? null;
-  const resolvedInsuranceName = estimation?.insuranceName ?? null;
+  const resolvedInsuranceName = estimation?.insuranceName ?? insurance?.name ?? null;
 
   if (isLoading) {
     return (
@@ -189,7 +198,6 @@ export function EstimationDetail() {
         <CardContent>
           <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <DetailItem label="Insurance" value={resolvedInsuranceName ?? "—"} />
-            <DetailItem label="Insurance Type" value={resolvedInsuranceTypeName ?? "—"} />
             <DetailItem label="Premium" value={formattedPremium ?? "Pending calculation..."} />
           </dl>
         </CardContent>

@@ -16,7 +16,6 @@ export interface EstimationResponse {
   realEstateAddress?: string;
   insuranceId: string;
   insuranceName?: string;
-  insuranceTypeName?: string;
   premium?: number;
   status: EstimationStatus;
   details?: string;
