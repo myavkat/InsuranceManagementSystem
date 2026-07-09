@@ -135,9 +135,9 @@ List the areas searched that had **zero** findings:
 
 ## Acceptance Criteria
 
-- [ ] All production code paths that match on insurance `name` string values are identified and flagged
-- [ ] All frontend code paths that match on insurance `name` string values are identified and flagged
-- [ ] The estimation form type-based branching is confirmed to use `typeId` (numeric), not `name` (string) — safe
-- [ ] Any found dependencies are documented with a recommended fix (use `code`, `id`, or `typeId`)
-- [ ] Test files with hardcoded name strings are cross-referenced against Plan 03 coverage
-- [ ] A summary report is written to `docs/plans/04_audit_findings.md` (or appended to this plan as a completed checklist section)
+- [x] All production code paths that match on insurance `name` string values are identified and flagged
+- [x] All frontend code paths that match on insurance `name` string values are identified and flagged
+- [x] The estimation form type-based branching is confirmed to use `typeId` (numeric), not `name` (string) — safe
+- [x] Any found dependencies are documented with a recommended fix (use `code`, `id`, or `typeId`)
+- [x] Test files with hardcoded name strings are cross-referenced against Plan 03 coverage
+- [x] A summary report is written to `docs/plans/04_audit_findings.md` (or appended to this plan as a completed checklist section)
