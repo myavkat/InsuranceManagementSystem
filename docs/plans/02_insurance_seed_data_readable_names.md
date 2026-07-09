@@ -30,7 +30,7 @@ Apply the following name translations. The `code` stays as the legacy technical 
 
 ## Steps
 
-### Step 1: Update the DELETE cleanup statement
+### Step 1: Update the DELETE cleanup statement [done]
 
 Open `infra/sql/insurance_db/init.sql`.
 
@@ -54,7 +54,7 @@ DELETE FROM insurances WHERE code IN (
 
 This is cleaner — delete by stable code instead of enumerating every historical name variant.
 
-### Step 2: Update the INSERT seed data
+### Step 2: Update the INSERT seed data [done]
 
 Find the `INSERT INTO insurances` block (around lines 34–39). Replace with human-readable names and explicit codes:
 
@@ -78,7 +78,7 @@ INSERT INTO insurances (name, code, description, type_id, base_premium, is_activ
 ('Hayat Sigortası', 'LIFE', 'Vefat ve maluliyet durumlarına karşı finansal güvence sağlayan hayat sigortası', 4, 1500.00, TRUE);
 ```
 
-### Step 3: Update risk factor seed data DELETE
+### Step 3: Update risk factor seed data DELETE [done]
 
 Find the risk factor cleanup block (around line 122). Replace the `WHERE name IN` subquery with `WHERE code IN`:
 
@@ -94,7 +94,7 @@ DELETE FROM risk_factor_history WHERE insurance_id IN (SELECT id FROM insurances
 DELETE FROM risk_factors WHERE insurance_id IN (SELECT id FROM insurances WHERE code IN ('TRAFFIC','CASCO','DASK','HEALTH','LIFE'));
 ```
 
-### Step 4: Update risk factor seed data DO blocks
+### Step 4: Update risk factor seed data DO blocks [done]
 
 Find the DO block (around lines 126–191) that seeds risk factors. Replace every `WHERE name = '...'` with `WHERE code = '...'`:
 
@@ -107,7 +107,7 @@ Find the DO block (around lines 126–191) that seeds risk factors. Replace ever
 
 There are exactly 5 such occurrences (one per insurance product in the risk factor DO block). Update all of them.
 
-### Step 5: Verify no other `name`-based insurance lookups remain
+### Step 5: Verify no other `name`-based insurance lookups remain [done]
 
 Search `infra/sql/insurance_db/init.sql` for any remaining pattern `WHERE.*insurances.*name` or `WHERE name =` that still references old insurance codes. Every insurance lookup in seed data should now use `code`.
 
@@ -115,11 +115,11 @@ Run a manual grep/search for the pattern `'TRAFFIC'` in `init.sql` — after Ste
 
 ## Acceptance Criteria
 
-- [ ] `insurances` seed INSERT includes both `name` (human-readable) and `code` (technical identifier) columns
-- [ ] Insurance names are proper Turkish: "Trafik Sigortası", "Kasko", "DASK (Doğal Afet Sigortası)", "Tamamlayıcı Sağlık Sigortası", "Hayat Sigortası"
-- [ ] DELETE cleanup uses `WHERE code IN (...)` — stable across future name changes
-- [ ] Risk factor DELETE uses `WHERE code IN (...)` subquery
-- [ ] All 5 risk factor DO blocks use `WHERE code = '...'` in the SELECT
-- [ ] No insurance `name`-based string matching remains in `init.sql`
-- [ ] Docker Compose down/up produces clean state with human-readable names
-- [ ] Docker Compose restart (without down) is idempotent — DELETE + INSERT produce same rows
+- [x] `insurances` seed INSERT includes both `name` (human-readable) and `code` (technical identifier) columns
+- [x] Insurance names are proper Turkish: "Trafik Sigortası", "Kasko", "DASK (Doğal Afet Sigortası)", "Tamamlayıcı Sağlık Sigortası", "Hayat Sigortası"
+- [x] DELETE cleanup uses `WHERE code IN (...)` — stable across future name changes
+- [x] Risk factor DELETE uses `WHERE code IN (...)` subquery
+- [x] All 5 risk factor DO blocks use `WHERE code = '...'` in the SELECT
+- [x] No insurance `name`-based string matching remains in `init.sql`
+- [x] Docker Compose down/up produces clean state with human-readable names
+- [x] Docker Compose restart (without down) is idempotent — DELETE + INSERT produce same rows
