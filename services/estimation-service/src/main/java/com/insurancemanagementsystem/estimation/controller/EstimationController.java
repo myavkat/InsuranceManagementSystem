@@ -45,4 +45,16 @@ public class EstimationController {
         Page<EstimationResponse> estimations = estimationService.findAll(customerId, status, pageable);
         return ResponseEntity.ok(ApiResponse.success(estimations));
     }
+
+    @PutMapping("/{id}/accept-offer")
+    public ResponseEntity<ApiResponse<EstimationResponse>> acceptOffer(@PathVariable UUID id) {
+        EstimationResponse updated = estimationService.acceptOffer(id);
+        return ResponseEntity.ok(ApiResponse.success("Offer accepted — payment is now required", updated));
+    }
+
+    @PutMapping("/{id}/process-payment")
+    public ResponseEntity<ApiResponse<EstimationResponse>> processPayment(@PathVariable UUID id) {
+        EstimationResponse updated = estimationService.processPayment(id);
+        return ResponseEntity.ok(ApiResponse.success("Payment processed — policy is now active", updated));
+    }
 }

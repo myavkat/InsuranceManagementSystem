@@ -1,6 +1,6 @@
 # Plan 02: Backend — Status Transition Logic and New Endpoints
 
-**Status:** Not started
+**Status:** Completed
 **Depends on:** Plan 01 (entity, enum, DDL changes must be complete)
 **Blocks:** Plan 04 (frontend payment flow needs these endpoints)
 
@@ -228,10 +228,10 @@ If tests fail:
 
 ## Acceptance Criteria
 
-- [ ] `handlePremiumCalculated` transitions estimation status to `WAITING_APPROVAL` (not `COMPLETED`)
-- [ ] `PUT /api/estimations/{id}/accept-offer` transitions `WAITING_APPROVAL` → `PAYMENT_WAITING` and returns 200
-- [ ] `PUT /api/estimations/{id}/accept-offer` returns 500 (IllegalStateException) if status is not `WAITING_APPROVAL`
-- [ ] `PUT /api/estimations/{id}/process-payment` transitions `PAYMENT_WAITING` → `ACTIVE`, sets `start_date` (if null) to now, sets `end_date` to now + 365 days, and returns 200
-- [ ] `PUT /api/estimations/{id}/process-payment` returns 500 if status is not `PAYMENT_WAITING`
-- [ ] `SagaTimeoutService` handles both STARTED and WAITING_APPROVAL estimations
-- [ ] Estimation service compiles and all existing tests pass (or are updated to match new status transitions)
+- [x] `handlePremiumCalculated` transitions estimation status to `WAITING_APPROVAL` (not `COMPLETED`)
+- [x] `PUT /api/estimations/{id}/accept-offer` transitions `WAITING_APPROVAL` → `PAYMENT_WAITING` and returns 200
+- [x] `PUT /api/estimations/{id}/accept-offer` returns 500 (IllegalStateException) if status is not `WAITING_APPROVAL`
+- [x] `PUT /api/estimations/{id}/process-payment` transitions `PAYMENT_WAITING` → `ACTIVE`, sets `start_date` (if null) to now, sets `end_date` to now + 365 days, and returns 200
+- [x] `PUT /api/estimations/{id}/process-payment` returns 500 if status is not `PAYMENT_WAITING`
+- [x] `SagaTimeoutService` handles both STARTED and WAITING_APPROVAL estimations
+- [x] Estimation service compiles and all existing tests pass (or are updated to match new status transitions)
