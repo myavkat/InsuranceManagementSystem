@@ -31,6 +31,9 @@ import { ClipboardList, Plus } from "lucide-react";
 const statusOptions: { value: string; label: string }[] = [
   { value: "", label: "All statuses" },
   { value: "STARTED", label: "Started" },
+  { value: "WAITING_APPROVAL", label: "Waiting Approval" },
+  { value: "PAYMENT_WAITING", label: "Payment Waiting" },
+  { value: "ACTIVE", label: "Active" },
   { value: "COMPLETED", label: "Completed" },
   { value: "REJECTED", label: "Rejected" },
 ];
@@ -157,8 +160,8 @@ export function EstimationList({ initialData }: EstimationListProps) {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Estimations"
-        description="Manage insurance estimations"
+        title="Offers"
+        description="Manage insurance offers"
         action={
           <Button onClick={() => router.push("/estimations/new")}>
             <Plus className="size-4" />
@@ -170,7 +173,7 @@ export function EstimationList({ initialData }: EstimationListProps) {
       {!isLoading && estimations.length === 0 && !status && !customerSearch && !dateFrom && !dateTo ? (
         <EmptyState
           icon={ClipboardList}
-          title="No estimations found"
+          title="No offers found"
           description="Get started by creating a new estimation."
           action={
             <Button onClick={() => router.push("/estimations/new")}>

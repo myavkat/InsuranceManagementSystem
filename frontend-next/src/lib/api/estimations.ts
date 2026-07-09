@@ -1,7 +1,7 @@
 import { apiClient } from "./client";
 import type { PageResponse } from "./types";
 
-export type EstimationStatus = "STARTED" | "COMPLETED" | "REJECTED";
+export type EstimationStatus = "STARTED" | "WAITING_APPROVAL" | "PAYMENT_WAITING" | "ACTIVE" | "COMPLETED" | "REJECTED";
 
 export interface EstimationResponse {
   id: string;

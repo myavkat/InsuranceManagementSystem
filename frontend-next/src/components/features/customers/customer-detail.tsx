@@ -135,7 +135,7 @@ export function CustomerDetail() {
       {/* Estimation History — placeholder for now */}
       <Card>
         <CardHeader>
-          <CardTitle>Estimation History</CardTitle>
+          <CardTitle>Offer History</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">

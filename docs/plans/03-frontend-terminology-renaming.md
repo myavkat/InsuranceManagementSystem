@@ -1,6 +1,6 @@
 # Plan 03: Frontend — Terminology Renaming
 
-**Status:** Not started
+**Status:** Completed
 **Depends on:** Plan 01 (needs new status enum values for the status badge)
 **Blocks:** Plan 04 (needs renamed pages/sidebar before adding payment flow)
 
@@ -350,28 +350,28 @@ These files do NOT need changes but should be verified:
 ### Step 9: Verify — Run a Visual Check
 
 After all changes, verify:
-- [ ] Sidebar shows "Offers" with Calculator icon, links to `/estimations`
-- [ ] List page shows title "Offers" with description "Manage insurance offers"
-- [ ] Empty state shows "No offers found"
-- [ ] "New Estimation" button is present and links to `/estimations/new`
-- [ ] Detail page shows "Premium #..." heading
-- [ ] Status badge supports all 6 statuses
-- [ ] Status filter dropdown includes all 6 statuses
+- [x] Sidebar shows "Offers" with Calculator icon, links to `/estimations`
+- [x] List page shows title "Offers" with description "Manage insurance offers"
+- [x] Empty state shows "No offers found"
+- [x] "New Estimation" button is present and links to `/estimations/new`
+- [x] Detail page shows "Premium #..." heading
+- [x] Status badge supports all 6 statuses
+- [x] Status filter dropdown includes all 6 statuses
 
 ---
 
 ## Acceptance Criteria
 
-- [ ] Sidebar nav item reads "Offers"
-- [ ] List page title reads "Offers", description "Manage insurance offers"
-- [ ] Empty state reads "No offers found"
-- [ ] "New Estimation" button text is unchanged (describes the action)
-- [ ] Detail page heading reads "Premium #..."
-- [ ] "Estimated Premium" changed to "Calculated Premium"
-- [ ] Status badge shows all new statuses with appropriate colors
-- [ ] Status filter dropdown includes all status values
-- [ ] Dashboard card reads "Pending Offers"
-- [ ] Customer detail card reads "Offer History"
-- [ ] Polling works for STARTED, WAITING_APPROVAL, and PAYMENT_WAITING statuses
-- [ ] No URL routes changed (still `/estimations`, `/estimations/new`, `/estimations/[id]`)
-- [ ] TypeScript compilation passes: `cd frontend-next && npx tsc --noEmit`
+- [x] Sidebar nav item reads "Offers"
+- [x] List page title reads "Offers", description "Manage insurance offers"
+- [x] Empty state reads "No offers found"
+- [x] "New Estimation" button text is unchanged (describes the action)
+- [x] Detail page heading reads "Premium #..."
+- [x] "Estimated Premium" changed to "Calculated Premium"
+- [x] Status badge shows all new statuses with appropriate colors
+- [x] Status filter dropdown includes all status values
+- [x] Dashboard card reads "Pending Offers"
+- [x] Customer detail card reads "Offer History"
+- [x] Polling works for STARTED, WAITING_APPROVAL, and PAYMENT_WAITING statuses
+- [x] No URL routes changed (still `/estimations`, `/estimations/new`, `/estimations/[id]`)
+- [x] TypeScript compilation passes: `cd frontend-next && npx tsc --noEmit`

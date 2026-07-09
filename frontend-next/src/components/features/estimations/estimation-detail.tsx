@@ -23,7 +23,8 @@ export function EstimationDetail() {
     queryFn: () => getEstimation(id),
     refetchInterval: (query) => {
       const data = query.state.data;
-      return data?.status === "STARTED" ? 5000 : false;
+      if (!data?.status) return false;
+      return ["STARTED", "WAITING_APPROVAL", "PAYMENT_WAITING"].includes(data.status) ? 5000 : false;
     },
   });
 
@@ -84,7 +85,7 @@ export function EstimationDetail() {
     ? new Intl.NumberFormat("tr-TR", { style: "currency", currency: "TRY" }).format(estimation.premium)
     : null;
 
-  const isPolling = estimation.status === "STARTED";
+  const isPolling = ["STARTED", "WAITING_APPROVAL", "PAYMENT_WAITING"].includes(estimation.status);
 
   return (
     <div className="space-y-6">
@@ -93,8 +94,8 @@ export function EstimationDetail() {
           <ArrowLeft className="size-4" />
         </Button>
         <PageHeader
-          title={`Estimation #${estimation.id.slice(0, 8)}`}
-          description="Estimation details"
+          title={`Premium #${estimation.id.slice(0, 8)}`}
+          description="Premium details"
           action={
             <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isLoading}>
               <RefreshCw className={"size-4" + (isLoading ? " animate-spin" : "")} />
@@ -106,8 +107,10 @@ export function EstimationDetail() {
 
       {/* Status Banner */}
       <Card className={
-        estimation.status === "COMPLETED" ? "border-green-500" :
-        estimation.status === "REJECTED" ? "border-destructive" : ""
+        estimation.status === "ACTIVE" || estimation.status === "COMPLETED" ? "border-green-500" :
+        estimation.status === "REJECTED" ? "border-destructive" :
+        estimation.status === "WAITING_APPROVAL" ? "border-yellow-500" :
+        estimation.status === "PAYMENT_WAITING" ? "border-blue-500" : ""
       }>
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
@@ -122,9 +125,9 @@ export function EstimationDetail() {
             )}
           </div>
 
-          {estimation.status === "COMPLETED" && formattedPremium && (
+          {["WAITING_APPROVAL", "PAYMENT_WAITING", "ACTIVE", "COMPLETED"].includes(estimation.status) && formattedPremium && (
             <div className="mt-4 rounded-lg bg-green-50 dark:bg-green-950/20 p-4">
-              <p className="text-sm font-medium text-green-700 dark:text-green-400">Estimated Premium</p>
+              <p className="text-sm font-medium text-green-700 dark:text-green-400">Calculated Premium</p>
               <p className="text-2xl font-bold text-green-800 dark:text-green-300">{formattedPremium}</p>
             </div>
           )}
@@ -160,7 +163,7 @@ export function EstimationDetail() {
           <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <DetailItem label="Insurance" value={resolvedInsuranceName ?? "—"} />
             <DetailItem label="Insurance Type" value={resolvedInsuranceTypeName ?? "—"} />
-            <DetailItem label="Base Premium" value={formattedPremium ?? "Pending calculation..."} />
+            <DetailItem label="Premium" value={formattedPremium ?? "Pending calculation..."} />
           </dl>
         </CardContent>
       </Card>
