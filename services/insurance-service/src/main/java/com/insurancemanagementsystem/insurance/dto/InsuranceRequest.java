@@ -17,6 +17,8 @@ public class InsuranceRequest {
     @NotBlank(message = "Insurance name is required")
     private String name;
 
+    private String code;    // optional — auto-generated from name if not set
+
     private String description;
 
     @NotNull(message = "Insurance type ID is required")

@@ -17,6 +17,7 @@ import java.util.UUID;
 public class InsuranceResponse {
     private UUID id;
     private String name;
+    private String code;
     private String description;
     private Integer typeId;
     private String typeName;
@@ -29,6 +30,7 @@ public class InsuranceResponse {
         return InsuranceResponse.builder()
                 .id(insurance.getId())
                 .name(insurance.getName())
+                .code(insurance.getCode())
                 .description(insurance.getDescription())
                 .typeId(insurance.getTypeId())
                 .typeName(insurance.getInsuranceType() != null ? insurance.getInsuranceType().getName() : null)

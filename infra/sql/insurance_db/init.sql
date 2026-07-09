@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS insurance_types (
 CREATE TABLE IF NOT EXISTS insurances (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(100) NOT NULL,
+    code VARCHAR(50) NOT NULL,
     description TEXT,
     type_id INT NOT NULL REFERENCES insurance_types(id),
     base_premium DECIMAL(12,2),
@@ -17,6 +18,7 @@ CREATE TABLE IF NOT EXISTS insurances (
 );
 
 CREATE INDEX IF NOT EXISTS idx_insurances_type ON insurances(type_id);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_insurances_code ON insurances(code);
 
 -- Seed insurance types (asset categories — determines which asset to link in estimation)
 INSERT INTO insurance_types (id, name) VALUES
@@ -31,12 +33,12 @@ DELETE FROM insurances WHERE name IN (
     'Tamamlayıcı Sağlık Sigortası', 'Hayat Sigortası'
 );
 
-INSERT INTO insurances (name, description, type_id, base_premium, is_active) VALUES
-('TRAFFIC', 'Mandatory traffic insurance', 1, 1250.00, TRUE),
-('CASCO', 'Comprehensive auto insurance', 1, 3500.00, TRUE),
-('DASK', 'Earthquake insurance for real estate', 2, 450.00, TRUE),
-('HEALTH', 'Complementary health insurance', 3, 2800.00, TRUE),
-('LIFE', 'Life insurance', 4, 1500.00, TRUE);
+INSERT INTO insurances (name, code, description, type_id, base_premium, is_active) VALUES
+('TRAFFIC', 'TRAFFIC', 'Mandatory traffic insurance', 1, 1250.00, TRUE),
+('CASCO', 'CASCO', 'Comprehensive auto insurance', 1, 3500.00, TRUE),
+('DASK', 'DASK', 'Earthquake insurance for real estate', 2, 450.00, TRUE),
+('HEALTH', 'HEALTH', 'Complementary health insurance', 3, 2800.00, TRUE),
+('LIFE', 'LIFE', 'Life insurance', 4, 1500.00, TRUE);
 
 -- Migration: drop insurance_companies table and remove company_id FK (multi-company concept removed)
 ALTER TABLE insurances DROP COLUMN IF EXISTS company_id;
@@ -105,6 +107,34 @@ CREATE TABLE IF NOT EXISTS risk_factor_history (
 
 CREATE INDEX IF NOT EXISTS idx_risk_factor_history_insurance ON risk_factor_history(insurance_id);
 CREATE INDEX IF NOT EXISTS idx_risk_factor_history_factor ON risk_factor_history(risk_factor_id);
+
+-- ============================================================
+-- Migration: add code column to insurances
+-- ============================================================
+DO $$
+BEGIN
+    -- 1. Add column (nullable initially so existing rows don't fail)
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'insurances' AND column_name = 'code'
+    ) THEN
+        ALTER TABLE insurances ADD COLUMN code VARCHAR(50);
+    END IF;
+
+    -- 2. Backfill NULL codes with a slug derived from name
+    UPDATE insurances SET code = UPPER(REGEXP_REPLACE(TRIM(name), '\s+', '_', 'g'))
+    WHERE code IS NULL;
+
+    -- 3. Add NOT NULL constraint
+    ALTER TABLE insurances ALTER COLUMN code SET NOT NULL;
+
+    -- 4. Add unique constraint (idempotent)
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'uq_insurances_code'
+    ) THEN
+        ALTER TABLE insurances ADD CONSTRAINT uq_insurances_code UNIQUE (code);
+    END IF;
+END $$;
 
 -- Add CHECK constraint for factor_value range 0.00-1.00 (idempotent)
 DO $$
