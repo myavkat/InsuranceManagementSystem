@@ -129,9 +129,9 @@ If tests fail, read the error messages carefully. Common issues:
 
 ## Acceptance Criteria
 
-- [ ] `InsuranceSagaConsumerTest` — all tests pass
-- [ ] `InsuranceServiceTest` — all tests pass (or verified no changes needed)
-- [ ] `InsuranceControllerTest` — all tests pass (or verified no changes needed)
-- [ ] `InsuranceServiceApplicationTests` — all tests pass
-- [ ] Zero references to `insuranceTypeId` on `EstimationRequestedEvent` or `PremiumCalculatedEvent` remain in insurance-service tests
-- [ ] `./gradlew test` passes in `services/insurance-service`
+- [x] `InsuranceSagaConsumerTest` — all tests pass
+- [x] `InsuranceServiceTest` — all tests pass (or verified no changes needed)
+- [x] `InsuranceControllerTest` — all tests pass (or verified no changes needed)
+- [x] `InsuranceServiceApplicationTests` — all tests pass
+- [x] Zero references to `insuranceTypeId` on `EstimationRequestedEvent` or `PremiumCalculatedEvent` remain in insurance-service tests
+- [x] `./gradlew test` passes in `services/insurance-service`

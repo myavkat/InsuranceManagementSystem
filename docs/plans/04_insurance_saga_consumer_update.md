@@ -144,9 +144,9 @@ cd services/insurance-service && ./gradlew compileJava
 
 ## Acceptance Criteria
 
-- [ ] `insuranceTypeId` variable extracted from `EstimationRequestedEvent` replaced with `insuranceId`
-- [ ] Insurance lookup uses `insuranceRepository.findById(insuranceId)` instead of `findByTypeId(typeId, ...)`
-- [ ] Inactive insurance check is `insuranceOpt.isEmpty() || !insuranceOpt.get().getIsActive()`
-- [ ] `PremiumCalculatedEvent` built with `.insuranceId(insuranceId)` instead of `.insuranceTypeId(...)`
-- [ ] Log messages reference `insuranceId` instead of `typeId`
-- [ ] `./gradlew compileJava` passes in `services/insurance-service`
+- [x] `insuranceTypeId` variable extracted from `EstimationRequestedEvent` replaced with `insuranceId`
+- [x] Insurance lookup uses `insuranceRepository.findById(insuranceId)` instead of `findByTypeId(typeId, ...)`
+- [x] Inactive insurance check is `insuranceOpt.isEmpty() || !insuranceOpt.get().getIsActive()`
+- [x] `PremiumCalculatedEvent` built with `.insuranceId(insuranceId)` instead of `.insuranceTypeId(...)`
+- [x] Log messages reference `insuranceId` instead of `typeId`
+- [x] `./gradlew compileJava` passes in `services/insurance-service`
