@@ -248,11 +248,11 @@ Fix any test failures by examining the error messages. Common issues:
 
 ## Acceptance Criteria
 
-- [ ] `EstimationServiceTest` — all tests pass with `InsuranceServiceClient` mocked
-- [ ] `EstimationControllerTest` — all tests pass
-- [ ] `EstimationSagaConsumerTest` — all tests pass with `PremiumCalculatedEvent.insuranceId`
-- [ ] `EstimationTest` (entity) — all tests pass
-- [ ] `EstimationServiceIntegrationTest` — all tests pass (with `@MockitoBean InsuranceServiceClient`)
-- [ ] `SagaE2ETest` — all tests pass (if it references insuranceTypeId)
-- [ ] Zero references to `insuranceTypeId` remain in any estimation-service test file
-- [ ] `./gradlew test` passes in `services/estimation-service`
+- [x] `EstimationServiceTest` — all tests pass with `InsuranceServiceClient` mocked
+- [x] `EstimationControllerTest` — all tests pass
+- [x] `EstimationSagaConsumerTest` — all tests pass with `PremiumCalculatedEvent.insuranceId`
+- [x] `EstimationTest` (entity) — all tests pass
+- [x] `EstimationServiceIntegrationTest` — all tests pass (with `@MockitoBean InsuranceServiceClient`)
+- [x] `SagaE2ETest` — all tests pass (if it references insuranceTypeId)
+- [x] Zero references to `insuranceTypeId` remain in any estimation-service test file
+- [x] `./gradlew test` passes in `services/estimation-service`

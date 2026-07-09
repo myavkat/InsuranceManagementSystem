@@ -44,7 +44,7 @@ class EstimationControllerTest {
     private final UUID testId = UUID.randomUUID();
     private final UUID customerId = UUID.randomUUID();
     private final UUID vehicleId = UUID.randomUUID();
-    private final Integer insuranceTypeId = 1;
+    private final UUID insuranceId = UUID.randomUUID();
 
     @BeforeEach
     void setUp() {
@@ -57,7 +57,7 @@ class EstimationControllerTest {
                 .sagaId(UUID.randomUUID())
                 .customerId(customerId)
                 .vehicleId(vehicleId)
-                .insuranceTypeId(insuranceTypeId)
+                .insuranceId(insuranceId)
                 .status("STARTED")
                 .createdAt(Instant.now())
                 .updatedAt(Instant.now())
@@ -72,7 +72,7 @@ class EstimationControllerTest {
         EstimationRequest request = new EstimationRequest();
         request.setCustomerId(customerId);
         request.setVehicleId(vehicleId);
-        request.setInsuranceTypeId(insuranceTypeId);
+        request.setInsuranceId(insuranceId);
 
         EstimationResponse response = createSampleResponse();
         given(estimationService.create(any(EstimationRequest.class))).willReturn(response);
@@ -113,7 +113,7 @@ class EstimationControllerTest {
     void create_WithBothVehicleAndRealEstateNull_Returns400() {
         EstimationRequest request = new EstimationRequest();
         request.setCustomerId(customerId);
-        request.setInsuranceTypeId(insuranceTypeId);
+        request.setInsuranceId(insuranceId);
 
         given(estimationService.create(any(EstimationRequest.class)))
                 .willThrow(new IllegalArgumentException("Either vehicleId or realEstateId must be provided"));
