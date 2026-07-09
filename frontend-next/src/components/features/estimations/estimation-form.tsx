@@ -57,14 +57,14 @@ export function EstimationForm() {
     resolver: zodResolver(estimationSchema),
     defaultValues: {
       customerId: "",
-      insuranceTypeId: "",
+      insuranceId: "",
       vehicleId: "",
       realEstateId: "",
     },
   });
 
   const watchedCustomerId = watch("customerId");
-  const watchedTypeId = watch("insuranceTypeId");
+  const watchedInsuranceId = watch("insuranceId");
   const watchedVehicleId = watch("vehicleId");
   const watchedRealEstateId = watch("realEstateId");
 
@@ -106,7 +106,7 @@ export function EstimationForm() {
     mutationFn: (data: EstimationFormData) => {
       return createEstimation({
         customerId: data.customerId,
-        insuranceTypeId: Number(data.insuranceTypeId),
+        insuranceId: data.insuranceId,
         vehicleId: data.vehicleId || undefined,
         realEstateId: data.realEstateId || undefined,
       });
@@ -119,7 +119,7 @@ export function EstimationForm() {
   useUnsavedChanges(isDirty);
 
   const canProceedStep1 = watchedCustomerId !== "";
-  const canProceedStep2 = watchedTypeId !== "" && selectedInsuranceTypeId !== null;
+  const canProceedStep2 = watchedInsuranceId !== "" && selectedInsuranceTypeId !== null;
   const canProceedStep3 =
     (selectedInsuranceTypeId === 1 && watchedVehicleId !== "") ||
     (selectedInsuranceTypeId === 2 && watchedRealEstateId !== "") ||
@@ -284,7 +284,7 @@ export function EstimationForm() {
                       const ins = insurances?.content?.find((i) => i.id === value);
                       const typeId = ins?.typeId ?? null;
                       setSelectedInsuranceTypeId(typeId);
-                      setValue("insuranceTypeId", typeId?.toString() ?? "", { shouldDirty: true });
+                      setValue("insuranceId", value ?? "", { shouldDirty: true });
                     }}
                   >
                     <SelectTrigger className="w-full">
@@ -303,9 +303,9 @@ export function EstimationForm() {
                       ))}
                     </SelectContent>
                   </Select>
-                  {errors.insuranceTypeId?.message && (
+                  {errors.insuranceId?.message && (
                     <p className="text-sm text-destructive" role="alert">
-                      {errors.insuranceTypeId.message}
+                      {errors.insuranceId.message}
                     </p>
                   )}
                 </div>

@@ -35,13 +35,6 @@ const statusOptions: { value: string; label: string }[] = [
   { value: "REJECTED", label: "Rejected" },
 ];
 
-const INSURANCE_TYPE_NAMES: Record<number, string> = {
-  1: "Vehicle",
-  2: "Real Estate",
-  3: "Health",
-  4: "Life",
-};
-
 const columnHelper = createColumnHelper<EstimationResponse>();
 
 const columns: ColumnDef<EstimationResponse, any>[] = [
@@ -50,8 +43,12 @@ const columns: ColumnDef<EstimationResponse, any>[] = [
     cell: (info) => <span className="font-medium">{info.getValue() ?? "—"}</span>,
     enableSorting: true,
   }),
+  columnHelper.accessor("insuranceName", {
+    header: "Insurance",
+    cell: (info) => info.getValue() ?? "—",
+  }),
   columnHelper.accessor("insuranceTypeName", {
-    header: "Insurance Name",
+    header: "Insurance Type",
     cell: (info) => info.getValue() ?? "—",
   }),
   columnHelper.accessor("status", {
@@ -144,7 +141,7 @@ export function EstimationList({ initialData }: EstimationListProps) {
     return estimations.map((estimation) => ({
       ...estimation,
       customerName: estimation.customerName ?? customerNames?.[estimation.customerId] ?? undefined,
-      insuranceTypeName: estimation.insuranceTypeName ?? INSURANCE_TYPE_NAMES[estimation.insuranceTypeId] ?? undefined,
+      insuranceTypeName: estimation.insuranceTypeName ?? undefined,
     }));
   }, [estimations, customerNames]);
 

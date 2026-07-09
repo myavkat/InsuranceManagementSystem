@@ -68,7 +68,7 @@ So the form UI is actually close to what we need. The change is to send `insuran
 
 ## Steps
 
-### Step 1: Update estimation.ts schema
+### Step 1: Update estimation.ts schema  ✓
 
 Open `frontend-next/src/lib/schemas/estimation.ts`.
 
@@ -95,7 +95,7 @@ export const estimationSchema = z.object({
 export type EstimationFormData = z.infer<typeof estimationSchema>;
 ```
 
-### Step 2: Update estimations.ts API types
+### Step 2: Update estimations.ts API types  ✓
 
 Open `frontend-next/src/lib/api/estimations.ts`.
 
@@ -106,7 +106,7 @@ Open `frontend-next/src/lib/api/estimations.ts`.
 **B. Update `EstimationRequest` interface:**
 - Change `insuranceTypeId: number;` to `insuranceId: string;`
 
-### Step 3: Update estimation-form.tsx
+### Step 3: Update estimation-form.tsx  ✓
 
 Open `frontend-next/src/components/features/estimations/estimation-form.tsx`.
 
@@ -216,7 +216,7 @@ Change to:
 )}
 ```
 
-### Step 4: Update estimation-detail.tsx
+### Step 4: Update estimation-detail.tsx  ✓
 
 Open `frontend-next/src/components/features/estimations/estimation-detail.tsx`.
 
@@ -264,7 +264,7 @@ const INSURANCE_TYPE_NAMES: Record<number, string> = {
 ```
 Delete this block.
 
-### Step 5: Update estimation-list.tsx
+### Step 5: Update estimation-list.tsx  ✓
 
 Open `frontend-next/src/components/features/estimations/estimation-list.tsx`.
 
@@ -304,17 +304,19 @@ columnHelper.accessor("insuranceName", {
 
 Place it before the `insuranceTypeName` column.
 
-### Step 6: Verify TypeScript compilation
+### Step 6: Verify TypeScript compilation  ✓
 
 ```bash
 cd frontend-next && npx tsc --noEmit
 ```
 
 Fix any type errors. Common issues:
-- `insuranceTypeId` does not exist on type `EstimationResponse` → use `insuranceId`
-- `Number(data.insuranceTypeId)` on a string UUID → use `data.insuranceId` directly
+- ~~`insuranceTypeId` does not exist on type `EstimationResponse` → use `insuranceId`~~
+- ~~`Number(data.insuranceTypeId)` on a string UUID → use `data.insuranceId` directly~~
 
-### Step 7: Verify the build
+TypeScript compilation passes with zero errors.
+
+### Step 7: Verify the build  ⚠️ (pre-existing issue)
 
 ```bash
 cd frontend-next && npm run build
@@ -322,13 +324,13 @@ cd frontend-next && npm run build
 
 ## Acceptance Criteria
 
-- [ ] `estimation.ts` schema uses `insuranceId: z.string()` instead of `insuranceTypeId`
-- [ ] `EstimationRequest` interface uses `insuranceId: string` instead of `insuranceTypeId: number`
-- [ ] `EstimationResponse` interface uses `insuranceId: string`, has `insuranceName?: string`
-- [ ] Form Step 2 sends the selected insurance product's ID as `insuranceId`
-- [ ] Form validation uses `insuranceId` field name
-- [ ] Detail page shows both insurance product name and insurance type name
-- [ ] List page uses backend-provided `insuranceTypeName` without client-side fallback to `insuranceTypeId`
-- [ ] `INSURANCE_TYPE_NAMES` fallback maps removed from detail and list components
-- [ ] `npx tsc --noEmit` passes
-- [ ] `npm run build` succeeds
+- [x] `estimation.ts` schema uses `insuranceId: z.string()` instead of `insuranceTypeId`
+- [x] `EstimationRequest` interface uses `insuranceId: string` instead of `insuranceTypeId: number`
+- [x] `EstimationResponse` interface uses `insuranceId: string`, has `insuranceName?: string`
+- [x] Form Step 2 sends the selected insurance product's ID as `insuranceId`
+- [x] Form validation uses `insuranceId` field name
+- [x] Detail page shows both insurance product name and insurance type name
+- [x] List page uses backend-provided `insuranceTypeName` without client-side fallback to `insuranceTypeId`
+- [x] `INSURANCE_TYPE_NAMES` fallback maps removed from detail and list components
+- [x] `npx tsc --noEmit` passes
+- [ ] `npm run build` — pre-existing issue on `/customers` page (uses `headers()` without `force-dynamic`), unrelated to estimation changes

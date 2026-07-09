@@ -14,7 +14,8 @@ export interface EstimationResponse {
   vehicleChassisNumber?: string;
   realEstateId?: string;
   realEstateAddress?: string;
-  insuranceTypeId: number;
+  insuranceId: string;
+  insuranceName?: string;
   insuranceTypeName?: string;
   premium?: number;
   status: EstimationStatus;
@@ -27,7 +28,7 @@ export interface EstimationRequest {
   customerId: string;
   vehicleId?: string;
   realEstateId?: string;
-  insuranceTypeId: number;
+  insuranceId: string;
 }
 
 export interface EstimationListParams {
