@@ -11,6 +11,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Pencil, Trash2, Ban } from "lucide-react";
+import { RiskFactorEditor } from "./risk-factor-editor";
+import { RiskFactorHistory } from "./risk-factor-history";
 import { useState } from "react";
 
 export function InsuranceDetail() {
@@ -124,6 +126,10 @@ export function InsuranceDetail() {
           </dl>
         </CardContent>
       </Card>
+
+      {/* Risk Factors — adjustable by admin */}
+      <RiskFactorEditor insuranceId={id} />
+      <RiskFactorHistory insuranceId={id} />
 
       <Card>
         <CardHeader>

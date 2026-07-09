@@ -60,6 +60,7 @@ export async function getRealEstates(
   search?: string,
   sort?: string,
   direction?: string,
+  customerId?: string,
 ): Promise<PageResponse<RealEstateResponse>> {
   const params = new URLSearchParams({ page: String(page), size: String(size) });
   if (search) params.set("search", search);
@@ -68,6 +69,7 @@ export async function getRealEstates(
   } else if (sort) {
     params.set("sort", sort);
   }
+  if (customerId) params.set("customerId", customerId);
   return apiClient<PageResponse<RealEstateResponse>>(
     `/api/real-estate?${params.toString()}`
   );

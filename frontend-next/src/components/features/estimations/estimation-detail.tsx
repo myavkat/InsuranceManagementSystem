@@ -3,6 +3,8 @@
 import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getEstimation } from "@/lib/api/estimations";
+import { getCustomer } from "@/lib/api/customers";
+import { getVehicle } from "@/lib/api/vehicles";
 import { PageHeader } from "@/components/features/page-header";
 import { ErrorAlert } from "@/components/features/error-alert";
 import { StatusBadge } from "@/components/features/status-badge";
@@ -10,6 +12,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, RefreshCw } from "lucide-react";
+
+const INSURANCE_TYPE_NAMES: Record<number, string> = {
+  1: "Vehicle",
+  2: "Real Estate",
+  3: "Health",
+  4: "Life",
+};
 
 export function EstimationDetail() {
   const params = useParams();
@@ -24,6 +33,35 @@ export function EstimationDetail() {
       return data?.status === "STARTED" ? 5000 : false;
     },
   });
+
+  // Client-side enrichment fallback: resolve customer name/nationalId
+  const customerId = estimation?.customerId;
+  const { data: customer } = useQuery({
+    queryKey: ["customer", customerId],
+    queryFn: () => getCustomer(customerId!),
+    enabled: !!customerId && !estimation?.customerName,
+    staleTime: 60_000,
+  });
+
+  // Client-side enrichment fallback: resolve vehicle plate/chassisNumber
+  const vehicleId = estimation?.vehicleId;
+  const { data: vehicle } = useQuery({
+    queryKey: ["vehicle", vehicleId],
+    queryFn: () => getVehicle(vehicleId!),
+    enabled: !!vehicleId && !estimation?.vehiclePlate,
+    staleTime: 60_000,
+  });
+
+  // Resolved display values: prefer backend enrichment, fall back to client-side
+  const resolvedCustomerName = estimation?.customerName
+    ?? (customer ? `${customer.firstName} ${customer.lastName}` : null);
+  const resolvedCustomerNationalId = estimation?.customerNationalId
+    ?? customer?.nationalId
+    ?? null;
+  const resolvedVehiclePlate = estimation?.vehiclePlate ?? vehicle?.plate ?? null;
+  const resolvedVehicleChassisNumber = estimation?.vehicleChassisNumber ?? vehicle?.chassisNumber ?? null;
+  const resolvedInsuranceTypeName = estimation?.insuranceTypeName
+    ?? (estimation?.insuranceTypeId ? INSURANCE_TYPE_NAMES[estimation.insuranceTypeId] : null);
 
   if (isLoading) {
     return (
@@ -114,8 +152,8 @@ export function EstimationDetail() {
         </CardHeader>
         <CardContent>
           <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <DetailItem label="Customer Name" value={estimation.customerName ?? "—"} />
-            <DetailItem label="Customer ID" value={estimation.customerId ?? "—"} />
+            <DetailItem label="Customer Name" value={resolvedCustomerName ?? "—"} />
+            <DetailItem label="Customer ID" value={resolvedCustomerNationalId ?? estimation.customerId ?? "—"} />
           </dl>
         </CardContent>
       </Card>
@@ -127,8 +165,7 @@ export function EstimationDetail() {
         </CardHeader>
         <CardContent>
           <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <DetailItem label="Insurance Type" value={estimation.insuranceTypeName ?? "—"} />
-            <DetailItem label="Company" value={estimation.companyName ?? "—"} />
+            <DetailItem label="Insurance Type" value={resolvedInsuranceTypeName ?? "—"} />
             <DetailItem label="Base Premium" value={formattedPremium ?? "Pending calculation..."} />
           </dl>
         </CardContent>
@@ -143,7 +180,13 @@ export function EstimationDetail() {
           <CardContent>
             <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {estimation.vehicleId && (
-                <DetailItem label="Vehicle" value={estimation.vehiclePlate ?? estimation.vehicleId} />
+                <DetailItem label="Vehicle" value={
+                  resolvedVehiclePlate
+                    ? resolvedVehicleChassisNumber
+                      ? `${resolvedVehiclePlate} / Chassis: ${resolvedVehicleChassisNumber}`
+                      : resolvedVehiclePlate
+                    : estimation.vehicleId
+                } />
               )}
               {estimation.realEstateId && (
                 <DetailItem label="Real Estate" value={estimation.realEstateAddress ?? estimation.realEstateId} />

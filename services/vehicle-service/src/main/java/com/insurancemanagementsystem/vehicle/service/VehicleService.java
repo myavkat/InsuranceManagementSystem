@@ -35,9 +35,13 @@ public class VehicleService {
     // ---------- Vehicle CRUD ----------
 
     @Transactional(readOnly = true)
-    public Page<VehicleResponse> findAll(Pageable pageable, String search) {
+    public Page<VehicleResponse> findAll(Pageable pageable, String search, UUID customerId) {
         Page<Vehicle> vehiclePage;
-        if (search != null && !search.isBlank()) {
+        if (customerId != null && search != null && !search.isBlank()) {
+            vehiclePage = vehicleRepository.searchByCustomerIdAndSearch(customerId, search.trim(), pageable);
+        } else if (customerId != null) {
+            vehiclePage = vehicleRepository.findByCustomerId(customerId, pageable);
+        } else if (search != null && !search.isBlank()) {
             vehiclePage = vehicleRepository.search(search.trim(), pageable);
         } else {
             vehiclePage = vehicleRepository.findAll(pageable);
@@ -51,10 +55,10 @@ public class VehicleService {
 
         // Resolve each customer name once into a lookup map
         java.util.Map<UUID, String> customerNameMap = new java.util.HashMap<>();
-        for (UUID customerId : customerIds) {
-            String name = customerServiceClient.getCustomerName(customerId);
+        for (UUID customerIdEntry : customerIds) {
+            String name = customerServiceClient.getCustomerName(customerIdEntry);
             if (name != null) {
-                customerNameMap.put(customerId, name);
+                customerNameMap.put(customerIdEntry, name);
             }
         }
 

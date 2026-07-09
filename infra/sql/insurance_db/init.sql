@@ -18,18 +18,25 @@ CREATE TABLE IF NOT EXISTS insurances (
 
 CREATE INDEX IF NOT EXISTS idx_insurances_type ON insurances(type_id);
 
--- Seed insurance types
+-- Seed insurance types (asset categories — determines which asset to link in estimation)
 INSERT INTO insurance_types (id, name) VALUES
-(1, 'TRAFFIC'), (2, 'CASCO'), (3, 'DASK'), (4, 'HEALTH'), (5, 'LIFE')
-ON CONFLICT (id) DO NOTHING;
+(1, 'Vehicle'), (2, 'Real Estate'), (3, 'Health'), (4, 'Life')
+ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name;
 
--- Seed insurance products (single-provider system — one product per type)
+-- Seed insurance products
+-- Clean up old seed rows by name before re-inserting (idempotent across restarts)
+DELETE FROM insurances WHERE name IN (
+    'TRAFFIC', 'CASCO', 'DASK', 'HEALTH', 'LIFE',
+    'Zorunlu Trafik Sigortası', 'Kapsamlı Kasko', 'Doğal Afet Sigortası (DASK)',
+    'Tamamlayıcı Sağlık Sigortası', 'Hayat Sigortası'
+);
+
 INSERT INTO insurances (name, description, type_id, base_premium, is_active) VALUES
-('Zorunlu Trafik Sigortası', 'Legal required traffic insurance', 1, 1250.00, TRUE),
-('Kapsamlı Kasko', 'Full comprehensive insurance', 2, 3500.00, TRUE),
-('Doğal Afet Sigortası (DASK)', 'Earthquake insurance', 3, 450.00, TRUE),
-('Tamamlayıcı Sağlık Sigortası', 'Complementary health insurance', 4, 2800.00, TRUE),
-('Hayat Sigortası', 'Life insurance', 5, 1500.00, TRUE);
+('TRAFFIC', 'Mandatory traffic insurance', 1, 1250.00, TRUE),
+('CASCO', 'Comprehensive auto insurance', 1, 3500.00, TRUE),
+('DASK', 'Earthquake insurance for real estate', 2, 450.00, TRUE),
+('HEALTH', 'Complementary health insurance', 3, 2800.00, TRUE),
+('LIFE', 'Life insurance', 4, 1500.00, TRUE);
 
 -- Migration: drop insurance_companies table and remove company_id FK (multi-company concept removed)
 ALTER TABLE insurances DROP COLUMN IF EXISTS company_id;
@@ -69,3 +76,116 @@ CREATE TABLE IF NOT EXISTS saga_aggregations (
     vehicle_validated_payload JSONB,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- ============================================================
+-- Risk Factors — per-insurance adjustable weight values (0.0-1.0)
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS risk_factors (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    insurance_id UUID NOT NULL REFERENCES insurances(id) ON DELETE CASCADE,
+    factor_name VARCHAR(50) NOT NULL,
+    factor_value DECIMAL(3,2) NOT NULL DEFAULT 0.50,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(insurance_id, factor_name)
+);
+
+CREATE INDEX IF NOT EXISTS idx_risk_factors_insurance ON risk_factors(insurance_id);
+
+CREATE TABLE IF NOT EXISTS risk_factor_history (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    risk_factor_id UUID NOT NULL REFERENCES risk_factors(id) ON DELETE CASCADE,
+    insurance_id UUID NOT NULL REFERENCES insurances(id) ON DELETE CASCADE,
+    factor_name VARCHAR(50) NOT NULL,
+    old_value DECIMAL(3,2),
+    new_value DECIMAL(3,2) NOT NULL,
+    changed_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_risk_factor_history_insurance ON risk_factor_history(insurance_id);
+CREATE INDEX IF NOT EXISTS idx_risk_factor_history_factor ON risk_factor_history(risk_factor_id);
+
+-- Add CHECK constraint for factor_value range 0.00-1.00 (idempotent)
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'chk_risk_factor_value'
+    ) THEN
+        ALTER TABLE risk_factors ADD CONSTRAINT chk_risk_factor_value
+        CHECK (factor_value >= 0.00 AND factor_value <= 1.00);
+    END IF;
+END $$;
+
+-- Seed default risk factors for each insurance product
+-- Clean up old seed data first (idempotent)
+DELETE FROM risk_factor_history WHERE insurance_id IN (SELECT id FROM insurances WHERE name IN ('TRAFFIC','CASCO','DASK','HEALTH','LIFE'));
+DELETE FROM risk_factors WHERE insurance_id IN (SELECT id FROM insurances WHERE name IN ('TRAFFIC','CASCO','DASK','HEALTH','LIFE'));
+
+-- Helper: insert risk factor via DO block (inserts only if insurance name exists)
+DO $$
+DECLARE
+    ins_id UUID;
+BEGIN
+    -- TRAFFIC (Vehicle type) — vehicle factors + shared factors
+    SELECT id INTO ins_id FROM insurances WHERE name = 'TRAFFIC';
+    IF FOUND THEN
+        INSERT INTO risk_factors (insurance_id, factor_name, factor_value) VALUES
+        (ins_id, 'motorSize', 0.50),
+        (ins_id, 'fuelType', 0.50),
+        (ins_id, 'carAge', 0.50),
+        (ins_id, 'brandRisk', 0.50),
+        (ins_id, 'customerAge', 0.50),
+        (ins_id, 'profession', 0.50),
+        (ins_id, 'city', 0.50)
+        ON CONFLICT (insurance_id, factor_name) DO UPDATE SET factor_value = EXCLUDED.factor_value;
+    END IF;
+
+    -- CASCO (Vehicle type) — vehicle factors + shared factors
+    SELECT id INTO ins_id FROM insurances WHERE name = 'CASCO';
+    IF FOUND THEN
+        INSERT INTO risk_factors (insurance_id, factor_name, factor_value) VALUES
+        (ins_id, 'motorSize', 0.50),
+        (ins_id, 'fuelType', 0.50),
+        (ins_id, 'carAge', 0.50),
+        (ins_id, 'brandRisk', 0.50),
+        (ins_id, 'customerAge', 0.50),
+        (ins_id, 'profession', 0.50),
+        (ins_id, 'city', 0.50)
+        ON CONFLICT (insurance_id, factor_name) DO UPDATE SET factor_value = EXCLUDED.factor_value;
+    END IF;
+
+    -- DASK (Real Estate type) — real estate factors + shared factors
+    SELECT id INTO ins_id FROM insurances WHERE name = 'DASK';
+    IF FOUND THEN
+        INSERT INTO risk_factors (insurance_id, factor_name, factor_value) VALUES
+        (ins_id, 'buildingAge', 0.50),
+        (ins_id, 'constructionType', 0.50),
+        (ins_id, 'luxuryClass', 0.50),
+        (ins_id, 'floorArea', 0.50),
+        (ins_id, 'customerAge', 0.50),
+        (ins_id, 'profession', 0.50),
+        (ins_id, 'city', 0.50)
+        ON CONFLICT (insurance_id, factor_name) DO UPDATE SET factor_value = EXCLUDED.factor_value;
+    END IF;
+
+    -- HEALTH (Health type) — shared factors only
+    SELECT id INTO ins_id FROM insurances WHERE name = 'HEALTH';
+    IF FOUND THEN
+        INSERT INTO risk_factors (insurance_id, factor_name, factor_value) VALUES
+        (ins_id, 'customerAge', 0.50),
+        (ins_id, 'profession', 0.50),
+        (ins_id, 'city', 0.50)
+        ON CONFLICT (insurance_id, factor_name) DO UPDATE SET factor_value = EXCLUDED.factor_value;
+    END IF;
+
+    -- LIFE (Life type) — shared factors only
+    SELECT id INTO ins_id FROM insurances WHERE name = 'LIFE';
+    IF FOUND THEN
+        INSERT INTO risk_factors (insurance_id, factor_name, factor_value) VALUES
+        (ins_id, 'customerAge', 0.50),
+        (ins_id, 'profession', 0.50),
+        (ins_id, 'city', 0.50)
+        ON CONFLICT (insurance_id, factor_name) DO UPDATE SET factor_value = EXCLUDED.factor_value;
+    END IF;
+END $$;

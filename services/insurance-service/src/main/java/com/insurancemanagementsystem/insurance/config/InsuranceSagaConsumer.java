@@ -7,7 +7,9 @@ import com.insurancemanagementsystem.common.entity.OutboxEvent;
 import com.insurancemanagementsystem.common.repository.OutboxEventRepository;
 import com.insurancemanagementsystem.common.repository.SagaEventRepository;
 import com.insurancemanagementsystem.insurance.entity.Insurance;
+import com.insurancemanagementsystem.insurance.entity.RiskFactor;
 import com.insurancemanagementsystem.insurance.repository.InsuranceRepository;
+import com.insurancemanagementsystem.insurance.repository.RiskFactorRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
@@ -19,6 +21,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -33,6 +36,7 @@ public class InsuranceSagaConsumer {
     private final SagaEventRepository sagaEventRepository;
     private final OutboxEventRepository outboxEventRepository;
     private final SagaAggregationStore aggregationStore;
+    private final RiskFactorRepository riskFactorRepository;
     private final TransactionTemplate transactionTemplate;
     private final JsonMapper jsonMapper;
 
@@ -227,17 +231,33 @@ public class InsuranceSagaConsumer {
             return;
         }
 
-        // Calculate premium: basePremium * risk factor
-        BigDecimal riskFactor = BigDecimal.ONE;
+        // Load risk factors for this insurance product
+        List<RiskFactor> riskFactors = riskFactorRepository.findByInsuranceId(insurance.getId());
 
+        // Compute composite risk multiplier (average of all factor values)
+        BigDecimal compositeRisk;
         Map<String, BigDecimal> breakdown = new LinkedHashMap<>();
         breakdown.put("basePremium", basePremium);
 
-        BigDecimal measuredAdjustment = BigDecimal.ZERO;
-        breakdown.put("riskFactor", riskFactor);
-        breakdown.put("adjustment", measuredAdjustment);
+        if (riskFactors.isEmpty()) {
+            // No risk factors configured — use neutral 0.50
+            compositeRisk = new BigDecimal("0.50");
+            breakdown.put("compositeRisk", compositeRisk);
+        } else {
+            BigDecimal sum = BigDecimal.ZERO;
+            for (RiskFactor rf : riskFactors) {
+                sum = sum.add(rf.getFactorValue());
+                breakdown.put("factor." + rf.getFactorName(), rf.getFactorValue());
+            }
+            compositeRisk = sum.divide(
+                    BigDecimal.valueOf(riskFactors.size()), 4, java.math.RoundingMode.HALF_UP);
+            breakdown.put("compositeRisk", compositeRisk);
+        }
 
-        BigDecimal totalPremium = basePremium.multiply(riskFactor).add(measuredAdjustment);
+        // Calculate total premium
+        // premium = basePremium * compositeRisk
+        BigDecimal totalPremium = basePremium.multiply(compositeRisk).setScale(2, java.math.RoundingMode.HALF_UP);
+        breakdown.put("totalPremium", totalPremium);
 
         // Publish PremiumCalculated via outbox
         PremiumCalculatedEvent premiumEvent = PremiumCalculatedEvent.builder()

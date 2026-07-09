@@ -103,3 +103,56 @@ export async function deactivateInsurance(id: string): Promise<InsuranceResponse
 export async function getInsuranceCompanies(): Promise<InsuranceCompanyResponse[]> {
   return apiClient<InsuranceCompanyResponse[]>("/api/insurances/companies");
 }
+
+// --- Risk Factor Types ---
+
+export interface RiskFactorResponse {
+  id: string;
+  insuranceId: string;
+  factorName: string;
+  factorValue: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RiskFactorUpdateRequest {
+  factorName: string;
+  factorValue: number;
+}
+
+export interface RiskFactorHistoryResponse {
+  id: string;
+  riskFactorId: string;
+  insuranceId: string;
+  factorName: string;
+  oldValue: number | null;
+  newValue: number;
+  changedAt: string;
+}
+
+// --- Risk Factor API Functions ---
+
+export async function getRiskFactors(insuranceId: string): Promise<RiskFactorResponse[]> {
+  return apiClient<RiskFactorResponse[]>(`/api/insurances/${insuranceId}/risk-factors`);
+}
+
+export async function updateRiskFactors(
+  insuranceId: string,
+  updates: RiskFactorUpdateRequest[],
+): Promise<RiskFactorResponse[]> {
+  return apiClient<RiskFactorResponse[]>(`/api/insurances/${insuranceId}/risk-factors`, {
+    method: "PUT",
+    body: JSON.stringify(updates),
+  });
+}
+
+export async function getRiskFactorHistory(
+  insuranceId: string,
+  page = 0,
+  size = 20,
+): Promise<PageResponse<RiskFactorHistoryResponse>> {
+  const params = new URLSearchParams({ page: String(page), size: String(size) });
+  return apiClient<PageResponse<RiskFactorHistoryResponse>>(
+    `/api/insurances/${insuranceId}/risk-factors/history?${params.toString()}`,
+  );
+}

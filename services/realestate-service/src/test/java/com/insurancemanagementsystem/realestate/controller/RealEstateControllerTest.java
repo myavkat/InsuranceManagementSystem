@@ -77,7 +77,7 @@ class RealEstateControllerTest {
     void getAll_ReturnsPaginatedResponse() {
         // Arrange
         Page<RealEstateResponse> page = new PageImpl<>(List.of(createSampleResponse()));
-        given(realEstateService.findAll(any(Pageable.class))).willReturn(page);
+        given(realEstateService.findAll(any(Pageable.class), any(), any())).willReturn(page);
 
         // Act & Assert
         restTestClient.get().uri("/api/real-estate")
@@ -90,7 +90,7 @@ class RealEstateControllerTest {
                 .jsonPath("$.data.content[0].address").isEqualTo("123 Main St")
                 .jsonPath("$.data.content[0].squareMeters").isEqualTo(120.50);
 
-        verify(realEstateService).findAll(any(Pageable.class));
+        verify(realEstateService).findAll(any(Pageable.class), any(), any());
     }
 
     // ---------------------------------------------------------------

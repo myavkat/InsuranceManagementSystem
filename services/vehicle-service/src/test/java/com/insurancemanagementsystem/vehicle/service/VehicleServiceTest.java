@@ -1,5 +1,6 @@
 package com.insurancemanagementsystem.vehicle.service;
 
+import com.insurancemanagementsystem.vehicle.client.CustomerServiceClient;
 import com.insurancemanagementsystem.vehicle.config.VehicleEventPublisher;
 import com.insurancemanagementsystem.vehicle.dto.VehicleRequest;
 import com.insurancemanagementsystem.vehicle.dto.VehicleResponse;
@@ -57,6 +58,9 @@ class VehicleServiceTest {
 
     @Mock
     private VehicleEventPublisher vehicleEventPublisher;
+
+    @Mock
+    private CustomerServiceClient customerServiceClient;
 
     @InjectMocks
     private VehicleService vehicleService;
@@ -142,9 +146,10 @@ class VehicleServiceTest {
         Page<Vehicle> vehiclePage = new PageImpl<>(List.of(vehicle));
 
         when(vehicleRepository.findAll(pageable)).thenReturn(vehiclePage);
+        when(customerServiceClient.getCustomerName(CUSTOMER_ID)).thenReturn("John Doe");
         mockReferenceFindAll();
 
-        Page<VehicleResponse> result = vehicleService.findAll(pageable);
+        Page<VehicleResponse> result = vehicleService.findAll(pageable, null, null);
 
         assertThat(result).isNotEmpty();
         assertThat(result.getContent()).hasSize(1);

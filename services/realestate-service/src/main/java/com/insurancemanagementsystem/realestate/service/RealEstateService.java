@@ -41,9 +41,13 @@ public class RealEstateService {
     // ---------- RealEstate CRUD ----------
 
     @Transactional(readOnly = true)
-    public Page<RealEstateResponse> findAll(Pageable pageable, String search) {
+    public Page<RealEstateResponse> findAll(Pageable pageable, String search, UUID customerId) {
         Page<RealEstate> page;
-        if (search != null && !search.isBlank()) {
+        if (customerId != null && search != null && !search.isBlank()) {
+            page = realEstateRepository.searchByCustomerIdAndSearch(customerId, search.trim(), pageable);
+        } else if (customerId != null) {
+            page = realEstateRepository.findByCustomerId(customerId, pageable);
+        } else if (search != null && !search.isBlank()) {
             page = realEstateRepository.search(search.trim(), pageable);
         } else {
             page = realEstateRepository.findAll(pageable);
@@ -71,10 +75,10 @@ public class RealEstateService {
 
         // Resolve customer names (one REST call per unique customer)
         java.util.Map<UUID, String> customerNameMap = new java.util.HashMap<>();
-        for (UUID customerId : customerIds) {
-            String name = customerServiceClient.getCustomerName(customerId);
+        for (UUID customerIdEntry : customerIds) {
+            String name = customerServiceClient.getCustomerName(customerIdEntry);
             if (name != null) {
-                customerNameMap.put(customerId, name);
+                customerNameMap.put(customerIdEntry, name);
             }
         }
 

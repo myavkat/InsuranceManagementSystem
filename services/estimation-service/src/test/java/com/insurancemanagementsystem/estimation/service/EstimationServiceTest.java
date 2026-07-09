@@ -2,6 +2,8 @@ package com.insurancemanagementsystem.estimation.service;
 
 import com.insurancemanagementsystem.common.event.EventConstants;
 import com.insurancemanagementsystem.common.messaging.OutboxMessagePublisher;
+import com.insurancemanagementsystem.estimation.client.CustomerServiceClient;
+import com.insurancemanagementsystem.estimation.client.VehicleServiceClient;
 import com.insurancemanagementsystem.estimation.dto.EstimationRequest;
 import com.insurancemanagementsystem.estimation.dto.EstimationResponse;
 import com.insurancemanagementsystem.estimation.entity.Estimation;
@@ -21,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -37,6 +40,12 @@ class EstimationServiceTest {
 
     @Mock
     private OutboxMessagePublisher outboxMessagePublisher;
+
+    @Mock
+    private CustomerServiceClient customerServiceClient;
+
+    @Mock
+    private VehicleServiceClient vehicleServiceClient;
 
     @InjectMocks
     private EstimationService estimationService;
@@ -120,7 +129,7 @@ class EstimationServiceTest {
         // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> estimationService.create(request));
-        assertThat(exception.getMessage()).contains("Either vehicleId or realEstateId must be provided");
+        assertThat(exception.getMessage()).contains("vehicleId is required for Vehicle-type insurance");
 
         verify(estimationRepository, never()).save(any(Estimation.class));
         verify(outboxMessagePublisher, never()).publish(any(), any(), any(), any());
@@ -134,6 +143,9 @@ class EstimationServiceTest {
         // Arrange
         Estimation entity = createSampleEntity();
         when(estimationRepository.findById(testId)).thenReturn(Optional.of(entity));
+        when(customerServiceClient.getCustomerName(customerId)).thenReturn("Ahmet Yılmaz");
+        when(customerServiceClient.getCustomerNationalId(customerId)).thenReturn("12345678901");
+        when(vehicleServiceClient.getVehicleInfo(vehicleId)).thenReturn(Map.of("plate", "34ABC123", "chassisNumber", "WDB1234567890"));
 
         // Act
         EstimationResponse response = estimationService.findById(testId);
@@ -143,8 +155,16 @@ class EstimationServiceTest {
         assertThat(response.getId()).isEqualTo(testId);
         assertThat(response.getStatus()).isEqualTo("STARTED");
         assertThat(response.getCustomerId()).isEqualTo(customerId);
+        assertThat(response.getCustomerName()).isEqualTo("Ahmet Yılmaz");
+        assertThat(response.getCustomerNationalId()).isEqualTo("12345678901");
+        assertThat(response.getVehiclePlate()).isEqualTo("34ABC123");
+        assertThat(response.getVehicleChassisNumber()).isEqualTo("WDB1234567890");
+        assertThat(response.getInsuranceTypeName()).isEqualTo("Vehicle");
 
         verify(estimationRepository).findById(testId);
+        verify(customerServiceClient).getCustomerName(customerId);
+        verify(customerServiceClient).getCustomerNationalId(customerId);
+        verify(vehicleServiceClient).getVehicleInfo(vehicleId);
     }
 
     // ---------------------------------------------------------------

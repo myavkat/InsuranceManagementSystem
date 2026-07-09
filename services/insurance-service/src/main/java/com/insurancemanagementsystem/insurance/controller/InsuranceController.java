@@ -3,6 +3,9 @@ package com.insurancemanagementsystem.insurance.controller;
 import com.insurancemanagementsystem.common.web.dto.ApiResponse;
 import com.insurancemanagementsystem.insurance.dto.InsuranceRequest;
 import com.insurancemanagementsystem.insurance.dto.InsuranceResponse;
+import com.insurancemanagementsystem.insurance.dto.RiskFactorHistoryResponse;
+import com.insurancemanagementsystem.insurance.dto.RiskFactorResponse;
+import com.insurancemanagementsystem.insurance.dto.RiskFactorUpdateRequest;
 import com.insurancemanagementsystem.insurance.entity.InsuranceType;
 import com.insurancemanagementsystem.insurance.service.InsuranceService;
 import jakarta.validation.Valid;
@@ -80,5 +83,31 @@ public class InsuranceController {
     public ResponseEntity<ApiResponse<List<InsuranceType>>> getTypes() {
         List<InsuranceType> types = insuranceService.getAllTypes();
         return ResponseEntity.ok(ApiResponse.success(types));
+    }
+
+    // ---------------------------------------------------------------
+    // Risk Factors
+    // ---------------------------------------------------------------
+
+    @GetMapping("/{id}/risk-factors")
+    public ResponseEntity<ApiResponse<List<RiskFactorResponse>>> getRiskFactors(@PathVariable UUID id) {
+        List<RiskFactorResponse> factors = insuranceService.getRiskFactors(id);
+        return ResponseEntity.ok(ApiResponse.success(factors));
+    }
+
+    @PutMapping("/{id}/risk-factors")
+    public ResponseEntity<ApiResponse<List<RiskFactorResponse>>> updateRiskFactors(
+            @PathVariable UUID id,
+            @Valid @RequestBody List<RiskFactorUpdateRequest> updates) {
+        List<RiskFactorResponse> updated = insuranceService.updateRiskFactors(id, updates);
+        return ResponseEntity.ok(ApiResponse.success("Risk factors updated", updated));
+    }
+
+    @GetMapping("/{id}/risk-factors/history")
+    public ResponseEntity<ApiResponse<Page<RiskFactorHistoryResponse>>> getRiskFactorHistory(
+            @PathVariable UUID id,
+            @PageableDefault(sort = "changedAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<RiskFactorHistoryResponse> history = insuranceService.getRiskFactorHistory(id, pageable);
+        return ResponseEntity.ok(ApiResponse.success(history));
     }
 }

@@ -80,7 +80,7 @@ class VehicleControllerTest {
     @Test
     void getAll_ReturnsPaginatedResponse() {
         Page<VehicleResponse> page = new PageImpl<>(List.of(createSampleResponse()));
-        given(vehicleService.findAll(any(Pageable.class))).willReturn(page);
+        given(vehicleService.findAll(any(Pageable.class), any(), any())).willReturn(page);
 
         client.get().uri("/api/vehicles")
                 .exchange()
@@ -92,7 +92,7 @@ class VehicleControllerTest {
                 .jsonPath("$.data.content[0].plate").isEqualTo("34 ABC 1234")
                 .jsonPath("$.data.content[0].carBrandName").isEqualTo("TestBrand");
 
-        verify(vehicleService).findAll(any(Pageable.class));
+        verify(vehicleService).findAll(any(Pageable.class), any(), any());
     }
 
     // ---------------------------------------------------------------

@@ -207,7 +207,7 @@ class InsuranceServiceTest {
     // 6. findById – inactive (soft-deleted)
     // ---------------------------------------------------------------
     @Test
-    void findById_whenInactive_throwsEntityNotFoundException() {
+    void findById_whenInactive_returnsInactiveInsurance() {
         // Arrange
         Insurance inactiveInsurance = Insurance.builder()
                 .id(TEST_ID)
@@ -217,10 +217,13 @@ class InsuranceServiceTest {
 
         when(insuranceRepository.findById(TEST_ID)).thenReturn(Optional.of(inactiveInsurance));
 
-        // Act & Assert
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
-                () -> insuranceService.findById(TEST_ID));
-        assertThat(exception.getMessage()).contains("Insurance not found");
+        // Act
+        InsuranceResponse response = insuranceService.findById(TEST_ID);
+
+        // Assert
+        assertThat(response).isNotNull();
+        assertThat(response.getId()).isEqualTo(TEST_ID);
+        assertThat(response.getIsActive()).isFalse();
 
         verify(insuranceRepository).findById(TEST_ID);
     }
@@ -326,7 +329,7 @@ class InsuranceServiceTest {
         Insurance insurance = createInsurance(TEST_ID, TEST_NAME);
         Page<Insurance> insurancePage = new PageImpl<>(List.of(insurance));
 
-        when(insuranceRepository.findByTypeIdAndIsActiveTrue(TEST_TYPE_ID, pageable)).thenReturn(insurancePage);
+        when(insuranceRepository.findByTypeId(TEST_TYPE_ID, pageable)).thenReturn(insurancePage);
 
         // Act
         Page<InsuranceResponse> result = insuranceService.findAll(TEST_TYPE_ID, null, pageable);
@@ -337,8 +340,7 @@ class InsuranceServiceTest {
         assertThat(result.getContent().getFirst().getName()).isEqualTo(TEST_NAME);
         assertThat(result.getContent().getFirst().getTypeId()).isEqualTo(TEST_TYPE_ID);
 
-        verify(insuranceRepository).findByTypeIdAndIsActiveTrue(TEST_TYPE_ID, pageable);
-        verify(insuranceRepository, never()).findByIsActiveTrue(any(Pageable.class));
+        verify(insuranceRepository).findByTypeId(TEST_TYPE_ID, pageable);
         verify(insuranceRepository, never()).searchByName(anyString(), any(Pageable.class));
     }
 
@@ -363,8 +365,8 @@ class InsuranceServiceTest {
         assertThat(result.getContent().getFirst().getName()).isEqualTo(TEST_NAME);
 
         verify(insuranceRepository).searchByName(TEST_NAME, pageable);
-        verify(insuranceRepository, never()).findByIsActiveTrue(any(Pageable.class));
-        verify(insuranceRepository, never()).findByTypeIdAndIsActiveTrue(anyInt(), any(Pageable.class));
+        verify(insuranceRepository, never()).findByTypeId(anyInt(), any(Pageable.class));
+        verify(insuranceRepository, never()).findAll(any(Pageable.class));
     }
 
     // ---------------------------------------------------------------
@@ -377,7 +379,7 @@ class InsuranceServiceTest {
         Insurance insurance = createInsurance(TEST_ID, TEST_NAME);
         Page<Insurance> insurancePage = new PageImpl<>(List.of(insurance));
 
-        when(insuranceRepository.findByIsActiveTrue(pageable)).thenReturn(insurancePage);
+        when(insuranceRepository.findAll(pageable)).thenReturn(insurancePage);
 
         // Act
         Page<InsuranceResponse> result = insuranceService.findAll(null, null, pageable);
@@ -387,8 +389,8 @@ class InsuranceServiceTest {
         assertThat(result.getContent()).hasSize(1);
         assertThat(result.getContent().getFirst().getName()).isEqualTo(TEST_NAME);
 
-        verify(insuranceRepository).findByIsActiveTrue(pageable);
-        verify(insuranceRepository, never()).findByTypeIdAndIsActiveTrue(anyInt(), any(Pageable.class));
+        verify(insuranceRepository).findAll(pageable);
+        verify(insuranceRepository, never()).findByTypeId(anyInt(), any(Pageable.class));
         verify(insuranceRepository, never()).searchByName(anyString(), any(Pageable.class));
     }
 }
