@@ -107,7 +107,7 @@ The `INSURANCE_TYPE_NAMES` static map in `EstimationService` can remain as a fal
 
 ## Steps
 
-### Step 1: Create InsuranceServiceClient
+### Step 1: Create InsuranceServiceClient [x]
 
 Create a new file at:
 `services/estimation-service/src/main/java/com/insurancemanagementsystem/estimation/client/InsuranceServiceClient.java`
@@ -180,7 +180,7 @@ public class InsuranceServiceClient {
 
 Note the property name: `${estimation.insurance-service-url}` — follows the same naming convention as `${estimation.customer-service-url}` and `${estimation.vehicle-service-url}`.
 
-### Step 2: Update Estimation.java entity
+### Step 2: Update Estimation.java entity [x]
 
 Open `services/estimation-service/src/main/java/com/insurancemanagementsystem/estimation/entity/Estimation.java`.
 
@@ -197,7 +197,7 @@ private UUID insuranceId;
 
 No other changes needed. The entity has no JPA relationships — it only stores the raw ID.
 
-### Step 3: Update EstimationRequest.java DTO
+### Step 3: Update EstimationRequest.java DTO [x]
 
 Open `services/estimation-service/src/main/java/com/insurancemanagementsystem/estimation/dto/EstimationRequest.java`.
 
@@ -212,7 +212,7 @@ private Integer insuranceTypeId;
 private UUID insuranceId;
 ```
 
-### Step 4: Update EstimationResponse.java DTO
+### Step 4: Update EstimationResponse.java DTO [x]
 
 Open `services/estimation-service/src/main/java/com/insurancemanagementsystem/estimation/dto/EstimationResponse.java`.
 
@@ -251,7 +251,7 @@ public static EstimationResponse fromEntity(Estimation estimation,
                                               String insuranceTypeName)
 ```
 
-### Step 5: Update EstimationService.java
+### Step 5: Update EstimationService.java [x]
 
 Open `services/estimation-service/src/main/java/com/insurancemanagementsystem/estimation/service/EstimationService.java`.
 
@@ -347,7 +347,7 @@ To:
 
 **F. The `INSURANCE_TYPE_NAMES` static map** can remain as a fallback for resolving type names. Do not delete it.
 
-### Step 6: Update EstimationSagaConsumer.java (if needed)
+### Step 6: Update EstimationSagaConsumer.java (if needed) [x]
 
 Open `services/estimation-service/src/main/java/com/insurancemanagementsystem/estimation/config/EstimationSagaConsumer.java`.
 
@@ -355,7 +355,7 @@ Search for any reference to `insuranceTypeId`. The `handlePremiumCalculated` met
 
 **Check carefully:** Currently the consumer just stores the premium and breakdown on the estimation; it may not even use `insuranceTypeId` from the event. Only change if the code references it.
 
-### Step 7: Update application.yml
+### Step 7: Update application.yml [x]
 
 Open `services/estimation-service/src/main/resources/application.yml`.
 
@@ -368,7 +368,7 @@ estimation:
 
 (This should be added alongside the existing `customer-service-url` and `vehicle-service-url` properties — search for them to find the exact location.)
 
-### Step 8: Update .env.template (if needed)
+### Step 8: Update .env.template (if needed) [x]
 
 From `AGENTS.md`: "Every ${ENV_VAR:default} placeholder referenced in any application.yml MUST have a corresponding entry in .env.template."
 
@@ -379,7 +379,7 @@ Add:
 INSURANCE_SERVICE_URL=http://localhost:8084
 ```
 
-### Step 9: Verify compilation
+### Step 9: Verify compilation [x]
 
 ```bash
 cd services/estimation-service && ./gradlew compileJava
@@ -391,13 +391,13 @@ Fix any compilation errors. Common issues:
 
 ## Acceptance Criteria
 
-- [ ] `InsuranceServiceClient.java` created following existing client pattern
-- [ ] `Estimation.java` uses `insurance_id` / `insuranceId` (UUID) instead of `insurance_type_id` / `insuranceTypeId` (Integer)
-- [ ] `EstimationRequest.java` uses `insuranceId` (UUID) with `@NotNull`
-- [ ] `EstimationResponse.java` uses `insuranceId`, adds `insuranceName`, keeps `insuranceTypeName`
-- [ ] `EstimationService.create()` fetches insurance to derive type for validation
-- [ ] `EstimationService.findById()` fetches insurance to resolve names
-- [ ] `EstimationRequestedEvent` is built with `.insuranceId()` instead of `.insuranceTypeId()`
-- [ ] `application.yml` has insurance service URL config
-- [ ] `.env.template` has `INSURANCE_SERVICE_URL`
-- [ ] `./gradlew compileJava` passes in `services/estimation-service`
+- [x] `InsuranceServiceClient.java` created following existing client pattern
+- [x] `Estimation.java` uses `insurance_id` / `insuranceId` (UUID) instead of `insurance_type_id` / `insuranceTypeId` (Integer)
+- [x] `EstimationRequest.java` uses `insuranceId` (UUID) with `@NotNull`
+- [x] `EstimationResponse.java` uses `insuranceId`, adds `insuranceName`, keeps `insuranceTypeName`
+- [x] `EstimationService.create()` fetches insurance to derive type for validation
+- [x] `EstimationService.findById()` fetches insurance to resolve names
+- [x] `EstimationRequestedEvent` is built with `.insuranceId()` instead of `.insuranceTypeId()`
+- [x] `application.yml` has insurance service URL config
+- [x] `.env.template` has `INSURANCE_SERVICE_URL`
+- [x] `./gradlew compileJava` passes in `services/estimation-service`

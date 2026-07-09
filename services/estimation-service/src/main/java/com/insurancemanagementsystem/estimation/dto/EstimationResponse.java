@@ -25,7 +25,8 @@ public class EstimationResponse {
     private String vehicleChassisNumber;
     private UUID realEstateId;
     private String realEstateAddress;
-    private Integer insuranceTypeId;
+    private UUID insuranceId;
+    private String insuranceName;
     private String insuranceTypeName;
     private String status;
     private BigDecimal premium;
@@ -44,7 +45,7 @@ public class EstimationResponse {
                 .customerId(estimation.getCustomerId())
                 .vehicleId(estimation.getVehicleId())
                 .realEstateId(estimation.getRealEstateId())
-                .insuranceTypeId(estimation.getInsuranceTypeId())
+                .insuranceId(estimation.getInsuranceId())
                 .status(estimation.getStatus().name())
                 .premium(estimation.getPremium())
                 .details(estimation.getDetails())
@@ -62,6 +63,7 @@ public class EstimationResponse {
                                                   String customerNationalId,
                                                   String vehiclePlate,
                                                   String vehicleChassisNumber,
+                                                  String insuranceName,
                                                   String insuranceTypeName) {
         return EstimationResponse.builder()
                 .id(estimation.getId())
@@ -73,7 +75,8 @@ public class EstimationResponse {
                 .vehiclePlate(vehiclePlate)
                 .vehicleChassisNumber(vehicleChassisNumber)
                 .realEstateId(estimation.getRealEstateId())
-                .insuranceTypeId(estimation.getInsuranceTypeId())
+                .insuranceId(estimation.getInsuranceId())
+                .insuranceName(insuranceName)
                 .insuranceTypeName(insuranceTypeName)
                 .status(estimation.getStatus().name())
                 .premium(estimation.getPremium())

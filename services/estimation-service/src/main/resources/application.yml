@@ -85,6 +85,7 @@ logging:
 estimation:
   customer-service-url: ${CUSTOMER_SERVICE_URL:http://localhost:8081}
   vehicle-service-url: ${VEHICLE_SERVICE_URL:http://localhost:8082}
+  insurance-service-url: ${INSURANCE_SERVICE_URL:http://localhost:8084}
   saga:
     timeout-minutes: 5
     poll-interval-ms: 30000
