@@ -236,7 +236,7 @@ If there are compilation errors, they will point to any remaining references to 
 
 ## Acceptance Criteria
 
-- [ ] `EstimationRequestedEvent.insuranceTypeId` (Integer) replaced with `insuranceId` (UUID)
-- [ ] `PremiumCalculatedEvent.insuranceTypeId` (Integer) replaced with `insuranceId` (UUID)
-- [ ] `EventSerializationTest.java` updated to use `insuranceId` with UUID values
-- [ ] `./gradlew compileJava compileTestJava` passes in `common/common-message`
+- [x] `EstimationRequestedEvent.insuranceTypeId` (Integer) replaced with `insuranceId` (UUID)
+- [x] `PremiumCalculatedEvent.insuranceTypeId` (Integer) replaced with `insuranceId` (UUID)
+- [x] `EventSerializationTest.java` updated to use `insuranceId` with UUID values
+- [x] `./gradlew compileJava compileTestJava` passes in `common/common-message`

@@ -16,7 +16,7 @@ import java.util.UUID;
 public class PremiumCalculatedEvent extends BaseEvent {
     private BigDecimal premium;
     private Map<String, BigDecimal> breakdown;
-    private Integer insuranceTypeId;
+    private UUID insuranceId;
     private UUID customerId;
     private UUID vehicleId;
 

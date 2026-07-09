@@ -34,7 +34,7 @@ class EventSerializationTest {
                 .customerId(UUID.randomUUID())
                 .vehicleId(UUID.randomUUID())
                 .realEstateId(null)
-                .insuranceTypeId(1)
+                .insuranceId(UUID.randomUUID())
                                 .build();
 
         assertSagaEventRoundTrip(event, EstimationRequestedEvent.class);
@@ -109,7 +109,7 @@ class EventSerializationTest {
         PremiumCalculatedEvent event = PremiumCalculatedEvent.builder()
                 .premium(new BigDecimal("1250.00"))
                 .breakdown(Map.of("base", new BigDecimal("1000.00"), "tax", new BigDecimal("250.00")))
-                .insuranceTypeId(1)
+                .insuranceId(UUID.randomUUID())
                                 .customerId(UUID.randomUUID())
                 .vehicleId(UUID.randomUUID())
                 .build();
@@ -295,7 +295,7 @@ class EventSerializationTest {
         PremiumCalculatedEvent event = PremiumCalculatedEvent.builder()
                 .premium(new BigDecimal("1250.00"))
                 .breakdown(null)
-                .insuranceTypeId(1)
+                .insuranceId(UUID.randomUUID())
                 .build();
 
         String json = mapper.writeValueAsString(event);
@@ -312,7 +312,7 @@ class EventSerializationTest {
         PremiumCalculatedEvent event = PremiumCalculatedEvent.builder()
                 .premium(new BigDecimal("1250.123456789"))
                 .breakdown(Map.of("base", new BigDecimal("1000.9876543210123456789")))
-                .insuranceTypeId(1)
+                .insuranceId(UUID.randomUUID())
                 .build();
 
         assertSagaEventRoundTrip(event, PremiumCalculatedEvent.class);
@@ -333,7 +333,7 @@ class EventSerializationTest {
                 .customerId(UUID.randomUUID())
                 .vehicleId(null)
                 .realEstateId(UUID.randomUUID())
-                .insuranceTypeId(3) // DASK
+                .insuranceId(UUID.randomUUID()) // DASK
                                 .build();
 
         String json = mapper.writeValueAsString(event);
@@ -342,7 +342,7 @@ class EventSerializationTest {
         assertNull(deserialized.getVehicleId(), "Explicitly-set null vehicleId should remain null after round-trip");
         assertNotNull(deserialized.getRealEstateId());
         assertEquals(event.getCustomerId(), deserialized.getCustomerId());
-        assertEquals(event.getInsuranceTypeId(), deserialized.getInsuranceTypeId());
+        assertEquals(event.getInsuranceId(), deserialized.getInsuranceId());
     }
 
     @Test
@@ -437,7 +437,7 @@ class EventSerializationTest {
     void shouldSerializeAndDeserializeEventEnvelope() throws Exception {
         EstimationRequestedEvent payload = EstimationRequestedEvent.builder()
                 .customerId(UUID.randomUUID())
-                .insuranceTypeId(2)
+                .insuranceId(UUID.randomUUID())
                 .build();
 
         EventEnvelope envelope = payload.toEnvelope(sagaId, traceId);
@@ -457,7 +457,7 @@ class EventSerializationTest {
         // Convert the Map payload back to the typed event
         EstimationRequestedEvent convertedPayload = mapper.convertValue(deserialized.getPayload(), EstimationRequestedEvent.class);
         assertEquals(payload.getCustomerId(), convertedPayload.getCustomerId());
-        assertEquals(payload.getInsuranceTypeId(), convertedPayload.getInsuranceTypeId());
+        assertEquals(payload.getInsuranceId(), convertedPayload.getInsuranceId());
         assertEquals(payload.getEventType(), convertedPayload.getEventType());
     }
 
@@ -469,7 +469,7 @@ class EventSerializationTest {
     void shouldRoundTripViaBaseEventUtilities() {
         EstimationRequestedEvent event = EstimationRequestedEvent.builder()
                 .customerId(UUID.randomUUID())
-                .insuranceTypeId(1)
+                .insuranceId(UUID.randomUUID())
                 .build();
 
         String json = event.toJson();
@@ -477,7 +477,7 @@ class EventSerializationTest {
 
         EstimationRequestedEvent deserialized = BaseEvent.fromJson(json, EstimationRequestedEvent.class);
         assertEquals(event.getCustomerId(), deserialized.getCustomerId());
-        assertEquals(event.getInsuranceTypeId(), deserialized.getInsuranceTypeId());
+        assertEquals(event.getInsuranceId(), deserialized.getInsuranceId());
         assertEquals(event.getEventType(), deserialized.getEventType());
     }
 
