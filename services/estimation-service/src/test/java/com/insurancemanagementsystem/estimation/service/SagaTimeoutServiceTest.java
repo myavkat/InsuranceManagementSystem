@@ -58,6 +58,18 @@ class SagaTimeoutServiceTest {
 
         lenient().when(jsonMapper.writeValueAsString(any(Map.class)))
                 .thenReturn("{\"reason\":\"SAGA timed out after 5 minutes\"}");
+
+        // By default, both status queries return empty lists
+        lenient().when(estimationRepository.findByStatusAndCreatedAtBefore(any(), any()))
+                .thenReturn(List.of());
+    }
+
+    // ---------------------------------------------------------------
+    // Helper: mock a specific status query to return the given list
+    // ---------------------------------------------------------------
+    private void mockStaleEstimations(Estimation.Status status, List<Estimation> result) {
+        when(estimationRepository.findByStatusAndCreatedAtBefore(eq(status), any(Instant.class)))
+                .thenReturn(result);
     }
 
     // ---------------------------------------------------------------
@@ -77,13 +89,12 @@ class SagaTimeoutServiceTest {
     // ---------------------------------------------------------------
     @Test
     void noStaleEstimations_noChanges() {
-        when(estimationRepository.findByStatusAndCreatedAtBefore(any(), any()))
-                .thenReturn(List.of());
-
         timeoutService.checkForTimedOutSagas();
 
         verify(estimationRepository).findByStatusAndCreatedAtBefore(
                 eq(Estimation.Status.STARTED), any(Instant.class));
+        verify(estimationRepository).findByStatusAndCreatedAtBefore(
+                eq(Estimation.Status.WAITING_APPROVAL), any(Instant.class));
         verify(estimationRepository, never()).save(any());
         verify(outboxEventRepository, never()).save(any());
     }
@@ -96,8 +107,7 @@ class SagaTimeoutServiceTest {
         UUID sagaId = UUID.randomUUID();
         Estimation stale = createStaleEstimation(sagaId);
 
-        when(estimationRepository.findByStatusAndCreatedAtBefore(any(), any()))
-                .thenReturn(List.of(stale));
+        mockStaleEstimations(Estimation.Status.STARTED, List.of(stale));
 
         timeoutService.checkForTimedOutSagas();
 
@@ -118,8 +128,7 @@ class SagaTimeoutServiceTest {
         Estimation stale1 = createStaleEstimation(sagaId1);
         Estimation stale2 = createStaleEstimation(sagaId2);
 
-        when(estimationRepository.findByStatusAndCreatedAtBefore(any(), any()))
-                .thenReturn(List.of(stale1, stale2));
+        mockStaleEstimations(Estimation.Status.STARTED, List.of(stale1, stale2));
 
         timeoutService.checkForTimedOutSagas();
 
@@ -136,13 +145,13 @@ class SagaTimeoutServiceTest {
     // ---------------------------------------------------------------
     @Test
     void usesCorrectCutoffTime() {
-        when(estimationRepository.findByStatusAndCreatedAtBefore(any(), any()))
-                .thenReturn(List.of());
-
         timeoutService.checkForTimedOutSagas();
 
         verify(estimationRepository).findByStatusAndCreatedAtBefore(
                 eq(Estimation.Status.STARTED), cutoffCaptor.capture());
+
+        verify(estimationRepository).findByStatusAndCreatedAtBefore(
+                eq(Estimation.Status.WAITING_APPROVAL), any(Instant.class));
 
         Instant cutoff = cutoffCaptor.getValue();
         Instant expectedCutoff = Instant.now().minus(5, ChronoUnit.MINUTES);

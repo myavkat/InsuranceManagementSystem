@@ -5,7 +5,7 @@ import type { PageResponse } from "@/lib/api/types";
 import { EstimationList } from "@/components/features/estimations/estimation-list";
 
 export const metadata: Metadata = {
-  title: "Estimations",
+  title: "Offers",
 };
 
 export default async function EstimationsPage() {

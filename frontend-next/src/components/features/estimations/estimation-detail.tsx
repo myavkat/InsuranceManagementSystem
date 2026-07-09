@@ -4,10 +4,12 @@ import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getEstimation } from "@/lib/api/estimations";
 import { getCustomer } from "@/lib/api/customers";
+import { getInsurance } from "@/lib/api/insurances";
 import { getVehicle } from "@/lib/api/vehicles";
 import { PageHeader } from "@/components/features/page-header";
 import { ErrorAlert } from "@/components/features/error-alert";
 import { StatusBadge } from "@/components/features/status-badge";
+import { OfferActionButton } from "@/components/features/estimations/offer-action-button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,7 +25,8 @@ export function EstimationDetail() {
     queryFn: () => getEstimation(id),
     refetchInterval: (query) => {
       const data = query.state.data;
-      return data?.status === "STARTED" ? 5000 : false;
+      if (!data?.status) return false;
+      return ["STARTED", "WAITING_APPROVAL", "PAYMENT_WAITING"].includes(data.status) ? 5000 : false;
     },
   });
 
@@ -45,6 +48,15 @@ export function EstimationDetail() {
     staleTime: 60_000,
   });
 
+  // Client-side enrichment fallback: resolve insurance name
+  const insuranceId = estimation?.insuranceId;
+  const { data: insurance } = useQuery({
+    queryKey: ["insurance", insuranceId],
+    queryFn: () => getInsurance(insuranceId!),
+    enabled: !!insuranceId && !estimation?.insuranceName,
+    staleTime: 60_000,
+  });
+
   // Resolved display values: prefer backend enrichment, fall back to client-side
   const resolvedCustomerName = estimation?.customerName
     ?? (customer ? `${customer.firstName} ${customer.lastName}` : null);
@@ -53,8 +65,7 @@ export function EstimationDetail() {
     ?? null;
   const resolvedVehiclePlate = estimation?.vehiclePlate ?? vehicle?.plate ?? null;
   const resolvedVehicleChassisNumber = estimation?.vehicleChassisNumber ?? vehicle?.chassisNumber ?? null;
-  const resolvedInsuranceTypeName = estimation?.insuranceTypeName ?? null;
-  const resolvedInsuranceName = estimation?.insuranceName ?? null;
+  const resolvedInsuranceName = estimation?.insuranceName ?? insurance?.name ?? null;
 
   if (isLoading) {
     return (
@@ -84,7 +95,7 @@ export function EstimationDetail() {
     ? new Intl.NumberFormat("tr-TR", { style: "currency", currency: "TRY" }).format(estimation.premium)
     : null;
 
-  const isPolling = estimation.status === "STARTED";
+  const isPolling = ["STARTED", "WAITING_APPROVAL", "PAYMENT_WAITING"].includes(estimation.status);
 
   return (
     <div className="space-y-6">
@@ -93,8 +104,8 @@ export function EstimationDetail() {
           <ArrowLeft className="size-4" />
         </Button>
         <PageHeader
-          title={`Estimation #${estimation.id.slice(0, 8)}`}
-          description="Estimation details"
+          title={`Premium #${estimation.id.slice(0, 8)}`}
+          description="Premium details"
           action={
             <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isLoading}>
               <RefreshCw className={"size-4" + (isLoading ? " animate-spin" : "")} />
@@ -106,8 +117,10 @@ export function EstimationDetail() {
 
       {/* Status Banner */}
       <Card className={
-        estimation.status === "COMPLETED" ? "border-green-500" :
-        estimation.status === "REJECTED" ? "border-destructive" : ""
+        estimation.status === "ACTIVE" || estimation.status === "COMPLETED" ? "border-green-500" :
+        estimation.status === "REJECTED" ? "border-destructive" :
+        estimation.status === "WAITING_APPROVAL" ? "border-yellow-500" :
+        estimation.status === "PAYMENT_WAITING" ? "border-blue-500" : ""
       }>
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
@@ -115,16 +128,19 @@ export function EstimationDetail() {
               <span className="text-sm font-medium text-muted-foreground">Status:</span>
               <StatusBadge status={estimation.status} />
             </div>
-            {isPolling && (
-              <span className="text-xs text-muted-foreground animate-pulse">
-                Waiting for result...
-              </span>
-            )}
+            <div className="flex items-center gap-3">
+              {isPolling && (
+                <span className="text-xs text-muted-foreground animate-pulse">
+                  Waiting for result...
+                </span>
+              )}
+              <OfferActionButton estimationId={estimation.id} status={estimation.status} />
+            </div>
           </div>
 
-          {estimation.status === "COMPLETED" && formattedPremium && (
+          {["WAITING_APPROVAL", "PAYMENT_WAITING", "ACTIVE", "COMPLETED"].includes(estimation.status) && formattedPremium && (
             <div className="mt-4 rounded-lg bg-green-50 dark:bg-green-950/20 p-4">
-              <p className="text-sm font-medium text-green-700 dark:text-green-400">Estimated Premium</p>
+              <p className="text-sm font-medium text-green-700 dark:text-green-400">Calculated Premium</p>
               <p className="text-2xl font-bold text-green-800 dark:text-green-300">{formattedPremium}</p>
             </div>
           )}
@@ -137,6 +153,29 @@ export function EstimationDetail() {
           )}
         </CardContent>
       </Card>
+
+      {/* Action Card — only visible for actionable statuses */}
+      {["WAITING_APPROVAL", "PAYMENT_WAITING"].includes(estimation.status) && (
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium">
+                  {estimation.status === "WAITING_APPROVAL"
+                    ? "This offer is waiting for approval"
+                    : "Payment is required to activate this policy"}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {estimation.status === "WAITING_APPROVAL"
+                    ? "Accept the offer to proceed with payment."
+                    : "Click below to pay and activate the policy."}
+                </p>
+              </div>
+              <OfferActionButton estimationId={estimation.id} status={estimation.status} />
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Customer Info */}
       <Card>
@@ -159,8 +198,7 @@ export function EstimationDetail() {
         <CardContent>
           <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <DetailItem label="Insurance" value={resolvedInsuranceName ?? "—"} />
-            <DetailItem label="Insurance Type" value={resolvedInsuranceTypeName ?? "—"} />
-            <DetailItem label="Base Premium" value={formattedPremium ?? "Pending calculation..."} />
+            <DetailItem label="Premium" value={formattedPremium ?? "Pending calculation..."} />
           </dl>
         </CardContent>
       </Card>
@@ -199,6 +237,12 @@ export function EstimationDetail() {
           <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <DetailItem label="Created" value={new Date(estimation.createdAt).toLocaleString()} />
             <DetailItem label="Updated" value={estimation.updatedAt ? new Date(estimation.updatedAt).toLocaleString() : "—"} />
+            {estimation.startDate && (
+              <DetailItem label="Start Date" value={new Date(estimation.startDate).toLocaleString()} />
+            )}
+            {estimation.endDate && (
+              <DetailItem label="End Date" value={new Date(estimation.endDate).toLocaleString()} />
+            )}
           </dl>
         </CardContent>
       </Card>

@@ -1,7 +1,7 @@
 import { apiClient } from "./client";
 import type { PageResponse } from "./types";
 
-export type EstimationStatus = "STARTED" | "COMPLETED" | "REJECTED";
+export type EstimationStatus = "STARTED" | "WAITING_APPROVAL" | "PAYMENT_WAITING" | "ACTIVE" | "COMPLETED" | "REJECTED";
 
 export interface EstimationResponse {
   id: string;
@@ -16,10 +16,11 @@ export interface EstimationResponse {
   realEstateAddress?: string;
   insuranceId: string;
   insuranceName?: string;
-  insuranceTypeName?: string;
   premium?: number;
   status: EstimationStatus;
   details?: string;
+  startDate?: string;
+  endDate?: string;
   createdAt: string;
   updatedAt?: string;
 }
@@ -68,5 +69,17 @@ export async function createEstimation(
   return apiClient<EstimationResponse>("/api/estimations", {
     method: "POST",
     body: JSON.stringify(data),
+  });
+}
+
+export async function acceptOffer(id: string): Promise<EstimationResponse> {
+  return apiClient<EstimationResponse>(`/api/estimations/${id}/accept-offer`, {
+    method: "PUT",
+  });
+}
+
+export async function processPayment(id: string): Promise<EstimationResponse> {
+  return apiClient<EstimationResponse>(`/api/estimations/${id}/process-payment`, {
+    method: "PUT",
   });
 }

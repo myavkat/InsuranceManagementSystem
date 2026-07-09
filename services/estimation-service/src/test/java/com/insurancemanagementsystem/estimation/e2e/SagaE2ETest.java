@@ -55,7 +55,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  * <p>
  * Tests cover:
  * <ul>
- *   <li>Happy path: estimation → COMPLETED with premium</li>
+ *   <li>Happy path: estimation → WAITING_APPROVAL with premium</li>
  *   <li>Idempotency: duplicate events produce no side effects</li>
  *   <li>Timeout: stale estimations → REJECTED</li>
  *   <li>Failure paths: *Invalidated / CalculationFailed → REJECTED</li>
@@ -180,11 +180,11 @@ class SagaE2ETest extends AbstractKafkaIntegrationTest {
     }
 
     // ===============================================================
-    //  TEST 1: Happy Path — Full SAGA from STARTED to COMPLETED
+    //  TEST 1: Happy Path — Full SAGA from STARTED to WAITING_APPROVAL
     // ===============================================================
 
     @Test
-    void happyPath_fullSagaFromStartToCompleted() throws Exception {
+    void happyPath_fullSagaFromStartToWaitingApproval() throws Exception {
         // 1. Create estimation via REST API
         EstimationRequest request = createValidVehicleRequest();
         UUID sagaId = createEstimation(request);
@@ -216,11 +216,11 @@ class SagaE2ETest extends AbstractKafkaIntegrationTest {
                 .build();
         publishSagaEvent(sagaId, UUID.randomUUID(), premiumEvent);
 
-        // 6. Wait for consumer to process — verify COMPLETED
+        // 6. Wait for consumer to process — verify WAITING_APPROVAL
         await().atMost(30, SECONDS).untilAsserted(() -> {
             Estimation estimation = estimationRepository.findBySagaId(sagaId)
                     .orElseThrow(() -> new AssertionError("Estimation not found for sagaId=" + sagaId));
-            assertThat(estimation.getStatus()).isEqualTo(Estimation.Status.COMPLETED);
+            assertThat(estimation.getStatus()).isEqualTo(Estimation.Status.WAITING_APPROVAL);
             assertThat(estimation.getPremium()).isEqualByComparingTo(premium);
         });
 
@@ -278,11 +278,11 @@ class SagaE2ETest extends AbstractKafkaIntegrationTest {
                 .build();
         publishSagaEvent(sagaId, traceId, premiumEvent);
 
-        // 5. Wait for COMPLETED
+        // 5. Wait for WAITING_APPROVAL
         await().atMost(30, SECONDS).untilAsserted(() -> {
             Estimation estimation = estimationRepository.findBySagaId(sagaId)
                     .orElseThrow(() -> new AssertionError("Estimation not found"));
-            assertThat(estimation.getStatus()).isEqualTo(Estimation.Status.COMPLETED);
+            assertThat(estimation.getStatus()).isEqualTo(Estimation.Status.WAITING_APPROVAL);
             assertThat(estimation.getPremium()).isEqualByComparingTo(new BigDecimal("1500.00"));
         });
 
@@ -303,7 +303,7 @@ class SagaE2ETest extends AbstractKafkaIntegrationTest {
     }
 
     @Test
-    void duplicatePremiumCalculated_afterCompleted_isIgnored() throws Exception {
+    void duplicatePremiumCalculated_afterFirstProcessing_isIgnored() throws Exception {
         // 1. Complete the happy path
         EstimationRequest request = createValidVehicleRequest();
         UUID sagaId = createEstimation(request);
@@ -329,11 +329,11 @@ class SagaE2ETest extends AbstractKafkaIntegrationTest {
                 .build();
         publishSagaEvent(sagaId, traceId, firstPremium);
 
-        // Wait for COMPLETED
+        // Wait for WAITING_APPROVAL
         await().atMost(30, SECONDS).untilAsserted(() -> {
             Estimation estimation = estimationRepository.findBySagaId(sagaId)
                     .orElseThrow(() -> new AssertionError("Estimation not found"));
-            assertThat(estimation.getStatus()).isEqualTo(Estimation.Status.COMPLETED);
+            assertThat(estimation.getStatus()).isEqualTo(Estimation.Status.WAITING_APPROVAL);
         });
 
         // 2. Publish another PremiumCalculated with DIFFERENT premium
@@ -346,7 +346,7 @@ class SagaE2ETest extends AbstractKafkaIntegrationTest {
         // 3. Wait briefly to allow processing, then verify original values preserved
         Thread.sleep(2000);
         Estimation estimation = estimationRepository.findBySagaId(sagaId).orElseThrow();
-        assertThat(estimation.getStatus()).isEqualTo(Estimation.Status.COMPLETED);
+        assertThat(estimation.getStatus()).isEqualTo(Estimation.Status.WAITING_APPROVAL);
         assertThat(estimation.getPremium()).isEqualByComparingTo(new BigDecimal("1500.00"));
     }
 
@@ -512,7 +512,7 @@ class SagaE2ETest extends AbstractKafkaIntegrationTest {
         await().atMost(30, SECONDS).untilAsserted(() -> {
             Estimation estimation = estimationRepository.findBySagaId(sagaId)
                     .orElseThrow(() -> new AssertionError("Estimation not found"));
-            assertThat(estimation.getStatus()).isEqualTo(Estimation.Status.COMPLETED);
+            assertThat(estimation.getStatus()).isEqualTo(Estimation.Status.WAITING_APPROVAL);
         });
     }
 

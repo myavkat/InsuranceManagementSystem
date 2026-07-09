@@ -134,10 +134,10 @@ class EstimationSagaConsumerTest {
     }
 
     // ---------------------------------------------------------------
-    // 3. PremiumCalculated → transitions to COMPLETED with premium
+    // 3. PremiumCalculated → transitions to WAITING_APPROVAL with premium
     // ---------------------------------------------------------------
     @Test
-    void premiumCalculated_event_transitionsToCompleted() {
+    void premiumCalculated_event_transitionsToWaitingApproval() {
         UUID sagaId = UUID.randomUUID();
         BigDecimal premium = new BigDecimal("1500.00");
         PremiumCalculatedEvent event = PremiumCalculatedEvent.builder()
@@ -155,7 +155,7 @@ class EstimationSagaConsumerTest {
 
         consumer.processEstimationSaga(jsonMapper).accept(buildEventJson(event, sagaId));
 
-        assertThat(estimation.getStatus()).isEqualTo(Estimation.Status.COMPLETED);
+        assertThat(estimation.getStatus()).isEqualTo(Estimation.Status.WAITING_APPROVAL);
         assertThat(estimation.getPremium()).isEqualByComparingTo(premium);
         assertThat(estimation.getDetails()).startsWith("{").endsWith("}");
         assertThat(estimation.getDetails()).contains("\"base\"");

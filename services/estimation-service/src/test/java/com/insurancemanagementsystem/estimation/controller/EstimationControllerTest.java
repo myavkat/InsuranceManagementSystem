@@ -230,13 +230,13 @@ class EstimationControllerTest {
     @Test
     void getAll_WithInvalidStatus_Returns400() {
         given(estimationService.findAll(nullable(UUID.class), eq("INVALID"), any(Pageable.class)))
-                .willThrow(new IllegalArgumentException("Invalid status: 'INVALID'. Valid values: STARTED, COMPLETED, REJECTED"));
+                .willThrow(new IllegalArgumentException("Invalid status: 'INVALID'. Valid values: STARTED, WAITING_APPROVAL, PAYMENT_WAITING, ACTIVE, COMPLETED, REJECTED"));
 
         restTestClient.get().uri("/api/estimations?status=INVALID")
                 .exchange()
                 .expectStatus().isBadRequest()
                 .expectBody()
                 .jsonPath("$.success").isEqualTo(false)
-                .jsonPath("$.message").isEqualTo("Invalid status: 'INVALID'. Valid values: STARTED, COMPLETED, REJECTED");
+                .jsonPath("$.message").isEqualTo("Invalid status: 'INVALID'. Valid values: STARTED, WAITING_APPROVAL, PAYMENT_WAITING, ACTIVE, COMPLETED, REJECTED");
     }
 }

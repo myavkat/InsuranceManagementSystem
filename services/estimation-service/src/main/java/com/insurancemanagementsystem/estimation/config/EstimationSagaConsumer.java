@@ -159,7 +159,7 @@ public class EstimationSagaConsumer {
     }
 
     // ---------------------------------------------------------------
-    // PremiumCalculated — transition estimation to COMPLETED
+    // PremiumCalculated — transition estimation to WAITING_APPROVAL
     // ---------------------------------------------------------------
     private void handlePremiumCalculated(EventEnvelope envelope, UUID sagaId, UUID traceId, JsonMapper jsonMapper) {
         String eventType = envelope.getEventType();
@@ -175,20 +175,20 @@ public class EstimationSagaConsumer {
 
             // Find estimation by sagaId
             estimationRepository.findBySagaId(sagaId).ifPresentOrElse(estimation -> {
-                // Transition: STARTED → COMPLETED
+                // Transition: STARTED → WAITING_APPROVAL
                 if (estimation.getStatus() != Estimation.Status.STARTED) {
-                    log.warn("Estimation {} is in status {} — cannot transition to COMPLETED",
+                    log.warn("Estimation {} is in status {} — cannot transition to WAITING_APPROVAL",
                             estimation.getId(), estimation.getStatus());
                     return;
                 }
 
-                estimation.setStatus(Estimation.Status.COMPLETED);
+                estimation.setStatus(Estimation.Status.WAITING_APPROVAL);
                 estimation.setPremium(event.getPremium());
                 if (event.getBreakdown() != null) {
                     estimation.setDetails(jsonMapper.writeValueAsString(event.getBreakdown()));
                 }
                 estimationRepository.save(estimation);
-                log.info("Estimation {} completed for sagaId={}: premium={}",
+                log.info("Estimation {} waiting approval for sagaId={}: premium={}",
                         estimation.getId(), sagaId, event.getPremium());
             }, () -> log.warn("No estimation found for sagaId={}", sagaId));
         });

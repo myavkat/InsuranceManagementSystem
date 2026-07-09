@@ -129,6 +129,8 @@ BEGIN
     -- 4. Add unique constraint (idempotent)
     IF NOT EXISTS (
         SELECT 1 FROM pg_constraint WHERE conname = 'uq_insurances_code'
+    ) AND NOT EXISTS (
+        SELECT 1 FROM pg_class WHERE relname = 'uq_insurances_code'
     ) THEN
         ALTER TABLE insurances ADD CONSTRAINT uq_insurances_code UNIQUE (code);
     END IF;

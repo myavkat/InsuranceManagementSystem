@@ -19,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 
@@ -159,12 +160,54 @@ public class EstimationService {
         return EstimationResponse.fromEntity(estimation);
     }
 
+    @Transactional
+    public EstimationResponse acceptOffer(UUID id) {
+        Estimation estimation = estimationRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Estimation not found with id: " + id));
+
+        if (estimation.getStatus() != Estimation.Status.WAITING_APPROVAL) {
+            throw new IllegalStateException(
+                    "Cannot accept offer: estimation " + id + " is in status " + estimation.getStatus()
+                    + ". Expected status: WAITING_APPROVAL.");
+        }
+
+        estimation.setStatus(Estimation.Status.PAYMENT_WAITING);
+        estimation = estimationRepository.save(estimation);
+
+        log.info("Offer accepted for estimation {}: status changed to PAYMENT_WAITING", id);
+        return EstimationResponse.fromEntity(estimation);
+    }
+
+    @Transactional
+    public EstimationResponse processPayment(UUID id) {
+        Estimation estimation = estimationRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Estimation not found with id: " + id));
+
+        if (estimation.getStatus() != Estimation.Status.PAYMENT_WAITING) {
+            throw new IllegalStateException(
+                    "Cannot process payment: estimation " + id + " is in status " + estimation.getStatus()
+                    + ". Expected status: PAYMENT_WAITING.");
+        }
+
+        Instant now = Instant.now();
+        estimation.setStatus(Estimation.Status.ACTIVE);
+        if (estimation.getStartDate() == null) {
+            estimation.setStartDate(now);
+        }
+        estimation.setEndDate(now.plus(365, java.time.temporal.ChronoUnit.DAYS)); // 1 year
+        estimation = estimationRepository.save(estimation);
+
+        log.info("Payment processed for estimation {}: status ACTIVE, start_date={}, end_date={}",
+                id, estimation.getStartDate(), estimation.getEndDate());
+        return EstimationResponse.fromEntity(estimation);
+    }
+
     private Estimation.Status parseStatus(String status) {
         try {
             return Estimation.Status.valueOf(status.toUpperCase());
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException(
-                    "Invalid status: '" + status + "'. Valid values: STARTED, COMPLETED, REJECTED");
+                    "Invalid status: '" + status + "'. Valid values: STARTED, WAITING_APPROVAL, PAYMENT_WAITING, ACTIVE, COMPLETED, REJECTED");
         }
     }
 }
