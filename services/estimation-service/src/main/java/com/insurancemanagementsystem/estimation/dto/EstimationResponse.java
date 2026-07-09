@@ -31,6 +31,8 @@ public class EstimationResponse {
     private String status;
     private BigDecimal premium;
     private String details;
+    private Instant startDate;
+    private Instant endDate;
     private Instant createdAt;
     private Instant updatedAt;
 
@@ -49,6 +51,8 @@ public class EstimationResponse {
                 .status(estimation.getStatus().name())
                 .premium(estimation.getPremium())
                 .details(estimation.getDetails())
+                .startDate(estimation.getStartDate())
+                .endDate(estimation.getEndDate())
                 .createdAt(estimation.getCreatedAt())
                 .updatedAt(estimation.getUpdatedAt())
                 .build();
@@ -81,6 +85,8 @@ public class EstimationResponse {
                 .status(estimation.getStatus().name())
                 .premium(estimation.getPremium())
                 .details(estimation.getDetails())
+                .startDate(estimation.getStartDate())
+                .endDate(estimation.getEndDate())
                 .createdAt(estimation.getCreatedAt())
                 .updatedAt(estimation.getUpdatedAt())
                 .build();

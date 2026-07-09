@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS estimations (
     real_estate_id UUID,
     insurance_id UUID,
     trace_id UUID,
-    status VARCHAR(20) NOT NULL CHECK (status IN ('STARTED', 'COMPLETED', 'REJECTED')),
+    status VARCHAR(20) NOT NULL CHECK (status IN ('STARTED', 'WAITING_APPROVAL', 'PAYMENT_WAITING', 'ACTIVE', 'COMPLETED', 'REJECTED')),
     premium DECIMAL(12,2),
     details JSONB,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -39,6 +39,27 @@ ALTER TABLE estimations DROP COLUMN IF EXISTS company_id;
 ALTER TABLE estimations ADD COLUMN IF NOT EXISTS insurance_id UUID;
 -- Note: insurance_type_id is intentionally kept as a deprecated column for rollback safety.
 -- It will be removed in a future cleanup migration after all services are confirmed stable.
+
+-- Migration: add start_date and end_date columns for offer/payment status flow
+ALTER TABLE estimations ADD COLUMN IF NOT EXISTS start_date TIMESTAMP;
+ALTER TABLE estimations ADD COLUMN IF NOT EXISTS end_date TIMESTAMP;
+
+-- Migration: add WAITING_APPROVAL, PAYMENT_WAITING, ACTIVE to status CHECK constraint
+-- Note: PostgreSQL does not support ALTER TABLE ... ALTER COLUMN ... DROP CONSTRAINT
+-- for CHECK constraints directly by name unless they were named at creation.
+-- Since the original CHECK constraint is unnamed, we drop and re-add it.
+-- If the table doesn't exist yet (fresh DB), the CREATE TABLE above already has the new values.
+-- This migration only runs when the table already exists with the old constraint.
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.tables WHERE table_name = 'estimations'
+    ) THEN
+        ALTER TABLE estimations DROP CONSTRAINT IF EXISTS estimations_status_check;
+        ALTER TABLE estimations ADD CONSTRAINT estimations_status_check
+            CHECK (status IN ('STARTED', 'WAITING_APPROVAL', 'PAYMENT_WAITING', 'ACTIVE', 'COMPLETED', 'REJECTED'));
+    END IF;
+END $$;
 
 CREATE TABLE IF NOT EXISTS outbox_events (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),

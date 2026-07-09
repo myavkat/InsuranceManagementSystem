@@ -16,6 +16,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -43,8 +44,14 @@ public class SagaTimeoutService {
     public void checkForTimedOutSagas() {
         try {
             Instant cutoff = Instant.now().minus(timeoutMinutes, ChronoUnit.MINUTES);
-            List<Estimation> staleEstimations = estimationRepository
+            List<Estimation> startedEstimations = estimationRepository
                     .findByStatusAndCreatedAtBefore(Estimation.Status.STARTED, cutoff);
+            List<Estimation> waitingApprovalEstimations = estimationRepository
+                    .findByStatusAndCreatedAtBefore(Estimation.Status.WAITING_APPROVAL, cutoff);
+
+            List<Estimation> staleEstimations = new ArrayList<>();
+            staleEstimations.addAll(startedEstimations);
+            staleEstimations.addAll(waitingApprovalEstimations);
 
             if (staleEstimations.isEmpty()) {
                 log.trace("No timed-out estimations found (timeout={}min)", timeoutMinutes);

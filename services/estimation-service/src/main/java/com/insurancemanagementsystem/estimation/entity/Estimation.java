@@ -30,7 +30,7 @@ import java.util.UUID;
 public class Estimation {
 
     public enum Status {
-        STARTED, COMPLETED, REJECTED
+        STARTED, WAITING_APPROVAL, PAYMENT_WAITING, ACTIVE, COMPLETED, REJECTED
     }
 
     @Id
@@ -65,6 +65,12 @@ public class Estimation {
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "details")
     private String details;
+
+    @Column(name = "start_date")
+    private Instant startDate;
+
+    @Column(name = "end_date")
+    private Instant endDate;
 
     @Column(name = "created_at", updatable = false)
     private Instant createdAt;
