@@ -3,6 +3,7 @@ package com.insurancemanagementsystem.estimation.service;
 import com.insurancemanagementsystem.common.event.EventConstants;
 import com.insurancemanagementsystem.common.messaging.OutboxMessagePublisher;
 import com.insurancemanagementsystem.estimation.client.CustomerServiceClient;
+import com.insurancemanagementsystem.estimation.client.InsuranceServiceClient;
 import com.insurancemanagementsystem.estimation.client.VehicleServiceClient;
 import com.insurancemanagementsystem.estimation.dto.EstimationRequest;
 import com.insurancemanagementsystem.estimation.dto.EstimationResponse;
@@ -47,6 +48,9 @@ class EstimationServiceTest {
     @Mock
     private VehicleServiceClient vehicleServiceClient;
 
+    @Mock
+    private InsuranceServiceClient insuranceServiceClient;
+
     @InjectMocks
     private EstimationService estimationService;
 
@@ -57,7 +61,7 @@ class EstimationServiceTest {
 
     private final UUID customerId = UUID.randomUUID();
     private final UUID vehicleId = UUID.randomUUID();
-    private final Integer insuranceTypeId = 1;
+    private final UUID insuranceId = UUID.randomUUID();
 
     // ---------------------------------------------------------------
     // Helper methods
@@ -67,7 +71,7 @@ class EstimationServiceTest {
         EstimationRequest request = new EstimationRequest();
         request.setCustomerId(customerId);
         request.setVehicleId(vehicleId);
-        request.setInsuranceTypeId(insuranceTypeId);
+        request.setInsuranceId(insuranceId);
         return request;
     }
 
@@ -77,7 +81,7 @@ class EstimationServiceTest {
                 .sagaId(UUID.randomUUID())
                 .customerId(customerId)
                 .vehicleId(vehicleId)
-                .insuranceTypeId(insuranceTypeId)
+                .insuranceId(insuranceId)
                 .status(Estimation.Status.STARTED)
                 .createdAt(Instant.now())
                 .updatedAt(Instant.now())
@@ -94,6 +98,8 @@ class EstimationServiceTest {
         Estimation savedEntity = createSampleEntity();
 
         when(estimationRepository.save(any(Estimation.class))).thenReturn(savedEntity);
+        when(insuranceServiceClient.getInsurance(insuranceId))
+                .thenReturn(new InsuranceServiceClient.InsuranceInfo(insuranceId, "TRAFFIC", 1, "Vehicle"));
 
         // Act
         EstimationResponse response = estimationService.create(request);
@@ -104,7 +110,7 @@ class EstimationServiceTest {
         assertThat(response.getStatus()).isEqualTo("STARTED");
         assertThat(response.getCustomerId()).isEqualTo(customerId);
         assertThat(response.getVehicleId()).isEqualTo(vehicleId);
-        assertThat(response.getInsuranceTypeId()).isEqualTo(insuranceTypeId);
+        assertThat(response.getInsuranceId()).isEqualTo(insuranceId);
         assertThat(response.getSagaId()).isNotNull();
 
         verify(estimationRepository).save(estimationCaptor.capture());
@@ -123,10 +129,13 @@ class EstimationServiceTest {
         // Arrange
         EstimationRequest request = new EstimationRequest();
         request.setCustomerId(customerId);
-        request.setInsuranceTypeId(insuranceTypeId);
+        request.setInsuranceId(insuranceId);
         // vehicleId and realEstateId are both null
 
         // Act & Assert
+        when(insuranceServiceClient.getInsurance(insuranceId))
+                .thenReturn(new InsuranceServiceClient.InsuranceInfo(insuranceId, "TRAFFIC", 1, "Vehicle"));
+
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> estimationService.create(request));
         assertThat(exception.getMessage()).contains("vehicleId is required for Vehicle-type insurance");
@@ -146,6 +155,8 @@ class EstimationServiceTest {
         when(customerServiceClient.getCustomerName(customerId)).thenReturn("Ahmet Yılmaz");
         when(customerServiceClient.getCustomerNationalId(customerId)).thenReturn("12345678901");
         when(vehicleServiceClient.getVehicleInfo(vehicleId)).thenReturn(Map.of("plate", "34ABC123", "chassisNumber", "WDB1234567890"));
+        when(insuranceServiceClient.getInsurance(insuranceId))
+                .thenReturn(new InsuranceServiceClient.InsuranceInfo(insuranceId, "TRAFFIC", 1, "Vehicle"));
 
         // Act
         EstimationResponse response = estimationService.findById(testId);

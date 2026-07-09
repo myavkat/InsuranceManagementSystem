@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS estimations (
     customer_id UUID,
     vehicle_id UUID,
     real_estate_id UUID,
-    insurance_type_id INT,
+    insurance_id UUID,
     trace_id UUID,
     status VARCHAR(20) NOT NULL CHECK (status IN ('STARTED', 'COMPLETED', 'REJECTED')),
     premium DECIMAL(12,2),
@@ -34,6 +34,11 @@ ALTER TABLE estimations ADD COLUMN IF NOT EXISTS trace_id UUID;
 
 -- Migration: remove company_id from estimations (multi-company concept removed)
 ALTER TABLE estimations DROP COLUMN IF EXISTS company_id;
+
+-- Migration: replace insurance_type_id with insurance_id (FK changed from insurance_type to insurance)
+ALTER TABLE estimations ADD COLUMN IF NOT EXISTS insurance_id UUID;
+-- Note: insurance_type_id is intentionally kept as a deprecated column for rollback safety.
+-- It will be removed in a future cleanup migration after all services are confirmed stable.
 
 CREATE TABLE IF NOT EXISTS outbox_events (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),

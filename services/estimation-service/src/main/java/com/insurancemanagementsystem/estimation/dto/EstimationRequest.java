@@ -17,6 +17,6 @@ public class EstimationRequest {
     private UUID vehicleId;      // optional — null for non-vehicle insurances
     private UUID realEstateId;   // optional — null for non-real-estate insurances
 
-    @NotNull(message = "Insurance type ID is required")
-    private Integer insuranceTypeId;
+    @NotNull(message = "Insurance ID is required")
+    private UUID insuranceId;
 }

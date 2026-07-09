@@ -15,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.support.TransactionTemplate;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -201,7 +200,7 @@ public class InsuranceSagaConsumer {
                 state.getEstimationRequest().getPayload(), EstimationRequestedEvent.class);
         UUID customerId = estimationEvent.getCustomerId();
         UUID vehicleId = estimationEvent.getVehicleId();
-        Integer insuranceTypeId = estimationEvent.getInsuranceTypeId();
+        UUID insuranceId = estimationEvent.getInsuranceId();
 
         // Extract customer data
         CustomerValidatedEvent customerEvent = jsonMapper.convertValue(
@@ -211,16 +210,12 @@ public class InsuranceSagaConsumer {
         VehicleValidatedEvent vehicleEvent = jsonMapper.convertValue(
                 state.getVehicleValidated().getPayload(), VehicleValidatedEvent.class);
 
-        // Look up insurance by typeId — use only active ones for estimation
-        Optional<Insurance> insuranceOpt = insuranceRepository
-                .findByTypeId(insuranceTypeId, Pageable.unpaged())
-                .getContent().stream()
-                .filter(Insurance::getIsActive)
-                .findFirst();
+        // Look up insurance by ID directly
+        Optional<Insurance> insuranceOpt = insuranceRepository.findById(insuranceId);
 
-        if (insuranceOpt.isEmpty()) {
+        if (insuranceOpt.isEmpty() || !insuranceOpt.get().getIsActive()) {
             publishCalculationFailed(sagaId, traceId,
-                    "No active insurance found for typeId=" + insuranceTypeId);
+                    "No active insurance found for insuranceId=" + insuranceId);
             return;
         }
 
@@ -263,15 +258,15 @@ public class InsuranceSagaConsumer {
         PremiumCalculatedEvent premiumEvent = PremiumCalculatedEvent.builder()
                 .premium(totalPremium)
                 .breakdown(breakdown)
-                .insuranceTypeId(insuranceTypeId)
+                .insuranceId(insuranceId)
                 .customerId(customerId)
                 .vehicleId(vehicleId)
                 .build();
 
         EventEnvelope outcome = premiumEvent.toEnvelope(sagaId, traceId);
         outboxEventRepository.save(buildOutboxEvent(sagaId, outcome, EventConstants.ESTIMATION_SAGA));
-        log.info("Premium calculated for sagaId={}: premium={}, typeId={}",
-                sagaId, totalPremium, insuranceTypeId);
+        log.info("Premium calculated for sagaId={}: premium={}, insuranceId={}",
+                sagaId, totalPremium, insuranceId);
     }
 
     private void publishCalculationFailed(UUID sagaId, UUID traceId, String reason) {

@@ -4,6 +4,7 @@ import com.insurancemanagementsystem.common.entity.OutboxEvent;
 import com.insurancemanagementsystem.common.repository.OutboxEventRepository;
 import com.insurancemanagementsystem.common.config.OutboxProcessor;
 import com.insurancemanagementsystem.common.config.OutboxRelay;
+import com.insurancemanagementsystem.estimation.client.InsuranceServiceClient;
 import com.insurancemanagementsystem.estimation.dto.EstimationRequest;
 import com.insurancemanagementsystem.estimation.dto.EstimationResponse;
 import com.insurancemanagementsystem.estimation.repository.EstimationRepository;
@@ -19,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.client.RestTestClient;
@@ -38,6 +40,8 @@ import java.util.Properties;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -110,12 +114,19 @@ class EstimationServiceIntegrationTest {
     @Autowired
     private RestTestClient restTestClient;
 
+    @MockitoBean
+    private InsuranceServiceClient insuranceServiceClient;
+
     private final ObjectMapper objectMapper = new JsonMapper();
 
     @BeforeEach
     void cleanUp() {
         estimationRepository.deleteAll();
         outboxEventRepository.deleteAll();
+
+        // Default mock: return TRAFFIC insurance (typeId=1 → Vehicle)
+        when(insuranceServiceClient.getInsurance(any(UUID.class)))
+                .thenReturn(new InsuranceServiceClient.InsuranceInfo(UUID.randomUUID(), "TRAFFIC", 1, "Vehicle"));
     }
 
     // ---------------------------------------------------------------
@@ -192,10 +203,15 @@ class EstimationServiceIntegrationTest {
         // Warmup poll to join consumer group and set offset to latest
         consumer.poll(Duration.ofMillis(200));
 
+        UUID realEstateInsuranceId = UUID.randomUUID();
         EstimationRequest request = new EstimationRequest();
         request.setCustomerId(UUID.randomUUID());
         request.setRealEstateId(UUID.randomUUID());
-        request.setInsuranceTypeId(2); // Real Estate type
+        request.setInsuranceId(realEstateInsuranceId);
+
+        // Override default mock for Real Estate type (typeId=2)
+        when(insuranceServiceClient.getInsurance(realEstateInsuranceId))
+                .thenReturn(new InsuranceServiceClient.InsuranceInfo(realEstateInsuranceId, "DASK", 2, "Real Estate"));
 
         EstimationResponse response = estimationService.create(request);
 
@@ -246,9 +262,10 @@ class EstimationServiceIntegrationTest {
     // ---------------------------------------------------------------
     @Test
     void createEstimation_withoutVehicleOrRealEstate_throwsException() {
+        UUID invalidInsuranceId = UUID.randomUUID();
         EstimationRequest request = new EstimationRequest();
         request.setCustomerId(UUID.randomUUID());
-        request.setInsuranceTypeId(1);
+        request.setInsuranceId(invalidInsuranceId);
         // vehicleId and realEstateId intentionally null
 
         try {
@@ -328,7 +345,7 @@ class EstimationServiceIntegrationTest {
         EstimationRequest request = new EstimationRequest();
         request.setCustomerId(UUID.randomUUID());
         request.setVehicleId(UUID.randomUUID());
-        request.setInsuranceTypeId(1);
+        request.setInsuranceId(UUID.randomUUID());
         return request;
     }
 }

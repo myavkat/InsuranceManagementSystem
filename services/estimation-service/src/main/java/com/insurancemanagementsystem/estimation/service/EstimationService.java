@@ -5,6 +5,7 @@ import com.insurancemanagementsystem.common.event.saga.EstimationRequestedEvent;
 import com.insurancemanagementsystem.common.messaging.OutboxMessagePublisher;
 import com.insurancemanagementsystem.common.util.CorrelationIdGenerator;
 import com.insurancemanagementsystem.estimation.client.CustomerServiceClient;
+import com.insurancemanagementsystem.estimation.client.InsuranceServiceClient;
 import com.insurancemanagementsystem.estimation.client.VehicleServiceClient;
 import com.insurancemanagementsystem.estimation.dto.EstimationRequest;
 import com.insurancemanagementsystem.estimation.dto.EstimationResponse;
@@ -29,6 +30,7 @@ public class EstimationService {
     private final EstimationRepository estimationRepository;
     private final OutboxMessagePublisher outboxMessagePublisher;
     private final CustomerServiceClient customerServiceClient;
+    private final InsuranceServiceClient insuranceServiceClient;
     private final VehicleServiceClient vehicleServiceClient;
 
     private static final Map<Integer, String> INSURANCE_TYPE_NAMES = Map.of(
@@ -56,13 +58,27 @@ public class EstimationService {
             }
         }
 
-        String insuranceTypeName = INSURANCE_TYPE_NAMES.get(estimation.getInsuranceTypeId());
+        String insuranceName = null;
+        String insuranceTypeName = null;
+        if (estimation.getInsuranceId() != null) {
+            try {
+                InsuranceServiceClient.InsuranceInfo info = insuranceServiceClient.getInsurance(estimation.getInsuranceId());
+                if (info != null) {
+                    insuranceName = info.name();
+                    insuranceTypeName = info.typeName() != null ? info.typeName() : INSURANCE_TYPE_NAMES.get(info.typeId());
+                }
+            } catch (Exception e) {
+                log.warn("Failed to fetch insurance info for insuranceId={}: {}", estimation.getInsuranceId(), e.getMessage());
+                // Fall back to null — the response DTO handles null display names gracefully
+            }
+        }
 
         return EstimationResponse.fromEntity(estimation,
                 customerName,
                 customerNationalId,
                 vehiclePlate,
                 vehicleChassisNumber,
+                insuranceName,
                 insuranceTypeName);
     }
 
@@ -88,18 +104,27 @@ public class EstimationService {
     @Transactional
     public EstimationResponse create(EstimationRequest request) {
         // Validate asset linkage based on insurance type
-        Integer typeId = request.getInsuranceTypeId();
-        if (typeId == null) {
-            throw new IllegalArgumentException("insuranceTypeId is required");
+        UUID insuranceId = request.getInsuranceId();
+        if (insuranceId == null) {
+            throw new IllegalArgumentException("insuranceId is required");
         }
 
+        // Fetch insurance to determine its type for validation
+        InsuranceServiceClient.InsuranceInfo info;
+        try {
+            info = insuranceServiceClient.getInsurance(insuranceId);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Insurance not found or unavailable: " + insuranceId, e);
+        }
+        Integer typeId = info != null ? info.typeId() : null;
+
         // Type 1 = Vehicle → vehicleId required
-        if (typeId == 1 && request.getVehicleId() == null) {
+        if (typeId != null && typeId == 1 && request.getVehicleId() == null) {
             throw new IllegalArgumentException("vehicleId is required for Vehicle-type insurance");
         }
 
         // Type 2 = Real Estate → realEstateId required
-        if (typeId == 2 && request.getRealEstateId() == null) {
+        if (typeId != null && typeId == 2 && request.getRealEstateId() == null) {
             throw new IllegalArgumentException("realEstateId is required for Real Estate-type insurance");
         }
 
@@ -113,7 +138,7 @@ public class EstimationService {
                 .customerId(request.getCustomerId())
                 .vehicleId(request.getVehicleId())
                 .realEstateId(request.getRealEstateId())
-                .insuranceTypeId(request.getInsuranceTypeId())
+                .insuranceId(request.getInsuranceId())
                 .traceId(traceId)
                 .status(Estimation.Status.STARTED)
                 .build();
@@ -126,7 +151,7 @@ public class EstimationService {
                 .customerId(request.getCustomerId())
                 .vehicleId(request.getVehicleId())
                 .realEstateId(request.getRealEstateId())
-                .insuranceTypeId(request.getInsuranceTypeId())
+                .insuranceId(request.getInsuranceId())
                 .build();
 
         outboxMessagePublisher.publish(event, sagaId, traceId, EventConstants.ESTIMATION_SAGA);

@@ -9,6 +9,7 @@ import com.insurancemanagementsystem.common.event.saga.*;
 import com.insurancemanagementsystem.common.repository.OutboxEventRepository;
 import com.insurancemanagementsystem.common.repository.SagaEventRepository;
 import com.insurancemanagementsystem.common.test.AbstractKafkaIntegrationTest;
+import com.insurancemanagementsystem.estimation.client.InsuranceServiceClient;
 import com.insurancemanagementsystem.estimation.dto.EstimationRequest;
 import com.insurancemanagementsystem.estimation.entity.Estimation;
 import com.insurancemanagementsystem.estimation.repository.EstimationRepository;
@@ -23,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.client.RestTestClient;
@@ -37,6 +39,8 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
@@ -109,6 +113,9 @@ class SagaE2ETest extends AbstractKafkaIntegrationTest {
     @Autowired
     private TransactionTemplate transactionTemplate;
 
+    @MockitoBean
+    private InsuranceServiceClient insuranceServiceClient;
+
     // ---------------------------------------------------------------
     // Cleanup before each test
     // ---------------------------------------------------------------
@@ -118,6 +125,10 @@ class SagaE2ETest extends AbstractKafkaIntegrationTest {
         estimationRepository.deleteAll();
         outboxEventRepository.deleteAll();
         sagaEventRepository.deleteAll();
+
+        // Default mock: return TRAFFIC insurance (typeId=1 → Vehicle)
+        when(insuranceServiceClient.getInsurance(any(UUID.class)))
+                .thenReturn(new InsuranceServiceClient.InsuranceInfo(UUID.randomUUID(), "TRAFFIC", 1, "Vehicle"));
     }
 
     // ---------------------------------------------------------------
@@ -150,7 +161,7 @@ class SagaE2ETest extends AbstractKafkaIntegrationTest {
         EstimationRequest request = new EstimationRequest();
         request.setCustomerId(UUID.randomUUID());
         request.setVehicleId(UUID.randomUUID());
-        request.setInsuranceTypeId(1);
+        request.setInsuranceId(UUID.randomUUID());
         return request;
     }
 

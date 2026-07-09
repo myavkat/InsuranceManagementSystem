@@ -1,5 +1,6 @@
 package com.insurancemanagementsystem.estimation;
 
+import com.insurancemanagementsystem.estimation.client.InsuranceServiceClient;
 import com.insurancemanagementsystem.estimation.dto.EstimationRequest;
 import com.insurancemanagementsystem.estimation.entity.Estimation;
 import com.insurancemanagementsystem.estimation.repository.EstimationRepository;
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -25,6 +27,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureRestTestClient
@@ -58,11 +62,17 @@ class EstimationServiceApplicationTests {
     @Autowired
     private EstimationRepository estimationRepository;
 
+    @MockitoBean
+    private InsuranceServiceClient insuranceServiceClient;
+
     private final ObjectMapper objectMapper = new JsonMapper();
 
     @BeforeEach
     void cleanUp() {
         estimationRepository.deleteAll();
+
+        when(insuranceServiceClient.getInsurance(any(UUID.class)))
+                .thenReturn(new InsuranceServiceClient.InsuranceInfo(UUID.randomUUID(), "TRAFFIC", 1, "Vehicle"));
     }
 
     @Test
@@ -157,7 +167,7 @@ class EstimationServiceApplicationTests {
         EstimationRequest request = new EstimationRequest();
         request.setCustomerId(UUID.randomUUID());
         request.setVehicleId(UUID.randomUUID());
-        request.setInsuranceTypeId(1);
+        request.setInsuranceId(UUID.randomUUID());
         return request;
     }
 }

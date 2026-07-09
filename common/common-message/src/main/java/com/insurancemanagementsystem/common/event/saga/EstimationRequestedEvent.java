@@ -15,7 +15,7 @@ public class EstimationRequestedEvent extends BaseEvent {
     private UUID customerId;
     private UUID vehicleId;
     private UUID realEstateId;
-    private Integer insuranceTypeId;
+    private UUID insuranceId;
 
     @Override
     public String getEventType() {

@@ -81,6 +81,7 @@ class InsuranceSagaConsumerTest {
 
     private UUID sagaId;
     private UUID traceId;
+    private UUID insuranceId;
 
     @BeforeEach
     void setUp() {
@@ -98,6 +99,7 @@ class InsuranceSagaConsumerTest {
                 .typeId(1)
                 .basePremium(BigDecimal.valueOf(1000))
                 .build());
+        insuranceId = savedInsurance.getId();
 
         // Seed risk factors so premium calculation uses known composite risk
         riskFactorRepository.save(RiskFactor.builder()
@@ -153,7 +155,7 @@ class InsuranceSagaConsumerTest {
         EstimationRequestedEvent estimationEvent = EstimationRequestedEvent.builder()
                 .customerId(UUID.randomUUID())
                 .vehicleId(UUID.randomUUID())
-                .insuranceTypeId(1)
+                .insuranceId(insuranceId)
                 .build();
         kafkaTemplate.send("estimation.saga",
                 MAPPER.writeValueAsString(estimationEvent.toEnvelope(sagaId, traceId)))
@@ -170,7 +172,7 @@ class InsuranceSagaConsumerTest {
 
         PremiumCalculatedEvent payload = MAPPER.convertValue(published.getPayload(), PremiumCalculatedEvent.class);
         assertThat(payload.getPremium()).isEqualByComparingTo(BigDecimal.valueOf(1000));
-        assertThat(payload.getInsuranceTypeId()).isEqualTo(1);
+        assertThat(payload.getInsuranceId()).isEqualTo(insuranceId);
         assertThat(payload.getCustomerId()).isEqualTo(estimationEvent.getCustomerId());
         assertThat(payload.getVehicleId()).isEqualTo(estimationEvent.getVehicleId());
     }
@@ -180,7 +182,7 @@ class InsuranceSagaConsumerTest {
         EstimationRequestedEvent estimationEvent = EstimationRequestedEvent.builder()
                 .customerId(UUID.randomUUID())
                 .vehicleId(UUID.randomUUID())
-                .insuranceTypeId(1)
+                .insuranceId(insuranceId)
                 .build();
         kafkaTemplate.send("estimation.saga",
                 MAPPER.writeValueAsString(estimationEvent.toEnvelope(sagaId, traceId)))
@@ -212,7 +214,7 @@ class InsuranceSagaConsumerTest {
         EstimationRequestedEvent estimationEvent = EstimationRequestedEvent.builder()
                 .customerId(UUID.randomUUID())
                 .vehicleId(UUID.randomUUID())
-                .insuranceTypeId(1)
+                .insuranceId(insuranceId)
                 .build();
         kafkaTemplate.send("estimation.saga",
                 MAPPER.writeValueAsString(estimationEvent.toEnvelope(sagaId, traceId)))
@@ -245,7 +247,7 @@ class InsuranceSagaConsumerTest {
         EstimationRequestedEvent estimationEvent = EstimationRequestedEvent.builder()
                 .customerId(UUID.randomUUID())
                 .vehicleId(UUID.randomUUID())
-                .insuranceTypeId(1)
+                .insuranceId(insuranceId)
                 .build();
         kafkaTemplate.send("estimation.saga",
                         MAPPER.writeValueAsString(estimationEvent.toEnvelope(sagaId, traceId)))
@@ -277,11 +279,11 @@ class InsuranceSagaConsumerTest {
 
     @Test
     void noMatchingInsurance_shouldSaveOutboxCalculationFailed() throws Exception {
-        // Use a non-matching insuranceTypeId (999) that has no corresponding Insurance in the DB
+        // Use a random UUID that has no corresponding Insurance in the DB
         EstimationRequestedEvent estimationEvent = EstimationRequestedEvent.builder()
                 .customerId(UUID.randomUUID())
                 .vehicleId(UUID.randomUUID())
-                .insuranceTypeId(999)
+                .insuranceId(UUID.randomUUID())
                 .build();
         kafkaTemplate.send("estimation.saga",
                 MAPPER.writeValueAsString(estimationEvent.toEnvelope(sagaId, traceId)))
@@ -340,7 +342,7 @@ class InsuranceSagaConsumerTest {
         EstimationRequestedEvent estimationEvent = EstimationRequestedEvent.builder()
                 .customerId(UUID.randomUUID())
                 .vehicleId(UUID.randomUUID())
-                .insuranceTypeId(1)
+                .insuranceId(insuranceId)
                 .build();
         String estimationMessage = MAPPER.writeValueAsString(estimationEvent.toEnvelope(sagaId, traceId));
 
@@ -389,7 +391,7 @@ class InsuranceSagaConsumerTest {
         EstimationRequestedEvent estimationEvent = EstimationRequestedEvent.builder()
                 .customerId(UUID.randomUUID())
                 .vehicleId(UUID.randomUUID())
-                .insuranceTypeId(1)
+                .insuranceId(insuranceId)
                 .build();
         kafkaTemplate.send("estimation.saga",
                 MAPPER.writeValueAsString(estimationEvent.toEnvelope(sagaId, traceId)))
@@ -406,7 +408,7 @@ class InsuranceSagaConsumerTest {
 
         PremiumCalculatedEvent payload = MAPPER.convertValue(published.getPayload(), PremiumCalculatedEvent.class);
         assertThat(payload.getPremium()).isEqualByComparingTo(BigDecimal.valueOf(1000));
-        assertThat(payload.getInsuranceTypeId()).isEqualTo(1);
+        assertThat(payload.getInsuranceId()).isEqualTo(insuranceId);
         assertThat(payload.getCustomerId()).isEqualTo(estimationEvent.getCustomerId());
         assertThat(payload.getVehicleId()).isEqualTo(estimationEvent.getVehicleId());
     }
@@ -438,7 +440,7 @@ class InsuranceSagaConsumerTest {
         EstimationRequestedEvent estimationEvent = EstimationRequestedEvent.builder()
                 .customerId(UUID.randomUUID())
                 .vehicleId(UUID.randomUUID())
-                .insuranceTypeId(1)
+                .insuranceId(insuranceId)
                 .build();
         kafkaTemplate.send("estimation.saga",
                         MAPPER.writeValueAsString(estimationEvent.toEnvelope(failSagaId, traceId)))
