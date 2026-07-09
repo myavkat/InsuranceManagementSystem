@@ -74,6 +74,7 @@ class InsuranceServiceTest {
         return Insurance.builder()
                 .id(id)
                 .name(name)
+                .code(name.toUpperCase().replaceAll("\\s+", "_"))
                 .description(TEST_DESCRIPTION)
                 .typeId(TEST_TYPE_ID)
                 .basePremium(TEST_BASE_PREMIUM)
@@ -212,6 +213,7 @@ class InsuranceServiceTest {
         Insurance inactiveInsurance = Insurance.builder()
                 .id(TEST_ID)
                 .name(TEST_NAME)
+                .code(TEST_NAME.toUpperCase().replaceAll("\\s+", "_"))
                 .isActive(false)
                 .build();
 

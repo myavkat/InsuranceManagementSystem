@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS insurance_types (
 CREATE TABLE IF NOT EXISTS insurances (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(100) NOT NULL,
+    code VARCHAR(50) NOT NULL,
     description TEXT,
     type_id INT NOT NULL REFERENCES insurance_types(id),
     base_premium DECIMAL(12,2),
@@ -17,6 +18,7 @@ CREATE TABLE IF NOT EXISTS insurances (
 );
 
 CREATE INDEX IF NOT EXISTS idx_insurances_type ON insurances(type_id);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_insurances_code ON insurances(code);
 
 -- Seed insurance types (asset categories — determines which asset to link in estimation)
 INSERT INTO insurance_types (id, name) VALUES
@@ -25,18 +27,16 @@ ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name;
 
 -- Seed insurance products
 -- Clean up old seed rows by name before re-inserting (idempotent across restarts)
-DELETE FROM insurances WHERE name IN (
-    'TRAFFIC', 'CASCO', 'DASK', 'HEALTH', 'LIFE',
-    'Zorunlu Trafik Sigortası', 'Kapsamlı Kasko', 'Doğal Afet Sigortası (DASK)',
-    'Tamamlayıcı Sağlık Sigortası', 'Hayat Sigortası'
+DELETE FROM insurances WHERE code IN (
+    'TRAFFIC', 'CASCO', 'DASK', 'HEALTH', 'LIFE'
 );
 
-INSERT INTO insurances (name, description, type_id, base_premium, is_active) VALUES
-('TRAFFIC', 'Mandatory traffic insurance', 1, 1250.00, TRUE),
-('CASCO', 'Comprehensive auto insurance', 1, 3500.00, TRUE),
-('DASK', 'Earthquake insurance for real estate', 2, 450.00, TRUE),
-('HEALTH', 'Complementary health insurance', 3, 2800.00, TRUE),
-('LIFE', 'Life insurance', 4, 1500.00, TRUE);
+INSERT INTO insurances (name, code, description, type_id, base_premium, is_active) VALUES
+('Trafik Sigortası', 'TRAFFIC', 'Zorunlu trafik sigortası — yasal olarak yaptırılması gereken temel araç sigortası', 1, 1250.00, TRUE),
+('Kasko', 'CASCO', 'Kapsamlı kasko sigortası — aracınızı kaza, çalınma ve doğal afetlere karşı güvence altına alır', 1, 3500.00, TRUE),
+('DASK (Doğal Afet Sigortası)', 'DASK', 'Deprem ve doğal afet kaynaklı bina hasarlarına karşı zorunlu konut sigortası', 2, 450.00, TRUE),
+('Tamamlayıcı Sağlık Sigortası', 'HEALTH', 'Özel hastanelerde tamamlayıcı sağlık hizmetlerinden indirimli yararlanma imkanı sunar', 3, 2800.00, TRUE),
+('Hayat Sigortası', 'LIFE', 'Vefat ve maluliyet durumlarına karşı finansal güvence sağlayan hayat sigortası', 4, 1500.00, TRUE);
 
 -- Migration: drop insurance_companies table and remove company_id FK (multi-company concept removed)
 ALTER TABLE insurances DROP COLUMN IF EXISTS company_id;
@@ -106,6 +106,34 @@ CREATE TABLE IF NOT EXISTS risk_factor_history (
 CREATE INDEX IF NOT EXISTS idx_risk_factor_history_insurance ON risk_factor_history(insurance_id);
 CREATE INDEX IF NOT EXISTS idx_risk_factor_history_factor ON risk_factor_history(risk_factor_id);
 
+-- ============================================================
+-- Migration: add code column to insurances
+-- ============================================================
+DO $$
+BEGIN
+    -- 1. Add column (nullable initially so existing rows don't fail)
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'insurances' AND column_name = 'code'
+    ) THEN
+        ALTER TABLE insurances ADD COLUMN code VARCHAR(50);
+    END IF;
+
+    -- 2. Backfill NULL codes with a slug derived from name
+    UPDATE insurances SET code = UPPER(REGEXP_REPLACE(TRIM(name), '\s+', '_', 'g'))
+    WHERE code IS NULL;
+
+    -- 3. Add NOT NULL constraint
+    ALTER TABLE insurances ALTER COLUMN code SET NOT NULL;
+
+    -- 4. Add unique constraint (idempotent)
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'uq_insurances_code'
+    ) THEN
+        ALTER TABLE insurances ADD CONSTRAINT uq_insurances_code UNIQUE (code);
+    END IF;
+END $$;
+
 -- Add CHECK constraint for factor_value range 0.00-1.00 (idempotent)
 DO $$
 BEGIN
@@ -119,8 +147,8 @@ END $$;
 
 -- Seed default risk factors for each insurance product
 -- Clean up old seed data first (idempotent)
-DELETE FROM risk_factor_history WHERE insurance_id IN (SELECT id FROM insurances WHERE name IN ('TRAFFIC','CASCO','DASK','HEALTH','LIFE'));
-DELETE FROM risk_factors WHERE insurance_id IN (SELECT id FROM insurances WHERE name IN ('TRAFFIC','CASCO','DASK','HEALTH','LIFE'));
+DELETE FROM risk_factor_history WHERE insurance_id IN (SELECT id FROM insurances WHERE code IN ('TRAFFIC','CASCO','DASK','HEALTH','LIFE'));
+DELETE FROM risk_factors WHERE insurance_id IN (SELECT id FROM insurances WHERE code IN ('TRAFFIC','CASCO','DASK','HEALTH','LIFE'));
 
 -- Helper: insert risk factor via DO block (inserts only if insurance name exists)
 DO $$
@@ -128,7 +156,7 @@ DECLARE
     ins_id UUID;
 BEGIN
     -- TRAFFIC (Vehicle type) — vehicle factors + shared factors
-    SELECT id INTO ins_id FROM insurances WHERE name = 'TRAFFIC';
+    SELECT id INTO ins_id FROM insurances WHERE code = 'TRAFFIC';
     IF FOUND THEN
         INSERT INTO risk_factors (insurance_id, factor_name, factor_value) VALUES
         (ins_id, 'motorSize', 0.50),
@@ -142,7 +170,7 @@ BEGIN
     END IF;
 
     -- CASCO (Vehicle type) — vehicle factors + shared factors
-    SELECT id INTO ins_id FROM insurances WHERE name = 'CASCO';
+    SELECT id INTO ins_id FROM insurances WHERE code = 'CASCO';
     IF FOUND THEN
         INSERT INTO risk_factors (insurance_id, factor_name, factor_value) VALUES
         (ins_id, 'motorSize', 0.50),
@@ -156,7 +184,7 @@ BEGIN
     END IF;
 
     -- DASK (Real Estate type) — real estate factors + shared factors
-    SELECT id INTO ins_id FROM insurances WHERE name = 'DASK';
+    SELECT id INTO ins_id FROM insurances WHERE code = 'DASK';
     IF FOUND THEN
         INSERT INTO risk_factors (insurance_id, factor_name, factor_value) VALUES
         (ins_id, 'buildingAge', 0.50),
@@ -170,7 +198,7 @@ BEGIN
     END IF;
 
     -- HEALTH (Health type) — shared factors only
-    SELECT id INTO ins_id FROM insurances WHERE name = 'HEALTH';
+    SELECT id INTO ins_id FROM insurances WHERE code = 'HEALTH';
     IF FOUND THEN
         INSERT INTO risk_factors (insurance_id, factor_name, factor_value) VALUES
         (ins_id, 'customerAge', 0.50),
@@ -180,7 +208,7 @@ BEGIN
     END IF;
 
     -- LIFE (Life type) — shared factors only
-    SELECT id INTO ins_id FROM insurances WHERE name = 'LIFE';
+    SELECT id INTO ins_id FROM insurances WHERE code = 'LIFE';
     IF FOUND THEN
         INSERT INTO risk_factors (insurance_id, factor_name, factor_value) VALUES
         (ins_id, 'customerAge', 0.50),

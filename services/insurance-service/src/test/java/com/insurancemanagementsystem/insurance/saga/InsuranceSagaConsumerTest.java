@@ -92,10 +92,11 @@ class InsuranceSagaConsumerTest {
         traceId = UUID.randomUUID();
 
         // Seed test data
-        insuranceTypeRepository.save(new InsuranceType(1, "TRAFFIC"));
+        insuranceTypeRepository.save(new InsuranceType(1, "Vehicle"));
 
         Insurance savedInsurance = insuranceRepository.save(Insurance.builder()
                 .name("Traffic Insurance")
+                .code("TRAFFIC_INSURANCE")
                 .typeId(1)
                 .basePremium(BigDecimal.valueOf(1000))
                 .build());

@@ -81,8 +81,14 @@ public class InsuranceService {
                             "Insurance with name '" + request.getName() + "' already exists");
                 });
 
+        // Generate code from name if not explicitly provided
+        String code = request.getCode() != null && !request.getCode().isBlank()
+                ? request.getCode().trim().toUpperCase()
+                : request.getName().trim().toUpperCase().replaceAll("\\s+", "_");
+
         Insurance insurance = Insurance.builder()
                 .name(request.getName().trim())
+                .code(code)
                 .description(request.getDescription())
                 .typeId(request.getTypeId())
                 .basePremium(request.getBasePremium())

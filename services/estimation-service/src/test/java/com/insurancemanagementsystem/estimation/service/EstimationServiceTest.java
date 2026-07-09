@@ -99,7 +99,7 @@ class EstimationServiceTest {
 
         when(estimationRepository.save(any(Estimation.class))).thenReturn(savedEntity);
         when(insuranceServiceClient.getInsurance(insuranceId))
-                .thenReturn(new InsuranceServiceClient.InsuranceInfo(insuranceId, "TRAFFIC", 1, "Vehicle"));
+                .thenReturn(new InsuranceServiceClient.InsuranceInfo(insuranceId, "Trafik Sigortası", 1, "Vehicle"));
 
         // Act
         EstimationResponse response = estimationService.create(request);
@@ -134,7 +134,7 @@ class EstimationServiceTest {
 
         // Act & Assert
         when(insuranceServiceClient.getInsurance(insuranceId))
-                .thenReturn(new InsuranceServiceClient.InsuranceInfo(insuranceId, "TRAFFIC", 1, "Vehicle"));
+                .thenReturn(new InsuranceServiceClient.InsuranceInfo(insuranceId, "Trafik Sigortası", 1, "Vehicle"));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> estimationService.create(request));
@@ -156,7 +156,7 @@ class EstimationServiceTest {
         when(customerServiceClient.getCustomerNationalId(customerId)).thenReturn("12345678901");
         when(vehicleServiceClient.getVehicleInfo(vehicleId)).thenReturn(Map.of("plate", "34ABC123", "chassisNumber", "WDB1234567890"));
         when(insuranceServiceClient.getInsurance(insuranceId))
-                .thenReturn(new InsuranceServiceClient.InsuranceInfo(insuranceId, "TRAFFIC", 1, "Vehicle"));
+                .thenReturn(new InsuranceServiceClient.InsuranceInfo(insuranceId, "Trafik Sigortası", 1, "Vehicle"));
 
         // Act
         EstimationResponse response = estimationService.findById(testId);
