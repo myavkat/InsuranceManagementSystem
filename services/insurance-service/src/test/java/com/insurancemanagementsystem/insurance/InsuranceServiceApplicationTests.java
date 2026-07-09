@@ -70,11 +70,10 @@ class InsuranceServiceApplicationTests {
 
         // Seed InsuranceType data
         insuranceTypeRepository.saveAll(List.of(
-                new InsuranceType(1, "TRAFFIC"),
-                new InsuranceType(2, "CASCO"),
-                new InsuranceType(3, "DASK"),
-                new InsuranceType(4, "HEALTH"),
-                new InsuranceType(5, "LIFE")
+                new InsuranceType(1, "Vehicle"),
+                new InsuranceType(2, "Real Estate"),
+                new InsuranceType(3, "Health"),
+                new InsuranceType(4, "Life")
         ));
     }
 
@@ -113,6 +112,7 @@ class InsuranceServiceApplicationTests {
         // Seed an insurance in DB
         Insurance insurance = Insurance.builder()
                 .name("TestInsurance")
+                .code("TESTINSURANCE")
                 .typeId(1)
                 .basePremium(new BigDecimal("1000"))
                 .build();
@@ -226,12 +226,11 @@ class InsuranceServiceApplicationTests {
                 .expectStatus().isOk()
                 .expectBody()
                 .jsonPath("$.success").isEqualTo(true)
-                .jsonPath("$.data.length()").isEqualTo(5)
-                .jsonPath("$.data[0].name").isEqualTo("TRAFFIC")
-                .jsonPath("$.data[1].name").isEqualTo("CASCO")
-                .jsonPath("$.data[2].name").isEqualTo("DASK")
-                .jsonPath("$.data[3].name").isEqualTo("HEALTH")
-                .jsonPath("$.data[4].name").isEqualTo("LIFE");
+                .jsonPath("$.data.length()").isEqualTo(4)
+                .jsonPath("$.data[0].name").isEqualTo("Vehicle")
+                .jsonPath("$.data[1].name").isEqualTo("Real Estate")
+                .jsonPath("$.data[2].name").isEqualTo("Health")
+                .jsonPath("$.data[3].name").isEqualTo("Life");
     }
 
     private InsuranceRequest createValidInsuranceRequest() {

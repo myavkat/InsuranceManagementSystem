@@ -285,12 +285,12 @@ This search should cover ALL test files, not just the ones listed above — ther
 
 ## Acceptance Criteria
 
-- [ ] `InsuranceServiceApplicationTests.getTypes_returnsSeedData` expects 4 types with correct names
-- [ ] `InsuranceServiceApplicationTests.@BeforeEach` seeds 4 InsuranceType rows (Vehicle, Real Estate, Health, Life)
-- [ ] `InsuranceSagaConsumerTest.setUp` uses `InsuranceType(1, "Vehicle")`
-- [ ] `InsuranceServiceTest.createInsurance()` helper sets `.code(...)` on built entities
-- [ ] All `Insurance.builder()` calls in test files include `.code(...)`
-- [ ] All `InsuranceServiceClient.InsuranceInfo` mocks use human-readable names
-- [ ] No test assertion compares against old technical codes "TRAFFIC", "CASCO", "DASK", "HEALTH", "LIFE" as type names or insurance names (they may still appear as `code` values)
-- [ ] `./mvnw test -pl services/insurance-service` passes
-- [ ] `./mvnw test -pl services/estimation-service` passes
+- [x] `InsuranceServiceApplicationTests.getTypes_returnsSeedData` expects 4 types with correct names
+- [x] `InsuranceServiceApplicationTests.@BeforeEach` seeds 4 InsuranceType rows (Vehicle, Real Estate, Health, Life)
+- [x] `InsuranceSagaConsumerTest.setUp` uses `InsuranceType(1, "Vehicle")`
+- [x] `InsuranceServiceTest.createInsurance()` helper sets `.code(...)` on built entities
+- [x] All `Insurance.builder()` calls in test files include `.code(...)`
+- [x] All `InsuranceServiceClient.InsuranceInfo` mocks use human-readable names
+- [x] No test assertion compares against old technical codes "TRAFFIC", "CASCO", "DASK", "HEALTH", "LIFE" as type names or insurance names (they may still appear as `code` values)
+- [x] `./gradlew.bat test -pl services/insurance-service` passes
+- [x] `./gradlew.bat test -pl services/estimation-service` passes

@@ -72,7 +72,7 @@ class EstimationServiceApplicationTests {
         estimationRepository.deleteAll();
 
         when(insuranceServiceClient.getInsurance(any(UUID.class)))
-                .thenReturn(new InsuranceServiceClient.InsuranceInfo(UUID.randomUUID(), "TRAFFIC", 1, "Vehicle"));
+                .thenReturn(new InsuranceServiceClient.InsuranceInfo(UUID.randomUUID(), "Trafik Sigortası", 1, "Vehicle"));
     }
 
     @Test

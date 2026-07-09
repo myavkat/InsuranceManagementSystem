@@ -124,9 +124,9 @@ class EstimationServiceIntegrationTest {
         estimationRepository.deleteAll();
         outboxEventRepository.deleteAll();
 
-        // Default mock: return TRAFFIC insurance (typeId=1 → Vehicle)
+        // Default mock: return Trafik Sigortası insurance (typeId=1 → Vehicle)
         when(insuranceServiceClient.getInsurance(any(UUID.class)))
-                .thenReturn(new InsuranceServiceClient.InsuranceInfo(UUID.randomUUID(), "TRAFFIC", 1, "Vehicle"));
+                .thenReturn(new InsuranceServiceClient.InsuranceInfo(UUID.randomUUID(), "Trafik Sigortası", 1, "Vehicle"));
     }
 
     // ---------------------------------------------------------------
@@ -211,7 +211,7 @@ class EstimationServiceIntegrationTest {
 
         // Override default mock for Real Estate type (typeId=2)
         when(insuranceServiceClient.getInsurance(realEstateInsuranceId))
-                .thenReturn(new InsuranceServiceClient.InsuranceInfo(realEstateInsuranceId, "DASK", 2, "Real Estate"));
+                .thenReturn(new InsuranceServiceClient.InsuranceInfo(realEstateInsuranceId, "DASK (Doğal Afet Sigortası)", 2, "Real Estate"));
 
         EstimationResponse response = estimationService.create(request);
 
