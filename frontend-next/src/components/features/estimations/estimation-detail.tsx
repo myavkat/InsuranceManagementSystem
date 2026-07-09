@@ -115,7 +115,7 @@ export function EstimationDetail() {
         <CardContent>
           <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <DetailItem label="Customer Name" value={estimation.customerName ?? "—"} />
-            <DetailItem label="Customer ID" value={estimation.customerId ?? "—"} />
+            <DetailItem label="Customer ID" value={estimation.customerNationalId ?? estimation.customerId ?? "—"} />
           </dl>
         </CardContent>
       </Card>
@@ -128,7 +128,6 @@ export function EstimationDetail() {
         <CardContent>
           <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <DetailItem label="Insurance Type" value={estimation.insuranceTypeName ?? "—"} />
-            <DetailItem label="Company" value={estimation.companyName ?? "—"} />
             <DetailItem label="Base Premium" value={formattedPremium ?? "Pending calculation..."} />
           </dl>
         </CardContent>
@@ -143,7 +142,13 @@ export function EstimationDetail() {
           <CardContent>
             <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {estimation.vehicleId && (
-                <DetailItem label="Vehicle" value={estimation.vehiclePlate ?? estimation.vehicleId} />
+                <DetailItem label="Vehicle" value={
+                  estimation.vehiclePlate
+                    ? estimation.vehicleChassisNumber
+                      ? `${estimation.vehiclePlate} / Chassis: ${estimation.vehicleChassisNumber}`
+                      : estimation.vehiclePlate
+                    : estimation.vehicleId
+                } />
               )}
               {estimation.realEstateId && (
                 <DetailItem label="Real Estate" value={estimation.realEstateAddress ?? estimation.realEstateId} />

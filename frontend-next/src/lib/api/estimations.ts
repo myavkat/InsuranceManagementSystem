@@ -8,14 +8,14 @@ export interface EstimationResponse {
   sagaId?: string;
   customerId: string;
   customerName?: string;
+  customerNationalId?: string;
   vehicleId?: string;
   vehiclePlate?: string;
+  vehicleChassisNumber?: string;
   realEstateId?: string;
   realEstateAddress?: string;
   insuranceTypeId: number;
   insuranceTypeName?: string;
-  companyId?: number;
-  companyName?: string;
   premium?: number;
   status: EstimationStatus;
   details?: string;
@@ -28,7 +28,6 @@ export interface EstimationRequest {
   vehicleId?: string;
   realEstateId?: string;
   insuranceTypeId: number;
-  companyId?: number;
 }
 
 export interface EstimationListParams {

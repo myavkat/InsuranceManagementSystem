@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import { getEstimations, type EstimationResponse, type EstimationStatus } from "@/lib/api/estimations";
+import { getCustomer } from "@/lib/api/customers";
 import type { PageResponse } from "@/lib/api/types";
 import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/features/search-bar";
@@ -34,6 +35,13 @@ const statusOptions: { value: string; label: string }[] = [
   { value: "REJECTED", label: "Rejected" },
 ];
 
+const INSURANCE_TYPE_NAMES: Record<number, string> = {
+  1: "Vehicle",
+  2: "Real Estate",
+  3: "Health",
+  4: "Life",
+};
+
 const columnHelper = createColumnHelper<EstimationResponse>();
 
 const columns: ColumnDef<EstimationResponse, any>[] = [
@@ -43,7 +51,7 @@ const columns: ColumnDef<EstimationResponse, any>[] = [
     enableSorting: true,
   }),
   columnHelper.accessor("insuranceTypeName", {
-    header: "Insurance Type",
+    header: "Insurance Name",
     cell: (info) => info.getValue() ?? "—",
   }),
   columnHelper.accessor("status", {
@@ -100,6 +108,46 @@ export function EstimationList({ initialData }: EstimationListProps) {
     staleTime: 30_000, // SSR data is fresh for 30s — skip immediate refetch
   });
 
+  const estimations = data?.content ?? [];
+
+  // Collect unique customer IDs from the current page for name resolution
+  const uniqueCustomerIds = useMemo(() => {
+    const ids = new Set<string>();
+    estimations.forEach((e) => {
+      if (e.customerId) ids.add(e.customerId);
+    });
+    return Array.from(ids);
+  }, [estimations]);
+
+  // Fetch customer names for all unique customer IDs on this page
+  const { data: customerNames } = useQuery({
+    queryKey: ["customer-names", ...uniqueCustomerIds],
+    queryFn: async () => {
+      const results = await Promise.allSettled(
+        uniqueCustomerIds.map((id) => getCustomer(id))
+      );
+      const nameMap: Record<string, string> = {};
+      results.forEach((result) => {
+        if (result.status === "fulfilled") {
+          const customer = result.value;
+          nameMap[customer.id] = `${customer.firstName} ${customer.lastName}`;
+        }
+      });
+      return nameMap;
+    },
+    enabled: uniqueCustomerIds.length > 0,
+    staleTime: 60_000,
+  });
+
+  // Enrich estimation rows with resolved customer and insurance type names
+  const enrichedData = useMemo(() => {
+    return estimations.map((estimation) => ({
+      ...estimation,
+      customerName: estimation.customerName ?? customerNames?.[estimation.customerId] ?? undefined,
+      insuranceTypeName: estimation.insuranceTypeName ?? INSURANCE_TYPE_NAMES[estimation.insuranceTypeId] ?? undefined,
+    }));
+  }, [estimations, customerNames]);
+
   if (isError) {
     return (
       <ErrorAlert
@@ -108,8 +156,6 @@ export function EstimationList({ initialData }: EstimationListProps) {
       />
     );
   }
-
-  const estimations = data?.content ?? [];
 
   return (
     <div className="space-y-6">
@@ -139,7 +185,7 @@ export function EstimationList({ initialData }: EstimationListProps) {
       ) : (
         <DataTable
           columns={columns}
-          data={estimations}
+          data={enrichedData}
           pageCount={data?.totalPages ?? 1}
           totalElements={data?.totalElements ?? 0}
           pagination={pagination}
