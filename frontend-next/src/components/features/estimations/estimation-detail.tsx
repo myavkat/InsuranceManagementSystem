@@ -13,13 +13,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, RefreshCw } from "lucide-react";
 
-const INSURANCE_TYPE_NAMES: Record<number, string> = {
-  1: "Vehicle",
-  2: "Real Estate",
-  3: "Health",
-  4: "Life",
-};
-
 export function EstimationDetail() {
   const params = useParams();
   const router = useRouter();
@@ -60,8 +53,8 @@ export function EstimationDetail() {
     ?? null;
   const resolvedVehiclePlate = estimation?.vehiclePlate ?? vehicle?.plate ?? null;
   const resolvedVehicleChassisNumber = estimation?.vehicleChassisNumber ?? vehicle?.chassisNumber ?? null;
-  const resolvedInsuranceTypeName = estimation?.insuranceTypeName
-    ?? (estimation?.insuranceTypeId ? INSURANCE_TYPE_NAMES[estimation.insuranceTypeId] : null);
+  const resolvedInsuranceTypeName = estimation?.insuranceTypeName ?? null;
+  const resolvedInsuranceName = estimation?.insuranceName ?? null;
 
   if (isLoading) {
     return (
@@ -165,6 +158,7 @@ export function EstimationDetail() {
         </CardHeader>
         <CardContent>
           <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <DetailItem label="Insurance" value={resolvedInsuranceName ?? "—"} />
             <DetailItem label="Insurance Type" value={resolvedInsuranceTypeName ?? "—"} />
             <DetailItem label="Base Premium" value={formattedPremium ?? "Pending calculation..."} />
           </dl>
