@@ -1,6 +1,6 @@
 # Plan 04: Frontend — Status-Driven Action Button and Payment Flow
 
-**Status:** Not started
+**Status:** Completed
 **Depends on:** Plan 02 (backend endpoints `accept-offer` and `process-payment` must exist), Plan 03 (status badge and types updated)
 **Blocks:** Nothing
 
@@ -538,34 +538,34 @@ Fix any type errors before considering this plan complete.
 
 After implementation, verify the full flow:
 
-- [ ] Create a new estimation → starts in STARTED status, "Processing..." button shown (disabled)
-- [ ] (Simulate) estimation reaches WAITING_APPROVAL → "Accept Offer" button shown (enabled)
-- [ ] Click "Accept Offer" → estimation transitions to PAYMENT_WAITING, "Start Payment" button shown
-- [ ] Click "Start Payment" → navigates to `/estimations/{id}/payment`
-- [ ] Payment page validates: empty fields show errors, 15-digit card number shows error
-- [ ] Submit valid payment → shows "Processing..." on button, calls process-payment endpoint
-- [ ] On success → redirected to detail page, status shows ACTIVE, "Policy Active" button shown (disabled)
-- [ ] Detail page shows start_date and end_date for ACTIVE policies
-- [ ] For REJECTED estimations → "Offer Rejected" button shown (disabled)
-- [ ] For COMPLETED (legacy) estimations → "Completed" button shown (disabled)
+- [x] Create a new estimation → starts in STARTED status, "Processing..." button shown (disabled)
+- [x] (Simulate) estimation reaches WAITING_APPROVAL → "Accept Offer" button shown (enabled)
+- [x] Click "Accept Offer" → estimation transitions to PAYMENT_WAITING, "Start Payment" button shown
+- [x] Click "Start Payment" → navigates to `/estimations/{id}/payment`
+- [x] Payment page validates: empty fields show errors, 15-digit card number shows error
+- [x] Submit valid payment → shows "Processing..." on button, calls process-payment endpoint
+- [x] On success → redirected to detail page, status shows ACTIVE, "Policy Active" button shown (disabled)
+- [x] Detail page shows start_date and end_date for ACTIVE policies
+- [x] For REJECTED estimations → "Offer Rejected" button shown (disabled)
+- [x] For COMPLETED (legacy) estimations → "Completed" button shown (disabled)
 
 ---
 
 ## Acceptance Criteria
 
-- [ ] `offer-action-button.tsx` component created with status-driven button logic (all 6 statuses handled)
-- [ ] `payment-form.tsx` component created with Zod validation (5 fields)
-- [ ] `payment.ts` schema created with proper validation rules
-- [ ] `payment/page.tsx` route created at `/estimations/[id]/payment`
-- [ ] API client has `acceptOffer()` and `processPayment()` functions
-- [ ] Detail page integrates `OfferActionButton` in both the status banner and a standalone action card
-- [ ] Detail page shows `startDate` and `endDate` for ACTIVE policies
-- [ ] `EstimationResponse` TypeScript interface includes `startDate?` and `endDate?`
-- [ ] `"use client"` directive present on all client components
-- [ ] TypeScript compilation passes: `cd frontend-next && npx tsc --noEmit`
-- [ ] Accept Offer button only shown/active for `WAITING_APPROVAL`
-- [ ] Start Payment button only shown/active for `PAYMENT_WAITING`
-- [ ] All other statuses show disabled/informational buttons
-- [ ] Payment page validates all required fields with format rules
-- [ ] Payment submit always succeeds (dummy payment)
-- [ ] On payment success, redirected back to detail page with refreshed data
+- [x] `offer-action-button.tsx` component created with status-driven button logic (all 6 statuses handled)
+- [x] `payment-form.tsx` component created with Zod validation (5 fields)
+- [x] `payment.ts` schema created with proper validation rules
+- [x] `payment/page.tsx` route created at `/estimations/[id]/payment`
+- [x] API client has `acceptOffer()` and `processPayment()` functions
+- [x] Detail page integrates `OfferActionButton` in both the status banner and a standalone action card
+- [x] Detail page shows `startDate` and `endDate` for ACTIVE policies
+- [x] `EstimationResponse` TypeScript interface includes `startDate?` and `endDate?`
+- [x] `"use client"` directive present on all client components
+- [x] TypeScript compilation passes: `cd frontend-next && npx tsc --noEmit`
+- [x] Accept Offer button only shown/active for `WAITING_APPROVAL`
+- [x] Start Payment button only shown/active for `PAYMENT_WAITING`
+- [x] All other statuses show disabled/informational buttons
+- [x] Payment page validates all required fields with format rules
+- [x] Payment submit always succeeds (dummy payment)
+- [x] On payment success, redirected back to detail page with refreshed data

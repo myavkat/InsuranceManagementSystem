@@ -8,6 +8,7 @@ import { getVehicle } from "@/lib/api/vehicles";
 import { PageHeader } from "@/components/features/page-header";
 import { ErrorAlert } from "@/components/features/error-alert";
 import { StatusBadge } from "@/components/features/status-badge";
+import { OfferActionButton } from "@/components/features/estimations/offer-action-button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -118,11 +119,14 @@ export function EstimationDetail() {
               <span className="text-sm font-medium text-muted-foreground">Status:</span>
               <StatusBadge status={estimation.status} />
             </div>
-            {isPolling && (
-              <span className="text-xs text-muted-foreground animate-pulse">
-                Waiting for result...
-              </span>
-            )}
+            <div className="flex items-center gap-3">
+              {isPolling && (
+                <span className="text-xs text-muted-foreground animate-pulse">
+                  Waiting for result...
+                </span>
+              )}
+              <OfferActionButton estimationId={estimation.id} status={estimation.status} />
+            </div>
           </div>
 
           {["WAITING_APPROVAL", "PAYMENT_WAITING", "ACTIVE", "COMPLETED"].includes(estimation.status) && formattedPremium && (
@@ -140,6 +144,29 @@ export function EstimationDetail() {
           )}
         </CardContent>
       </Card>
+
+      {/* Action Card — only visible for actionable statuses */}
+      {["WAITING_APPROVAL", "PAYMENT_WAITING"].includes(estimation.status) && (
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium">
+                  {estimation.status === "WAITING_APPROVAL"
+                    ? "This offer is waiting for approval"
+                    : "Payment is required to activate this policy"}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {estimation.status === "WAITING_APPROVAL"
+                    ? "Accept the offer to proceed with payment."
+                    : "Click below to pay and activate the policy."}
+                </p>
+              </div>
+              <OfferActionButton estimationId={estimation.id} status={estimation.status} />
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Customer Info */}
       <Card>
@@ -202,6 +229,12 @@ export function EstimationDetail() {
           <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <DetailItem label="Created" value={new Date(estimation.createdAt).toLocaleString()} />
             <DetailItem label="Updated" value={estimation.updatedAt ? new Date(estimation.updatedAt).toLocaleString() : "—"} />
+            {estimation.startDate && (
+              <DetailItem label="Start Date" value={new Date(estimation.startDate).toLocaleString()} />
+            )}
+            {estimation.endDate && (
+              <DetailItem label="End Date" value={new Date(estimation.endDate).toLocaleString()} />
+            )}
           </dl>
         </CardContent>
       </Card>

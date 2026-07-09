@@ -20,6 +20,8 @@ export interface EstimationResponse {
   premium?: number;
   status: EstimationStatus;
   details?: string;
+  startDate?: string;
+  endDate?: string;
   createdAt: string;
   updatedAt?: string;
 }
@@ -68,5 +70,17 @@ export async function createEstimation(
   return apiClient<EstimationResponse>("/api/estimations", {
     method: "POST",
     body: JSON.stringify(data),
+  });
+}
+
+export async function acceptOffer(id: string): Promise<EstimationResponse> {
+  return apiClient<EstimationResponse>(`/api/estimations/${id}/accept-offer`, {
+    method: "PUT",
+  });
+}
+
+export async function processPayment(id: string): Promise<EstimationResponse> {
+  return apiClient<EstimationResponse>(`/api/estimations/${id}/process-payment`, {
+    method: "PUT",
   });
 }
