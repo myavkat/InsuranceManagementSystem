@@ -9,7 +9,7 @@ A **Next.js 16 App Router** application with **SSR** as the default rendering st
 ## Directory Structure
 
 ```
-frontend-next/
+frontend/
 ├── .env.local                    # GATEWAY_URL, AUTH_SECRET, etc.
 ├── next.config.ts
 ├── postcss.config.mjs

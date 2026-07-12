@@ -12,15 +12,15 @@ Read these files before starting:
 - `docs/outlines/05_NEXTJS_FRONTEND.md` — directory structure, BFF pattern, SSR defaults
 - `docs/outlines/06_API_GATEWAY_AUTH.md` — Gateway routes, JWT format, auth endpoints
 - `docs/outlines/13_ENVIRONMENT_QUIRKS.md` — port allocation (Next.js = 3000, Gateway = 8080)
-- `frontend-next/AGENTS.md` — Next.js 16 docs reference
+- `frontend/AGENTS.md` — Next.js 16 docs reference
 - `AGENTS.md` — environment variable documentation rule (every `${ENV_VAR}` in config must have a `.env.template` entry)
-- `frontend-next/package.json` — confirm dependency versions
+- `frontend/package.json` — confirm dependency versions
 
 ## Steps
 
-### Step 1: Create `frontend-next/.env.local`
+### Step 1: Create `frontend/.env.local`
 
-**File to CREATE:** `frontend-next/.env.local`
+**File to CREATE:** `frontend/.env.local`
 
 This file is gitignored (per root `.gitignore` covering `.env` files). It provides local development values.
 
@@ -55,7 +55,7 @@ Do NOT remove or modify any existing lines in `.env.template`. Only append the n
 
 ### Step 3: Update root layout metadata
 
-**File to MODIFY:** `frontend-next/src/app/layout.tsx`
+**File to MODIFY:** `frontend/src/app/layout.tsx`
 
 Open the file. It currently has:
 
@@ -85,7 +85,7 @@ Do NOT change anything else in this file — keep the Geist font setup, the `<ht
 
 ### Step 4: Replace the landing page
 
-**File to MODIFY:** `frontend-next/src/app/page.tsx`
+**File to MODIFY:** `frontend/src/app/page.tsx`
 
 Replace the entire contents of this file. The current file is the default create-next-app boilerplate with Vercel/Documentation links. Replace with a minimal server component that either:
 
@@ -103,7 +103,7 @@ export default function Home() {
 
 ### Step 5: Verify TypeScript strict mode
 
-**File to CHECK:** `frontend-next/tsconfig.json`
+**File to CHECK:** `frontend/tsconfig.json`
 
 Open the file and confirm `"strict": true` is present under `compilerOptions`. It should already be there (the scaffolded app has it). If it is missing, add it.
 
@@ -114,7 +114,7 @@ No other changes to `tsconfig.json`.
 Run from repo root:
 
 ```bash
-cd frontend-next && npm run build
+cd frontend && npm run build
 ```
 
 This verifies that:
@@ -142,14 +142,14 @@ Keep this placeholder and add a comment: `// TODO: replace with redirect("/dashb
 Run from repo root:
 
 ```bash
-cd frontend-next && npm run lint
+cd frontend && npm run lint
 ```
 
 Fix any lint errors before marking this plan complete.
 
 ## Acceptance Criteria
 
-- [x] `frontend-next/.env.local` exists with `NEXT_PUBLIC_GATEWAY_URL`, `AUTH_SECRET`, and `PORT`
+- [x] `frontend/.env.local` exists with `NEXT_PUBLIC_GATEWAY_URL`, `AUTH_SECRET`, and `PORT`
 - [x] `.env.template` includes `NEXT_PUBLIC_GATEWAY_URL` and `AUTH_SECRET` entries
 - [x] Root layout metadata shows "Insurance Management System" as default title
 - [x] Root layout metadata uses template format: `"%s | Insurance Management System"`

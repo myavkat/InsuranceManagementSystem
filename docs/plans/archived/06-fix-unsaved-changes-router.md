@@ -20,10 +20,10 @@ Fix the `useUnsavedChanges` hook so it intercepts **Next.js client-side navigati
 
 | File | Why |
 |------|-----|
-| `frontend-next/src/hooks/use-unsaved-changes.ts` | The file being fixed (26 lines) |
-| `frontend-next/src/components/features/customers/customer-form.tsx` | Example caller — `useUnsavedChanges(isDirty)` |
-| `frontend-next/src/components/features/estimations/estimation-form.tsx` | Example caller |
-| `node_modules/next/dist/docs/` (per `frontend-next/AGENTS.md`) | Next.js 16 navigation docs — check for unsaved-changes API |
+| `frontend/src/hooks/use-unsaved-changes.ts` | The file being fixed (26 lines) |
+| `frontend/src/components/features/customers/customer-form.tsx` | Example caller — `useUnsavedChanges(isDirty)` |
+| `frontend/src/components/features/estimations/estimation-form.tsx` | Example caller |
+| `node_modules/next/dist/docs/` (per `frontend/AGENTS.md`) | Next.js 16 navigation docs — check for unsaved-changes API |
 
 ---
 

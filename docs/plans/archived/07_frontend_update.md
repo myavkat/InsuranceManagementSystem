@@ -10,13 +10,13 @@ Update all frontend TypeScript/React code that references `insuranceTypeId` on e
 
 ## Files to Read Before Starting
 
-- `frontend-next/src/lib/schemas/estimation.ts`
-- `frontend-next/src/lib/api/estimations.ts`
-- `frontend-next/src/components/features/estimations/estimation-form.tsx`
-- `frontend-next/src/components/features/estimations/estimation-detail.tsx`
-- `frontend-next/src/components/features/estimations/estimation-list.tsx`
-- `frontend-next/src/lib/api/insurances.ts` — for the `InsuranceResponse` interface
-- `frontend-next/AGENTS.md` — Next.js version-specific guidance
+- `frontend/src/lib/schemas/estimation.ts`
+- `frontend/src/lib/api/estimations.ts`
+- `frontend/src/components/features/estimations/estimation-form.tsx`
+- `frontend/src/components/features/estimations/estimation-detail.tsx`
+- `frontend/src/components/features/estimations/estimation-list.tsx`
+- `frontend/src/lib/api/insurances.ts` — for the `InsuranceResponse` interface
+- `frontend/AGENTS.md` — Next.js version-specific guidance
 
 ## Technical Context
 
@@ -70,7 +70,7 @@ So the form UI is actually close to what we need. The change is to send `insuran
 
 ### Step 1: Update estimation.ts schema  ✓
 
-Open `frontend-next/src/lib/schemas/estimation.ts`.
+Open `frontend/src/lib/schemas/estimation.ts`.
 
 **Change:**
 ```typescript
@@ -97,7 +97,7 @@ export type EstimationFormData = z.infer<typeof estimationSchema>;
 
 ### Step 2: Update estimations.ts API types  ✓
 
-Open `frontend-next/src/lib/api/estimations.ts`.
+Open `frontend/src/lib/api/estimations.ts`.
 
 **A. Update `EstimationResponse` interface:**
 - Change `insuranceTypeId: number;` to `insuranceId: string;`
@@ -108,7 +108,7 @@ Open `frontend-next/src/lib/api/estimations.ts`.
 
 ### Step 3: Update estimation-form.tsx  ✓
 
-Open `frontend-next/src/components/features/estimations/estimation-form.tsx`.
+Open `frontend/src/components/features/estimations/estimation-form.tsx`.
 
 **A. Update form default values:**
 ```typescript
@@ -218,7 +218,7 @@ Change to:
 
 ### Step 4: Update estimation-detail.tsx  ✓
 
-Open `frontend-next/src/components/features/estimations/estimation-detail.tsx`.
+Open `frontend/src/components/features/estimations/estimation-detail.tsx`.
 
 **A. Update the insurance type name resolution:**
 
@@ -266,7 +266,7 @@ Delete this block.
 
 ### Step 5: Update estimation-list.tsx  ✓
 
-Open `frontend-next/src/components/features/estimations/estimation-list.tsx`.
+Open `frontend/src/components/features/estimations/estimation-list.tsx`.
 
 **A. Update column definitions:**
 
@@ -307,7 +307,7 @@ Place it before the `insuranceTypeName` column.
 ### Step 6: Verify TypeScript compilation  ✓
 
 ```bash
-cd frontend-next && npx tsc --noEmit
+cd frontend && npx tsc --noEmit
 ```
 
 Fix any type errors. Common issues:
@@ -319,7 +319,7 @@ TypeScript compilation passes with zero errors.
 ### Step 7: Verify the build  ⚠️ (pre-existing issue)
 
 ```bash
-cd frontend-next && npm run build
+cd frontend && npm run build
 ```
 
 ## Acceptance Criteria

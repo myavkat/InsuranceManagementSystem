@@ -66,7 +66,7 @@ Check if any configuration maps or routing rules reference insurance names by st
 
 **Pattern:** `"TRAFFIC"`, `"CASCO"`, `"DASK"`, `"HEALTH"`, `"LIFE"`, `'TRAFFIC'`, `'CASCO'`, `'DASK'`, `'HEALTH'`, `'LIFE'`
 
-Restrict to: `frontend-next/src/**/*.{ts,tsx}`
+Restrict to: `frontend/src/**/*.{ts,tsx}`
 
 **What to look for:**
 - String comparison: `name === "TRAFFIC"`, `name == "CASCO"`
@@ -85,7 +85,7 @@ If any match is found:
 
 ### Search F: Frontend estimation/insurance type-based logic audit
 
-Open `frontend-next/src/components/features/estimations/estimation-form.tsx`.
+Open `frontend/src/components/features/estimations/estimation-form.tsx`.
 
 Verify that lines 123–126 use `selectedInsuranceTypeId` (numeric) for step 3 branching:
 ```typescript

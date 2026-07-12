@@ -18,19 +18,19 @@ Build the Customer Management feature pages in the Next.js frontend:
 
 - `docs/stories/02_CUSTOMER_MANAGEMENT.md` — Customer scenarios and acceptance criteria
 - `docs/outlines/05_NEXTJS_FRONTEND.md` — BFF pattern, Server Components by default
-- `frontend-next/src/lib/api/customers.ts` — `CustomerResponse`, `CustomerRequest`, API functions
-- `frontend-next/src/lib/api/reference-data.ts` — `getCities()`, `getProfessions()`
-- `frontend-next/src/lib/api/vehicles.ts` — `VehicleResponse` (for linked vehicles on detail page)
-- `frontend-next/src/lib/api/estimations.ts` — `EstimationResponse` (for estimation history on detail page)
-- `frontend-next/src/components/features/` — All shared components created in Plan 03
-- `frontend-next/src/components/ui/button.tsx`
-- `frontend-next/src/components/ui/input.tsx`
-- `frontend-next/src/components/ui/table.tsx`
-- `frontend-next/src/components/ui/card.tsx`
-- `frontend-next/src/components/ui/select.tsx`
-- `frontend-next/src/components/ui/skeleton.tsx`
-- `frontend-next/src/app/(dashboard)/dashboard/page.tsx` — Example of a page under dashboard layout
-- `frontend-next/src/app/(dashboard)/layout.tsx` — Dashboard layout structure
+- `frontend/src/lib/api/customers.ts` — `CustomerResponse`, `CustomerRequest`, API functions
+- `frontend/src/lib/api/reference-data.ts` — `getCities()`, `getProfessions()`
+- `frontend/src/lib/api/vehicles.ts` — `VehicleResponse` (for linked vehicles on detail page)
+- `frontend/src/lib/api/estimations.ts` — `EstimationResponse` (for estimation history on detail page)
+- `frontend/src/components/features/` — All shared components created in Plan 03
+- `frontend/src/components/ui/button.tsx`
+- `frontend/src/components/ui/input.tsx`
+- `frontend/src/components/ui/table.tsx`
+- `frontend/src/components/ui/card.tsx`
+- `frontend/src/components/ui/select.tsx`
+- `frontend/src/components/ui/skeleton.tsx`
+- `frontend/src/app/(dashboard)/dashboard/page.tsx` — Example of a page under dashboard layout
+- `frontend/src/app/(dashboard)/layout.tsx` — Dashboard layout structure
 
 ## Context
 
@@ -72,11 +72,11 @@ const res = await fetch(`http://localhost:3000/api/customers?page=0&size=20`);
 
 Create these directories:
 ```
-frontend-next/src/app/(dashboard)/customers/
-frontend-next/src/app/(dashboard)/customers/new/
-frontend-next/src/app/(dashboard)/customers/[id]/
-frontend-next/src/app/(dashboard)/customers/[id]/edit/
-frontend-next/src/components/features/customers/
+frontend/src/app/(dashboard)/customers/
+frontend/src/app/(dashboard)/customers/new/
+frontend/src/app/(dashboard)/customers/[id]/
+frontend/src/app/(dashboard)/customers/[id]/edit/
+frontend/src/components/features/customers/
 ```
 - [x] Create directory structure
 
@@ -87,7 +87,7 @@ frontend-next/src/components/features/customers/
 
 #### 2a. Create the list client component
 
-Create: `frontend-next/src/components/features/customers/customer-list.tsx`
+Create: `frontend/src/components/features/customers/customer-list.tsx`
 
 ```typescript
 "use client";
@@ -219,7 +219,7 @@ export function CustomerList() {
 
 #### 2b. Create the page
 
-Create: `frontend-next/src/app/(dashboard)/customers/page.tsx`
+Create: `frontend/src/app/(dashboard)/customers/page.tsx`
 
 ```typescript
 import type { Metadata } from "next";
@@ -241,7 +241,7 @@ export default function CustomersPage() {
 
 #### 3a. Create the detail client component
 
-Create: `frontend-next/src/components/features/customers/customer-detail.tsx`
+Create: `frontend/src/components/features/customers/customer-detail.tsx`
 
 This component shows:
 - Customer personal info in a Card
@@ -410,7 +410,7 @@ function DetailItem({ label, value, className }: { label: string; value: string;
 
 #### 3b. Create the page
 
-Create: `frontend-next/src/app/(dashboard)/customers/[id]/page.tsx`
+Create: `frontend/src/app/(dashboard)/customers/[id]/page.tsx`
 
 ```typescript
 import type { Metadata } from "next";
@@ -434,7 +434,7 @@ export default function CustomerDetailPage() {
 
 #### 4a. Create the form component
 
-Create: `frontend-next/src/components/features/customers/customer-form.tsx`
+Create: `frontend/src/components/features/customers/customer-form.tsx`
 
 This is a React Hook Form with Zod validation. It's used by both the "new" and "edit" pages.
 
@@ -715,7 +715,7 @@ export function CustomerForm({ initialData }: CustomerFormProps) {
 
 #### 4b. Create the "New Customer" page
 
-Create: `frontend-next/src/app/(dashboard)/customers/new/page.tsx`
+Create: `frontend/src/app/(dashboard)/customers/new/page.tsx`
 
 ```typescript
 import type { Metadata } from "next";
@@ -732,7 +732,7 @@ export default function NewCustomerPage() {
 
 #### 4c. Create the "Edit Customer" page
 
-Create: `frontend-next/src/app/(dashboard)/customers/[id]/edit/page.tsx`
+Create: `frontend/src/app/(dashboard)/customers/[id]/edit/page.tsx`
 
 ```typescript
 import type { Metadata } from "next";
@@ -747,7 +747,7 @@ export default function EditCustomerPage() {
 }
 ```
 
-Create: `frontend-next/src/components/features/customers/edit-customer-form.tsx`
+Create: `frontend/src/components/features/customers/edit-customer-form.tsx`
 
 This is a thin wrapper that fetches the existing customer and passes it to `CustomerForm`:
 
@@ -801,7 +801,7 @@ export function EditCustomerForm() {
 
 ### Step 5: Verify the build compiles
 
-Run: `cd frontend-next && npm run build`
+Run: `cd frontend && npm run build`
 
 Fix any TypeScript errors before marking this plan complete.
 

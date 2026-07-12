@@ -20,7 +20,7 @@ Fix a CSV formula injection vulnerability in the DataTable's `escapeCsvField` he
 
 | File | Why |
 |------|-----|
-| `frontend-next/src/components/features/data-table/data-table.tsx` | The file being fixed — see `escapeCsvField` helper (bottom of file) and `handleCsvExport` function |
+| `frontend/src/components/features/data-table/data-table.tsx` | The file being fixed — see `escapeCsvField` helper (bottom of file) and `handleCsvExport` function |
 
 ---
 

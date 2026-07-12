@@ -10,12 +10,12 @@ Add a risk factor management section to the insurance detail page. Each risk fac
 
 ## Files to Read First
 
-- `frontend-next/src/components/features/insurances/insurance-detail.tsx` — detail page to enhance
-- `frontend-next/src/lib/api/insurances.ts` — API client file (will add new functions)
-- `frontend-next/src/components/ui/slider.tsx` — will be created (doesn't exist yet)
-- `frontend-next/src/components/ui/card.tsx` — Card component used for sections
-- `frontend-next/src/components/ui/button.tsx` — Button component
-- `frontend-next/node_modules/@base-ui/react/slider/` — verify SliderRoot, SliderThumb, SliderTrack, SliderControl, SliderValue, SliderIndicator are available
+- `frontend/src/components/features/insurances/insurance-detail.tsx` — detail page to enhance
+- `frontend/src/lib/api/insurances.ts` — API client file (will add new functions)
+- `frontend/src/components/ui/slider.tsx` — will be created (doesn't exist yet)
+- `frontend/src/components/ui/card.tsx` — Card component used for sections
+- `frontend/src/components/ui/button.tsx` — Button component
+- `frontend/node_modules/@base-ui/react/slider/` — verify SliderRoot, SliderThumb, SliderTrack, SliderControl, SliderValue, SliderIndicator are available
 
 ## Technical Context
 
@@ -30,7 +30,7 @@ Add a risk factor management section to the insurance detail page. Each risk fac
 
 ### Step 1: Create the Slider UI component
 
-Create new file: `frontend-next/src/components/ui/slider.tsx`
+Create new file: `frontend/src/components/ui/slider.tsx`
 
 This wraps `@base-ui/react` Slider primitives into a shadcn-style component:
 
@@ -90,7 +90,7 @@ export { BaseSlider };
 
 ### Step 2: Add API client functions for risk factors
 
-Open `frontend-next/src/lib/api/insurances.ts`.
+Open `frontend/src/lib/api/insurances.ts`.
 
 **Add** TypeScript types and API functions:
 
@@ -151,7 +151,7 @@ export async function getRiskFactorHistory(
 
 ### Step 3: Create RiskFactorEditor component
 
-Create new file: `frontend-next/src/components/features/insurances/risk-factor-editor.tsx`
+Create new file: `frontend/src/components/features/insurances/risk-factor-editor.tsx`
 
 This is a client component that:
 1. Fetches risk factors via `useQuery`
@@ -321,7 +321,7 @@ export function RiskFactorEditor({ insuranceId }: Props) {
 
 ### Step 4: Integrate RiskFactorEditor into InsuranceDetail
 
-Open `frontend-next/src/components/features/insurances/insurance-detail.tsx`.
+Open `frontend/src/components/features/insurances/insurance-detail.tsx`.
 
 **Add** the import:
 ```typescript
@@ -339,7 +339,7 @@ Place it between the "Product Information" card and the "Record Info" card.
 
 ### Step 5: Create RiskFactorHistory component (optional enhancement)
 
-Create new file: `frontend-next/src/components/features/insurances/risk-factor-history.tsx`
+Create new file: `frontend/src/components/features/insurances/risk-factor-history.tsx`
 
 This is a simple paginated table showing past changes:
 

@@ -24,11 +24,11 @@ But `server-fetch.ts` explicitly says: *"Server Components should fetch data dir
 
 | File | Why |
 |------|-----|
-| `frontend-next/src/lib/api/server-fetch.ts` | The file implementing direct Gateway calls (64 lines) |
+| `frontend/src/lib/api/server-fetch.ts` | The file implementing direct Gateway calls (64 lines) |
 | `docs/outlines/05_NEXTJS_FRONTEND.md` | The documented BFF architecture |
-| `frontend-next/src/lib/api/client.ts` | The client-side API client (also calls Gateway directly) |
-| `frontend-next/src/app/api/**/[[...path]]/route.ts` | Existing BFF route handlers (search for them) |
-| `frontend-next/AGENTS.md` | Instructs: "Read the relevant guide in node_modules/next/dist/docs/" |
+| `frontend/src/lib/api/client.ts` | The client-side API client (also calls Gateway directly) |
+| `frontend/src/app/api/**/[[...path]]/route.ts` | Existing BFF route handlers (search for them) |
+| `frontend/AGENTS.md` | Instructs: "Read the relevant guide in node_modules/next/dist/docs/" |
 
 ---
 
@@ -74,14 +74,14 @@ If the BFF route handlers (`app/api/**/route.ts`) are no longer used by any code
 
 ```bash
 # Search for any imports of the BFF handlers
-grep -r "api/" frontend-next/src --include="*.ts" --include="*.tsx" | grep -v "node_modules"
+grep -r "api/" frontend/src --include="*.ts" --include="*.tsx" | grep -v "node_modules"
 ```
 
 If only `apiClient.ts` and `server-fetch.ts` reference `/api/` paths (as Gateway paths, not as local route handlers), the BFF route handlers can be safely deleted.
 
 #### Step 4 — Add `.env.template` entry (per AGENTS.md rule)
 
-Per the AGENTS.md environment variable rule: *"Every `${ENV_VAR:default}` placeholder referenced in any `application.yml` MUST have a corresponding entry in `.env.template`."* While this rule targets `application.yml`, the principle applies to all config. `server-fetch.ts` uses `NEXT_PUBLIC_GATEWAY_URL` with a default. Verify it exists in the repo's root `.env.template` (or `frontend-next/.env.local` example). If missing, add it:
+Per the AGENTS.md environment variable rule: *"Every `${ENV_VAR:default}` placeholder referenced in any `application.yml` MUST have a corresponding entry in `.env.template`."* While this rule targets `application.yml`, the principle applies to all config. `server-fetch.ts` uses `NEXT_PUBLIC_GATEWAY_URL` with a default. Verify it exists in the repo's root `.env.template` (or `frontend/.env.local` example). If missing, add it:
 
 ```
 # API Gateway URL (used by serverFetch and apiClient)

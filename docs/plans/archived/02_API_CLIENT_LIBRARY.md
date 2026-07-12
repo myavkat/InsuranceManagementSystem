@@ -2,7 +2,7 @@
 
 ## Objective
 
-Complete the API client library in `frontend-next/src/lib/api/` so every domain has full TypeScript types and functions for all CRUD operations plus reference data lookups. Add the missing `realestate.ts` and `reference-data.ts` modules.
+Complete the API client library in `frontend/src/lib/api/` so every domain has full TypeScript types and functions for all CRUD operations plus reference data lookups. Add the missing `realestate.ts` and `reference-data.ts` modules.
 
 ## Prerequisites
 
@@ -16,10 +16,10 @@ Complete the API client library in `frontend-next/src/lib/api/` so every domain 
 - `docs/stories/04_ESTIMATION_SAGA.md` — Estimation fields
 - `docs/stories/05_VEHICLE_MANAGEMENT.md` — Vehicle fields and reference data
 - `docs/stories/06_REAL_ESTATE_MANAGEMENT.md` — Real estate fields and reference data
-- `frontend-next/src/lib/api/client.ts` — The `apiClient<T>()` function
-- `frontend-next/src/lib/api/types.ts` — `PageResponse<T>`, `ApiResponse<T>`, `ApiError`
-- `frontend-next/src/lib/api/customers.ts` — Existing pattern to follow
-- `frontend-next/src/lib/api/index.ts` — Re-export barrel file
+- `frontend/src/lib/api/client.ts` — The `apiClient<T>()` function
+- `frontend/src/lib/api/types.ts` — `PageResponse<T>`, `ApiResponse<T>`, `ApiError`
+- `frontend/src/lib/api/customers.ts` — Existing pattern to follow
+- `frontend/src/lib/api/index.ts` — Re-export barrel file
 
 ## Context
 
@@ -39,7 +39,7 @@ All domain API functions follow this pattern:
 
 ### Step 1: Update `customers.ts` with complete types
 
-File: `frontend-next/src/lib/api/customers.ts`
+File: `frontend/src/lib/api/customers.ts`
 
 Replace the entire file. The `CustomerResponse` interface must include all fields from the Customer entity:
 
@@ -118,7 +118,7 @@ export async function deleteCustomer(id: string): Promise<void> {
 
 ### Step 2: Update `insurances.ts` with complete types and functions
 
-File: `frontend-next/src/lib/api/insurances.ts`
+File: `frontend/src/lib/api/insurances.ts`
 
 Replace the entire file. Add:
 - `InsuranceCompanyResponse` and `InsuranceTypeResponse` interfaces
@@ -223,7 +223,7 @@ export async function getInsuranceCompanies(): Promise<InsuranceCompanyResponse[
 
 ### Step 3: Update `estimations.ts` with complete types
 
-File: `frontend-next/src/lib/api/estimations.ts`
+File: `frontend/src/lib/api/estimations.ts`
 
 Replace the entire file. Add:
 - Full `EstimationResponse` with customer name, status, premium, date fields
@@ -302,7 +302,7 @@ export async function createEstimation(
 
 ### Step 4: Update `vehicles.ts` with complete types and reference data functions
 
-File: `frontend-next/src/lib/api/vehicles.ts`
+File: `frontend/src/lib/api/vehicles.ts`
 
 Replace the entire file. Add:
 - Full `VehicleResponse` and `VehicleRequest` interfaces
@@ -456,7 +456,7 @@ export async function getPackages(): Promise<CarPackage[]> {
 
 ### Step 5: Create `realestate.ts`
 
-File: `frontend-next/src/lib/api/realestate.ts` (NEW FILE)
+File: `frontend/src/lib/api/realestate.ts` (NEW FILE)
 
 ```typescript
 import { apiClient } from "./client";
@@ -571,7 +571,7 @@ export async function getUsageTypes(): Promise<UsageType[]> {
 
 ### Step 6: Create `reference-data.ts`
 
-File: `frontend-next/src/lib/api/reference-data.ts` (NEW FILE)
+File: `frontend/src/lib/api/reference-data.ts` (NEW FILE)
 
 ```typescript
 import { apiClient } from "./client";
@@ -598,7 +598,7 @@ export async function getProfessions(): Promise<Profession[]> {
 
 ### Step 7: Update the barrel file
 
-File: `frontend-next/src/lib/api/index.ts`
+File: `frontend/src/lib/api/index.ts`
 
 Replace the contents. Add the two new modules:
 
@@ -617,7 +617,7 @@ export * as referenceDataApi from "./reference-data";
 
 ### Step 8: Verify the build compiles
 
-Run: `cd frontend-next && npm run build`
+Run: `cd frontend && npm run build`
 
 Fix any TypeScript errors before marking this plan complete.
 

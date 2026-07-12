@@ -6,10 +6,10 @@ Quick-reference for building, running, and testing each subsystem.
 
 ## Frontend (Next.js)
 
-All commands run from `frontend-next/`:
+All commands run from `frontend/`:
 
 ```bash
-cd frontend-next
+cd frontend
 npm run dev                  # Next.js dev server at localhost:3000
 npm run build                # Production build (SSR + static generation)
 npm run start                # Production server
@@ -138,4 +138,4 @@ That's it. All infra + all 6 services come up. Use `stop-all.cmd` to shut down.
 1. **Start infra:** `docker compose -f infra/docker/docker-compose.yml -f infra/docker/docker-compose.override.yml up -d`
 2. **Build common:** `.\gradlew.bat :common:common-message:build`
 3. **Build & run a service:** `.\gradlew.bat :services:<service-name>:bootRun`
-4. **Start frontend:** `cd frontend-next && npm run dev`
+4. **Start frontend:** `cd frontend && npm run dev`

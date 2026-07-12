@@ -22,24 +22,24 @@ Fix the following bugs across real estate pages:
 
 | File | Reason |
 |------|--------|
-| `frontend-next/src/components/features/real-estate/real-estate-list.tsx` | List page |
-| `frontend-next/src/components/features/real-estate/real-estate-detail.tsx` | Detail page |
-| `frontend-next/src/components/features/real-estate/real-estate-form.tsx` | Form (used by new + edit) |
-| `frontend-next/src/components/features/real-estate/edit-real-estate-form.tsx` | Edit wrapper |
-| `frontend-next/src/lib/api/realestate.ts` | API functions and response types |
-| `frontend-next/src/components/features/search-bar.tsx` | Search component |
+| `frontend/src/components/features/real-estate/real-estate-list.tsx` | List page |
+| `frontend/src/components/features/real-estate/real-estate-detail.tsx` | Detail page |
+| `frontend/src/components/features/real-estate/real-estate-form.tsx` | Form (used by new + edit) |
+| `frontend/src/components/features/real-estate/edit-real-estate-form.tsx` | Edit wrapper |
+| `frontend/src/lib/api/realestate.ts` | API functions and response types |
+| `frontend/src/components/features/search-bar.tsx` | Search component |
 
 ## Files to Modify
 
-1. `frontend-next/src/components/features/real-estate/real-estate-list.tsx`
-2. `frontend-next/src/components/features/real-estate/real-estate-detail.tsx`
-3. `frontend-next/src/components/features/real-estate/real-estate-form.tsx` (if stale-data fix needed, similar to vehicle Plan 05)
+1. `frontend/src/components/features/real-estate/real-estate-list.tsx`
+2. `frontend/src/components/features/real-estate/real-estate-detail.tsx`
+3. `frontend/src/components/features/real-estate/real-estate-form.tsx` (if stale-data fix needed, similar to vehicle Plan 05)
 
 ## Steps
 
 ### Step 1: Fix city and customer fields not showing in real estate list
 
-Open `frontend-next/src/components/features/real-estate/real-estate-list.tsx`.
+Open `frontend/src/components/features/real-estate/real-estate-list.tsx`.
 
 The city column is at lines 30-33:
 ```typescript
@@ -91,7 +91,7 @@ The frontend code is correct and handles the `"? —"` fallback properly.
 
 ### Step 2: Fix search not filtering in real estate list
 
-Open `frontend-next/src/components/features/real-estate/real-estate-list.tsx`.
+Open `frontend/src/components/features/real-estate/real-estate-list.tsx`.
 
 The search logic is identical to the vehicle list page (see Plan 05, Step 2). The flow:
 
@@ -124,7 +124,7 @@ and `RealEstateRepository` (search method).
 
 ### Step 3: Fix city and customer fields not loaded in real estate detail
 
-Open `frontend-next/src/components/features/real-estate/real-estate-detail.tsx`.
+Open `frontend/src/components/features/real-estate/real-estate-detail.tsx`.
 
 City field at line 90:
 ```typescript
@@ -150,7 +150,7 @@ set these fields. The frontend code is correct.
 
 ### Step 4: Fix stale data after edit save (same pattern as vehicles)
 
-Open `frontend-next/src/components/features/real-estate/real-estate-form.tsx`.
+Open `frontend/src/components/features/real-estate/real-estate-form.tsx`.
 
 The `onSuccess` callback of the mutation (around lines 129-131):
 ```typescript
@@ -186,7 +186,7 @@ So `["real-estate", result.id]` matches both. Good.
 
 ### Step 5: Type-check
 
-Run `cd frontend-next && npx tsc --noEmit` to verify no type errors.
+Run `cd frontend && npx tsc --noEmit` to verify no type errors.
 
 **Result**: ✅ Passed with no errors.
 

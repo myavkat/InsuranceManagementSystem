@@ -20,8 +20,8 @@ Fix a bug in the insurance list where selecting "All types" or "All companies" s
 
 | File | Why |
 |------|-----|
-| `frontend-next/src/components/features/insurances/insurance-list.tsx` | The file being fixed |
-| `frontend-next/src/lib/api/insurances.ts` | The `getInsurances` function — confirms `typeId`/`companyId` are `number | undefined` |
+| `frontend/src/components/features/insurances/insurance-list.tsx` | The file being fixed |
+| `frontend/src/lib/api/insurances.ts` | The `getInsurances` function — confirms `typeId`/`companyId` are `number | undefined` |
 
 ---
 

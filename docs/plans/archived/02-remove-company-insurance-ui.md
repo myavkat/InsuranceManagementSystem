@@ -9,30 +9,30 @@
 
 | File | Reason |
 |------|--------|
-| `frontend-next/src/components/features/insurances/insurance-list.tsx` | List page with Company column + filter |
-| `frontend-next/src/components/features/insurances/insurance-form.tsx` | Form with Company dropdown (used by new + edit) |
-| `frontend-next/src/components/features/insurances/insurance-detail.tsx` | Detail page with Company field + Deactivate button |
-| `frontend-next/src/components/features/estimations/estimation-form.tsx` | Estimation wizard with Company dropdown |
-| `frontend-next/src/lib/api/insurances.ts` | Response types (to confirm `companyName` field) |
-| `frontend-next/src/lib/schemas/insurance.ts` | Zod schema (check if `companyId` is required) |
-| `frontend-next/src/lib/schemas/estimation.ts` | Zod schema (check if `companyId` is required) |
+| `frontend/src/components/features/insurances/insurance-list.tsx` | List page with Company column + filter |
+| `frontend/src/components/features/insurances/insurance-form.tsx` | Form with Company dropdown (used by new + edit) |
+| `frontend/src/components/features/insurances/insurance-detail.tsx` | Detail page with Company field + Deactivate button |
+| `frontend/src/components/features/estimations/estimation-form.tsx` | Estimation wizard with Company dropdown |
+| `frontend/src/lib/api/insurances.ts` | Response types (to confirm `companyName` field) |
+| `frontend/src/lib/schemas/insurance.ts` | Zod schema (check if `companyId` is required) |
+| `frontend/src/lib/schemas/estimation.ts` | Zod schema (check if `companyId` is required) |
 
 ## Files to Modify
 
-1. `frontend-next/src/components/features/insurances/insurance-list.tsx`
-2. `frontend-next/src/components/features/insurances/insurance-form.tsx`
-3. `frontend-next/src/components/features/insurances/insurance-detail.tsx`
-4. `frontend-next/src/components/features/estimations/estimation-form.tsx`
+1. `frontend/src/components/features/insurances/insurance-list.tsx`
+2. `frontend/src/components/features/insurances/insurance-form.tsx`
+3. `frontend/src/components/features/insurances/insurance-detail.tsx`
+4. `frontend/src/components/features/estimations/estimation-form.tsx`
 
 Possible schema updates:
-5. `frontend-next/src/lib/schemas/insurance.ts`
-6. `frontend-next/src/lib/schemas/estimation.ts`
+5. `frontend/src/lib/schemas/insurance.ts`
+6. `frontend/src/lib/schemas/estimation.ts`
 
 ## Steps
 
 ### Step 1: Remove Company from insurance-list.tsx
 
-Open `frontend-next/src/components/features/insurances/insurance-list.tsx`.
+Open `frontend/src/components/features/insurances/insurance-list.tsx`.
 
 **1a. Remove the "Company" column from the `columns` array.** Delete these lines (currently line 42-45):
 ```typescript
@@ -139,7 +139,7 @@ to:
 
 ### Step 2: Remove Company from insurance-form.tsx
 
-Open `frontend-next/src/components/features/insurances/insurance-form.tsx`.
+Open `frontend/src/components/features/insurances/insurance-form.tsx`.
 
 **2a. Remove `getInsuranceCompanies` from the import** (line 11):
 ```typescript
@@ -200,7 +200,7 @@ The simplest approach: Change the parent grid element's class from:
 ```
 to just not wrapping in a grid at all. Remove the opening `<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">` and its closing `</div>` around the remaining Type dropdown. The Type dropdown's own `<div className="space-y-1.5">` already handles spacing.
 
-**2d. Check the schema.** Open `frontend-next/src/lib/schemas/insurance.ts`. Look for `companyId` in the schema definition. If `companyId` is a required field (`z.string().min(1, ...)`), you need to either:
+**2d. Check the schema.** Open `frontend/src/lib/schemas/insurance.ts`. Look for `companyId` in the schema definition. If `companyId` is a required field (`z.string().min(1, ...)`), you need to either:
 - Remove it from the schema entirely, OR
 - Make it optional (`z.string().optional()`)
 
@@ -222,7 +222,7 @@ const payload: InsuranceRequest = {
 
 ### Step 3: Remove Company from insurance-detail.tsx
 
-Open `frontend-next/src/components/features/insurances/insurance-detail.tsx`.
+Open `frontend/src/components/features/insurances/insurance-detail.tsx`.
 
 **3a. Remove the "Company" DetailItem.** Delete line 119:
 ```typescript
@@ -268,7 +268,7 @@ Add `refetch` to the destructured return from `useQuery` — verify it's already
 
 ### Step 4: Remove Company from estimation-form.tsx
 
-Open `frontend-next/src/components/features/estimations/estimation-form.tsx`.
+Open `frontend/src/components/features/estimations/estimation-form.tsx`.
 
 **4a. Remove `getInsuranceCompanies` from the import** (line 10):
 ```typescript
@@ -346,11 +346,11 @@ return createEstimation({
 });
 ```
 
-**4i. Check the schema.** Open `frontend-next/src/lib/schemas/estimation.ts`. Look for `companyId` in the schema definition. If present, remove it or make it optional. Update the `EstimationFormData` type accordingly.
+**4i. Check the schema.** Open `frontend/src/lib/schemas/estimation.ts`. Look for `companyId` in the schema definition. If present, remove it or make it optional. Update the `EstimationFormData` type accordingly.
 
 ### Step 5: Type-check
 
-Run `cd frontend-next && npx tsc --noEmit` to verify no type errors remain.
+Run `cd frontend && npx tsc --noEmit` to verify no type errors remain.
 
 ## Acceptance Criteria
 

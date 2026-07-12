@@ -13,11 +13,11 @@ Fix the estimation wizard:
 
 ## Files to Read First
 
-- `frontend-next/src/components/features/estimations/estimation-form.tsx` — the wizard component
-- `frontend-next/src/lib/schemas/estimation.ts` — Zod validation schema
-- `frontend-next/src/lib/api/insurances.ts` — insurance API client (has `getInsurances()`, `getInsurance(id)`)
-- `frontend-next/src/lib/api/vehicles.ts` — vehicle API client (updated in plan 02)
-- `frontend-next/src/lib/api/realestate.ts` — real estate API client (updated in plan 02)
+- `frontend/src/components/features/estimations/estimation-form.tsx` — the wizard component
+- `frontend/src/lib/schemas/estimation.ts` — Zod validation schema
+- `frontend/src/lib/api/insurances.ts` — insurance API client (has `getInsurances()`, `getInsurance(id)`)
+- `frontend/src/lib/api/vehicles.ts` — vehicle API client (updated in plan 02)
+- `frontend/src/lib/api/realestate.ts` — real estate API client (updated in plan 02)
 
 ## Technical Context
 
@@ -253,7 +253,7 @@ Where `selectedInsuranceId` is the UUID of the selected product (stored separate
 
 ### Step 14: Update the validation schema if needed
 
-Open `frontend-next/src/lib/schemas/estimation.ts`. The current schema is:
+Open `frontend/src/lib/schemas/estimation.ts`. The current schema is:
 ```typescript
 export const estimationSchema = z.object({
   customerId: z.string().min(1, "Customer is required"),

@@ -17,18 +17,18 @@ Replace all current plain HTML tables with a reusable TanStack Table (`@tanstack
 
 | File | Purpose |
 |------|---------|
-| `frontend-next/src/components/ui/table.tsx` | Current Table primitives (Table, TableHead, TableBody, TableRow, TableCell, TableHeader) |
-| `frontend-next/src/components/features/customers/customer-list.tsx` | Current list using plain HTML table — reference for columns and data shape |
-| `frontend-next/src/components/features/vehicles/vehicle-list.tsx` | Vehicle list — reference for columns |
-| `frontend-next/src/components/features/real-estate/real-estate-list.tsx` | Real estate list — reference for columns |
-| `frontend-next/src/components/features/insurances/insurance-list.tsx` | Insurance list — reference for columns |
-| `frontend-next/src/components/features/estimations/estimation-list.tsx` | Estimation list — reference for columns |
-| `frontend-next/src/components/features/data-table-skeleton.tsx` | Current skeleton for table loading |
-| `frontend-next/src/components/features/pagination-bar.tsx` | Current pagination component |
-| `frontend-next/src/components/features/search-bar.tsx` | Current search bar (client-side debounced) |
-| `frontend-next/src/lib/api/types.ts` | PageResponse<T> interface |
-| `frontend-next/src/lib/api/customers.ts` | CustomerResponse type — column definitions |
-| `frontend-next/package.json` | Dependencies (NOTE: @tanstack/react-table is NOT installed) |
+| `frontend/src/components/ui/table.tsx` | Current Table primitives (Table, TableHead, TableBody, TableRow, TableCell, TableHeader) |
+| `frontend/src/components/features/customers/customer-list.tsx` | Current list using plain HTML table — reference for columns and data shape |
+| `frontend/src/components/features/vehicles/vehicle-list.tsx` | Vehicle list — reference for columns |
+| `frontend/src/components/features/real-estate/real-estate-list.tsx` | Real estate list — reference for columns |
+| `frontend/src/components/features/insurances/insurance-list.tsx` | Insurance list — reference for columns |
+| `frontend/src/components/features/estimations/estimation-list.tsx` | Estimation list — reference for columns |
+| `frontend/src/components/features/data-table-skeleton.tsx` | Current skeleton for table loading |
+| `frontend/src/components/features/pagination-bar.tsx` | Current pagination component |
+| `frontend/src/components/features/search-bar.tsx` | Current search bar (client-side debounced) |
+| `frontend/src/lib/api/types.ts` | PageResponse<T> interface |
+| `frontend/src/lib/api/customers.ts` | CustomerResponse type — column definitions |
+| `frontend/package.json` | Dependencies (NOTE: @tanstack/react-table is NOT installed) |
 
 ---
 
@@ -70,15 +70,15 @@ Since we do server-side pagination/sorting/filtering:
 
 ### Step 1: Install TanStack Table
 
-- [x] Open terminal in `frontend-next/`
+- [x] Open terminal in `frontend/`
 - [x] Run: `npm install @tanstack/react-table`
 - [x] Verify it's in `package.json` dependencies after install
 - [x] **IMPORTANT**: Installed version is v8.21.3 (v8.x)
 
 ### Step 2: Create reusable DataTable component
 
-- [x] Create directory `frontend-next/src/components/features/data-table/`
-- [x] Create `frontend-next/src/components/features/data-table/data-table.tsx`:
+- [x] Create directory `frontend/src/components/features/data-table/`
+- [x] Create `frontend/src/components/features/data-table/data-table.tsx`:
 
   ```tsx
   "use client";
@@ -438,7 +438,7 @@ Since we do server-side pagination/sorting/filtering:
 
 ### Step 3: Create column helpers for reusability
 
-- [x] Create `frontend-next/src/components/features/data-table/column-helpers.ts`:
+- [x] Create `frontend/src/components/features/data-table/column-helpers.ts`:
   ```typescript
   import { createColumnHelper } from "@tanstack/react-table";
   import { format } from "date-fns"; // only if date-fns is installed; check package.json
@@ -465,7 +465,7 @@ Since we do server-side pagination/sorting/filtering:
 
 ### Step 4: Migrate the Customers list to use DataTable
 
-- [x] Open `frontend-next/src/components/features/customers/customer-list.tsx`
+- [x] Open `frontend/src/components/features/customers/customer-list.tsx`
 - [x] The current component manages `page` and `search` state, passes them to `useQuery`, renders a plain `<Table>` manually.
 - [x] Replace the component logic:
   1. Keep `page` and `search` state (these become `pagination.pageIndex` and `globalFilter`)
@@ -633,7 +633,7 @@ Since we do server-side pagination/sorting/filtering:
 
 ### Step 5: Update API functions to accept sort parameters
 
-- [x] Open `frontend-next/src/lib/api/customers.ts`
+- [x] Open `frontend/src/lib/api/customers.ts`
 - [x] Update `getCustomers` to accept sort params:
   ```typescript
   export async function getCustomers(
@@ -653,39 +653,39 @@ Since we do server-side pagination/sorting/filtering:
   }
   ```
 - [x] Repeat for all other domain API files:
-  - [x] `frontend-next/src/lib/api/vehicles.ts` — `getVehicles(page, size, search?, sort?, direction?)`
-  - [x] `frontend-next/src/lib/api/realestate.ts` — `getRealEstates(page, size, search?, sort?, direction?)`
-  - [x] `frontend-next/src/lib/api/insurances.ts` — check existing function signatures, add sort/direction
-  - [x] `frontend-next/src/lib/api/estimations.ts` — check existing function signatures, add sort/direction
+  - [x] `frontend/src/lib/api/vehicles.ts` — `getVehicles(page, size, search?, sort?, direction?)`
+  - [x] `frontend/src/lib/api/realestate.ts` — `getRealEstates(page, size, search?, sort?, direction?)`
+  - [x] `frontend/src/lib/api/insurances.ts` — check existing function signatures, add sort/direction
+  - [x] `frontend/src/lib/api/estimations.ts` — check existing function signatures, add sort/direction
 
 ### Step 6: Migrate remaining list pages to use DataTable
 
 Repeat the pattern from Step 4 for each remaining list component. The core pattern is the same:
 
-- [x] **Vehicles**: Open `frontend-next/src/components/features/vehicles/vehicle-list.tsx`
+- [x] **Vehicles**: Open `frontend/src/components/features/vehicles/vehicle-list.tsx`
   - Define columns for: plate, brand, model, modelYear, customer, createdAt
   - Enable CSV export: `csvFileName="vehicles.csv"`
   - Row click navigates to `/vehicles/${vehicle.id}`
 
-- [x] **Real Estate**: Open `frontend-next/src/components/features/real-estate/real-estate-list.tsx`
+- [x] **Real Estate**: Open `frontend/src/components/features/real-estate/real-estate-list.tsx`
   - Define columns for: address, type, area, deedNo, customer, createdAt
   - Enable CSV export: `csvFileName="real-estate.csv"`
   - Row click navigates to `/real-estate/${item.id}`
 
-- [x] **Insurances**: Open `frontend-next/src/components/features/insurances/insurance-list.tsx`
+- [x] **Insurances**: Open `frontend/src/components/features/insurances/insurance-list.tsx`
   - Define columns for: type name, description, status, createdAt
   - Enable CSV export: `csvFileName="insurances.csv"`
   - Row click navigates to `/insurances/${item.id}`
 
-- [x] **Estimations**: Open `frontend-next/src/components/features/estimations/estimation-list.tsx`
+- [x] **Estimations**: Open `frontend/src/components/features/estimations/estimation-list.tsx`
   - Define columns for: estimation ID, customer name, insurance type, status, createdAt
   - Enable CSV export: `csvFileName="estimations.csv"`
   - Row click navigates to `/estimations/${item.id}`
 
-- [x] **Insurance Types** (sub-page): Open `frontend-next/src/components/features/insurances/insurance-types-list.tsx`
+- [x] **Insurance Types** (sub-page): Open `frontend/src/components/features/insurances/insurance-types-list.tsx`
   - Migrate if it uses a table
 
-- [x] **Insurance Companies** (sub-page): Open `frontend-next/src/components/features/insurances/insurance-companies-list.tsx`
+- [x] **Insurance Companies** (sub-page): Open `frontend/src/components/features/insurances/insurance-companies-list.tsx`
   - Migrate if it uses a table
 
 ### Step 7: Update page components to pass initialData
@@ -705,7 +705,7 @@ Repeat the pattern from Step 4 for each remaining list component. The core patte
 
 ### Step 9: Verify
 
-- [x] Run `npx tsc --noEmit` from `frontend-next/` to check for TypeScript errors
+- [x] Run `npx tsc --noEmit` from `frontend/` to check for TypeScript errors
 - [x] Verify the DataTable renders with sortable column headers (click to sort)
 - [x] Verify pagination works (Next/Previous buttons, page size selector)
 - [x] Verify search filter resets pagination to page 0
@@ -719,8 +719,8 @@ Repeat the pattern from Step 4 for each remaining list component. The core patte
 ## Acceptance Criteria
 
 1. `@tanstack/react-table` installed (v8.x)
-2. Reusable `DataTable` component created at `frontend-next/src/components/features/data-table/data-table.tsx`
-3. Column helper utilities at `frontend-next/src/components/features/data-table/column-helpers.ts`
+2. Reusable `DataTable` component created at `frontend/src/components/features/data-table/data-table.tsx`
+3. Column helper utilities at `frontend/src/components/features/data-table/column-helpers.ts`
 4. All 5+ list pages migrated to use `DataTable`:
    - CustomerList
    - VehicleList

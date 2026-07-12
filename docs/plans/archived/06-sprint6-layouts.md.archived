@@ -12,12 +12,12 @@ Create the two route group layouts (`(auth)` and `(dashboard)`), build the sideb
 - **Plan 05 must be complete** (Zustand stores and React Query provider exist — the dashboard layout imports `useUIStore` for sidebar state)
 - Read these files before starting:
   - `docs/outlines/05_NEXTJS_FRONTEND.md` — Section 1 (App Router layout pattern), Section 3 (Server Components default)
-  - `frontend-next/AGENTS.md` — Next.js 16 route groups and layouts docs
-  - `frontend-next/src/lib/store/ui-store.ts` — `useUIStore` API (sidebarOpen, toggleSidebar, setSidebarOpen, theme)
-  - `frontend-next/src/app/layout.tsx` — root layout structure (you'll nest route group layouts inside this)
-  - `frontend-next/src/components/ui/skeleton.tsx` — Skeleton component API (for loading states)
-  - `frontend-next/src/components/ui/button.tsx` — Button component API (for sidebar toggle, header actions)
-  - `frontend-next/src/lib/utils.ts` — `cn()` helper
+  - `frontend/AGENTS.md` — Next.js 16 route groups and layouts docs
+  - `frontend/src/lib/store/ui-store.ts` — `useUIStore` API (sidebarOpen, toggleSidebar, setSidebarOpen, theme)
+  - `frontend/src/app/layout.tsx` — root layout structure (you'll nest route group layouts inside this)
+  - `frontend/src/components/ui/skeleton.tsx` — Skeleton component API (for loading states)
+  - `frontend/src/components/ui/button.tsx` — Button component API (for sidebar toggle, header actions)
+  - `frontend/src/lib/utils.ts` — `cn()` helper
 
 ## Architecture Notes
 
@@ -30,7 +30,7 @@ Create the two route group layouts (`(auth)` and `(dashboard)`), build the sideb
 
 ### Step 1: Create the auth route group layout
 
-**File to CREATE:** `frontend-next/src/app/(auth)/layout.tsx`
+**File to CREATE:** `frontend/src/app/(auth)/layout.tsx`
 
 This layout wraps login/register pages in a centered card. It should NOT include sidebar or header.
 
@@ -62,7 +62,7 @@ export default function AuthLayout({
 
 ### Step 2: Create placeholder login and register pages
 
-**File to CREATE:** `frontend-next/src/app/(auth)/login/page.tsx`
+**File to CREATE:** `frontend/src/app/(auth)/login/page.tsx`
 
 ```tsx
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -86,7 +86,7 @@ export default function LoginPage() {
 }
 ```
 
-**File to CREATE:** `frontend-next/src/app/(auth)/register/page.tsx`
+**File to CREATE:** `frontend/src/app/(auth)/register/page.tsx`
 
 ```tsx
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -114,7 +114,7 @@ These are placeholder pages — the actual form implementations come in a later 
 
 ### Step 3: Build the sidebar component
 
-**File to CREATE:** `frontend-next/src/components/layout/sidebar.tsx`
+**File to CREATE:** `frontend/src/components/layout/sidebar.tsx`
 
 This is a Client Component (needs interactivity for collapse toggle and active link highlighting).
 
@@ -241,7 +241,7 @@ export function Sidebar() {
 
 ### Step 4: Build the header component
 
-**File to CREATE:** `frontend-next/src/components/layout/header.tsx`
+**File to CREATE:** `frontend/src/components/layout/header.tsx`
 
 This is a Client Component (needs user menu dropdown interactivity).
 
@@ -343,7 +343,7 @@ export function Header() {
 
 ### Step 5: Create the dashboard route group layout
 
-**File to CREATE:** `frontend-next/src/app/(dashboard)/layout.tsx`
+**File to CREATE:** `frontend/src/app/(dashboard)/layout.tsx`
 
 ```tsx
 import type { Metadata } from "next";
@@ -379,7 +379,7 @@ export default function DashboardLayout({
 
 ### Step 6: Create the dashboard index page
 
-**File to CREATE:** `frontend-next/src/app/(dashboard)/dashboard/page.tsx`
+**File to CREATE:** `frontend/src/app/(dashboard)/dashboard/page.tsx`
 
 ```tsx
 export default function DashboardPage() {
@@ -413,7 +413,7 @@ function DashboardCard({ title, value }: { title: string; value: string }) {
 
 ### Step 7: Create loading skeletons
 
-**File to CREATE:** `frontend-next/src/app/(dashboard)/dashboard/loading.tsx`
+**File to CREATE:** `frontend/src/app/(dashboard)/dashboard/loading.tsx`
 
 ```tsx
 import { Skeleton } from "@/components/ui/skeleton";
@@ -435,7 +435,7 @@ export default function DashboardLoading() {
 }
 ```
 
-**File to CREATE:** `frontend-next/src/app/(dashboard)/loading.tsx`
+**File to CREATE:** `frontend/src/app/(dashboard)/loading.tsx`
 
 This is the loading state for the entire dashboard route group (shown when navigating between dashboard pages).
 
@@ -472,7 +472,7 @@ export default function DashboardGroupLoading() {
 }
 ```
 
-**File to CREATE:** `frontend-next/src/app/(auth)/loading.tsx`
+**File to CREATE:** `frontend/src/app/(auth)/loading.tsx`
 
 ```tsx
 import { Skeleton } from "@/components/ui/skeleton";
@@ -496,11 +496,11 @@ export default function AuthLoading() {
 Run from repo root:
 
 ```bash
-cd frontend-next && npm run build
+cd frontend && npm run build
 ```
 
 Common issues:
-- Import errors: verify all paths match. The `@/` alias maps to `frontend-next/src/`.
+- Import errors: verify all paths match. The `@/` alias maps to `frontend/src/`.
 - If `lucide-react` icons are not found, the import name might differ — check `node_modules/lucide-react` for available exports.
 - If the build fails because `page.tsx` uses `redirect("/dashboard")` from Plan 04, update it to the placeholder described in Plan 04 Step 6.
 
@@ -509,23 +509,23 @@ Common issues:
 Run from repo root:
 
 ```bash
-cd frontend-next && npm run lint
+cd frontend && npm run lint
 ```
 
 Fix any lint errors before marking this plan complete.
 
 ## Acceptance Criteria
 
-- [x] `frontend-next/src/app/(auth)/layout.tsx` exists — centered card layout
-- [x] `frontend-next/src/app/(auth)/login/page.tsx` exists — placeholder login page
-- [x] `frontend-next/src/app/(auth)/register/page.tsx` exists — placeholder register page
-- [x] `frontend-next/src/components/layout/sidebar.tsx` exists — nav links, collapse toggle, mobile overlay
-- [x] `frontend-next/src/components/layout/header.tsx` exists — user menu, theme toggle, notifications
-- [x] `frontend-next/src/app/(dashboard)/layout.tsx` exists — sidebar + header + content
-- [x] `frontend-next/src/app/(dashboard)/dashboard/page.tsx` exists — dashboard index with placeholder cards
-- [x] `frontend-next/src/app/(dashboard)/dashboard/loading.tsx` exists — dashboard page skeleton
-- [x] `frontend-next/src/app/(dashboard)/loading.tsx` exists — dashboard group skeleton
-- [x] `frontend-next/src/app/(auth)/loading.tsx` exists — auth loading skeleton
+- [x] `frontend/src/app/(auth)/layout.tsx` exists — centered card layout
+- [x] `frontend/src/app/(auth)/login/page.tsx` exists — placeholder login page
+- [x] `frontend/src/app/(auth)/register/page.tsx` exists — placeholder register page
+- [x] `frontend/src/components/layout/sidebar.tsx` exists — nav links, collapse toggle, mobile overlay
+- [x] `frontend/src/components/layout/header.tsx` exists — user menu, theme toggle, notifications
+- [x] `frontend/src/app/(dashboard)/layout.tsx` exists — sidebar + header + content
+- [x] `frontend/src/app/(dashboard)/dashboard/page.tsx` exists — dashboard index with placeholder cards
+- [x] `frontend/src/app/(dashboard)/dashboard/loading.tsx` exists — dashboard page skeleton
+- [x] `frontend/src/app/(dashboard)/loading.tsx` exists — dashboard group skeleton
+- [x] `frontend/src/app/(auth)/loading.tsx` exists — auth loading skeleton
 - [ ] `http://localhost:3000/login` renders the auth layout with a centered card
 - [ ] `http://localhost:3000/dashboard` renders the dashboard layout with sidebar and header
 - [ ] Sidebar collapses/expands on mobile (viewport < 1024px)

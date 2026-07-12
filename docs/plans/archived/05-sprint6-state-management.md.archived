@@ -11,9 +11,9 @@ Create Zustand stores for authentication and UI state, set up the React Query cl
 - **Plan 04 must be complete** (root layout exists and builds)
 - Read these files before starting:
   - `docs/outlines/05_NEXTJS_FRONTEND.md` — Section 3 on Zustand + React Query conventions
-  - `frontend-next/package.json` — confirm `zustand` (^5.0.14) and `@tanstack/react-query` (^5.101.0) are in dependencies
-  - `frontend-next/src/app/layout.tsx` — current root layout (you will modify this)
-  - `frontend-next/AGENTS.md` — Next.js 16 docs reference
+  - `frontend/package.json` — confirm `zustand` (^5.0.14) and `@tanstack/react-query` (^5.101.0) are in dependencies
+  - `frontend/src/app/layout.tsx` — current root layout (you will modify this)
+  - `frontend/AGENTS.md` — Next.js 16 docs reference
 
 ## Architecture Notes
 
@@ -26,7 +26,7 @@ Create Zustand stores for authentication and UI state, set up the React Query cl
 
 ### Step 1: Create the auth store
 
-**File to CREATE:** `frontend-next/src/lib/store/auth-store.ts`
+**File to CREATE:** `frontend/src/lib/store/auth-store.ts`
 
 ```ts
 import { create } from "zustand";
@@ -112,7 +112,7 @@ export const useAuthStore = create<AuthState>()(
 
 ### Step 2: Create the UI store
 
-**File to CREATE:** `frontend-next/src/lib/store/ui-store.ts`
+**File to CREATE:** `frontend/src/lib/store/ui-store.ts`
 
 ```ts
 import { create } from "zustand";
@@ -150,7 +150,7 @@ export const useUIStore = create<UIState>()((set) => ({
 
 ### Step 3: Create the React Query provider
 
-**File to CREATE:** `frontend-next/src/lib/providers/query-provider.tsx`
+**File to CREATE:** `frontend/src/lib/providers/query-provider.tsx`
 
 ```tsx
 "use client";
@@ -208,7 +208,7 @@ export function QueryProvider({ children }: { children: ReactNode }) {
 
 ### Step 4: Create the providers barrel component
 
-**File to CREATE:** `frontend-next/src/lib/providers/index.tsx`
+**File to CREATE:** `frontend/src/lib/providers/index.tsx`
 
 ```tsx
 "use client";
@@ -225,7 +225,7 @@ export function Providers({ children }: { children: ReactNode }) {
 
 ### Step 5: Wrap root layout with Providers
 
-**File to MODIFY:** `frontend-next/src/app/layout.tsx`
+**File to MODIFY:** `frontend/src/app/layout.tsx`
 
 Open the file. You will add the `Providers` import and wrap `{children}` with it.
 
@@ -285,7 +285,7 @@ Do NOT change:
 Run from repo root:
 
 ```bash
-cd frontend-next && npm run build
+cd frontend && npm run build
 ```
 
 Fix any TypeScript errors. Common issues:
@@ -297,17 +297,17 @@ Fix any TypeScript errors. Common issues:
 Run from repo root:
 
 ```bash
-cd frontend-next && npm run lint
+cd frontend && npm run lint
 ```
 
 Fix any lint errors before marking this plan complete.
 
 ## Acceptance Criteria
 
-- [x] `frontend-next/src/lib/store/auth-store.ts` exists with `useAuthStore` export
-- [x] `frontend-next/src/lib/store/ui-store.ts` exists with `useUIStore` export
-- [x] `frontend-next/src/lib/providers/query-provider.tsx` exists with `QueryProvider`
-- [x] `frontend-next/src/lib/providers/index.tsx` exists with `Providers` barrel export
+- [x] `frontend/src/lib/store/auth-store.ts` exists with `useAuthStore` export
+- [x] `frontend/src/lib/store/ui-store.ts` exists with `useUIStore` export
+- [x] `frontend/src/lib/providers/query-provider.tsx` exists with `QueryProvider`
+- [x] `frontend/src/lib/providers/index.tsx` exists with `Providers` barrel export
 - [x] Root layout imports and wraps children with `<Providers>`
 - [x] Root layout has `suppressHydrationWarning` on `<html>`
 - [x] `npm run build` passes

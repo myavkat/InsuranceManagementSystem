@@ -14,7 +14,7 @@ build/
 # Node / Frontends (not needed for backend service build)
 node_modules/
 frontend/
-frontend-next/
+frontend/
 .next/
 dist/
 dist-ssr/

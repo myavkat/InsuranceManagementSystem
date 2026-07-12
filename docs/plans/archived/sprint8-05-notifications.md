@@ -17,13 +17,13 @@ Add real-time notification capabilities: WebSocket connection to the API Gateway
 
 | File | Purpose |
 |------|---------|
-| `frontend-next/src/components/layout/header.tsx` | Existing header with Bell icon (placeholder), user section |
-| `frontend-next/src/lib/store/ui-store.ts` | Existing UI store pattern (Zustand) |
-| `frontend-next/src/lib/store/auth-store.ts` | Auth store — used to get accessToken for WebSocket auth |
-| `frontend-next/src/lib/providers/index.tsx` | Root providers wrapper — new providers added here |
-| `frontend-next/src/app/layout.tsx` | Root layout where toast/sonner provider mounts |
-| `frontend-next/package.json` | Dependencies (NOTE: sonner is NOT installed yet) |
-| `frontend-next/components.json` | shadcn/ui config |
+| `frontend/src/components/layout/header.tsx` | Existing header with Bell icon (placeholder), user section |
+| `frontend/src/lib/store/ui-store.ts` | Existing UI store pattern (Zustand) |
+| `frontend/src/lib/store/auth-store.ts` | Auth store — used to get accessToken for WebSocket auth |
+| `frontend/src/lib/providers/index.tsx` | Root providers wrapper — new providers added here |
+| `frontend/src/app/layout.tsx` | Root layout where toast/sonner provider mounts |
+| `frontend/package.json` | Dependencies (NOTE: sonner is NOT installed yet) |
+| `frontend/components.json` | shadcn/ui config |
 | `docs/outlines/05_NEXTJS_FRONTEND.md` | Architecture: Zustand for client state |
 
 ---
@@ -66,18 +66,18 @@ The notification store holds:
 
 ### Step 1: Install sonner
 
-- [x] Open terminal in `frontend-next/`
+- [x] Open terminal in `frontend/`
 - [x] Run: `npm install sonner`
 - [x] Verify `sonner` appears in `package.json` dependencies
 
 ### Step 2: Create the notification Zustand store
 
-- [x] Create `frontend-next/src/lib/store/notification-store.ts`:
+- [x] Create `frontend/src/lib/store/notification-store.ts`:
 
 ### Step 3: Create the WebSocket hook
 
-- [x] Create directory `frontend-next/src/hooks/` (may already exist from Plan 03)
-- [x] Create `frontend-next/src/hooks/use-websocket.ts`:
+- [x] Create directory `frontend/src/hooks/` (may already exist from Plan 03)
+- [x] Create `frontend/src/hooks/use-websocket.ts`:
 
   import { useEffect, useRef, useCallback } from "react";
   import { useAuthStore } from "@/lib/store/auth-store";
@@ -257,11 +257,11 @@ The notification store holds:
 
 ### Step 4: Create the notification provider component
 
-- [x] Create `frontend-next/src/components/features/notification-provider.tsx`:
+- [x] Create `frontend/src/components/features/notification-provider.tsx`:
 
 ### Step 5: Mount Sonner Toaster and NotificationProvider in root layout
 
-- [x] Open `frontend-next/src/lib/providers/index.tsx`
+- [x] Open `frontend/src/lib/providers/index.tsx`
 - [x] Add the `NotificationProvider` wrapper:
   ```tsx
   "use client";
@@ -282,7 +282,7 @@ The notification store holds:
   }
   ```
 
-- [x] Open `frontend-next/src/app/layout.tsx`
+- [x] Open `frontend/src/app/layout.tsx`
 - [x] Import and mount the `Toaster` component from sonner:
   ```tsx
   import { Toaster } from "sonner";
@@ -312,7 +312,7 @@ The notification store holds:
 
 ### Step 6: Update the Header with notification badge
 
-- [x] Open `frontend-next/src/components/layout/header.tsx`
+- [x] Open `frontend/src/components/layout/header.tsx`
 - [x] Import the notification store:
   ```typescript
   import { useNotificationStore } from "@/lib/store/notification-store";
@@ -351,7 +351,7 @@ The notification store holds:
 
 ### Step 8: Create a notification types constants file
 
-- [x] Create `frontend-next/src/lib/notification-types.ts`:
+- [x] Create `frontend/src/lib/notification-types.ts`:
   ```typescript
   /**
    * Notification type constants used across the app.
@@ -369,7 +369,7 @@ The notification store holds:
 
 ### Step 9: Verify and test
 
-- [x] Run `npx tsc --noEmit` from `frontend-next/` to check for TypeScript errors (passed with no errors)
+- [x] Run `npx tsc --noEmit` from `frontend/` to check for TypeScript errors (passed with no errors)
 - [ ] Verify the Toaster renders in the root layout (visible after first toast)
 - [x] Verify the notification store initializes with empty state
 - [x] Verify the header shows the Bell icon with no badge (unreadCount = 0)

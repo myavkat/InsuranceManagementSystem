@@ -2,7 +2,7 @@
 
 ## Objective
 
-The frontend expects `cityName` and `customerName` on `RealEstateResponse` (see `frontend-next/src/lib/api/realestate.ts` lines 56-57: `cityName?: string; customerName?: string`), but the Java backend DTO has neither field. The `RealEstateService.toResponse()` method resolves local reference names (construction type, luxury class, usage type) but never looks up city or customer names from their respective services.
+The frontend expects `cityName` and `customerName` on `RealEstateResponse` (see `frontend/src/lib/api/realestate.ts` lines 56-57: `cityName?: string; customerName?: string`), but the Java backend DTO has neither field. The `RealEstateService.toResponse()` method resolves local reference names (construction type, luxury class, usage type) but never looks up city or customer names from their respective services.
 
 This plan adds `cityName` and `customerName` to the `RealEstateResponse` DTO and wires up synchronous REST calls to reference-data-service (for city names) and customer-service (for customer names).
 

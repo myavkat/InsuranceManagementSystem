@@ -2,7 +2,7 @@
 
 ## Objective
 
-The frontend expects `customerName` on `VehicleResponse` (see `frontend-next/src/lib/api/vehicles.ts` line 59: `customerName?: string`), but the Java backend DTO has no such field. The `VehicleService.toResponse()` method resolves local reference names (brand, model, engine, etc.) but never looks up the customer name from customer-service. As a result, the vehicle list and detail pages show `"—"` for the Customer column.
+The frontend expects `customerName` on `VehicleResponse` (see `frontend/src/lib/api/vehicles.ts` line 59: `customerName?: string`), but the Java backend DTO has no such field. The `VehicleService.toResponse()` method resolves local reference names (brand, model, engine, etc.) but never looks up the customer name from customer-service. As a result, the vehicle list and detail pages show `"—"` for the Customer column.
 
 This plan adds `customerName` to the `VehicleResponse` DTO and wires up a synchronous REST call to customer-service to resolve the customer ID to a display name.
 

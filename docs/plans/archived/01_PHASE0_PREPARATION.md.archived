@@ -18,7 +18,7 @@
   services/reference-data-service/
   services/api-gateway/
   services/reference-skeleton/
-  frontend-next/       # Next.js SSR application
+  frontend/       # Next.js SSR application
   infra/               # Docker, SQL, IaC
   infra/docker/
   infra/sql/
@@ -61,8 +61,8 @@
 
 ## 3. Initialize Next.js Project
 
-- [x] Run `npx create-next-app@latest frontend-next --typescript --tailwind --eslint --app --src-dir --import-alias "@/*" --use-npm`.
-- [x] Run `npx shadcn@latest init` inside `frontend-next/` (default config, `components.json` created).
+- [x] Run `npx create-next-app@latest frontend --typescript --tailwind --eslint --app --src-dir --import-alias "@/*" --use-npm`.
+- [x] Run `npx shadcn@latest init` inside `frontend/` (default config, `components.json` created).
 - [x] Install runtime deps: `npm install zustand @tanstack/react-query zod react-hook-form @hookform/resolvers`.
 - [x] Install shadcn UI primitives: `npx shadcn@latest add button input card dialog table select badge skeleton`.
 - [x] Create `.env.local` with:
@@ -176,7 +176,7 @@
 
 - [x] `docker compose up -d` — all 11 containers healthy (KRaft mode, no Zookeeper).
 - [x] All 8 `init.sql` scripts apply without errors (verified on disk).
-- [x] `frontend-next` → `npm run dev` starts on `localhost:3000`.
+- [x] `frontend` → `npm run dev` starts on `localhost:3000`.
 - [x] `reference-skeleton` → `./gradlew bootRun` starts on port 9999.
 - [x] `common-message` → `./gradlew build` + `./gradlew test` passes.
 - [x] Monorepo structure committed with `docs/` plans, outlines, stories, tasks.

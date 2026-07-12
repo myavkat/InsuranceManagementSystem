@@ -18,12 +18,12 @@ Build the Real Estate Management feature pages:
 
 - `docs/stories/06_REAL_ESTATE_MANAGEMENT.md` — Real estate scenarios and acceptance criteria
 - `docs/outlines/05_NEXTJS_FRONTEND.md` — BFF pattern
-- `frontend-next/src/lib/api/realestate.ts` — All real estate types, API functions, and reference data functions
-- `frontend-next/src/lib/api/customers.ts` — For customer dropdown in form
-- `frontend-next/src/lib/api/reference-data.ts` — For cities dropdown in form
-- `frontend-next/src/components/features/vehicles/vehicle-form.tsx` — Pattern to follow (cascading dropdowns pattern)
-- `frontend-next/src/components/features/vehicles/vehicle-detail.tsx` — Pattern to follow for detail pages
-- `frontend-next/src/components/features/vehicles/vehicle-list.tsx` — Pattern to follow for list pages
+- `frontend/src/lib/api/realestate.ts` — All real estate types, API functions, and reference data functions
+- `frontend/src/lib/api/customers.ts` — For customer dropdown in form
+- `frontend/src/lib/api/reference-data.ts` — For cities dropdown in form
+- `frontend/src/components/features/vehicles/vehicle-form.tsx` — Pattern to follow (cascading dropdowns pattern)
+- `frontend/src/components/features/vehicles/vehicle-detail.tsx` — Pattern to follow for detail pages
+- `frontend/src/components/features/vehicles/vehicle-list.tsx` — Pattern to follow for list pages
 
 ## Key Implementation Notes
 
@@ -49,16 +49,16 @@ Same pattern as vehicle form — use `useQuery` to fetch customers with search, 
 ### Step 1: Create directory structure
 
 ```
-frontend-next/src/app/(dashboard)/real-estate/
-frontend-next/src/app/(dashboard)/real-estate/new/
-frontend-next/src/app/(dashboard)/real-estate/[id]/
-frontend-next/src/app/(dashboard)/real-estate/[id]/edit/
-frontend-next/src/components/features/real-estate/
+frontend/src/app/(dashboard)/real-estate/
+frontend/src/app/(dashboard)/real-estate/new/
+frontend/src/app/(dashboard)/real-estate/[id]/
+frontend/src/app/(dashboard)/real-estate/[id]/edit/
+frontend/src/components/features/real-estate/
 ```
 
 ### Step 2: Build Real Estate List page
 
-Create `frontend-next/src/components/features/real-estate/real-estate-list.tsx` — Client Component with:
+Create `frontend/src/components/features/real-estate/real-estate-list.tsx` — Client Component with:
 - `useQuery` fetching `getRealEstates(page, pageSize, search)`
 - `SearchBar` for address search
 - Table columns: Address, City, Square Meters, Construction Year, Customer Name
@@ -68,11 +68,11 @@ Create `frontend-next/src/components/features/real-estate/real-estate-list.tsx` 
 - `EmptyState` with "New Property" button
 - `ErrorAlert` with retry
 
-Create `frontend-next/src/app/(dashboard)/real-estate/page.tsx` — Server Component rendering `<RealEstateList />`.
+Create `frontend/src/app/(dashboard)/real-estate/page.tsx` — Server Component rendering `<RealEstateList />`.
 
 ### Step 3: Build Real Estate Detail page
 
-Create `frontend-next/src/components/features/real-estate/real-estate-detail.tsx` — Client Component with:
+Create `frontend/src/components/features/real-estate/real-estate-detail.tsx` — Client Component with:
 - `useQuery` fetching `getRealEstate(id)`
 - Back button to `/real-estate`
 - `PageHeader` with address as title
@@ -81,11 +81,11 @@ Create `frontend-next/src/components/features/real-estate/real-estate-detail.tsx
 - `ConfirmDialog` for delete confirmation
 - Delete mutation calls `deleteRealEstate(id)`, invalidates cache, redirects to list
 
-Create `frontend-next/src/app/(dashboard)/real-estate/[id]/page.tsx` — Server Component rendering `<RealEstateDetail />`.
+Create `frontend/src/app/(dashboard)/real-estate/[id]/page.tsx` — Server Component rendering `<RealEstateDetail />`.
 
 ### Step 4: Build Real Estate Form (shared)
 
-Create `frontend-next/src/components/features/real-estate/real-estate-form.tsx` — Client Component.
+Create `frontend/src/components/features/real-estate/real-estate-form.tsx` — Client Component.
 
 **Zod schema:**
 ```typescript
@@ -115,14 +115,14 @@ const realEstateSchema = z.object({
 ### Step 5: Create page files
 
 Create:
-- `frontend-next/src/app/(dashboard)/real-estate/new/page.tsx` — renders `<RealEstateForm />`
-- `frontend-next/src/app/(dashboard)/real-estate/[id]/edit/page.tsx` — renders `<EditRealEstateForm />`
+- `frontend/src/app/(dashboard)/real-estate/new/page.tsx` — renders `<RealEstateForm />`
+- `frontend/src/app/(dashboard)/real-estate/[id]/edit/page.tsx` — renders `<EditRealEstateForm />`
 
-Create `frontend-next/src/components/features/real-estate/edit-real-estate-form.tsx` — fetches property by ID, passes `initialData` to `RealEstateForm`.
+Create `frontend/src/components/features/real-estate/edit-real-estate-form.tsx` — fetches property by ID, passes `initialData` to `RealEstateForm`.
 
 ### Step 6: Verify build
 
-Run: `cd frontend-next && npm run build`
+Run: `cd frontend && npm run build`
 
 ## Acceptance Criteria
 

@@ -20,9 +20,9 @@ Fix an auth bypass in the Next.js middleware where `PUBLIC_PATHS` uses `startsWi
 
 | File | Why |
 |------|-----|
-| `frontend-next/src/middleware.ts` | The file being fixed (49 lines) |
-| `frontend-next/src/app/(auth)/login/page.tsx` | To confirm `/login` is the only login route |
-| `frontend-next/src/app/(auth)/register/page.tsx` | To confirm `/register` is the only register route |
+| `frontend/src/middleware.ts` | The file being fixed (49 lines) |
+| `frontend/src/app/(auth)/login/page.tsx` | To confirm `/login` is the only login route |
+| `frontend/src/app/(auth)/register/page.tsx` | To confirm `/register` is the only register route |
 
 ---
 
@@ -59,7 +59,7 @@ Choose **Option B** — it correctly handles:
 - `/register/` → public ✓
 - `/register-sso` → NOT public ✓
 
-**Exact change** — Find line 19 in `frontend-next/src/middleware.ts` (the line with `PUBLIC_PATHS.some`). Replace:
+**Exact change** — Find line 19 in `frontend/src/middleware.ts` (the line with `PUBLIC_PATHS.some`). Replace:
 ```typescript
 const isPublicPage = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
 ```

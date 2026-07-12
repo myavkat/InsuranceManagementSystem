@@ -12,8 +12,8 @@ Add an optional `?customerId=` query parameter to `GET /api/vehicles` and `GET /
 - `services/realestate-service/src/main/java/com/insurancemanagementsystem/realestate/controller/RealEstateController.java`
 - `services/realestate-service/src/main/java/com/insurancemanagementsystem/realestate/service/RealEstateService.java`
 - `services/realestate-service/src/main/java/com/insurancemanagementsystem/realestate/repository/RealEstateRepository.java`
-- `frontend-next/src/lib/api/vehicles.ts`
-- `frontend-next/src/lib/api/realestate.ts`
+- `frontend/src/lib/api/vehicles.ts`
+- `frontend/src/lib/api/realestate.ts`
 
 ## Technical Context
 
@@ -140,7 +140,7 @@ Read the existing `search()` method to understand the query structure, then add 
 
 ### Step 7: Update frontend API client — vehicles
 
-Open `frontend-next/src/lib/api/vehicles.ts`.
+Open `frontend/src/lib/api/vehicles.ts`.
 
 **Modify `getVehicles()` function signature** to accept `customerId?: string`:
 ```typescript
@@ -168,7 +168,7 @@ export async function getVehicles(
 
 ### Step 8: Update frontend API client — real estate
 
-Open `frontend-next/src/lib/api/realestate.ts`.
+Open `frontend/src/lib/api/realestate.ts`.
 
 **Modify `getRealEstates()` function** the same way — add `customerId?: string` parameter and append it to query params when present.
 

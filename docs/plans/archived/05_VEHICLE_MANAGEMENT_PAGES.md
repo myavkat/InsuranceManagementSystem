@@ -18,11 +18,11 @@ Build the Vehicle Management feature pages:
 
 - `docs/stories/05_VEHICLE_MANAGEMENT.md` — Vehicle scenarios and acceptance criteria
 - `docs/outlines/05_NEXTJS_FRONTEND.md` — BFF pattern
-- `frontend-next/src/lib/api/vehicles.ts` — All vehicle types, API functions, and reference data functions
-- `frontend-next/src/lib/api/customers.ts` — For customer dropdown in vehicle form
-- `frontend-next/src/components/features/customers/customer-form.tsx` — Pattern to follow for forms
-- `frontend-next/src/components/features/customers/customer-detail.tsx` — Pattern to follow for detail pages
-- `frontend-next/src/components/features/customers/customer-list.tsx` — Pattern to follow for list pages
+- `frontend/src/lib/api/vehicles.ts` — All vehicle types, API functions, and reference data functions
+- `frontend/src/lib/api/customers.ts` — For customer dropdown in vehicle form
+- `frontend/src/components/features/customers/customer-form.tsx` — Pattern to follow for forms
+- `frontend/src/components/features/customers/customer-detail.tsx` — Pattern to follow for detail pages
+- `frontend/src/components/features/customers/customer-list.tsx` — Pattern to follow for list pages
 
 ## Key Implementation Notes
 
@@ -49,16 +49,16 @@ The plate field should validate Turkish plate format: `XX 1234` or `XX 1234 YY`.
 ### ✅ Step 1: Create directory structure
 
 ```
-frontend-next/src/app/(dashboard)/vehicles/
-frontend-next/src/app/(dashboard)/vehicles/new/
-frontend-next/src/app/(dashboard)/vehicles/[id]/
-frontend-next/src/app/(dashboard)/vehicles/[id]/edit/
-frontend-next/src/components/features/vehicles/
+frontend/src/app/(dashboard)/vehicles/
+frontend/src/app/(dashboard)/vehicles/new/
+frontend/src/app/(dashboard)/vehicles/[id]/
+frontend/src/app/(dashboard)/vehicles/[id]/edit/
+frontend/src/components/features/vehicles/
 ```
 
 ### ✅ Step 2: Build Vehicle List page
 
-Create `frontend-next/src/components/features/vehicles/vehicle-list.tsx` — Client Component with:
+Create `frontend/src/components/features/vehicles/vehicle-list.tsx` — Client Component with:
 - `useQuery` fetching `getVehicles(page, pageSize, search)`
 - `SearchBar` for plate/brand search
 - Table columns: Plate, Brand/Model, Customer Name, License Date
@@ -68,11 +68,11 @@ Create `frontend-next/src/components/features/vehicles/vehicle-list.tsx` — Cli
 - `EmptyState` with "New Vehicle" button
 - `ErrorAlert` with retry
 
-Create `frontend-next/src/app/(dashboard)/vehicles/page.tsx` — Server Component rendering `<VehicleList />`.
+Create `frontend/src/app/(dashboard)/vehicles/page.tsx` — Server Component rendering `<VehicleList />`.
 
 ### ✅ Step 3: Build Vehicle Detail page
 
-Create `frontend-next/src/components/features/vehicles/vehicle-detail.tsx` — Client Component with:
+Create `frontend/src/components/features/vehicles/vehicle-detail.tsx` — Client Component with:
 - `useQuery` fetching `getVehicle(id)`
 - Back button to `/vehicles`
 - `PageHeader` with plate as title
@@ -81,11 +81,11 @@ Create `frontend-next/src/components/features/vehicles/vehicle-detail.tsx` — C
 - `ConfirmDialog` for delete confirmation
 - Delete mutation calls `deleteVehicle(id)`, invalidates cache, redirects to list
 
-Create `frontend-next/src/app/(dashboard)/vehicles/[id]/page.tsx` — Server Component rendering `<VehicleDetail />`.
+Create `frontend/src/app/(dashboard)/vehicles/[id]/page.tsx` — Server Component rendering `<VehicleDetail />`.
 
 ### ✅ Step 4: Build Vehicle Form (shared)
 
-Create `frontend-next/src/components/features/vehicles/vehicle-form.tsx` — Client Component.
+Create `frontend/src/components/features/vehicles/vehicle-form.tsx` — Client Component.
 
 **Zod schema:**
 ```typescript
@@ -128,14 +128,14 @@ const vehicleSchema = z.object({
 ### ✅ Step 5: Create page files
 
 Create:
-- `frontend-next/src/app/(dashboard)/vehicles/new/page.tsx` — renders `<VehicleForm />`
-- `frontend-next/src/app/(dashboard)/vehicles/[id]/edit/page.tsx` — renders `<EditVehicleForm />`
+- `frontend/src/app/(dashboard)/vehicles/new/page.tsx` — renders `<VehicleForm />`
+- `frontend/src/app/(dashboard)/vehicles/[id]/edit/page.tsx` — renders `<EditVehicleForm />`
 
-Create `frontend-next/src/components/features/vehicles/edit-vehicle-form.tsx` — fetches vehicle by ID, passes `initialData` to `VehicleForm`.
+Create `frontend/src/components/features/vehicles/edit-vehicle-form.tsx` — fetches vehicle by ID, passes `initialData` to `VehicleForm`.
 
 ### ✅ Step 6: Verify build
 
-Run: `cd frontend-next && npm run build`
+Run: `cd frontend && npm run build`
 
 ## Acceptance Criteria
 

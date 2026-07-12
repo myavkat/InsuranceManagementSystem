@@ -21,21 +21,21 @@ Update the `StatusBadge` component and status filter dropdowns to recognize the 
 
 | # | File Path | Purpose |
 |---|-----------|---------|
-| 1 | `frontend-next/src/components/layout/sidebar.tsx` | Nav item label to change |
-| 2 | `frontend-next/src/app/(dashboard)/estimations/page.tsx` | List page title |
-| 3 | `frontend-next/src/app/(dashboard)/estimations/[id]/page.tsx` | Detail page title |
-| 4 | `frontend-next/src/app/(dashboard)/estimations/new/page.tsx` | Create form page title |
-| 5 | `frontend-next/src/components/features/estimations/estimation-list.tsx` | List component: page header, empty state, filter labels |
-| 6 | `frontend-next/src/components/features/estimations/estimation-detail.tsx` | Detail component: page header, card labels, status labels |
-| 7 | `frontend-next/src/components/features/estimations/estimation-form.tsx` | Form component: page header, step labels |
-| 8 | `frontend-next/src/components/features/status-badge.tsx` | Status badge mapping |
-| 9 | `frontend-next/src/lib/api/estimations.ts` | TypeScript `EstimationStatus` type |
-| 10 | `frontend-next/src/app/(dashboard)/dashboard/page.tsx` | Dashboard card label |
-| 11 | `frontend-next/src/components/features/customers/customer-detail.tsx` | "Estimation History" card |
-| 12 | `frontend-next/src/components/features/insurances/insurance-detail.tsx` | Text about "estimations" |
-| 13 | `frontend-next/src/app/layout.tsx` | Meta description |
-| 14 | `frontend-next/src/lib/notification-types.ts` | Notification constant name |
-| 15 | `frontend-next/src/hooks/use-websocket.ts` | WebSocket handler referencing estimations |
+| 1 | `frontend/src/components/layout/sidebar.tsx` | Nav item label to change |
+| 2 | `frontend/src/app/(dashboard)/estimations/page.tsx` | List page title |
+| 3 | `frontend/src/app/(dashboard)/estimations/[id]/page.tsx` | Detail page title |
+| 4 | `frontend/src/app/(dashboard)/estimations/new/page.tsx` | Create form page title |
+| 5 | `frontend/src/components/features/estimations/estimation-list.tsx` | List component: page header, empty state, filter labels |
+| 6 | `frontend/src/components/features/estimations/estimation-detail.tsx` | Detail component: page header, card labels, status labels |
+| 7 | `frontend/src/components/features/estimations/estimation-form.tsx` | Form component: page header, step labels |
+| 8 | `frontend/src/components/features/status-badge.tsx` | Status badge mapping |
+| 9 | `frontend/src/lib/api/estimations.ts` | TypeScript `EstimationStatus` type |
+| 10 | `frontend/src/app/(dashboard)/dashboard/page.tsx` | Dashboard card label |
+| 11 | `frontend/src/components/features/customers/customer-detail.tsx` | "Estimation History" card |
+| 12 | `frontend/src/components/features/insurances/insurance-detail.tsx` | Text about "estimations" |
+| 13 | `frontend/src/app/layout.tsx` | Meta description |
+| 14 | `frontend/src/lib/notification-types.ts` | Notification constant name |
+| 15 | `frontend/src/hooks/use-websocket.ts` | WebSocket handler referencing estimations |
 | 16 | `docs/outlines/05_NEXTJS_FRONTEND.md` | Frontend architecture conventions |
 
 ---
@@ -77,7 +77,7 @@ Update the `StatusBadge` component and status filter dropdowns to recognize the 
 
 ### Step 1: Update the TypeScript EstimationStatus Type
 
-**File:** `frontend-next/src/lib/api/estimations.ts`
+**File:** `frontend/src/lib/api/estimations.ts`
 
 Add the new status values to the `EstimationStatus` type. Currently (line 4):
 
@@ -95,7 +95,7 @@ Keep `COMPLETED` — legacy data may still have this status.
 
 ### Step 2: Update the StatusBadge Component
 
-**File:** `frontend-next/src/components/features/status-badge.tsx`
+**File:** `frontend/src/components/features/status-badge.tsx`
 
 Add the new status mappings to the `statusMap` object. Currently (lines 9-16):
 
@@ -129,7 +129,7 @@ Note: `ACTIVE` was already in the map but had `variant: "default"` — keep it a
 
 ### Step 3: Update the Sidebar Navigation
 
-**File:** `frontend-next/src/components/layout/sidebar.tsx`
+**File:** `frontend/src/components/layout/sidebar.tsx`
 
 Change the "Estimations" nav item (line 30):
 ```typescript
@@ -144,7 +144,7 @@ To:
 
 ### Step 4: Update the Estimation List Page
 
-**File:** `frontend-next/src/app/(dashboard)/estimations/page.tsx`
+**File:** `frontend/src/app/(dashboard)/estimations/page.tsx`
 
 Change the metadata title (line 8):
 ```typescript
@@ -155,7 +155,7 @@ To:
 title: "Offers",
 ```
 
-**File:** `frontend-next/src/components/features/estimations/estimation-list.tsx`
+**File:** `frontend/src/components/features/estimations/estimation-list.tsx`
 
 Make these changes:
 
@@ -205,7 +205,7 @@ const statusOptions: { value: string; label: string }[] = [
 
 ### Step 5: Update the Estimation Detail Page
 
-**File:** `frontend-next/src/app/(dashboard)/estimations/[id]/page.tsx`
+**File:** `frontend/src/app/(dashboard)/estimations/[id]/page.tsx`
 
 Change metadata title (line 5):
 ```typescript
@@ -216,7 +216,7 @@ To:
 title: "Premium Detail",
 ```
 
-**File:** `frontend-next/src/components/features/estimations/estimation-detail.tsx`
+**File:** `frontend/src/components/features/estimations/estimation-detail.tsx`
 
 Make these changes:
 
@@ -321,7 +321,7 @@ To:
 
 ### Step 6: Update the Dashboard Page
 
-**File:** `frontend-next/src/app/(dashboard)/dashboard/page.tsx`
+**File:** `frontend/src/app/(dashboard)/dashboard/page.tsx`
 
 Find the card label "Pending Estimations" (around line 13) and change it to:
 ```
@@ -330,7 +330,7 @@ Find the card label "Pending Estimations" (around line 13) and change it to:
 
 ### Step 7: Update the Customer Detail Page
 
-**File:** `frontend-next/src/components/features/customers/customer-detail.tsx`
+**File:** `frontend/src/components/features/customers/customer-detail.tsx`
 
 Find the placeholder card with the text "Estimation History" (around line 135-143) and change the card title to:
 ```
@@ -340,12 +340,12 @@ Find the placeholder card with the text "Estimation History" (around line 135-14
 ### Step 8: No Change Needed — Verify These Files
 
 These files do NOT need changes but should be verified:
-- `frontend-next/src/app/(dashboard)/estimations/new/page.tsx` — "New Estimation" stays (describes the action)
-- `frontend-next/src/components/features/estimations/estimation-form.tsx` — "New Estimation" heading stays
-- `frontend-next/src/components/features/insurances/insurance-detail.tsx` — "new estimations" stays (describes the action)
-- `frontend-next/src/app/layout.tsx` — meta description stays unchanged
-- `frontend-next/src/lib/notification-types.ts` — `ESTIMATION_STATUS` is a wire protocol constant, not UI text
-- `frontend-next/src/hooks/use-websocket.ts` — references to `/estimations/` URL paths stay unchanged
+- `frontend/src/app/(dashboard)/estimations/new/page.tsx` — "New Estimation" stays (describes the action)
+- `frontend/src/components/features/estimations/estimation-form.tsx` — "New Estimation" heading stays
+- `frontend/src/components/features/insurances/insurance-detail.tsx` — "new estimations" stays (describes the action)
+- `frontend/src/app/layout.tsx` — meta description stays unchanged
+- `frontend/src/lib/notification-types.ts` — `ESTIMATION_STATUS` is a wire protocol constant, not UI text
+- `frontend/src/hooks/use-websocket.ts` — references to `/estimations/` URL paths stay unchanged
 
 ### Step 9: Verify — Run a Visual Check
 
@@ -374,4 +374,4 @@ After all changes, verify:
 - [x] Customer detail card reads "Offer History"
 - [x] Polling works for STARTED, WAITING_APPROVAL, and PAYMENT_WAITING statuses
 - [x] No URL routes changed (still `/estimations`, `/estimations/new`, `/estimations/[id]`)
-- [x] TypeScript compilation passes: `cd frontend-next && npx tsc --noEmit`
+- [x] TypeScript compilation passes: `cd frontend && npx tsc --noEmit`

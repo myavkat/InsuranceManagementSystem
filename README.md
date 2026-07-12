@@ -113,7 +113,7 @@ cd infra/docker
 docker compose -f docker-compose.yml -f docker-compose.override.yml -f docker-compose.services.yml up -d --build
 
 # 4. Start frontend
-cd ../../frontend-next
+cd ../../frontend
 npm install
 npm run dev
 ```
@@ -152,7 +152,7 @@ npm run dev
 ./gradlew.bat bootJar -x test
 
 # Frontend
-cd frontend-next
+cd frontend
 npm run build
 npm run lint
 npm run dev
@@ -177,7 +177,7 @@ npm run dev
 │   ├── estimation-service/
 │   ├── reference-data-service/
 │   └── eureka-server/
-├── frontend-next/                # Next.js 16 SSR application
+├── frontend/                # Next.js 16 SSR application
 │   └── src/
 │       ├── app/                  # App Router (pages, layouts, API routes)
 │       ├── components/           # shadcn/ui + feature components

@@ -11,7 +11,7 @@ Lay down all foundational infrastructure so that subsequent microservice and fro
 ### Subtasks
 
 1. **Create Monorepo Structure**
-   - Set up the monorepo layout with `services/`, `frontend-next/`, `infra/`, `common/` directories.
+   - Set up the monorepo layout with `services/`, `frontend/`, `infra/`, `common/` directories.
    - Each service gets its own `build.gradle.kts` and standard directory tree (`src/main/java/...`, `src/test/java/...`).
    - Root `settings.gradle.kts` includes all service subprojects if unified build is desired.
 
@@ -21,7 +21,7 @@ Lay down all foundational infrastructure so that subsequent microservice and fro
    - One-command startup: `docker compose up -d`.
 
 3. **Initialize Next.js Project**
-   - `npx create-next-app@latest frontend-next` with TypeScript, App Router, Tailwind CSS.
+   - `npx create-next-app@latest frontend` with TypeScript, App Router, Tailwind CSS.
    - Add shadcn/ui: `npx shadcn@latest init`.
    - Install Zustand, TanStack React Query, Zod, React Hook Form.
    - Set up `GATEWAY_URL` env var pointing to `http://localhost:8080`.

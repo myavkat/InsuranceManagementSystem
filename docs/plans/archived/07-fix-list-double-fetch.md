@@ -22,11 +22,11 @@ Currently, every navigation to a list page triggers **two** API calls: one SSR `
 
 | File | Why |
 |------|-----|
-| `frontend-next/src/components/features/customers/customer-list.tsx` | Example — the `useQuery` call with `initialData` |
-| `frontend-next/src/components/features/estimations/estimation-list.tsx` | Same pattern |
-| `frontend-next/src/components/features/insurances/insurance-list.tsx` | Same pattern |
-| `frontend-next/src/components/features/real-estate/real-estate-list.tsx` | Same pattern |
-| `frontend-next/src/components/features/vehicles/vehicle-list.tsx` | Same pattern |
+| `frontend/src/components/features/customers/customer-list.tsx` | Example — the `useQuery` call with `initialData` |
+| `frontend/src/components/features/estimations/estimation-list.tsx` | Same pattern |
+| `frontend/src/components/features/insurances/insurance-list.tsx` | Same pattern |
+| `frontend/src/components/features/real-estate/real-estate-list.tsx` | Same pattern |
+| `frontend/src/components/features/vehicles/vehicle-list.tsx` | Same pattern |
 
 ---
 

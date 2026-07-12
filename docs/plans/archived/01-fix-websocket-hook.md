@@ -24,10 +24,10 @@ Fix four correctness bugs in the `useWebSocket` hook that cause:
 
 | File | Why |
 |------|-----|
-| `frontend-next/src/hooks/use-websocket.ts` | The file being fixed (184 lines) |
-| `frontend-next/src/lib/store/notification-store.ts` | Notification state shape (`addNotification`, `setConnected`) |
-| `frontend-next/src/lib/notification-types.ts` | `NotificationType` type definition |
-| `frontend-next/src/hooks/use-notification-store.ts` (or equivalent) | `useAuthStore` — to understand `accessToken` shape |
+| `frontend/src/hooks/use-websocket.ts` | The file being fixed (184 lines) |
+| `frontend/src/lib/store/notification-store.ts` | Notification state shape (`addNotification`, `setConnected`) |
+| `frontend/src/lib/notification-types.ts` | `NotificationType` type definition |
+| `frontend/src/hooks/use-notification-store.ts` (or equivalent) | `useAuthStore` — to understand `accessToken` shape |
 
 ---
 

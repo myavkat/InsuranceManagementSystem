@@ -22,10 +22,10 @@ Fix two bugs in the login page:
 
 | File | Why |
 |------|-----|
-| `frontend-next/src/app/(auth)/login/page.tsx` | The file being fixed (182 lines) |
-| `frontend-next/src/lib/store/auth-store.ts` | To verify `UserInfo` type shape matches expectations |
-| `frontend-next/src/middleware.ts` | To confirm middleware decodes `auth_token` with `decodeURIComponent` (cookie is URL-encoded) |
-| `frontend-next/src/lib/api/server-fetch.ts` | To confirm serverFetch reads the `Authorization` header (set by middleware from cookie) |
+| `frontend/src/app/(auth)/login/page.tsx` | The file being fixed (182 lines) |
+| `frontend/src/lib/store/auth-store.ts` | To verify `UserInfo` type shape matches expectations |
+| `frontend/src/middleware.ts` | To confirm middleware decodes `auth_token` with `decodeURIComponent` (cookie is URL-encoded) |
+| `frontend/src/lib/api/server-fetch.ts` | To confirm serverFetch reads the `Authorization` header (set by middleware from cookie) |
 
 ---
 

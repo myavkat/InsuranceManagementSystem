@@ -12,14 +12,14 @@ The customers API function already uses the correct format — use it as the ref
 
 | File | Reason |
 |------|--------|
-| `frontend-next/src/lib/api/customers.ts` | Reference: `getCustomers()` already uses correct `sort=field,direction` format |
-| `frontend-next/src/lib/api/insurances.ts` | Will be modified |
-| `frontend-next/src/lib/api/vehicles.ts` | Will be modified |
-| `frontend-next/src/lib/api/realestate.ts` | Will be modified |
+| `frontend/src/lib/api/customers.ts` | Reference: `getCustomers()` already uses correct `sort=field,direction` format |
+| `frontend/src/lib/api/insurances.ts` | Will be modified |
+| `frontend/src/lib/api/vehicles.ts` | Will be modified |
+| `frontend/src/lib/api/realestate.ts` | Will be modified |
 
 ## Files to Modify
 
-All three files are in `frontend-next/src/lib/api/`:
+All three files are in `frontend/src/lib/api/`:
 
 1. `insurances.ts` — function `getInsurances()`
 2. `vehicles.ts` — function `getVehicles()`
@@ -29,7 +29,7 @@ All three files are in `frontend-next/src/lib/api/`:
 
 ### Step 1: Open the reference file
 
-Open `frontend-next/src/lib/api/customers.ts`. Look at how `getCustomers()` builds the sort parameter
+Open `frontend/src/lib/api/customers.ts`. Look at how `getCustomers()` builds the sort parameter
 (lines 42-47):
 
 ```typescript
@@ -45,7 +45,7 @@ This is the pattern to replicate. Note: the direction parameter is NOT sent as a
 
 ### Step 2: Fix `insurances.ts`
 
-Open `frontend-next/src/lib/api/insurances.ts`.
+Open `frontend/src/lib/api/insurances.ts`.
 
 Current code (lines 52-57):
 ```typescript
@@ -67,7 +67,7 @@ Just delete the line that sends it as a separate query param.
 
 ### Step 3: Fix `vehicles.ts`
 
-Open `frontend-next/src/lib/api/vehicles.ts`.
+Open `frontend/src/lib/api/vehicles.ts`.
 
 Same change as Step 2. In `getVehicles()`, replace the two separate-param lines at lines 88-89:
 ```typescript
@@ -86,7 +86,7 @@ if (sort && direction) {
 
 ### Step 4: Fix `realestate.ts`
 
-Open `frontend-next/src/lib/api/realestate.ts`.
+Open `frontend/src/lib/api/realestate.ts`.
 
 Same change as Step 2. In `getRealEstates()`, replace the two separate-param lines at lines 67-68:
 ```typescript
@@ -108,7 +108,7 @@ if (sort && direction) {
 After making all three changes, verify:
 
 1. The TypeScript compiler is happy — no type errors on the sort/direction parameters.
-2. Build the frontend: run `cd frontend-next && npx tsc --noEmit` (type-check only, no emit).
+2. Build the frontend: run `cd frontend && npx tsc --noEmit` (type-check only, no emit).
 3. The three list pages at these routes should now sort correctly when a column header is clicked:
    - `/insurances` — sort by Name, Base Premium, Status, Created
    - `/vehicles` — sort by Plate, Brand/Model, Created

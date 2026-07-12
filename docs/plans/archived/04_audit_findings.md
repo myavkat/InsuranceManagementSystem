@@ -25,7 +25,7 @@ An exhaustive search of the entire codebase (backend Java, frontend TypeScript, 
 | **B** | Java test code (`**/src/test/**/*.java`) | Same as A | 4 files with matches (see Section 4) |
 | **C** | SQL files (`infra/sql/**/*.sql`, excluding `insurance_db/init.sql`) | `TRAFFIC|CASCO|DASK|HEALTH|LIFE` | Clean — only `insurance_db/init.sql` (excluded by scope) |
 | **D** | Config files (`**/*.yml`, `**/*.yaml`, `**/*.properties`, `**/*.json`) | `TRAFFIC|CASCO|DASK` | Clean — 0 matches |
-| **E** | Frontend TypeScript/TSX (`frontend-next/src/**/*.{ts,tsx}`) | `"TRAFFIC"`, `"CASCO"`, `"DASK"`, `"HEALTH"`, `"LIFE"` | Clean — 0 matches |
+| **E** | Frontend TypeScript/TSX (`frontend/src/**/*.{ts,tsx}`) | `"TRAFFIC"`, `"CASCO"`, `"DASK"`, `"HEALTH"`, `"LIFE"` | Clean — 0 matches |
 | **F** | Estimation form (`estimation-form.tsx`) | Manual code review for type-based branching | Verified — uses `selectedInsuranceTypeId` (numeric), not name strings |
 | **G** | `code` field usage (`**/*.java`, `**/*.{ts,tsx}`) | `getCode()`, `.code(`, `"code"`, `.code` | Field exists and is used properly in production code |
 ## 3. Findings: Production Code
@@ -82,7 +82,7 @@ All test code findings are already documented and addressed by Plan `03_insuranc
 The following areas were searched and confirmed to have **zero** string-matching dependencies on insurance name values:
 
 - **Production Java code** (`src/main/**/*.java`): No matches for `"TRAFFIC"`, `"CASCO"`, `"DASK"`, `"HEALTH"`, or `"LIFE"` as string literals for comparison, branching, switch cases, or map lookups.
-- **Frontend TypeScript code** (`frontend-next/src/**/*.{ts,tsx}`): No matches for any old insurance name string in any context.
+- **Frontend TypeScript code** (`frontend/src/**/*.{ts,tsx}`): No matches for any old insurance name string in any context.
 - **Estimation form** (`estimation-form.tsx`): Verified that all step-3 type-based branching uses `selectedInsuranceTypeId === N` (numeric) -- lines 123-126, 325, 379, 433. Insurance `name` is used for display only (lines 301, 442, 473). Insurance `id` (UUID) is used for API lookups and routing.
 - **SQL files outside `insurance_db/init.sql`**: No other SQL scripts reference insurance name values.
 - **Configuration files** (`*.yml`, `*.yaml`, `*.properties`, `*.json`): No routing rules, mappings, or configuration values reference insurance names by string.

@@ -22,21 +22,21 @@ Before starting, open these files to understand what already exists:
 | `docs/outlines/05_NEXTJS_FRONTEND.md` | Architecture: BFF pattern, auth strategy, data flow |
 | `docs/outlines/06_API_GATEWAY_AUTH.md` | Auth service endpoints, token format, security rules |
 | `docs/stories/01_AUTHENTICATION.md` | User stories: register, login, token refresh, lockout |
-| `frontend-next/src/lib/store/auth-store.ts` | Existing Zustand auth store (login/logout/setAccessToken) |
-| `frontend-next/src/lib/api/client.ts` | Existing apiClient with 401 → refresh → retry logic |
-| `frontend-next/src/lib/api/auth.ts` | Existing login/register/validateToken API functions |
-| `frontend-next/src/lib/api/types.ts` | ApiResponse, ApiError, PageResponse types |
-| `frontend-next/src/app/(auth)/login/page.tsx` | Current stub login page |
-| `frontend-next/src/app/(auth)/register/page.tsx` | Current stub register page |
-| `frontend-next/src/app/(auth)/layout.tsx` | Auth layout (centers content) |
-| `frontend-next/src/components/layout/header.tsx` | Header with logout button |
-| `frontend-next/src/components/ui/button.tsx` | Button component |
-| `frontend-next/src/components/ui/input.tsx` | Input component |
-| `frontend-next/src/components/ui/card.tsx` | Card component |
-| `frontend-next/src/app/layout.tsx` | Root layout |
-| `frontend-next/src/app/(dashboard)/layout.tsx` | Dashboard layout with sidebar/header |
-| `frontend-next/package.json` | Dependencies (zod, react-hook-form, @hookform/resolvers already installed) |
-| `frontend-next/components.json` | shadcn config: style "base-nova", tailwind v4, lucide icons |
+| `frontend/src/lib/store/auth-store.ts` | Existing Zustand auth store (login/logout/setAccessToken) |
+| `frontend/src/lib/api/client.ts` | Existing apiClient with 401 → refresh → retry logic |
+| `frontend/src/lib/api/auth.ts` | Existing login/register/validateToken API functions |
+| `frontend/src/lib/api/types.ts` | ApiResponse, ApiError, PageResponse types |
+| `frontend/src/app/(auth)/login/page.tsx` | Current stub login page |
+| `frontend/src/app/(auth)/register/page.tsx` | Current stub register page |
+| `frontend/src/app/(auth)/layout.tsx` | Auth layout (centers content) |
+| `frontend/src/components/layout/header.tsx` | Header with logout button |
+| `frontend/src/components/ui/button.tsx` | Button component |
+| `frontend/src/components/ui/input.tsx` | Input component |
+| `frontend/src/components/ui/card.tsx` | Card component |
+| `frontend/src/app/layout.tsx` | Root layout |
+| `frontend/src/app/(dashboard)/layout.tsx` | Dashboard layout with sidebar/header |
+| `frontend/package.json` | Dependencies (zod, react-hook-form, @hookform/resolvers already installed) |
+| `frontend/components.json` | shadcn config: style "base-nova", tailwind v4, lucide icons |
 
 ---
 
@@ -70,7 +70,7 @@ Before starting, open these files to understand what already exists:
 - DO NOT use `forwardRef` — pass `ref` as a prop directly (React 19)
 - DO NOT use `useContext()` — use `use()` instead (React 19)
 
-### Existing Auth API Functions (in `frontend-next/src/lib/api/auth.ts`)
+### Existing Auth API Functions (in `frontend/src/lib/api/auth.ts`)
 ```typescript
 login(credentials: LoginRequest): Promise<LoginResponse>
   // LoginRequest: { username: string; password: string }
@@ -83,7 +83,7 @@ register(data: RegisterRequest): Promise<UserResponse>
 validateToken(): Promise<{ valid: boolean; userId: string; roles: string[] }>
 ```
 
-### Existing Auth Store (in `frontend-next/src/lib/store/auth-store.ts`)
+### Existing Auth Store (in `frontend/src/lib/store/auth-store.ts`)
 ```typescript
 useAuthStore() returns:
   accessToken: string | null
@@ -102,7 +102,7 @@ useAuthStore() returns:
 
 ### Step 1: Create auth Zod schemas
 
-- [x] Create file `frontend-next/src/lib/schemas/auth.ts`
+- [x] Create file `frontend/src/lib/schemas/auth.ts`
 - [x] Define `loginSchema` using Zod:
   ```
   z.object({
@@ -151,7 +151,7 @@ useAuthStore() returns:
 
 ### Step 2: Build the Login page
 
-- [x] Open `frontend-next/src/app/(auth)/login/page.tsx` — replace full content
+- [x] Open `frontend/src/app/(auth)/login/page.tsx` — replace full content
 - [x] The page MUST be a Client Component (add `"use client"` at top)
 - [x] Import:
   - `useForm` from `react-hook-form`
@@ -183,7 +183,7 @@ useAuthStore() returns:
 
 ### Step 3: Build the Register page
 
-- [x] Open `frontend-next/src/app/(auth)/register/page.tsx` — replace full content
+- [x] Open `frontend/src/app/(auth)/register/page.tsx` — replace full content
 - [x] Client Component with `"use client"`
 - [x] Import same patterns as login page, plus `registerSchema`, `RegisterFormData`, and the `register` API function
 - [x] Set up `useForm<RegisterFormData>` with `resolver: zodResolver(registerSchema)` and default values for all 4 fields
@@ -202,7 +202,7 @@ useAuthStore() returns:
 
 ### Step 4: Create middleware.ts for route protection
 
-- [x] Create file `frontend-next/src/middleware.ts`
+- [x] Create file `frontend/src/middleware.ts`
 - [x] The middleware MUST check if the user has a valid auth token when accessing any route under `/(dashboard)/*`
 - [x] Implementation pattern:
   ```typescript
@@ -274,7 +274,7 @@ useAuthStore() returns:
 
 ### Step 6: Enhance logout to clear the cookie
 
-- [x] The header component (`frontend-next/src/components/layout/header.tsx`) already calls `useAuthStore().logout()` on the logout button click
+- [x] The header component (`frontend/src/components/layout/header.tsx`) already calls `useAuthStore().logout()` on the logout button click
 - [x] Update the logout handler in the header to ALSO clear the auth cookie AND redirect to `/login`:
   ```typescript
   const handleLogout = () => {
@@ -297,7 +297,7 @@ useAuthStore() returns:
 
 ### Step 8: Update the auth layout to redirect authenticated users
 
-- [x] Open `frontend-next/src/app/(auth)/layout.tsx`
+- [x] Open `frontend/src/app/(auth)/layout.tsx`
 - [x] This is currently a Server Component. Make it a Client Component (add `"use client"`)
 - [x] Import `useAuthStore` and `useRouter` and `useEffect`
 - [x] Add a `useEffect` that checks if `isAuthenticated` is true — if so, redirect to `/dashboard`
@@ -311,7 +311,7 @@ useAuthStore() returns:
 - [x] Verify the middleware redirects unauthenticated users to `/login`
 - [x] Verify logout clears the cookie and redirects to `/login`
 - [x] Verify the `auth_token` cookie is set on login and cleared on logout
-- [x] Run `npx tsc --noEmit` from `frontend-next/` to check for TypeScript errors
+- [x] Run `npx tsc --noEmit` from `frontend/` to check for TypeScript errors
 
 ---
 

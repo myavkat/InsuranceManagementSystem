@@ -2,7 +2,7 @@
 
 ## Objective
 
-The frontend sends a `?search=...` query parameter to `GET /api/real-estate` (see `frontend-next/src/lib/api/realestate.ts` line 65), but the backend `RealEstateController.getAll()` only accepts `Pageable` — there is no `@RequestParam` for search. The service calls `realEstateRepository.findAll(pageable)` with zero filtering. This plan adds search support so that typing in the real estate list search bar actually filters results.
+The frontend sends a `?search=...` query parameter to `GET /api/real-estate` (see `frontend/src/lib/api/realestate.ts` line 65), but the backend `RealEstateController.getAll()` only accepts `Pageable` — there is no `@RequestParam` for search. The service calls `realEstateRepository.findAll(pageable)` with zero filtering. This plan adds search support so that typing in the real estate list search bar actually filters results.
 
 The search should match against: **address** (primary), **district**.
 

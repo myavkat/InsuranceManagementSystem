@@ -2,7 +2,7 @@
 
 ## Objective
 
-The frontend sends a `?search=...` query parameter to `GET /api/vehicles` (see `frontend-next/src/lib/api/vehicles.ts` line 87), but the backend `VehicleController.getAll()` only accepts `Pageable` — there is no `@RequestParam` for search. The service calls `vehicleRepository.findAll(pageable)` with zero filtering. This plan adds search support so that typing in the vehicle list search bar actually filters results.
+The frontend sends a `?search=...` query parameter to `GET /api/vehicles` (see `frontend/src/lib/api/vehicles.ts` line 87), but the backend `VehicleController.getAll()` only accepts `Pageable` — there is no `@RequestParam` for search. The service calls `vehicleRepository.findAll(pageable)` with zero filtering. This plan adds search support so that typing in the vehicle list search bar actually filters results.
 
 The search should match against: **plate** (primary), **chassis number**, **brand name**, and **model name**.
 

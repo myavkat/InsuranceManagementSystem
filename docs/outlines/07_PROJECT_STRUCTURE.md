@@ -19,7 +19,7 @@ InsuranceManagementSystem/
 │   ├── reference-data-service/       # Reference data (cities, professions, lookups)
 │   ├── api-gateway/                  # Spring Cloud Gateway, routing, auth, rate limiting (stub)
 │   └── auth-service/                 # Authentication & JWT issuance/validation (stub)
-├── frontend-next/                    # Next.js SSR (App Router) + Tailwind CSS + shadcn/ui
+├── frontend/                    # Next.js SSR (App Router) + Tailwind CSS + shadcn/ui
 ├── common/                           # Shared libraries
 │   ├── common-message/               # Event schemas (SAGA + domain events), serialization, constants
 │   ├── common-web/                   # Shared web config (Springdoc OpenAPI, exception handling, tracing)
@@ -49,7 +49,7 @@ Changes affecting multiple services must be implemented bottom-up (no circular d
 Common modules → Reference Data → Customer/Vehicle/RealEstate → Insurance → Estimation
 ```
 
-- **Frontend-next** depends only on API Gateway contracts (once gateway is implemented)
+- **frontend** depends only on API Gateway contracts (once gateway is implemented)
 - **common-message** is a dependency of all services — build it first
 
 - **auth-service** and **api-gateway** are stubs without build files — not yet in the build chain

@@ -20,9 +20,9 @@ Fix two list components where column headers show sort icons and appear interact
 
 | File | Why |
 |------|-----|
-| `frontend-next/src/components/features/insurances/insurance-companies-list.tsx` | First file to fix (86 lines) |
-| `frontend-next/src/components/features/insurances/insurance-types-list.tsx` | Second file to fix (80 lines) |
-| `frontend-next/src/components/features/data-table/data-table.tsx` | DataTable component — to understand `onSortingChange` prop contract |
+| `frontend/src/components/features/insurances/insurance-companies-list.tsx` | First file to fix (86 lines) |
+| `frontend/src/components/features/insurances/insurance-types-list.tsx` | Second file to fix (80 lines) |
+| `frontend/src/components/features/data-table/data-table.tsx` | DataTable component — to understand `onSortingChange` prop contract |
 
 ---
 

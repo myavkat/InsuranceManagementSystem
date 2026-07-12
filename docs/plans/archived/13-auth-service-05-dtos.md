@@ -14,7 +14,7 @@ Before writing any code, open these files:
 
 | File | Why |
 |------|-----|
-| `frontend-next/src/lib/api/auth.ts` | Frontend expects these exact response shapes: `LoginResponse` (accessToken, refreshToken, expiresIn, tokenType), `UserResponse` (userId, username, email, roles), `RegisterRequest` (username, email, password), `LoginRequest` (username, password) |
+| `frontend/src/lib/api/auth.ts` | Frontend expects these exact response shapes: `LoginResponse` (accessToken, refreshToken, expiresIn, tokenType), `UserResponse` (userId, username, email, roles), `RegisterRequest` (username, email, password), `LoginRequest` (username, password) |
 | `services/reference-data-service/src/main/java/.../dto/CityResponse.java` | DTO pattern: Lombok `@Data`, `@Builder`, `@NoArgsConstructor`, `@AllArgsConstructor` |
 | `common/common-web/src/main/java/.../dto/ApiResponse.java` | The response envelope used by all controllers |
 | `docs/outlines/10_JAVA_CONVENTIONS.md` | Lombok annotation ordering |

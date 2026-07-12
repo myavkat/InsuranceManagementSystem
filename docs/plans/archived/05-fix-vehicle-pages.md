@@ -23,25 +23,25 @@ Fix the following bugs across vehicle pages:
 
 | File | Reason |
 |------|--------|
-| `frontend-next/src/components/features/vehicles/vehicle-list.tsx` | List page |
-| `frontend-next/src/components/features/vehicles/vehicle-detail.tsx` | Detail page |
-| `frontend-next/src/components/features/vehicles/vehicle-form.tsx` | Form (used by new + edit) |
-| `frontend-next/src/components/features/vehicles/edit-vehicle-form.tsx` | Edit wrapper |
-| `frontend-next/src/lib/api/vehicles.ts` | API functions and response types |
-| `frontend-next/src/components/features/search-bar.tsx` | Search component (check debounce behavior) |
-| `frontend-next/src/components/features/data-table/data-table.tsx` | DataTable (check search/filter wiring) |
+| `frontend/src/components/features/vehicles/vehicle-list.tsx` | List page |
+| `frontend/src/components/features/vehicles/vehicle-detail.tsx` | Detail page |
+| `frontend/src/components/features/vehicles/vehicle-form.tsx` | Form (used by new + edit) |
+| `frontend/src/components/features/vehicles/edit-vehicle-form.tsx` | Edit wrapper |
+| `frontend/src/lib/api/vehicles.ts` | API functions and response types |
+| `frontend/src/components/features/search-bar.tsx` | Search component (check debounce behavior) |
+| `frontend/src/components/features/data-table/data-table.tsx` | DataTable (check search/filter wiring) |
 
 ## Files to Modify
 
-1. `frontend-next/src/components/features/vehicles/vehicle-list.tsx`
-2. `frontend-next/src/components/features/vehicles/vehicle-detail.tsx`
-3. `frontend-next/src/components/features/vehicles/vehicle-form.tsx`
+1. `frontend/src/components/features/vehicles/vehicle-list.tsx`
+2. `frontend/src/components/features/vehicles/vehicle-detail.tsx`
+3. `frontend/src/components/features/vehicles/vehicle-form.tsx`
 
 ## Steps
 
 ### Step 1: Fix customer name not showing in vehicle list
 
-Open `frontend-next/src/components/features/vehicles/vehicle-list.tsx`.
+Open `frontend/src/components/features/vehicles/vehicle-list.tsx`.
 
 The customer column is defined at lines 41-44:
 ```typescript
@@ -86,7 +86,7 @@ This looks correct. The API function sends the request to `/api/vehicles?...`. V
 
 ### Step 2: Fix search not filtering in vehicle list
 
-Open `frontend-next/src/components/features/vehicles/vehicle-list.tsx`.
+Open `frontend/src/components/features/vehicles/vehicle-list.tsx`.
 
 The search flow:
 1. User types in `SearchBar` → after 300ms debounce, `onSearch` fires → calls `setSearch(value)`
@@ -152,7 +152,7 @@ tab. If search isn't working, the fix is on the backend. Document findings.
 
 ### Step 3: Fix customer field in vehicle detail
 
-Open `frontend-next/src/components/features/vehicles/vehicle-detail.tsx`.
+Open `frontend/src/components/features/vehicles/vehicle-detail.tsx`.
 
 The customer field is at line 95:
 ```typescript
@@ -167,7 +167,7 @@ backend single-entity endpoint includes `customerName` but the list endpoint doe
 
 ### Step 4: Fix brand-model cascading (don't reset model for same brand)
 
-Open `frontend-next/src/components/features/vehicles/vehicle-form.tsx`.
+Open `frontend/src/components/features/vehicles/vehicle-form.tsx`.
 
 The `handleBrandChange` callback at lines 130-136:
 ```typescript
@@ -209,7 +209,7 @@ are batched and the form hasn't re-rendered yet. So `currentBrandId` is the old 
 
 ### Step 5: Fix stale data after edit save
 
-Open `frontend-next/src/components/features/vehicles/vehicle-form.tsx`.
+Open `frontend/src/components/features/vehicles/vehicle-form.tsx`.
 
 The `onSuccess` callback of the edit mutation (around lines 157-159):
 ```typescript
@@ -241,7 +241,7 @@ key used in `vehicle-detail.tsx`: `["vehicle", id]` and `edit-vehicle-form.tsx`:
 
 ### Step 6: Type-check
 
-Run `cd frontend-next && npx tsc --noEmit` to verify no type errors.
+Run `cd frontend && npx tsc --noEmit` to verify no type errors.
 
 ## Acceptance Criteria
 

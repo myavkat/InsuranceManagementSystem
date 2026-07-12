@@ -13,10 +13,10 @@ Create BFF (Backend-for-Frontend) route handler stubs under `app/api/*`. Each st
 - Read these files before starting:
   - `docs/outlines/05_NEXTJS_FRONTEND.md` — BFF pattern (Section 1), data flow diagram (Section 4)
   - `docs/outlines/06_API_GATEWAY_AUTH.md` — Gateway route table (which routes exist, which require auth)
-  - `frontend-next/AGENTS.md` — Next.js 16 Route Handler docs
-  - `frontend-next/node_modules/next/dist/docs/01-app/01-getting-started/15-route-handlers.md` — Route Handler API
-  - `frontend-next/node_modules/next/dist/docs/01-app/02-guides/backend-for-frontend.md` — BFF pattern guide
-  - `frontend-next/src/lib/api/types.ts` — `ApiResponse<T>` type (stubs use the same envelope)
+  - `frontend/AGENTS.md` — Next.js 16 Route Handler docs
+  - `frontend/node_modules/next/dist/docs/01-app/01-getting-started/15-route-handlers.md` — Route Handler API
+  - `frontend/node_modules/next/dist/docs/01-app/02-guides/backend-for-frontend.md` — BFF pattern guide
+  - `frontend/src/lib/api/types.ts` — `ApiResponse<T>` type (stubs use the same envelope)
 
 ## Architecture Notes
 
@@ -29,7 +29,7 @@ Create BFF (Backend-for-Frontend) route handler stubs under `app/api/*`. Each st
 
 ### Step 1: Create the auth BFF stub
 
-**File to CREATE:** `frontend-next/src/app/api/auth/[...path]/route.ts`
+**File to CREATE:** `frontend/src/app/api/auth/[...path]/route.ts`
 
 ```ts
 import { NextResponse } from "next/server";
@@ -78,7 +78,7 @@ A single `[...path]/route.ts` catches all of them. In a future sprint, the handl
 
 ### Step 2: Create the customers BFF stub
 
-**File to CREATE:** `frontend-next/src/app/api/customers/[...path]/route.ts`
+**File to CREATE:** `frontend/src/app/api/customers/[...path]/route.ts`
 
 ```ts
 import { NextResponse } from "next/server";
@@ -118,7 +118,7 @@ export async function DELETE() {
 
 ### Step 3: Create the insurances BFF stub
 
-**File to CREATE:** `frontend-next/src/app/api/insurances/[...path]/route.ts`
+**File to CREATE:** `frontend/src/app/api/insurances/[...path]/route.ts`
 
 ```ts
 import { NextResponse } from "next/server";
@@ -158,7 +158,7 @@ export async function DELETE() {
 
 ### Step 4: Create the estimations BFF stub
 
-**File to CREATE:** `frontend-next/src/app/api/estimations/[...path]/route.ts`
+**File to CREATE:** `frontend/src/app/api/estimations/[...path]/route.ts`
 
 ```ts
 import { NextResponse } from "next/server";
@@ -198,7 +198,7 @@ export async function DELETE() {
 
 ### Step 5: Create the vehicles BFF stub
 
-**File to CREATE:** `frontend-next/src/app/api/vehicles/[...path]/route.ts`
+**File to CREATE:** `frontend/src/app/api/vehicles/[...path]/route.ts`
 
 ```ts
 import { NextResponse } from "next/server";
@@ -241,7 +241,7 @@ export async function DELETE() {
 Start the dev server:
 
 ```bash
-cd frontend-next && npm run dev
+cd frontend && npm run dev
 ```
 
 Then test each endpoint with curl (Git Bash) or PowerShell `Invoke-RestMethod`:
@@ -272,7 +272,7 @@ Also verify that non-API routes still work:
 ### Step 7: Verify build
 
 ```bash
-cd frontend-next && npm run build
+cd frontend && npm run build
 ```
 
 The build should pass. If any route handler causes a conflict error (e.g., "Route conflicts with page"), verify the folder structure — `app/api/*` and `app/(dashboard)/*` should not overlap.
@@ -280,14 +280,14 @@ The build should pass. If any route handler causes a conflict error (e.g., "Rout
 ### Step 8: Verify lint
 
 ```bash
-cd frontend-next && npm run lint
+cd frontend && npm run lint
 ```
 
 Fix any lint errors before marking this plan complete.
 
 ### Step 9: Update the landing page redirect
 
-**File to MODIFY:** `frontend-next/src/app/page.tsx`
+**File to MODIFY:** `frontend/src/app/page.tsx`
 
 If Plan 04 used the placeholder version (because `/dashboard` didn't exist yet), now update it to the redirect version:
 
@@ -303,11 +303,11 @@ The dashboard route now exists, so this redirect will work.
 
 ## Acceptance Criteria
 
-- [x] `frontend-next/src/app/api/auth/[[...path]]/route.ts` exists with GET, POST, PUT, DELETE handlers
-- [x] `frontend-next/src/app/api/customers/[[...path]]/route.ts` exists with GET, POST, PUT, DELETE handlers
-- [x] `frontend-next/src/app/api/insurances/[[...path]]/route.ts` exists with GET, POST, PUT, DELETE handlers
-- [x] `frontend-next/src/app/api/estimations/[[...path]]/route.ts` exists with GET, POST, PUT, DELETE handlers
-- [x] `frontend-next/src/app/api/vehicles/[[...path]]/route.ts` exists with GET, POST, PUT, DELETE handlers
+- [x] `frontend/src/app/api/auth/[[...path]]/route.ts` exists with GET, POST, PUT, DELETE handlers
+- [x] `frontend/src/app/api/customers/[[...path]]/route.ts` exists with GET, POST, PUT, DELETE handlers
+- [x] `frontend/src/app/api/insurances/[[...path]]/route.ts` exists with GET, POST, PUT, DELETE handlers
+- [x] `frontend/src/app/api/estimations/[[...path]]/route.ts` exists with GET, POST, PUT, DELETE handlers
+- [x] `frontend/src/app/api/vehicles/[[...path]]/route.ts` exists with GET, POST, PUT, DELETE handlers
 - [x] `curl http://localhost:3000/api/auth/login` returns `{"success":true,...}` JSON
 - [x] `curl http://localhost:3000/api/customers/123` returns JSON
 - [x] `curl http://localhost:3000/api/insurances` returns JSON

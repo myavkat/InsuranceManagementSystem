@@ -16,15 +16,15 @@ Fix three issues with the estimation creation wizard:
 
 | File | Reason |
 |------|--------|
-| `frontend-next/src/components/features/estimations/estimation-form.tsx` | Main file to modify |
-| `frontend-next/src/components/ui/select.tsx` | Understand Base UI Select behavior |
-| `frontend-next/src/lib/schemas/estimation.ts` | Schema — may need validation update |
-| `frontend-next/src/lib/api/vehicles.ts` | Vehicle API (needed if implementing vehicle search) |
-| `frontend-next/src/lib/api/realestate.ts` | Real estate API (needed if implementing real estate search) |
+| `frontend/src/components/features/estimations/estimation-form.tsx` | Main file to modify |
+| `frontend/src/components/ui/select.tsx` | Understand Base UI Select behavior |
+| `frontend/src/lib/schemas/estimation.ts` | Schema — may need validation update |
+| `frontend/src/lib/api/vehicles.ts` | Vehicle API (needed if implementing vehicle search) |
+| `frontend/src/lib/api/realestate.ts` | Real estate API (needed if implementing real estate search) |
 
 ## Files to Modify
 
-1. `frontend-next/src/components/features/estimations/estimation-form.tsx`
+1. `frontend/src/components/features/estimations/estimation-form.tsx`
 
 ## Steps
 
@@ -38,7 +38,7 @@ closing the dropdown, but it doesn't stop keyboard capture.
 **Fix**: Use `onKeyDown` event handler on the Input to prevent keyboard events from propagating
 to the Select.
 
-Open `frontend-next/src/components/features/estimations/estimation-form.tsx`.
+Open `frontend/src/components/features/estimations/estimation-form.tsx`.
 
 Locate the customer search Input (around line 210):
 ```tsx
@@ -226,7 +226,7 @@ in Step 3, add:
 
 ### Step 5: Type-check
 
-Run `cd frontend-next && npx tsc --noEmit` to verify no type errors.
+Run `cd frontend && npx tsc --noEmit` to verify no type errors.
 
 ## Acceptance Criteria
 

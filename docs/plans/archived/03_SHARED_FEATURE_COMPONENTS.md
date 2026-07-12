@@ -11,22 +11,22 @@ Build reusable feature-level components that will be shared across all domain pa
 
 ## Files to Read First
 
-- `frontend-next/src/components/ui/button.tsx` — Button component API
-- `frontend-next/src/components/ui/input.tsx` — Input component API
-- `frontend-next/src/components/ui/table.tsx` — Table component API (Table, TableHeader, TableBody, TableRow, TableHead, TableCell)
-- `frontend-next/src/components/ui/badge.tsx` — Badge component API (variant prop)
-- `frontend-next/src/components/ui/skeleton.tsx` — Skeleton component API
-- `frontend-next/src/components/ui/card.tsx` — Card component API
-- `frontend-next/src/components/ui/dialog.tsx` — Dialog component API
-- `frontend-next/src/components/ui/select.tsx` — Select component API
-- `frontend-next/src/lib/utils.ts` — `cn()` helper
-- `frontend-next/src/lib/api/types.ts` — `PageResponse<T>` type
+- `frontend/src/components/ui/button.tsx` — Button component API
+- `frontend/src/components/ui/input.tsx` — Input component API
+- `frontend/src/components/ui/table.tsx` — Table component API (Table, TableHeader, TableBody, TableRow, TableHead, TableCell)
+- `frontend/src/components/ui/badge.tsx` — Badge component API (variant prop)
+- `frontend/src/components/ui/skeleton.tsx` — Skeleton component API
+- `frontend/src/components/ui/card.tsx` — Card component API
+- `frontend/src/components/ui/dialog.tsx` — Dialog component API
+- `frontend/src/components/ui/select.tsx` — Select component API
+- `frontend/src/lib/utils.ts` — `cn()` helper
+- `frontend/src/lib/api/types.ts` — `PageResponse<T>` type
 
 ## Steps
 
 ### Step 1: Create `SearchBar` component
 
-Create file: `frontend-next/src/components/features/search-bar.tsx`
+Create file: `frontend/src/components/features/search-bar.tsx`
 
 - [x] Created `search-bar.tsx` with debounced input and search icon
 
@@ -87,7 +87,7 @@ export function SearchBar({
 
 ### Step 2: Create `PaginationBar` component
 
-Create file: `frontend-next/src/components/features/pagination-bar.tsx`
+Create file: `frontend/src/components/features/pagination-bar.tsx`
 
 - [x] Created `pagination-bar.tsx` with Previous/Next, page info, and "Showing X–Y of Z" text
 
@@ -154,7 +154,7 @@ export function PaginationBar({
 
 ### Step 3: Create `StatusBadge` component
 
-Create file: `frontend-next/src/components/features/status-badge.tsx`
+Create file: `frontend/src/components/features/status-badge.tsx`
 
 - [x] Created `status-badge.tsx` mapping STARTED/COMPLETED/REJECTED/PENDING/ACTIVE/INACTIVE to badge variants
 
@@ -186,7 +186,7 @@ export function StatusBadge({ status }: StatusBadgeProps) {
 
 ### Step 4: Create `EmptyState` component
 
-Create file: `frontend-next/src/components/features/empty-state.tsx`
+Create file: `frontend/src/components/features/empty-state.tsx`
 
 - [x] Created `empty-state.tsx` with icon, title, description, and optional action slot
 
@@ -225,7 +225,7 @@ export function EmptyState({
 
 ### Step 5: Create `ErrorAlert` component
 
-Create file: `frontend-next/src/components/features/error-alert.tsx`
+Create file: `frontend/src/components/features/error-alert.tsx`
 
 - [x] Created `error-alert.tsx` with retry button
 
@@ -263,7 +263,7 @@ export function ErrorAlert({
 
 ### Step 6: Create `PageHeader` component
 
-Create file: `frontend-next/src/components/features/page-header.tsx`
+Create file: `frontend/src/components/features/page-header.tsx`
 
 - [x] Created `page-header.tsx` with title, description, and optional action slot
 
@@ -293,7 +293,7 @@ export function PageHeader({ title, description, action }: PageHeaderProps) {
 
 ### Step 7: Create `ConfirmDialog` component
 
-Create file: `frontend-next/src/components/features/confirm-dialog.tsx`
+Create file: `frontend/src/components/features/confirm-dialog.tsx`
 
 - [x] Created `confirm-dialog.tsx` wrapping Dialog with confirm/cancel buttons and loading state
 
@@ -366,7 +366,7 @@ export function ConfirmDialog({
 
 ### Step 8: Create `DataTableSkeleton` component
 
-Create file: `frontend-next/src/components/features/data-table-skeleton.tsx`
+Create file: `frontend/src/components/features/data-table-skeleton.tsx`
 
 - [x] Created `data-table-skeleton.tsx` with configurable columns and rows
 
@@ -420,7 +420,7 @@ export function DataTableSkeleton({ columns, rows = 5 }: DataTableSkeletonProps)
 
 ### Step 9: Create `FormField` component
 
-Create file: `frontend-next/src/components/features/form-field.tsx`
+Create file: `frontend/src/components/features/form-field.tsx`
 
 - [x] Created `form-field.tsx` with label, forwarded ref, and error display
 
@@ -468,7 +468,7 @@ export const FormField = forwardRef<HTMLInputElement, FormFieldProps>(
 
 ### Step 10: Verify the build compiles
 
-Run: `cd frontend-next && npm run build`
+Run: `cd frontend && npm run build`
 
 Fix any TypeScript errors before marking this plan complete.
 

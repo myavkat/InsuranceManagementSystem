@@ -18,13 +18,13 @@ Build the Estimation Management feature pages:
 - `docs/stories/04_ESTIMATION_SAGA.md` — Estimation scenarios and acceptance criteria
 - `docs/outlines/05_NEXTJS_FRONTEND.md` — BFF pattern
 - `docs/outlines/03_SAGA_PATTERN.md` — SAGA flow, estimation status transitions
-- `frontend-next/src/lib/api/estimations.ts` — All estimation types and API functions
-- `frontend-next/src/lib/api/customers.ts` — For customer dropdown
-- `frontend-next/src/lib/api/insurances.ts` — For insurance type/company dropdowns
-- `frontend-next/src/lib/api/vehicles.ts` — For vehicle dropdown (optional linkage)
-- `frontend-next/src/lib/api/realestate.ts` — For real estate dropdown (optional linkage)
-- `frontend-next/src/components/features/status-badge.tsx` — Status badge component
-- `frontend-next/src/components/features/customers/customer-list.tsx` — Pattern for list pages
+- `frontend/src/lib/api/estimations.ts` — All estimation types and API functions
+- `frontend/src/lib/api/customers.ts` — For customer dropdown
+- `frontend/src/lib/api/insurances.ts` — For insurance type/company dropdowns
+- `frontend/src/lib/api/vehicles.ts` — For vehicle dropdown (optional linkage)
+- `frontend/src/lib/api/realestate.ts` — For real estate dropdown (optional linkage)
+- `frontend/src/components/features/status-badge.tsx` — Status badge component
+- `frontend/src/components/features/customers/customer-list.tsx` — Pattern for list pages
 
 ## Key Implementation Notes
 
@@ -66,15 +66,15 @@ When the estimation is `COMPLETED`, show the premium prominently. When `REJECTED
 ### Step 1: Create directory structure
 
 ```
-frontend-next/src/app/(dashboard)/estimations/
-frontend-next/src/app/(dashboard)/estimations/new/
-frontend-next/src/app/(dashboard)/estimations/[id]/
-frontend-next/src/components/features/estimations/
+frontend/src/app/(dashboard)/estimations/
+frontend/src/app/(dashboard)/estimations/new/
+frontend/src/app/(dashboard)/estimations/[id]/
+frontend/src/components/features/estimations/
 ```
 
 ### Step 2: Build Estimation List page
 
-Create `frontend-next/src/components/features/estimations/estimation-list.tsx` — Client Component with:
+Create `frontend/src/components/features/estimations/estimation-list.tsx` — Client Component with:
 - `useQuery` fetching `getEstimations({ page, size, status, customerId, dateFrom, dateTo })`
 - Filter bar:
   - Status filter: Select dropdown with All/STARTED/COMPLETED/REJECTED options (use local state, not API call)
@@ -87,11 +87,11 @@ Create `frontend-next/src/components/features/estimations/estimation-list.tsx` �
 - `EmptyState` with "New Estimation" button
 - `ErrorAlert` with retry
 
-Create `frontend-next/src/app/(dashboard)/estimations/page.tsx` — Server Component rendering `<EstimationList />`.
+Create `frontend/src/app/(dashboard)/estimations/page.tsx` — Server Component rendering `<EstimationList />`.
 
 ### Step 3: Build Estimation Detail page
 
-Create `frontend-next/src/components/features/estimations/estimation-detail.tsx` — Client Component.
+Create `frontend/src/components/features/estimations/estimation-detail.tsx` — Client Component.
 
 This is the most important detail page because it shows SAGA status. Key behaviors:
 - `useQuery` with `refetchInterval: status === "STARTED" ? 5000 : false` (poll while in progress)
@@ -104,11 +104,11 @@ This is the most important detail page because it shows SAGA status. Key behavio
 - Real Estate info card (if linked — address)
 - Timeline of events (created date, updated date)
 
-Create `frontend-next/src/app/(dashboard)/estimations/[id]/page.tsx` — Server Component rendering `<EstimationDetail />`.
+Create `frontend/src/app/(dashboard)/estimations/[id]/page.tsx` — Server Component rendering `<EstimationDetail />`.
 
 ### Step 4: Build Estimation Form (multi-step)
 
-Create `frontend-next/src/components/features/estimations/estimation-form.tsx` — Client Component.
+Create `frontend/src/components/features/estimations/estimation-form.tsx` — Client Component.
 
 **State:**
 ```typescript
@@ -176,11 +176,11 @@ Convert type ID to number before sending to API.
 
 ### Step 5: Create page file
 
-Create `frontend-next/src/app/(dashboard)/estimations/new/page.tsx` — Server Component rendering `<EstimationForm />`.
+Create `frontend/src/app/(dashboard)/estimations/new/page.tsx` — Server Component rendering `<EstimationForm />`.
 
 ### Step 6: Verify build
 
-Run: `cd frontend-next && npm run build`
+Run: `cd frontend && npm run build`
 
 ## Acceptance Criteria
 

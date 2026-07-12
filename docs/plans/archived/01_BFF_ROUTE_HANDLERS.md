@@ -2,7 +2,7 @@
 
 ## Objective
 
-Replace all stub BFF route handlers in `frontend-next/src/app/api/*` with real proxy implementations that forward requests to the API Gateway. Add missing route handlers for `real-estate` and `reference-data` domains.
+Replace all stub BFF route handlers in `frontend/src/app/api/*` with real proxy implementations that forward requests to the API Gateway. Add missing route handlers for `real-estate` and `reference-data` domains.
 
 ## Prerequisites
 
@@ -13,9 +13,9 @@ None — this is the first plan in the Sprint 7 sequence.
 - `docs/outlines/05_NEXTJS_FRONTEND.md` — BFF pattern, data flow
 - `docs/outlines/06_API_GATEWAY_AUTH.md` — Gateway routes, auth requirements
 - `docs/outlines/02_MICROSERVICES_SPECIFICATIONS.md` — Full API surface per service
-- `frontend-next/src/lib/api/client.ts` — The `apiClient()` function and its patterns
-- `frontend-next/src/lib/store/auth-store.ts` — How JWT tokens are stored
-- `frontend-next/.env.local` — `NEXT_PUBLIC_GATEWAY_URL` variable
+- `frontend/src/lib/api/client.ts` — The `apiClient()` function and its patterns
+- `frontend/src/lib/store/auth-store.ts` — How JWT tokens are stored
+- `frontend/.env.local` — `NEXT_PUBLIC_GATEWAY_URL` variable
 
 ## Context
 
@@ -32,7 +32,7 @@ The `apiClient` function in `src/lib/api/client.ts` is the **client-side** fetch
 
 ### Step 1: Create the shared BFF proxy utility
 
-Create file: `frontend-next/src/lib/api/bff-proxy.ts`
+Create file: `frontend/src/lib/api/bff-proxy.ts`
 
 This is a single shared function that all BFF route handlers will use. It:
 - Reads the HTTP method, path params, search params, request body, and headers from the incoming Next.js request
@@ -102,7 +102,7 @@ export async function bffProxy(
 
 For each domain below, replace the stub content of `route.ts` with the proxy implementation.
 
-#### 2a. Auth — `frontend-next/src/app/api/auth/[...path]/route.ts`
+#### 2a. Auth — `frontend/src/app/api/auth/[...path]/route.ts`
 
 Replace contents with:
 
@@ -128,19 +128,19 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
 }
 ```
 
-#### 2b. Customers — `frontend-next/src/app/api/customers/[...path]/route.ts`
+#### 2b. Customers — `frontend/src/app/api/customers/[...path]/route.ts`
 
 Same pattern, domain: `"customers"`.
 
-#### 2c. Insurances — `frontend-next/src/app/api/insurances/[...path]/route.ts`
+#### 2c. Insurances — `frontend/src/app/api/insurances/[...path]/route.ts`
 
 Same pattern, domain: `"insurances"`.
 
-#### 2d. Estimations — `frontend-next/src/app/api/estimations/[...path]/route.ts`
+#### 2d. Estimations — `frontend/src/app/api/estimations/[...path]/route.ts`
 
 Same pattern, domain: `"estimations"`.
 
-#### 2e. Vehicles — `frontend-next/src/app/api/vehicles/[...path]/route.ts`
+#### 2e. Vehicles — `frontend/src/app/api/vehicles/[...path]/route.ts`
 
 Same pattern, domain: `"vehicles"`.
 
@@ -148,23 +148,23 @@ Same pattern, domain: `"vehicles"`.
 
 #### 3a. Real Estate
 
-Create directory: `frontend-next/src/app/api/real-estate/[...path]/`
+Create directory: `frontend/src/app/api/real-estate/[...path]/`
 
-Create file: `frontend-next/src/app/api/real-estate/[...path]/route.ts`
+Create file: `frontend/src/app/api/real-estate/[...path]/route.ts`
 
 Same proxy pattern, domain: `"real-estate"`.
 
 #### 3b. Reference Data
 
-Create directory: `frontend-next/src/app/api/reference-data/[...path]/`
+Create directory: `frontend/src/app/api/reference-data/[...path]/`
 
-Create file: `frontend-next/src/app/api/reference-data/[...path]/route.ts`
+Create file: `frontend/src/app/api/reference-data/[...path]/route.ts`
 
 Same proxy pattern, domain: `"reference-data"`.
 
 ### Step 4: Update Sidebar to include Real Estate nav item
 
-File: `frontend-next/src/components/layout/sidebar.tsx`
+File: `frontend/src/components/layout/sidebar.tsx`
 
 Add `Building2` icon import from `lucide-react` (line ~16):
 ```typescript
@@ -194,7 +194,7 @@ const navItems: NavItem[] = [
 
 ### Step 5: Verify the build compiles
 
-Run: `cd frontend-next && npm run build`
+Run: `cd frontend && npm run build`
 
 Fix any TypeScript errors before marking this plan complete.
 

@@ -17,19 +17,19 @@ Create Zod schemas for all application forms and integrate them with React Hook 
 
 | File | Purpose |
 |------|---------|
-| `frontend-next/src/components/features/customers/customer-form.tsx` | Reference: Zod + RHF pattern already used for customers |
-| `frontend-next/src/components/features/vehicles/vehicle-form.tsx` | Existing vehicle form (check if it uses Zod + RHF or manual) |
-| `frontend-next/src/components/features/real-estate/real-estate-form.tsx` | Existing real estate form (check pattern) |
-| `frontend-next/src/components/features/insurances/insurance-form.tsx` | Existing insurance form (check pattern) |
-| `frontend-next/src/components/features/estimations/estimation-form.tsx` | Multi-step form using manual state — needs migration to Zod + RHF |
-| `frontend-next/src/components/features/form-field.tsx` | Reusable form field wrapper (wraps Input + label + error) |
-| `frontend-next/src/lib/schemas/auth.ts` | Auth schemas created in Plan 01 (pattern to follow) |
-| `frontend-next/src/lib/api/customers.ts` | API types: CustomerRequest fields |
-| `frontend-next/src/lib/api/vehicles.ts` | API types: VehicleRequest fields |
-| `frontend-next/src/lib/api/realestate.ts` | API types: RealEstateRequest fields |
-| `frontend-next/src/lib/api/insurances.ts` | API types: InsuranceRequest fields |
-| `frontend-next/src/lib/api/estimations.ts` | API types: EstimationRequest fields |
-| `frontend-next/package.json` | Verify: zod 4.4.3, react-hook-form 7.80.0, @hookform/resolvers 5.4.0 |
+| `frontend/src/components/features/customers/customer-form.tsx` | Reference: Zod + RHF pattern already used for customers |
+| `frontend/src/components/features/vehicles/vehicle-form.tsx` | Existing vehicle form (check if it uses Zod + RHF or manual) |
+| `frontend/src/components/features/real-estate/real-estate-form.tsx` | Existing real estate form (check pattern) |
+| `frontend/src/components/features/insurances/insurance-form.tsx` | Existing insurance form (check pattern) |
+| `frontend/src/components/features/estimations/estimation-form.tsx` | Multi-step form using manual state — needs migration to Zod + RHF |
+| `frontend/src/components/features/form-field.tsx` | Reusable form field wrapper (wraps Input + label + error) |
+| `frontend/src/lib/schemas/auth.ts` | Auth schemas created in Plan 01 (pattern to follow) |
+| `frontend/src/lib/api/customers.ts` | API types: CustomerRequest fields |
+| `frontend/src/lib/api/vehicles.ts` | API types: VehicleRequest fields |
+| `frontend/src/lib/api/realestate.ts` | API types: RealEstateRequest fields |
+| `frontend/src/lib/api/insurances.ts` | API types: InsuranceRequest fields |
+| `frontend/src/lib/api/estimations.ts` | API types: EstimationRequest fields |
+| `frontend/package.json` | Verify: zod 4.4.3, react-hook-form 7.80.0, @hookform/resolvers 5.4.0 |
 
 ---
 
@@ -59,7 +59,7 @@ const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
 
 ### FormField Component API
 ```typescript
-// From frontend-next/src/components/features/form-field.tsx
+// From frontend/src/components/features/form-field.tsx
 interface FormFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
   error?: string;
@@ -85,12 +85,12 @@ To prevent accidental navigation away with unsaved changes, use the browser's `b
 
 ### Step 1: Create centralized Zod schemas directory
 
-- [x] Create directory `frontend-next/src/lib/schemas/` (may already exist from Plan 01 if `auth.ts` was created there)
+- [x] Create directory `frontend/src/lib/schemas/` (may already exist from Plan 01 if `auth.ts` was created there)
 
 ### Step 2: Create customer Zod schema (extract from existing form)
 
-- [x] Open `frontend-next/src/components/features/customers/customer-form.tsx` to see the existing inline schema (lines 25-38)
-- [x] Create `frontend-next/src/lib/schemas/customer.ts`:
+- [x] Open `frontend/src/components/features/customers/customer-form.tsx` to see the existing inline schema (lines 25-38)
+- [x] Create `frontend/src/lib/schemas/customer.ts`:
   ```typescript
   import { z } from "zod";
 
@@ -111,15 +111,15 @@ To prevent accidental navigation away with unsaved changes, use the browser's `b
 
   export type CustomerFormData = z.infer<typeof customerSchema>;
   ```
-- [x] Open `frontend-next/src/components/features/customers/customer-form.tsx`
+- [x] Open `frontend/src/components/features/customers/customer-form.tsx`
 - [x] Replace the inline `customerSchema` and `CustomerFormData` with imports from `@/lib/schemas/customer`
 - [x] Do the same for `edit-customer-form.tsx` if it has its own inline schema — update to import the shared one
 - [x] **Verify no TypeScript errors** after the change
 
 ### Step 3: Create vehicle Zod schema
 
-- [x] Read `frontend-next/src/lib/api/vehicles.ts` to see the `VehicleRequest` interface fields
-- [x] Create `frontend-next/src/lib/schemas/vehicle.ts`:
+- [x] Read `frontend/src/lib/api/vehicles.ts` to see the `VehicleRequest` interface fields
+- [x] Create `frontend/src/lib/schemas/vehicle.ts`:
   ```typescript
   import { z } from "zod";
 
@@ -139,7 +139,7 @@ To prevent accidental navigation away with unsaved changes, use the browser's `b
 
   export type VehicleFormData = z.infer<typeof vehicleSchema>;
   ```
-- [x] Open `frontend-next/src/components/features/vehicles/vehicle-form.tsx`
+- [x] Open `frontend/src/components/features/vehicles/vehicle-form.tsx`
 - [x] If it already uses Zod + RHF, update it to import the shared schema
 - [x] If it uses manual state, migrate it to Zod + RHF following the customer-form pattern exactly:
   1. Import `useForm` + `zodResolver`
@@ -152,8 +152,8 @@ To prevent accidental navigation away with unsaved changes, use the browser's `b
 
 ### Step 4: Create real-estate Zod schema
 
-- [x] Read `frontend-next/src/lib/api/realestate.ts` to see the `RealEstateRequest` interface fields
-- [x] Create `frontend-next/src/lib/schemas/real-estate.ts`:
+- [x] Read `frontend/src/lib/api/realestate.ts` to see the `RealEstateRequest` interface fields
+- [x] Create `frontend/src/lib/schemas/real-estate.ts`:
   ```typescript
   import { z } from "zod";
 
@@ -169,14 +169,14 @@ To prevent accidental navigation away with unsaved changes, use the browser's `b
 
   export type RealEstateFormData = z.infer<typeof realEstateSchema>;
   ```
-- [x] Open `frontend-next/src/components/features/real-estate/real-estate-form.tsx`
+- [x] Open `frontend/src/components/features/real-estate/real-estate-form.tsx`
 - [x] Migrate to Zod + RHF if not already (same pattern as customer-form)
 - [x] Do the same for `edit-real-estate-form.tsx`
 
 ### Step 5: Create insurance Zod schemas
 
-- [x] Read `frontend-next/src/lib/api/insurances.ts` to see various request interfaces
-- [x] Create `frontend-next/src/lib/schemas/insurance.ts`:
+- [x] Read `frontend/src/lib/api/insurances.ts` to see various request interfaces
+- [x] Create `frontend/src/lib/schemas/insurance.ts`:
   ```typescript
   import { z } from "zod";
 
@@ -195,18 +195,18 @@ To prevent accidental navigation away with unsaved changes, use the browser's `b
   export type InsuranceTypeFormData = z.infer<typeof insuranceTypeSchema>;
   export type InsuranceCompanyFormData = z.infer<typeof insuranceCompanySchema>;
   ```
-- [x] Open `frontend-next/src/components/features/insurances/insurance-form.tsx` and migrate to Zod + RHF
+- [x] Open `frontend/src/components/features/insurances/insurance-form.tsx` and migrate to Zod + RHF
 - [x] Do the same for `edit-insurance-form.tsx`
 
 ### Step 6: Create estimation Zod schema and migrate the multi-step form
 
-- [x] Read the estimation form at `frontend-next/src/components/features/estimations/estimation-form.tsx`
+- [x] Read the estimation form at `frontend/src/components/features/estimations/estimation-form.tsx`
 - [x] Analyze the fields across all 4 steps:
   - Step 1 (Customer): `selectedCustomerId` (string, required)
   - Step 2 (Insurance): `selectedTypeId` (string, required), `selectedCompanyId` (string, optional)
   - Step 3 (Link Assets): `selectedVehicleId` (string, optional), `selectedRealEstateId` (string, optional)
   - Step 4 (Review): no new fields
-- [x] Create `frontend-next/src/lib/schemas/estimation.ts`:
+- [x] Create `frontend/src/lib/schemas/estimation.ts`:
   ```typescript
   import { z } from "zod";
 
@@ -220,7 +220,7 @@ To prevent accidental navigation away with unsaved changes, use the browser's `b
 
   export type EstimationFormData = z.infer<typeof estimationSchema>;
   ```
-- [x] Open `frontend-next/src/components/features/estimations/estimation-form.tsx`
+- [x] Open `frontend/src/components/features/estimations/estimation-form.tsx`
 - [x] Replace all `useState` calls with a single `useForm<EstimationFormData>`:
   ```typescript
   const {
@@ -275,7 +275,7 @@ To prevent accidental navigation away with unsaved changes, use the browser's `b
 
 ### Step 7: Add navigation guard (unsaved changes warning)
 
-- [x] Create a custom hook `frontend-next/src/hooks/use-unsaved-changes.ts`:
+- [x] Create a custom hook `frontend/src/hooks/use-unsaved-changes.ts`:
   ```typescript
   "use client";
 
@@ -322,7 +322,7 @@ To prevent accidental navigation away with unsaved changes, use the browser's `b
 
 ### Step 8: Add async validation for national ID uniqueness (Customer form)
 
-- [x] Create `frontend-next/src/lib/api/customers.ts` — add a new function if it doesn't exist:
+- [x] Create `frontend/src/lib/api/customers.ts` — add a new function if it doesn't exist:
   ```typescript
   export async function checkNationalId(nationalId: string): Promise<boolean> {
     // Returns true if the nationalId is available (not taken)
@@ -357,7 +357,7 @@ To prevent accidental navigation away with unsaved changes, use the browser's `b
 
 ### Step 9: Verify all forms
 
-- [x] Run `npx tsc --noEmit` from `frontend-next/` to check for TypeScript errors
+- [x] Run `npx tsc --noEmit` from `frontend/` to check for TypeScript errors
 - [x] Verify each form:
   1. All fields have labels
   2. Inline errors appear per-field (not just at the top)
@@ -371,7 +371,7 @@ To prevent accidental navigation away with unsaved changes, use the browser's `b
 
 ## Acceptance Criteria
 
-1. All Zod schemas centralized in `frontend-next/src/lib/schemas/` — one file per domain:
+1. All Zod schemas centralized in `frontend/src/lib/schemas/` — one file per domain:
    - `auth.ts` (from Plan 01)
    - `customer.ts`
    - `vehicle.ts`

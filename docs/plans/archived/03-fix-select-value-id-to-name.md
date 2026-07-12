@@ -50,18 +50,18 @@ Where `optionsArray` is the data array used to populate the `SelectItem` element
 
 | File | Reason |
 |------|--------|
-| `frontend-next/src/components/ui/select.tsx` | Confirm `...props` spreads to `SelectPrimitive.Value` |
-| `frontend-next/src/components/features/insurances/insurance-form.tsx` | Has Type dropdown |
-| `frontend-next/src/components/features/estimations/estimation-form.tsx` | Has Type, Customer, Vehicle, RealEstate dropdowns |
-| `frontend-next/src/components/features/vehicles/vehicle-form.tsx` | Has Brand, Model, Engine, Fuel, Type, Package, Customer dropdowns |
-| `frontend-next/src/components/features/real-estate/real-estate-form.tsx` | Has City, Construction Type, Luxury Class, Usage Type, Customer dropdowns |
+| `frontend/src/components/ui/select.tsx` | Confirm `...props` spreads to `SelectPrimitive.Value` |
+| `frontend/src/components/features/insurances/insurance-form.tsx` | Has Type dropdown |
+| `frontend/src/components/features/estimations/estimation-form.tsx` | Has Type, Customer, Vehicle, RealEstate dropdowns |
+| `frontend/src/components/features/vehicles/vehicle-form.tsx` | Has Brand, Model, Engine, Fuel, Type, Package, Customer dropdowns |
+| `frontend/src/components/features/real-estate/real-estate-form.tsx` | Has City, Construction Type, Luxury Class, Usage Type, Customer dropdowns |
 
 ## Files to Modify
 
-1. `frontend-next/src/components/features/insurances/insurance-form.tsx`
-2. `frontend-next/src/components/features/estimations/estimation-form.tsx`
-3. `frontend-next/src/components/features/vehicles/vehicle-form.tsx`
-4. `frontend-next/src/components/features/real-estate/real-estate-form.tsx`
+1. `frontend/src/components/features/insurances/insurance-form.tsx`
+2. `frontend/src/components/features/estimations/estimation-form.tsx`
+3. `frontend/src/components/features/vehicles/vehicle-form.tsx`
+4. `frontend/src/components/features/real-estate/real-estate-form.tsx`
 
 > **Prerequisite:** Plan 02 must be completed first (removes company dropdowns that would
 > otherwise need this fix).
@@ -70,7 +70,7 @@ Where `optionsArray` is the data array used to populate the `SelectItem` element
 
 ### Step 1: Fix insurance-form.tsx (Insurance Type dropdown)
 
-Open `frontend-next/src/components/features/insurances/insurance-form.tsx`.
+Open `frontend/src/components/features/insurances/insurance-form.tsx`.
 
 Locate the Insurance Type Select (around lines 148-163). The `SelectValue` is at line 154:
 ```tsx
@@ -89,7 +89,7 @@ The `types` variable is already available from the `useQuery` call. Verify the v
 
 ### Step 2: Fix estimation-form.tsx
 
-Open `frontend-next/src/components/features/estimations/estimation-form.tsx`.
+Open `frontend/src/components/features/estimations/estimation-form.tsx`.
 
 This file has 4 dropdowns that need fixing (after company removal in Plan 02).
 
@@ -170,7 +170,7 @@ Same situation as vehicles — no data query is wired. Add the render prop:
 
 ### Step 3: Fix vehicle-form.tsx (all dropdowns)
 
-Open `frontend-next/src/components/features/vehicles/vehicle-form.tsx`.
+Open `frontend/src/components/features/vehicles/vehicle-form.tsx`.
 
 This file has 6-7 dropdowns. The options arrays are loaded via `useQuery` at the top of the component.
 
@@ -278,7 +278,7 @@ Change to:
 
 ### Step 4: Fix real-estate-form.tsx (all dropdowns)
 
-Open `frontend-next/src/components/features/real-estate/real-estate-form.tsx`.
+Open `frontend/src/components/features/real-estate/real-estate-form.tsx`.
 
 **4a. City dropdown (around line 182):**
 ```tsx

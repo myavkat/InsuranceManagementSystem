@@ -22,9 +22,9 @@ Fix two bugs in the TCKN (Turkish National ID) availability check:
 
 | File | Why |
 |------|-----|
-| `frontend-next/src/components/features/customers/customer-form.tsx` | The form component with the blur handler (266 lines) |
-| `frontend-next/src/lib/api/customers.ts` | The `checkNationalId` API function (88 lines) |
-| `frontend-next/src/lib/api/client.ts` | The `apiClient` wrapper — to understand error handling |
+| `frontend/src/components/features/customers/customer-form.tsx` | The form component with the blur handler (266 lines) |
+| `frontend/src/lib/api/customers.ts` | The `checkNationalId` API function (88 lines) |
+| `frontend/src/lib/api/client.ts` | The `apiClient` wrapper — to understand error handling |
 
 ---
 
@@ -141,4 +141,4 @@ Note: This requires `apiClient` in `client.ts` to accept an optional `signal` pa
 
 ## Dependencies
 
-- Depends on `apiClient` in `frontend-next/src/lib/api/client.ts` supporting an `AbortSignal` parameter. ✅ Verified: `apiClient` already accepts `options: RequestInit` and spreads it into `fetch()`, so `AbortSignal` passes through natively. No changes needed.
+- Depends on `apiClient` in `frontend/src/lib/api/client.ts` supporting an `AbortSignal` parameter. ✅ Verified: `apiClient` already accepts `options: RequestInit` and spreads it into `fetch()`, so `AbortSignal` passes through natively. No changes needed.

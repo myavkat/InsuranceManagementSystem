@@ -13,9 +13,9 @@ Build the client-side API layer: TypeScript types for the API response envelope,
 - Read these files before starting:
   - `docs/outlines/05_NEXTJS_FRONTEND.md` — BFF pattern, data flow (Section 4)
   - `docs/outlines/06_API_GATEWAY_AUTH.md` — Gateway routes, JWT format, token refresh endpoint
-  - `frontend-next/src/lib/store/auth-store.ts` — auth store API (you will import `useAuthStore`)
-  - `frontend-next/AGENTS.md` — Next.js 16 docs reference
-  - `frontend-next/.env.local` — `NEXT_PUBLIC_GATEWAY_URL` value
+  - `frontend/src/lib/store/auth-store.ts` — auth store API (you will import `useAuthStore`)
+  - `frontend/AGENTS.md` — Next.js 16 docs reference
+  - `frontend/.env.local` — `NEXT_PUBLIC_GATEWAY_URL` value
 
 ## Architecture Notes
 
@@ -28,11 +28,11 @@ Build the client-side API layer: TypeScript types for the API response envelope,
 
 ### Step 1: Create TypeScript types for the API layer
 
-- [x] Create `frontend-next/src/lib/api/types.ts` with `ApiResponse<T>`, `ApiError`, and `PageResponse<T>`
+- [x] Create `frontend/src/lib/api/types.ts` with `ApiResponse<T>`, `ApiError`, and `PageResponse<T>`
 
 ### Step 2: Create the base API client
 
-- [x] Create `frontend-next/src/lib/api/client.ts` with `apiClient<T>()` function
+- [x] Create `frontend/src/lib/api/client.ts` with `apiClient<T>()` function
 - [x] `apiClient` prepends `GATEWAY_URL` to all requests
 - [x] `apiClient` attaches `Authorization: Bearer <token>` header from auth-store
 - [x] `apiClient` handles 401 by attempting `/api/auth/refresh` and retrying once
@@ -42,39 +42,39 @@ Build the client-side API layer: TypeScript types for the API response envelope,
 
 ### Step 3: Create per-domain API modules
 
-- [x] Create `frontend-next/src/lib/api/auth.ts` with `login()`, `register()`, `validateToken()`
-- [x] Create `frontend-next/src/lib/api/customers.ts` with CRUD functions
-- [x] Create `frontend-next/src/lib/api/insurances.ts` with list/get functions
-- [x] Create `frontend-next/src/lib/api/estimations.ts` with list/get/create functions
-- [x] Create `frontend-next/src/lib/api/vehicles.ts` with list/get functions
+- [x] Create `frontend/src/lib/api/auth.ts` with `login()`, `register()`, `validateToken()`
+- [x] Create `frontend/src/lib/api/customers.ts` with CRUD functions
+- [x] Create `frontend/src/lib/api/insurances.ts` with list/get functions
+- [x] Create `frontend/src/lib/api/estimations.ts` with list/get/create functions
+- [x] Create `frontend/src/lib/api/vehicles.ts` with list/get functions
 
 ### Step 4: Create an API barrel export
 
-- [x] Create `frontend-next/src/lib/api/index.ts` with barrel re-exports
+- [x] Create `frontend/src/lib/api/index.ts` with barrel re-exports
 
 ### Step 5: Verify build
 
-- [x] `cd frontend-next && npm run build` passes
+- [x] `cd frontend && npm run build` passes
 
 ### Step 6: Verify lint
 
-- [x] `cd frontend-next && npm run lint` passes
+- [x] `cd frontend && npm run lint` passes
 
 ## Acceptance Criteria
 
-- [x] `frontend-next/src/lib/api/types.ts` exists with `ApiResponse<T>`, `ApiError`, and `PageResponse<T>`
-- [x] `frontend-next/src/lib/api/client.ts` exists with `apiClient<T>()` function
+- [x] `frontend/src/lib/api/types.ts` exists with `ApiResponse<T>`, `ApiError`, and `PageResponse<T>`
+- [x] `frontend/src/lib/api/client.ts` exists with `apiClient<T>()` function
 - [x] `apiClient` prepends `GATEWAY_URL` to all requests
 - [x] `apiClient` attaches `Authorization: Bearer <token>` header from auth-store
 - [x] `apiClient` handles 401 by attempting `/api/auth/refresh` and retrying once
 - [x] `apiClient` deduplicates concurrent refresh attempts (single in-flight promise)
 - [x] `apiClient` redirects to `/login` on refresh failure
 - [x] `apiClient` parses `ApiResponse<T>` envelope and throws `ApiError` on failure
-- [x] `frontend-next/src/lib/api/auth.ts` exists with `login()`, `register()`, `validateToken()`
-- [x] `frontend-next/src/lib/api/customers.ts` exists with CRUD functions
-- [x] `frontend-next/src/lib/api/insurances.ts` exists with list/get functions
-- [x] `frontend-next/src/lib/api/estimations.ts` exists with list/get/create functions
-- [x] `frontend-next/src/lib/api/vehicles.ts` exists with list/get functions
-- [x] `frontend-next/src/lib/api/index.ts` exists with barrel re-exports
+- [x] `frontend/src/lib/api/auth.ts` exists with `login()`, `register()`, `validateToken()`
+- [x] `frontend/src/lib/api/customers.ts` exists with CRUD functions
+- [x] `frontend/src/lib/api/insurances.ts` exists with list/get functions
+- [x] `frontend/src/lib/api/estimations.ts` exists with list/get/create functions
+- [x] `frontend/src/lib/api/vehicles.ts` exists with list/get functions
+- [x] `frontend/src/lib/api/index.ts` exists with barrel re-exports
 - [x] `npm run build` passes
 - [x] `npm run lint` passes

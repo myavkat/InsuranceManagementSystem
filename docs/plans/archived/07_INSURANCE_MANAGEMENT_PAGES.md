@@ -20,10 +20,10 @@ Build the Insurance Management feature pages:
 
 - `docs/stories/03_INSURANCE_PRODUCTS.md` — Insurance scenarios and acceptance criteria
 - `docs/outlines/05_NEXTJS_FRONTEND.md` — BFF pattern
-- `frontend-next/src/lib/api/insurances.ts` — All insurance types and API functions
-- `frontend-next/src/components/features/customers/customer-form.tsx` — Pattern to follow for forms
-- `frontend-next/src/components/features/customers/customer-list.tsx` — Pattern to follow for list pages
-- `frontend-next/src/components/features/customers/customer-detail.tsx` — Pattern to follow for detail pages
+- `frontend/src/lib/api/insurances.ts` — All insurance types and API functions
+- `frontend/src/components/features/customers/customer-form.tsx` — Pattern to follow for forms
+- `frontend/src/components/features/customers/customer-list.tsx` — Pattern to follow for list pages
+- `frontend/src/components/features/customers/customer-detail.tsx` — Pattern to follow for detail pages
 
 ## Key Implementation Notes
 
@@ -51,18 +51,18 @@ The base premium is a positive decimal value. Display with currency formatting.
 ### Step 1: Create directory structure
 
 ```
-frontend-next/src/app/(dashboard)/insurances/
-frontend-next/src/app/(dashboard)/insurances/new/
-frontend-next/src/app/(dashboard)/insurances/[id]/
-frontend-next/src/app/(dashboard)/insurances/[id]/edit/
-frontend-next/src/app/(dashboard)/insurances/types/
-frontend-next/src/app/(dashboard)/insurances/companies/
-frontend-next/src/components/features/insurances/
+frontend/src/app/(dashboard)/insurances/
+frontend/src/app/(dashboard)/insurances/new/
+frontend/src/app/(dashboard)/insurances/[id]/
+frontend/src/app/(dashboard)/insurances/[id]/edit/
+frontend/src/app/(dashboard)/insurances/types/
+frontend/src/app/(dashboard)/insurances/companies/
+frontend/src/components/features/insurances/
 ```
 
 ### Step 2: Build Insurance Product List page
 
-Create `frontend-next/src/components/features/insurances/insurance-list.tsx` — Client Component with:
+Create `frontend/src/components/features/insurances/insurance-list.tsx` — Client Component with:
 - `useQuery` fetching `getInsurances(page, pageSize, typeId, companyId, search)`
 - `useQuery` fetching `getInsuranceTypes()` and `getInsuranceCompanies()` for filter dropdowns
 - Filter bar: SearchBar + Type Select + Company Select + Active toggle
@@ -74,11 +74,11 @@ Create `frontend-next/src/components/features/insurances/insurance-list.tsx` —
 - `EmptyState` with "New Product" button
 - `ErrorAlert` with retry
 
-Create `frontend-next/src/app/(dashboard)/insurances/page.tsx` — Server Component rendering `<InsuranceList />`.
+Create `frontend/src/app/(dashboard)/insurances/page.tsx` — Server Component rendering `<InsuranceList />`.
 
 ### Step 3: Build Insurance Product Detail page
 
-Create `frontend-next/src/components/features/insurances/insurance-detail.tsx` — Client Component with:
+Create `frontend/src/components/features/insurances/insurance-detail.tsx` — Client Component with:
 - `useQuery` fetching `getInsurance(id)`
 - Back button to `/insurances`
 - `PageHeader` with product name as title
@@ -87,11 +87,11 @@ Create `frontend-next/src/components/features/insurances/insurance-detail.tsx` �
 - Edit and Deactivate/Delete action buttons
 - `ConfirmDialog` for deactivation confirmation
 
-Create `frontend-next/src/app/(dashboard)/insurances/[id]/page.tsx` — Server Component rendering `<InsuranceDetail />`.
+Create `frontend/src/app/(dashboard)/insurances/[id]/page.tsx` — Server Component rendering `<InsuranceDetail />`.
 
 ### Step 4: Build Insurance Product Form (shared)
 
-Create `frontend-next/src/components/features/insurances/insurance-form.tsx` — Client Component.
+Create `frontend/src/components/features/insurances/insurance-form.tsx` — Client Component.
 
 **Zod schema:**
 ```typescript
@@ -117,34 +117,34 @@ const insuranceSchema = z.object({
 ### Step 5: Create Insurance Product page files
 
 Create:
-- `frontend-next/src/app/(dashboard)/insurances/new/page.tsx` — renders `<InsuranceForm />`
-- `frontend-next/src/app/(dashboard)/insurances/[id]/edit/page.tsx` — renders `<EditInsuranceForm />`
+- `frontend/src/app/(dashboard)/insurances/new/page.tsx` — renders `<InsuranceForm />`
+- `frontend/src/app/(dashboard)/insurances/[id]/edit/page.tsx` — renders `<EditInsuranceForm />`
 
-Create `frontend-next/src/components/features/insurances/edit-insurance-form.tsx` — fetches product by ID, passes `initialData` to `InsuranceForm`.
+Create `frontend/src/components/features/insurances/edit-insurance-form.tsx` — fetches product by ID, passes `initialData` to `InsuranceForm`.
 
 ### Step 6: Build Insurance Types page (read-only list)
 
-Create `frontend-next/src/components/features/insurances/insurance-types-list.tsx` — Client Component with:
+Create `frontend/src/components/features/insurances/insurance-types-list.tsx` — Client Component with:
 - `useQuery` fetching `getInsuranceTypes()`
 - Simple table with ID and Name columns
 - `DataTableSkeleton` loading state
 - `ErrorAlert` with retry
 
-Create `frontend-next/src/app/(dashboard)/insurances/types/page.tsx` — Server Component rendering `<InsuranceTypesList />`.
+Create `frontend/src/app/(dashboard)/insurances/types/page.tsx` — Server Component rendering `<InsuranceTypesList />`.
 
 ### Step 7: Build Insurance Companies page (read-only list)
 
-Create `frontend-next/src/components/features/insurances/insurance-companies-list.tsx` — Client Component with:
+Create `frontend/src/components/features/insurances/insurance-companies-list.tsx` — Client Component with:
 - `useQuery` fetching `getInsuranceCompanies()`
 - Table with Name, Rating, Status (Active/Inactive badge) columns
 - `DataTableSkeleton` loading state
 - `ErrorAlert` with retry
 
-Create `frontend-next/src/app/(dashboard)/insurances/companies/page.tsx` — Server Component rendering `<InsuranceCompaniesList />`.
+Create `frontend/src/app/(dashboard)/insurances/companies/page.tsx` — Server Component rendering `<InsuranceCompaniesList />`.
 
 ### Step 8: Verify build
 
-Run: `cd frontend-next && npm run build`
+Run: `cd frontend && npm run build`
 
 ## Acceptance Criteria
 

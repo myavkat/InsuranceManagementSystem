@@ -33,7 +33,7 @@ services/*/gradlew
 services/*/gradlew.bat
 services/*/gradle/
 
-## Node / Next.js (frontend-next/)
+## Node / Next.js (frontend/)
 node_modules/
 .next/
 npm-debug.log*

@@ -129,7 +129,7 @@ All wrapped in the standard ApiResponse<T> envelope: { success: boolean, data?: 
 ├────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
 │ Gateway JWT validation │ JwtAuthFilter.java loads the public key to validate tokens. Auth service must use a matching RSA keypair   │
 ├────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ Frontend               │ frontend-next/src/lib/api/auth.ts calls login, register, validateToken — expects the response shapes above │
+│ Frontend               │ frontend/src/lib/api/auth.ts calls login, register, validateToken — expects the response shapes above │
 ├────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
 │ Eureka                 │ Registers as auth-service so the Gateway can lb:// to it                                                   │
 ├────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────────────┤

@@ -19,14 +19,14 @@
 
 | # | File Path | Purpose |
 |---|-----------|---------|
-| 1 | `frontend-next/src/components/features/estimations/estimation-detail.tsx` | Where the action button will be integrated |
-| 2 | `frontend-next/src/lib/api/estimations.ts` | API client — you will add new API functions here |
-| 3 | `frontend-next/src/components/ui/button.tsx` | shadcn/ui Button component API |
-| 4 | `frontend-next/src/components/ui/input.tsx` | shadcn/ui Input component API |
-| 5 | `frontend-next/src/components/ui/card.tsx` | shadcn/ui Card component API |
-| 6 | `frontend-next/src/components/features/status-badge.tsx` | Status badge for the payment page |
-| 7 | `frontend-next/src/components/features/error-alert.tsx` | Error alert component for mutation errors |
-| 8 | `frontend-next/src/lib/utils.ts` | `cn()` utility |
+| 1 | `frontend/src/components/features/estimations/estimation-detail.tsx` | Where the action button will be integrated |
+| 2 | `frontend/src/lib/api/estimations.ts` | API client — you will add new API functions here |
+| 3 | `frontend/src/components/ui/button.tsx` | shadcn/ui Button component API |
+| 4 | `frontend/src/components/ui/input.tsx` | shadcn/ui Input component API |
+| 5 | `frontend/src/components/ui/card.tsx` | shadcn/ui Card component API |
+| 6 | `frontend/src/components/features/status-badge.tsx` | Status badge for the payment page |
+| 7 | `frontend/src/components/features/error-alert.tsx` | Error alert component for mutation errors |
+| 8 | `frontend/src/lib/utils.ts` | `cn()` utility |
 | 9 | `docs/outlines/05_NEXTJS_FRONTEND.md` | Component patterns, client boundaries |
 | 10 | `AGENTS.md` | General rules (not SAGA-specific for frontend work) |
 
@@ -60,7 +60,7 @@
 
 ### Step 1: Add API Client Methods
 
-**File:** `frontend-next/src/lib/api/estimations.ts`
+**File:** `frontend/src/lib/api/estimations.ts`
 
 Add two new API functions after the `createEstimation` function (at the end of the file, before the last line if any):
 
@@ -80,7 +80,7 @@ export async function processPayment(id: string): Promise<EstimationResponse> {
 
 ### Step 2: Create the Payment Page Schema
 
-Create a new file: **`frontend-next/src/lib/schemas/payment.ts`**
+Create a new file: **`frontend/src/lib/schemas/payment.ts`**
 
 ```typescript
 import { z } from "zod";
@@ -121,7 +121,7 @@ All validations are format-only — the actual payment is always successful, so 
 
 ### Step 3: Create the Status-Driven Action Button Component
 
-Create a new file: **`frontend-next/src/components/features/estimations/offer-action-button.tsx`**
+Create a new file: **`frontend/src/components/features/estimations/offer-action-button.tsx`**
 
 This component reads the current `status` and renders the correct button label and action:
 
@@ -218,7 +218,7 @@ export function OfferActionButton({ estimationId, status }: OfferActionButtonPro
 
 ### Step 4: Create the Dummy Payment Page
 
-Create a new directory and file: **`frontend-next/src/app/(dashboard)/estimations/[id]/payment/page.tsx`**
+Create a new directory and file: **`frontend/src/app/(dashboard)/estimations/[id]/payment/page.tsx`**
 
 ```typescript
 import type { Metadata } from "next";
@@ -235,7 +235,7 @@ export default function PaymentPage() {
 
 ### Step 5: Create the Payment Form Component
 
-Create a new file: **`frontend-next/src/components/features/estimations/payment-form.tsx`**
+Create a new file: **`frontend/src/components/features/estimations/payment-form.tsx`**
 
 ```typescript
 "use client";
@@ -429,7 +429,7 @@ export function PaymentForm() {
 
 ### Step 6: Integrate the Action Button into the Detail Page
 
-**File:** `frontend-next/src/components/features/estimations/estimation-detail.tsx`
+**File:** `frontend/src/components/features/estimations/estimation-detail.tsx`
 
 #### 6a: Import the new component
 
@@ -513,7 +513,7 @@ But first, you need to update the `EstimationResponse` TypeScript interface to i
 
 ### Step 7: Update TypeScript EstimationResponse Interface
 
-**File:** `frontend-next/src/lib/api/estimations.ts`
+**File:** `frontend/src/lib/api/estimations.ts`
 
 Add two new optional fields to the `EstimationResponse` interface (after `details` and before `createdAt`):
 
@@ -529,7 +529,7 @@ Add them around line 23, after the `details` field.
 Run TypeScript type checking to catch any errors:
 
 ```bash
-cd frontend-next && npx tsc --noEmit
+cd frontend && npx tsc --noEmit
 ```
 
 Fix any type errors before considering this plan complete.
@@ -562,7 +562,7 @@ After implementation, verify the full flow:
 - [x] Detail page shows `startDate` and `endDate` for ACTIVE policies
 - [x] `EstimationResponse` TypeScript interface includes `startDate?` and `endDate?`
 - [x] `"use client"` directive present on all client components
-- [x] TypeScript compilation passes: `cd frontend-next && npx tsc --noEmit`
+- [x] TypeScript compilation passes: `cd frontend && npx tsc --noEmit`
 - [x] Accept Offer button only shown/active for `WAITING_APPROVAL`
 - [x] Start Payment button only shown/active for `PAYMENT_WAITING`
 - [x] All other statuses show disabled/informational buttons
