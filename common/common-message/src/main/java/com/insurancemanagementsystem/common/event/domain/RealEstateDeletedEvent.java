@@ -12,10 +12,12 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RealEstateDeletedEvent extends BaseEvent {
-    private UUID realEstateId;
 
-    @Override
-    public String getEventType() {
-        return EventConstants.REAL_ESTATE_DELETED;
-    }
+	private UUID realEstateId;
+
+	@Override
+	public String getEventType() {
+		return EventConstants.REAL_ESTATE_DELETED;
+	}
+
 }

@@ -13,54 +13,55 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "outbox_events", indexes = {
-    @Index(name = "idx_outbox_status", columnList = "status, created_at")
-})
+@Table(name = "outbox_events", indexes = { @Index(name = "idx_outbox_status", columnList = "status, created_at") })
 public class OutboxEvent {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.UUID)
+	private UUID id;
 
-    private UUID sagaId;
+	private UUID sagaId;
 
-    @Column(nullable = false, length = 100)
-    private String topic;
+	@Column(nullable = false, length = 100)
+	private String topic;
 
-    @Column(nullable = false)
-    @JdbcTypeCode(SqlTypes.JSON)
-    private String payload;
+	@Column(nullable = false)
+	@JdbcTypeCode(SqlTypes.JSON)
+	private String payload;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    @Builder.Default
-    private Status status = Status.PENDING;
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false, length = 20)
+	@Builder.Default
+	private Status status = Status.PENDING;
 
-    @Column(name = "retry_count")
-    @Builder.Default
-    private int retryCount = 0;
+	@Column(name = "retry_count")
+	@Builder.Default
+	private int retryCount = 0;
 
-    @Column(name = "last_error", columnDefinition = "TEXT")
-    private String lastError;
+	@Column(name = "last_error", columnDefinition = "TEXT")
+	private String lastError;
 
-    @Column(name = "created_at", updatable = false)
-    private Instant createdAt;
+	@Column(name = "created_at", updatable = false)
+	private Instant createdAt;
 
-    @Column(name = "updated_at")
-    private Instant updatedAt;
+	@Column(name = "updated_at")
+	private Instant updatedAt;
 
-    public enum Status {
-        PENDING, PUBLISHING, PUBLISHED, FAILED
-    }
+	public enum Status {
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = Instant.now();
-        updatedAt = createdAt;
-    }
+		PENDING, PUBLISHING, PUBLISHED, FAILED
 
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = Instant.now();
-    }
+	}
+
+	@PrePersist
+	protected void onCreate() {
+		createdAt = Instant.now();
+		updatedAt = createdAt;
+	}
+
+	@PreUpdate
+	protected void onUpdate() {
+		updatedAt = Instant.now();
+	}
+
 }

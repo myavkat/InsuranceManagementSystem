@@ -14,14 +14,20 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PremiumCalculatedEvent extends BaseEvent {
-    private BigDecimal premium;
-    private Map<String, BigDecimal> breakdown;
-    private UUID insuranceId;
-    private UUID customerId;
-    private UUID vehicleId;
 
-    @Override
-    public String getEventType() {
-        return EventConstants.PREMIUM_CALCULATED;
-    }
+	private BigDecimal premium;
+
+	private Map<String, BigDecimal> breakdown;
+
+	private UUID insuranceId;
+
+	private UUID customerId;
+
+	private UUID vehicleId;
+
+	@Override
+	public String getEventType() {
+		return EventConstants.PREMIUM_CALCULATED;
+	}
+
 }

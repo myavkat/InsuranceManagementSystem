@@ -12,12 +12,16 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EstimationFailedEvent extends BaseEvent {
-    private UUID originalSagaId;
-    private String reason;
-    private String failedStep;
 
-    @Override
-    public String getEventType() {
-        return EventConstants.ESTIMATION_FAILED;
-    }
+	private UUID originalSagaId;
+
+	private String reason;
+
+	private String failedStep;
+
+	@Override
+	public String getEventType() {
+		return EventConstants.ESTIMATION_FAILED;
+	}
+
 }

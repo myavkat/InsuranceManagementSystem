@@ -12,11 +12,14 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CustomerInvalidatedEvent extends BaseEvent {
-    private UUID customerId;
-    private String reason;
 
-    @Override
-    public String getEventType() {
-        return EventConstants.CUSTOMER_INVALIDATED;
-    }
+	private UUID customerId;
+
+	private String reason;
+
+	@Override
+	public String getEventType() {
+		return EventConstants.CUSTOMER_INVALIDATED;
+	}
+
 }

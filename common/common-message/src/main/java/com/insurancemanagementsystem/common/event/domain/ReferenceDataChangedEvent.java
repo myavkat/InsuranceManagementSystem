@@ -10,11 +10,14 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReferenceDataChangedEvent extends BaseEvent {
-    private String entityType;
-    private String changeType;
 
-    @Override
-    public String getEventType() {
-        return EventConstants.REFERENCE_DATA_CHANGED;
-    }
+	private String entityType;
+
+	private String changeType;
+
+	@Override
+	public String getEventType() {
+		return EventConstants.REFERENCE_DATA_CHANGED;
+	}
+
 }

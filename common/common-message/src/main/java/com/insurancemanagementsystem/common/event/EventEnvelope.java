@@ -17,9 +17,15 @@ import java.util.UUID;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EventEnvelope {
-    private UUID sagaId;
-    private String eventType;
-    private Instant timestamp;
-    private UUID traceId;
-    private Object payload;
+
+	private UUID sagaId;
+
+	private String eventType;
+
+	private Instant timestamp;
+
+	private UUID traceId;
+
+	private Object payload;
+
 }

@@ -12,11 +12,14 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CustomerDeletedEvent extends BaseEvent {
-    private UUID customerId;
-    private String nationalId;
 
-    @Override
-    public String getEventType() {
-        return EventConstants.CUSTOMER_DELETED;
-    }
+	private UUID customerId;
+
+	private String nationalId;
+
+	@Override
+	public String getEventType() {
+		return EventConstants.CUSTOMER_DELETED;
+	}
+
 }

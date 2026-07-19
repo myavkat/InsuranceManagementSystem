@@ -10,10 +10,12 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CalculationFailedEvent extends BaseEvent {
-    private String reason;
 
-    @Override
-    public String getEventType() {
-        return EventConstants.CALCULATION_FAILED;
-    }
+	private String reason;
+
+	@Override
+	public String getEventType() {
+		return EventConstants.CALCULATION_FAILED;
+	}
+
 }

@@ -13,8 +13,10 @@ import java.util.UUID;
 @Repository
 public interface OutboxEventRepository extends JpaRepository<OutboxEvent, UUID> {
 
-    @Query(value = "SELECT * FROM outbox_events WHERE status = :status ORDER BY created_at ASC LIMIT 10 FOR UPDATE SKIP LOCKED", nativeQuery = true)
-    List<OutboxEvent> findTop10ByStatusOrderByCreatedAtAsc(@Param("status") String status);
+	@Query(value = "SELECT * FROM outbox_events WHERE status = :status ORDER BY created_at ASC LIMIT 10 FOR UPDATE SKIP LOCKED",
+			nativeQuery = true)
+	List<OutboxEvent> findTop10ByStatusOrderByCreatedAtAsc(@Param("status") String status);
 
-    List<OutboxEvent> findByStatusAndCreatedAtBefore(OutboxEvent.Status status, Instant cutoff);
+	List<OutboxEvent> findByStatusAndCreatedAtBefore(OutboxEvent.Status status, Instant cutoff);
+
 }

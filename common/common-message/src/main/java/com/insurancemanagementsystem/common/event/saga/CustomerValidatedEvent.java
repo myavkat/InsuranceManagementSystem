@@ -12,12 +12,16 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CustomerValidatedEvent extends BaseEvent {
-    private UUID customerId;
-    private String firstName;
-    private String lastName;
 
-    @Override
-    public String getEventType() {
-        return EventConstants.CUSTOMER_VALIDATED;
-    }
+	private UUID customerId;
+
+	private String firstName;
+
+	private String lastName;
+
+	@Override
+	public String getEventType() {
+		return EventConstants.CUSTOMER_VALIDATED;
+	}
+
 }

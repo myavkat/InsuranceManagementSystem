@@ -7,19 +7,20 @@ import org.testcontainers.kafka.ConfluentKafkaContainer;
 import org.testcontainers.utility.DockerImageName;
 
 /**
- * Base class for integration tests that need PostgreSQL + Kafka.
- * Extend this in service integration tests to get pre-configured containers
- * for both database and messaging infrastructure.
+ * Base class for integration tests that need PostgreSQL + Kafka. Extend this in service
+ * integration tests to get pre-configured containers for both database and messaging
+ * infrastructure.
  */
 public abstract class AbstractKafkaIntegrationTest extends AbstractIntegrationTest {
 
-    @Container
-    static ConfluentKafkaContainer kafka = new ConfluentKafkaContainer(
-            DockerImageName.parse("confluentinc/cp-kafka:7.6.0"));
+	@Container
+	static ConfluentKafkaContainer kafka = new ConfluentKafkaContainer(
+			DockerImageName.parse("confluentinc/cp-kafka:7.6.0"));
 
-    @DynamicPropertySource
-    static void configureKafka(DynamicPropertyRegistry registry) {
-        registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
-        registry.add("spring.cloud.stream.kafka.binder.brokers", kafka::getBootstrapServers);
-    }
+	@DynamicPropertySource
+	static void configureKafka(DynamicPropertyRegistry registry) {
+		registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
+		registry.add("spring.cloud.stream.kafka.binder.brokers", kafka::getBootstrapServers);
+	}
+
 }

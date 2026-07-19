@@ -12,13 +12,18 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EstimationRequestedEvent extends BaseEvent {
-    private UUID customerId;
-    private UUID vehicleId;
-    private UUID realEstateId;
-    private UUID insuranceId;
 
-    @Override
-    public String getEventType() {
-        return EventConstants.ESTIMATION_REQUESTED;
-    }
+	private UUID customerId;
+
+	private UUID vehicleId;
+
+	private UUID realEstateId;
+
+	private UUID insuranceId;
+
+	@Override
+	public String getEventType() {
+		return EventConstants.ESTIMATION_REQUESTED;
+	}
+
 }

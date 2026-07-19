@@ -21,24 +21,25 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "saga_events", uniqueConstraints = @UniqueConstraint(columnNames = {"saga_id", "event_type"}))
+@Table(name = "saga_events", uniqueConstraints = @UniqueConstraint(columnNames = { "saga_id", "event_type" }))
 public class SagaEvent {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.UUID)
+	private UUID id;
 
-    @Column(name = "saga_id", nullable = false)
-    private UUID sagaId;
+	@Column(name = "saga_id", nullable = false)
+	private UUID sagaId;
 
-    @Column(name = "event_type", length = 50, nullable = false)
-    private String eventType;
+	@Column(name = "event_type", length = 50, nullable = false)
+	private String eventType;
 
-    @Column(name = "received_at", updatable = false)
-    private Instant receivedAt;
+	@Column(name = "received_at", updatable = false)
+	private Instant receivedAt;
 
-    @PrePersist
-    protected void onCreate() {
-        this.receivedAt = Instant.now();
-    }
+	@PrePersist
+	protected void onCreate() {
+		this.receivedAt = Instant.now();
+	}
+
 }
