@@ -30,193 +30,198 @@ import java.util.UUID;
 @Slf4j
 public class RealEstateService {
 
-    private final RealEstateRepository realEstateRepository;
-    private final RealEstateEventPublisher realEstateEventPublisher;
-    private final RealEstateConstructionTypeRepository constructionTypeRepository;
-    private final RealEstateLuxuryClassRepository luxuryClassRepository;
-    private final RealEstateUsageTypeRepository usageTypeRepository;
-    private final CustomerServiceClient customerServiceClient;
-    private final ReferenceDataServiceClient referenceDataServiceClient;
+	private final RealEstateRepository realEstateRepository;
 
-    // ---------- RealEstate CRUD ----------
+	private final RealEstateEventPublisher realEstateEventPublisher;
 
-    @Transactional(readOnly = true)
-    public Page<RealEstateResponse> findAll(Pageable pageable, String search, UUID customerId) {
-        Page<RealEstate> page;
-        if (customerId != null && search != null && !search.isBlank()) {
-            page = realEstateRepository.searchByCustomerIdAndSearch(customerId, search.trim(), pageable);
-        } else if (customerId != null) {
-            page = realEstateRepository.findByCustomerId(customerId, pageable);
-        } else if (search != null && !search.isBlank()) {
-            page = realEstateRepository.search(search.trim(), pageable);
-        } else {
-            page = realEstateRepository.findAll(pageable);
-        }
+	private final RealEstateConstructionTypeRepository constructionTypeRepository;
 
-        // Collect unique non-null city IDs and customer IDs from the page
-        java.util.Set<Integer> cityIds = page.getContent().stream()
-                .map(RealEstate::getCityId)
-                .filter(id -> id != null)
-                .collect(java.util.stream.Collectors.toSet());
+	private final RealEstateLuxuryClassRepository luxuryClassRepository;
 
-        java.util.Set<UUID> customerIds = page.getContent().stream()
-                .map(RealEstate::getCustomerId)
-                .filter(id -> id != null)
-                .collect(java.util.stream.Collectors.toSet());
+	private final RealEstateUsageTypeRepository usageTypeRepository;
 
-        // Resolve city names (the client already caches the full list)
-        java.util.Map<Integer, String> cityNameMap = new java.util.HashMap<>();
-        for (Integer cityId : cityIds) {
-            String name = referenceDataServiceClient.getCityName(cityId);
-            if (name != null) {
-                cityNameMap.put(cityId, name);
-            }
-        }
+	private final CustomerServiceClient customerServiceClient;
 
-        // Resolve customer names (one REST call per unique customer)
-        java.util.Map<UUID, String> customerNameMap = new java.util.HashMap<>();
-        for (UUID customerIdEntry : customerIds) {
-            String name = customerServiceClient.getCustomerName(customerIdEntry);
-            if (name != null) {
-                customerNameMap.put(customerIdEntry, name);
-            }
-        }
+	private final ReferenceDataServiceClient referenceDataServiceClient;
 
-        // Map entities to DTOs using pre-resolved names
-        return page.map(realEstate -> {
-            String cityName = cityNameMap.get(realEstate.getCityId());
-            String customerName = customerNameMap.get(realEstate.getCustomerId());
-            return toResponse(realEstate, cityName, customerName);
-        });
-    }
+	// ---------- RealEstate CRUD ----------
 
-    @Transactional(readOnly = true)
-    public RealEstateResponse findById(UUID id) {
-        RealEstate realEstate = realEstateRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("RealEstate not found with id: " + id));
-        String cityName = referenceDataServiceClient.getCityName(realEstate.getCityId());
-        String customerName = customerServiceClient.getCustomerName(realEstate.getCustomerId());
-        return toResponse(realEstate, cityName, customerName);
-    }
+	@Transactional(readOnly = true)
+	public Page<RealEstateResponse> findAll(Pageable pageable, String search, UUID customerId) {
+		Page<RealEstate> page;
+		if (customerId != null && search != null && !search.isBlank()) {
+			page = realEstateRepository.searchByCustomerIdAndSearch(customerId, search.trim(), pageable);
+		}
+		else if (customerId != null) {
+			page = realEstateRepository.findByCustomerId(customerId, pageable);
+		}
+		else if (search != null && !search.isBlank()) {
+			page = realEstateRepository.search(search.trim(), pageable);
+		}
+		else {
+			page = realEstateRepository.findAll(pageable);
+		}
 
-    @Transactional
-    public RealEstateResponse create(RealEstateRequest request) {
-        validateConstructionYear(request);
-        validateReferenceIds(request);
+		// Collect unique non-null city IDs and customer IDs from the page
+		java.util.Set<Integer> cityIds = page.getContent()
+			.stream()
+			.map(RealEstate::getCityId)
+			.filter(id -> id != null)
+			.collect(java.util.stream.Collectors.toSet());
 
-        RealEstate realEstate = RealEstate.builder()
-                .address(request.getAddress().trim())
-                .cityId(request.getCityId())
-                .district(request.getDistrict())
-                .squareMeters(request.getSquareMeters())
-                .constructionYear(request.getConstructionYear())
-                .constructionTypeId(request.getConstructionTypeId())
-                .luxuryClassId(request.getLuxuryClassId())
-                .usageTypeId(request.getUsageTypeId())
-                .customerId(request.getCustomerId())
-                .build();
+		java.util.Set<UUID> customerIds = page.getContent()
+			.stream()
+			.map(RealEstate::getCustomerId)
+			.filter(id -> id != null)
+			.collect(java.util.stream.Collectors.toSet());
 
-        RealEstate saved = realEstateRepository.save(realEstate);
-        realEstateEventPublisher.publishRealEstateCreated(saved);
-        log.info("RealEstate created with id: {}", saved.getId());
-        String cityName = referenceDataServiceClient.getCityName(saved.getCityId());
-        String customerName = customerServiceClient.getCustomerName(saved.getCustomerId());
-        return toResponse(saved, cityName, customerName);
-    }
+		// Resolve city names (the client already caches the full list)
+		java.util.Map<Integer, String> cityNameMap = new java.util.HashMap<>();
+		for (Integer cityId : cityIds) {
+			String name = referenceDataServiceClient.getCityName(cityId);
+			if (name != null) {
+				cityNameMap.put(cityId, name);
+			}
+		}
 
-    @Transactional
-    public RealEstateResponse update(UUID id, RealEstateRequest request) {
-        RealEstate realEstate = realEstateRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("RealEstate not found with id: " + id));
+		// Resolve customer names (one REST call per unique customer)
+		java.util.Map<UUID, String> customerNameMap = new java.util.HashMap<>();
+		for (UUID customerIdEntry : customerIds) {
+			String name = customerServiceClient.getCustomerName(customerIdEntry);
+			if (name != null) {
+				customerNameMap.put(customerIdEntry, name);
+			}
+		}
 
-        validateConstructionYear(request);
-        validateReferenceIds(request);
+		// Map entities to DTOs using pre-resolved names
+		return page.map(realEstate -> {
+			String cityName = cityNameMap.get(realEstate.getCityId());
+			String customerName = customerNameMap.get(realEstate.getCustomerId());
+			return toResponse(realEstate, cityName, customerName);
+		});
+	}
 
-        realEstate.setAddress(request.getAddress().trim());
-        realEstate.setCityId(request.getCityId());
-        realEstate.setDistrict(request.getDistrict());
-        realEstate.setSquareMeters(request.getSquareMeters());
-        realEstate.setConstructionYear(request.getConstructionYear());
-        realEstate.setConstructionTypeId(request.getConstructionTypeId());
-        realEstate.setLuxuryClassId(request.getLuxuryClassId());
-        realEstate.setUsageTypeId(request.getUsageTypeId());
-        realEstate.setCustomerId(request.getCustomerId());
+	@Transactional(readOnly = true)
+	public RealEstateResponse findById(UUID id) {
+		RealEstate realEstate = realEstateRepository.findById(id)
+			.orElseThrow(() -> new EntityNotFoundException("RealEstate not found with id: " + id));
+		String cityName = referenceDataServiceClient.getCityName(realEstate.getCityId());
+		String customerName = customerServiceClient.getCustomerName(realEstate.getCustomerId());
+		return toResponse(realEstate, cityName, customerName);
+	}
 
-        RealEstate saved = realEstateRepository.save(realEstate);
-        realEstateEventPublisher.publishRealEstateUpdated(saved);
-        log.info("RealEstate updated with id: {}", saved.getId());
-        String cityName = referenceDataServiceClient.getCityName(saved.getCityId());
-        String customerName = customerServiceClient.getCustomerName(saved.getCustomerId());
-        return toResponse(saved, cityName, customerName);
-    }
+	@Transactional
+	public RealEstateResponse create(RealEstateRequest request) {
+		validateConstructionYear(request);
+		validateReferenceIds(request);
 
-    @Transactional
-    public void delete(UUID id) {
-        RealEstate realEstate = realEstateRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("RealEstate not found with id: " + id));
-        realEstateEventPublisher.publishRealEstateDeleted(realEstate);
-        realEstateRepository.delete(realEstate);
-        log.info("RealEstate deleted with id: {}", id);
-    }
+		RealEstate realEstate = RealEstate.builder()
+			.address(request.getAddress().trim())
+			.cityId(request.getCityId())
+			.district(request.getDistrict())
+			.squareMeters(request.getSquareMeters())
+			.constructionYear(request.getConstructionYear())
+			.constructionTypeId(request.getConstructionTypeId())
+			.luxuryClassId(request.getLuxuryClassId())
+			.usageTypeId(request.getUsageTypeId())
+			.customerId(request.getCustomerId())
+			.build();
 
-    // ---------- Reference data methods ----------
+		RealEstate saved = realEstateRepository.save(realEstate);
+		realEstateEventPublisher.publishRealEstateCreated(saved);
+		log.info("RealEstate created with id: {}", saved.getId());
+		String cityName = referenceDataServiceClient.getCityName(saved.getCityId());
+		String customerName = customerServiceClient.getCustomerName(saved.getCustomerId());
+		return toResponse(saved, cityName, customerName);
+	}
 
-    @Transactional(readOnly = true)
-    public List<RealEstateConstructionType> getConstructionTypes() {
-        return constructionTypeRepository.findAll();
-    }
+	@Transactional
+	public RealEstateResponse update(UUID id, RealEstateRequest request) {
+		RealEstate realEstate = realEstateRepository.findById(id)
+			.orElseThrow(() -> new EntityNotFoundException("RealEstate not found with id: " + id));
 
-    @Transactional(readOnly = true)
-    public List<RealEstateLuxuryClass> getLuxuryClasses() {
-        return luxuryClassRepository.findAll();
-    }
+		validateConstructionYear(request);
+		validateReferenceIds(request);
 
-    @Transactional(readOnly = true)
-    public List<RealEstateUsageType> getUsageTypes() {
-        return usageTypeRepository.findAll();
-    }
+		realEstate.setAddress(request.getAddress().trim());
+		realEstate.setCityId(request.getCityId());
+		realEstate.setDistrict(request.getDistrict());
+		realEstate.setSquareMeters(request.getSquareMeters());
+		realEstate.setConstructionYear(request.getConstructionYear());
+		realEstate.setConstructionTypeId(request.getConstructionTypeId());
+		realEstate.setLuxuryClassId(request.getLuxuryClassId());
+		realEstate.setUsageTypeId(request.getUsageTypeId());
+		realEstate.setCustomerId(request.getCustomerId());
 
-    // ---------- Helper methods ----------
+		RealEstate saved = realEstateRepository.save(realEstate);
+		realEstateEventPublisher.publishRealEstateUpdated(saved);
+		log.info("RealEstate updated with id: {}", saved.getId());
+		String cityName = referenceDataServiceClient.getCityName(saved.getCityId());
+		String customerName = customerServiceClient.getCustomerName(saved.getCustomerId());
+		return toResponse(saved, cityName, customerName);
+	}
 
-    private RealEstateResponse toResponse(RealEstate realEstate, String cityName, String customerName) {
-        String constructionTypeName = constructionTypeRepository
-                .findById(realEstate.getConstructionTypeId())
-                .map(RealEstateConstructionType::getName)
-                .orElse(null);
-        String luxuryClassName = luxuryClassRepository
-                .findById(realEstate.getLuxuryClassId())
-                .map(RealEstateLuxuryClass::getName)
-                .orElse(null);
-        String usageTypeName = usageTypeRepository
-                .findById(realEstate.getUsageTypeId())
-                .map(RealEstateUsageType::getName)
-                .orElse(null);
+	@Transactional
+	public void delete(UUID id) {
+		RealEstate realEstate = realEstateRepository.findById(id)
+			.orElseThrow(() -> new EntityNotFoundException("RealEstate not found with id: " + id));
+		realEstateEventPublisher.publishRealEstateDeleted(realEstate);
+		realEstateRepository.delete(realEstate);
+		log.info("RealEstate deleted with id: {}", id);
+	}
 
-        return RealEstateResponse.fromEntity(realEstate,
-                constructionTypeName, luxuryClassName, usageTypeName,
-                cityName, customerName);
-    }
+	// ---------- Reference data methods ----------
 
-    private void validateConstructionYear(RealEstateRequest request) {
-        if (request.getConstructionYear() != null
-                && request.getConstructionYear() > Year.now().getValue()) {
-            throw new IllegalArgumentException(
-                    "Construction year cannot be in the future: " + request.getConstructionYear());
-        }
-    }
+	@Transactional(readOnly = true)
+	public List<RealEstateConstructionType> getConstructionTypes() {
+		return constructionTypeRepository.findAll();
+	}
 
-    private void validateReferenceIds(RealEstateRequest request) {
-        if (!constructionTypeRepository.existsById(request.getConstructionTypeId())) {
-            throw new IllegalArgumentException(
-                    "Construction type not found with id: " + request.getConstructionTypeId());
-        }
-        if (!luxuryClassRepository.existsById(request.getLuxuryClassId())) {
-            throw new IllegalArgumentException(
-                    "Luxury class not found with id: " + request.getLuxuryClassId());
-        }
-        if (!usageTypeRepository.existsById(request.getUsageTypeId())) {
-            throw new IllegalArgumentException(
-                    "Usage type not found with id: " + request.getUsageTypeId());
-        }
-    }
+	@Transactional(readOnly = true)
+	public List<RealEstateLuxuryClass> getLuxuryClasses() {
+		return luxuryClassRepository.findAll();
+	}
+
+	@Transactional(readOnly = true)
+	public List<RealEstateUsageType> getUsageTypes() {
+		return usageTypeRepository.findAll();
+	}
+
+	// ---------- Helper methods ----------
+
+	private RealEstateResponse toResponse(RealEstate realEstate, String cityName, String customerName) {
+		String constructionTypeName = constructionTypeRepository.findById(realEstate.getConstructionTypeId())
+			.map(RealEstateConstructionType::getName)
+			.orElse(null);
+		String luxuryClassName = luxuryClassRepository.findById(realEstate.getLuxuryClassId())
+			.map(RealEstateLuxuryClass::getName)
+			.orElse(null);
+		String usageTypeName = usageTypeRepository.findById(realEstate.getUsageTypeId())
+			.map(RealEstateUsageType::getName)
+			.orElse(null);
+
+		return RealEstateResponse.fromEntity(realEstate, constructionTypeName, luxuryClassName, usageTypeName, cityName,
+				customerName);
+	}
+
+	private void validateConstructionYear(RealEstateRequest request) {
+		if (request.getConstructionYear() != null && request.getConstructionYear() > Year.now().getValue()) {
+			throw new IllegalArgumentException(
+					"Construction year cannot be in the future: " + request.getConstructionYear());
+		}
+	}
+
+	private void validateReferenceIds(RealEstateRequest request) {
+		if (!constructionTypeRepository.existsById(request.getConstructionTypeId())) {
+			throw new IllegalArgumentException(
+					"Construction type not found with id: " + request.getConstructionTypeId());
+		}
+		if (!luxuryClassRepository.existsById(request.getLuxuryClassId())) {
+			throw new IllegalArgumentException("Luxury class not found with id: " + request.getLuxuryClassId());
+		}
+		if (!usageTypeRepository.existsById(request.getUsageTypeId())) {
+			throw new IllegalArgumentException("Usage type not found with id: " + request.getUsageTypeId());
+		}
+	}
+
 }

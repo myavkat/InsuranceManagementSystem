@@ -18,38 +18,37 @@ import java.util.UUID;
 @Slf4j
 public class RealEstateEventPublisher {
 
-    private final MessagePublisher messagePublisher;
+	private final MessagePublisher messagePublisher;
 
-    public void publishRealEstateCreated(RealEstate realEstate) {
-        RealEstateCreatedEvent event = RealEstateCreatedEvent.builder()
-                .realEstateId(realEstate.getId())
-                .address(realEstate.getAddress())
-                .cityId(realEstate.getCityId())
-                .customerId(realEstate.getCustomerId())
-                .build();
-        EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
-        messagePublisher.publish(EventConstants.REALESTATE_EVENTS, envelope);
-        log.info("Published RealEstateCreated event for id: {}", realEstate.getId());
-    }
+	public void publishRealEstateCreated(RealEstate realEstate) {
+		RealEstateCreatedEvent event = RealEstateCreatedEvent.builder()
+			.realEstateId(realEstate.getId())
+			.address(realEstate.getAddress())
+			.cityId(realEstate.getCityId())
+			.customerId(realEstate.getCustomerId())
+			.build();
+		EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
+		messagePublisher.publish(EventConstants.REALESTATE_EVENTS, envelope);
+		log.info("Published RealEstateCreated event for id: {}", realEstate.getId());
+	}
 
-    public void publishRealEstateUpdated(RealEstate realEstate) {
-        RealEstateUpdatedEvent event = RealEstateUpdatedEvent.builder()
-                .realEstateId(realEstate.getId())
-                .address(realEstate.getAddress())
-                .cityId(realEstate.getCityId())
-                .customerId(realEstate.getCustomerId())
-                .build();
-        EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
-        messagePublisher.publish(EventConstants.REALESTATE_EVENTS, envelope);
-        log.info("Published RealEstateUpdated event for id: {}", realEstate.getId());
-    }
+	public void publishRealEstateUpdated(RealEstate realEstate) {
+		RealEstateUpdatedEvent event = RealEstateUpdatedEvent.builder()
+			.realEstateId(realEstate.getId())
+			.address(realEstate.getAddress())
+			.cityId(realEstate.getCityId())
+			.customerId(realEstate.getCustomerId())
+			.build();
+		EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
+		messagePublisher.publish(EventConstants.REALESTATE_EVENTS, envelope);
+		log.info("Published RealEstateUpdated event for id: {}", realEstate.getId());
+	}
 
-    public void publishRealEstateDeleted(RealEstate realEstate) {
-        RealEstateDeletedEvent event = RealEstateDeletedEvent.builder()
-                .realEstateId(realEstate.getId())
-                .build();
-        EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
-        messagePublisher.publish(EventConstants.REALESTATE_EVENTS, envelope);
-        log.info("Published RealEstateDeleted event for id: {}", realEstate.getId());
-    }
+	public void publishRealEstateDeleted(RealEstate realEstate) {
+		RealEstateDeletedEvent event = RealEstateDeletedEvent.builder().realEstateId(realEstate.getId()).build();
+		EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
+		messagePublisher.publish(EventConstants.REALESTATE_EVENTS, envelope);
+		log.info("Published RealEstateDeleted event for id: {}", realEstate.getId());
+	}
+
 }

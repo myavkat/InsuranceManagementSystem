@@ -19,114 +19,144 @@ import static org.mockito.BDDMockito.given;
 @WebMvcTest(ReferenceDataController.class)
 class ReferenceDataControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+	@Autowired
+	private MockMvc mockMvc;
 
-    private RestTestClient client;
+	private RestTestClient client;
 
-    @MockitoBean
-    private ReferenceDataService service;
+	@MockitoBean
+	private ReferenceDataService service;
 
-    private final CityResponse ankara = CityResponse.builder()
-            .id(6).name("Ankara").plateCode("06").build();
-    private final CityResponse istanbul = CityResponse.builder()
-            .id(34).name("İstanbul").plateCode("34").build();
-    private final ProfessionResponse doctor = ProfessionResponse.builder()
-            .id(1).name("Doktor").build();
-    private final ProfessionResponse engineer = ProfessionResponse.builder()
-            .id(2).name("Mühendis").build();
+	private final CityResponse ankara = CityResponse.builder().id(6).name("Ankara").plateCode("06").build();
 
-    @BeforeEach
-    void setUp() {
-        this.client = RestTestClient.bindTo(mockMvc).build();
-    }
+	private final CityResponse istanbul = CityResponse.builder().id(34).name("İstanbul").plateCode("34").build();
 
-    @Test
-    void shouldReturnCitiesList() {
-        // Given
-        given(service.getCities()).willReturn(List.of(ankara, istanbul));
+	private final ProfessionResponse doctor = ProfessionResponse.builder().id(1).name("Doktor").build();
 
-        // When/Then
-        client.get().uri("/api/reference-data/cities")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.success").isEqualTo(true)
-                .jsonPath("$.data[0].id").isEqualTo(6)
-                .jsonPath("$.data[0].name").isEqualTo("Ankara")
-                .jsonPath("$.data[0].plateCode").isEqualTo("06")
-                .jsonPath("$.data[1].id").isEqualTo(34)
-                .jsonPath("$.data[1].name").isEqualTo("İstanbul")
-                .jsonPath("$.data[1].plateCode").isEqualTo("34");
-    }
+	private final ProfessionResponse engineer = ProfessionResponse.builder().id(2).name("Mühendis").build();
 
-    @Test
-    void shouldReturnProfessionsList() {
-        // Given
-        given(service.getProfessions()).willReturn(List.of(doctor, engineer));
+	@BeforeEach
+	void setUp() {
+		this.client = RestTestClient.bindTo(mockMvc).build();
+	}
 
-        // When/Then
-        client.get().uri("/api/reference-data/professions")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.success").isEqualTo(true)
-                .jsonPath("$.data[0].id").isEqualTo(1)
-                .jsonPath("$.data[0].name").isEqualTo("Doktor")
-                .jsonPath("$.data[1].id").isEqualTo(2)
-                .jsonPath("$.data[1].name").isEqualTo("Mühendis");
-    }
+	@Test
+	void shouldReturnCitiesList() {
+		// Given
+		given(service.getCities()).willReturn(List.of(ankara, istanbul));
 
-    @Test
-    void shouldIncludeCacheControlHeader() {
-        // Given
-        given(service.getCities()).willReturn(List.of(ankara, istanbul));
+		// When/Then
+		client.get()
+			.uri("/api/reference-data/cities")
+			.exchange()
+			.expectStatus()
+			.isOk()
+			.expectBody()
+			.jsonPath("$.success")
+			.isEqualTo(true)
+			.jsonPath("$.data[0].id")
+			.isEqualTo(6)
+			.jsonPath("$.data[0].name")
+			.isEqualTo("Ankara")
+			.jsonPath("$.data[0].plateCode")
+			.isEqualTo("06")
+			.jsonPath("$.data[1].id")
+			.isEqualTo(34)
+			.jsonPath("$.data[1].name")
+			.isEqualTo("İstanbul")
+			.jsonPath("$.data[1].plateCode")
+			.isEqualTo("34");
+	}
 
-        // When/Then
-        client.get().uri("/api/reference-data/cities")
-                .exchange()
-                .expectStatus().isOk()
-                .expectHeader().valueEquals("Cache-Control", "max-age=300");
-    }
+	@Test
+	void shouldReturnProfessionsList() {
+		// Given
+		given(service.getProfessions()).willReturn(List.of(doctor, engineer));
 
-    @Test
-    void shouldReturnSuccessTrue() {
-        // Given
-        given(service.getCities()).willReturn(List.of(ankara, istanbul));
+		// When/Then
+		client.get()
+			.uri("/api/reference-data/professions")
+			.exchange()
+			.expectStatus()
+			.isOk()
+			.expectBody()
+			.jsonPath("$.success")
+			.isEqualTo(true)
+			.jsonPath("$.data[0].id")
+			.isEqualTo(1)
+			.jsonPath("$.data[0].name")
+			.isEqualTo("Doktor")
+			.jsonPath("$.data[1].id")
+			.isEqualTo(2)
+			.jsonPath("$.data[1].name")
+			.isEqualTo("Mühendis");
+	}
 
-        // When/Then
-        client.get().uri("/api/reference-data/cities")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.success").isEqualTo(true);
-    }
+	@Test
+	void shouldIncludeCacheControlHeader() {
+		// Given
+		given(service.getCities()).willReturn(List.of(ankara, istanbul));
 
-    @Test
-    void shouldHandleServiceException() {
-        // Given
-        given(service.getCities()).willThrow(new RuntimeException("Internal error"));
+		// When/Then
+		client.get()
+			.uri("/api/reference-data/cities")
+			.exchange()
+			.expectStatus()
+			.isOk()
+			.expectHeader()
+			.valueEquals("Cache-Control", "max-age=300");
+	}
 
-        // When/Then
-        client.get().uri("/api/reference-data/cities")
-                .exchange()
-                .expectStatus().is5xxServerError()
-                .expectBody()
-                .jsonPath("$.success").isEqualTo(false)
-                .jsonPath("$.message").isEqualTo("An unexpected error occurred");
-    }
+	@Test
+	void shouldReturnSuccessTrue() {
+		// Given
+		given(service.getCities()).willReturn(List.of(ankara, istanbul));
 
-    @Test
-    void shouldHandleIllegalArgumentException() {
-        // Given
-        given(service.getCities()).willThrow(new IllegalArgumentException("Invalid request"));
+		// When/Then
+		client.get()
+			.uri("/api/reference-data/cities")
+			.exchange()
+			.expectStatus()
+			.isOk()
+			.expectBody()
+			.jsonPath("$.success")
+			.isEqualTo(true);
+	}
 
-        // When/Then
-        client.get().uri("/api/reference-data/cities")
-                .exchange()
-                .expectStatus().isBadRequest()
-                .expectBody()
-                .jsonPath("$.success").isEqualTo(false)
-                .jsonPath("$.message").isEqualTo("Invalid request");
-    }
+	@Test
+	void shouldHandleServiceException() {
+		// Given
+		given(service.getCities()).willThrow(new RuntimeException("Internal error"));
+
+		// When/Then
+		client.get()
+			.uri("/api/reference-data/cities")
+			.exchange()
+			.expectStatus()
+			.is5xxServerError()
+			.expectBody()
+			.jsonPath("$.success")
+			.isEqualTo(false)
+			.jsonPath("$.message")
+			.isEqualTo("An unexpected error occurred");
+	}
+
+	@Test
+	void shouldHandleIllegalArgumentException() {
+		// Given
+		given(service.getCities()).willThrow(new IllegalArgumentException("Invalid request"));
+
+		// When/Then
+		client.get()
+			.uri("/api/reference-data/cities")
+			.exchange()
+			.expectStatus()
+			.isBadRequest()
+			.expectBody()
+			.jsonPath("$.success")
+			.isEqualTo(false)
+			.jsonPath("$.message")
+			.isEqualTo("Invalid request");
+	}
+
 }

@@ -31,130 +31,128 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class SagaTimeoutServiceTest {
 
-    @Mock
-    private EstimationRepository estimationRepository;
+	@Mock
+	private EstimationRepository estimationRepository;
 
-    @Mock
-    private OutboxEventRepository outboxEventRepository;
+	@Mock
+	private OutboxEventRepository outboxEventRepository;
 
-    @Mock
-    private OutboxEventSerializer outboxEventSerializer;
+	@Mock
+	private OutboxEventSerializer outboxEventSerializer;
 
-    @Mock
-    private JsonMapper jsonMapper;
+	@Mock
+	private JsonMapper jsonMapper;
 
-    @InjectMocks
-    private SagaTimeoutService timeoutService;
+	@InjectMocks
+	private SagaTimeoutService timeoutService;
 
-    @Captor
-    private ArgumentCaptor<Instant> cutoffCaptor;
+	@Captor
+	private ArgumentCaptor<Instant> cutoffCaptor;
 
-    @BeforeEach
-    void setUp() {
-        // @Value fields are not injected by Mockito — set manually
-        ReflectionTestUtils.setField(timeoutService, "timeoutMinutes", 5);
-        lenient().when(outboxEventSerializer.buildEstimationFailedOutboxEvent(
-                any(), any(), any(), any(), any())).thenReturn(OutboxEvent.builder().build());
+	@BeforeEach
+	void setUp() {
+		// @Value fields are not injected by Mockito — set manually
+		ReflectionTestUtils.setField(timeoutService, "timeoutMinutes", 5);
+		lenient().when(outboxEventSerializer.buildEstimationFailedOutboxEvent(any(), any(), any(), any(), any()))
+			.thenReturn(OutboxEvent.builder().build());
 
-        lenient().when(jsonMapper.writeValueAsString(any(Map.class)))
-                .thenReturn("{\"reason\":\"SAGA timed out after 5 minutes\"}");
+		lenient().when(jsonMapper.writeValueAsString(any(Map.class)))
+			.thenReturn("{\"reason\":\"SAGA timed out after 5 minutes\"}");
 
-        // By default, both status queries return empty lists
-        lenient().when(estimationRepository.findByStatusAndCreatedAtBefore(any(), any()))
-                .thenReturn(List.of());
-    }
+		// By default, both status queries return empty lists
+		lenient().when(estimationRepository.findByStatusAndCreatedAtBefore(any(), any())).thenReturn(List.of());
+	}
 
-    // ---------------------------------------------------------------
-    // Helper: mock a specific status query to return the given list
-    // ---------------------------------------------------------------
-    private void mockStaleEstimations(Estimation.Status status, List<Estimation> result) {
-        when(estimationRepository.findByStatusAndCreatedAtBefore(eq(status), any(Instant.class)))
-                .thenReturn(result);
-    }
+	// ---------------------------------------------------------------
+	// Helper: mock a specific status query to return the given list
+	// ---------------------------------------------------------------
+	private void mockStaleEstimations(Estimation.Status status, List<Estimation> result) {
+		when(estimationRepository.findByStatusAndCreatedAtBefore(eq(status), any(Instant.class))).thenReturn(result);
+	}
 
-    // ---------------------------------------------------------------
-    // Helper: create a stale estimation
-    // ---------------------------------------------------------------
-    private Estimation createStaleEstimation(UUID sagaId) {
-        return Estimation.builder()
-                .id(UUID.randomUUID())
-                .sagaId(sagaId)
-                .status(Estimation.Status.STARTED)
-                .createdAt(Instant.now().minus(10, ChronoUnit.MINUTES))
-                .build();
-    }
+	// ---------------------------------------------------------------
+	// Helper: create a stale estimation
+	// ---------------------------------------------------------------
+	private Estimation createStaleEstimation(UUID sagaId) {
+		return Estimation.builder()
+			.id(UUID.randomUUID())
+			.sagaId(sagaId)
+			.status(Estimation.Status.STARTED)
+			.createdAt(Instant.now().minus(10, ChronoUnit.MINUTES))
+			.build();
+	}
 
-    // ---------------------------------------------------------------
-    // 1. No stale estimations → no changes, no events published
-    // ---------------------------------------------------------------
-    @Test
-    void noStaleEstimations_noChanges() {
-        timeoutService.checkForTimedOutSagas();
+	// ---------------------------------------------------------------
+	// 1. No stale estimations → no changes, no events published
+	// ---------------------------------------------------------------
+	@Test
+	void noStaleEstimations_noChanges() {
+		timeoutService.checkForTimedOutSagas();
 
-        verify(estimationRepository).findByStatusAndCreatedAtBefore(
-                eq(Estimation.Status.STARTED), any(Instant.class));
-        verify(estimationRepository).findByStatusAndCreatedAtBefore(
-                eq(Estimation.Status.WAITING_APPROVAL), any(Instant.class));
-        verify(estimationRepository, never()).save(any());
-        verify(outboxEventRepository, never()).save(any());
-    }
+		verify(estimationRepository).findByStatusAndCreatedAtBefore(eq(Estimation.Status.STARTED), any(Instant.class));
+		verify(estimationRepository).findByStatusAndCreatedAtBefore(eq(Estimation.Status.WAITING_APPROVAL),
+				any(Instant.class));
+		verify(estimationRepository, never()).save(any());
+		verify(outboxEventRepository, never()).save(any());
+	}
 
-    // ---------------------------------------------------------------
-    // 2. Found stale estimations → each is rejected + EstimationFailed published
-    // ---------------------------------------------------------------
-    @Test
-    void staleEstimations_areRejected() {
-        UUID sagaId = UUID.randomUUID();
-        Estimation stale = createStaleEstimation(sagaId);
+	// ---------------------------------------------------------------
+	// 2. Found stale estimations → each is rejected + EstimationFailed published
+	// ---------------------------------------------------------------
+	@Test
+	void staleEstimations_areRejected() {
+		UUID sagaId = UUID.randomUUID();
+		Estimation stale = createStaleEstimation(sagaId);
 
-        mockStaleEstimations(Estimation.Status.STARTED, List.of(stale));
+		mockStaleEstimations(Estimation.Status.STARTED, List.of(stale));
 
-        timeoutService.checkForTimedOutSagas();
+		timeoutService.checkForTimedOutSagas();
 
-        assertThat(stale.getStatus()).isEqualTo(Estimation.Status.REJECTED);
-        assertThat(stale.getDetails()).isEqualTo("{\"reason\":\"SAGA timed out after 5 minutes\"}");
+		assertThat(stale.getStatus()).isEqualTo(Estimation.Status.REJECTED);
+		assertThat(stale.getDetails()).isEqualTo("{\"reason\":\"SAGA timed out after 5 minutes\"}");
 
-        verify(estimationRepository).save(stale);
-        verify(outboxEventRepository).save(any(OutboxEvent.class));
-    }
+		verify(estimationRepository).save(stale);
+		verify(outboxEventRepository).save(any(OutboxEvent.class));
+	}
 
-    // ---------------------------------------------------------------
-    // 3. Multiple stale estimations → all processed
-    // ---------------------------------------------------------------
-    @Test
-    void multipleStaleEstimations_allProcessed() {
-        UUID sagaId1 = UUID.randomUUID();
-        UUID sagaId2 = UUID.randomUUID();
-        Estimation stale1 = createStaleEstimation(sagaId1);
-        Estimation stale2 = createStaleEstimation(sagaId2);
+	// ---------------------------------------------------------------
+	// 3. Multiple stale estimations → all processed
+	// ---------------------------------------------------------------
+	@Test
+	void multipleStaleEstimations_allProcessed() {
+		UUID sagaId1 = UUID.randomUUID();
+		UUID sagaId2 = UUID.randomUUID();
+		Estimation stale1 = createStaleEstimation(sagaId1);
+		Estimation stale2 = createStaleEstimation(sagaId2);
 
-        mockStaleEstimations(Estimation.Status.STARTED, List.of(stale1, stale2));
+		mockStaleEstimations(Estimation.Status.STARTED, List.of(stale1, stale2));
 
-        timeoutService.checkForTimedOutSagas();
+		timeoutService.checkForTimedOutSagas();
 
-        assertThat(stale1.getStatus()).isEqualTo(Estimation.Status.REJECTED);
-        assertThat(stale2.getStatus()).isEqualTo(Estimation.Status.REJECTED);
-        assertThat(stale1.getDetails()).isEqualTo("{\"reason\":\"SAGA timed out after 5 minutes\"}");
-        assertThat(stale2.getDetails()).isEqualTo("{\"reason\":\"SAGA timed out after 5 minutes\"}");
-        verify(estimationRepository, times(2)).save(any());
-        verify(outboxEventRepository, times(2)).save(any(OutboxEvent.class));
-    }
+		assertThat(stale1.getStatus()).isEqualTo(Estimation.Status.REJECTED);
+		assertThat(stale2.getStatus()).isEqualTo(Estimation.Status.REJECTED);
+		assertThat(stale1.getDetails()).isEqualTo("{\"reason\":\"SAGA timed out after 5 minutes\"}");
+		assertThat(stale2.getDetails()).isEqualTo("{\"reason\":\"SAGA timed out after 5 minutes\"}");
+		verify(estimationRepository, times(2)).save(any());
+		verify(outboxEventRepository, times(2)).save(any(OutboxEvent.class));
+	}
 
-    // ---------------------------------------------------------------
-    // 4. Correct cutoff time calculation (based on timeoutMinutes config)
-    // ---------------------------------------------------------------
-    @Test
-    void usesCorrectCutoffTime() {
-        timeoutService.checkForTimedOutSagas();
+	// ---------------------------------------------------------------
+	// 4. Correct cutoff time calculation (based on timeoutMinutes config)
+	// ---------------------------------------------------------------
+	@Test
+	void usesCorrectCutoffTime() {
+		timeoutService.checkForTimedOutSagas();
 
-        verify(estimationRepository).findByStatusAndCreatedAtBefore(
-                eq(Estimation.Status.STARTED), cutoffCaptor.capture());
+		verify(estimationRepository).findByStatusAndCreatedAtBefore(eq(Estimation.Status.STARTED),
+				cutoffCaptor.capture());
 
-        verify(estimationRepository).findByStatusAndCreatedAtBefore(
-                eq(Estimation.Status.WAITING_APPROVAL), any(Instant.class));
+		verify(estimationRepository).findByStatusAndCreatedAtBefore(eq(Estimation.Status.WAITING_APPROVAL),
+				any(Instant.class));
 
-        Instant cutoff = cutoffCaptor.getValue();
-        Instant expectedCutoff = Instant.now().minus(5, ChronoUnit.MINUTES);
-        assertThat(cutoff).isCloseTo(expectedCutoff, within(1, ChronoUnit.SECONDS));
-    }
+		Instant cutoff = cutoffCaptor.getValue();
+		Instant expectedCutoff = Instant.now().minus(5, ChronoUnit.MINUTES);
+		assertThat(cutoff).isCloseTo(expectedCutoff, within(1, ChronoUnit.SECONDS));
+	}
+
 }

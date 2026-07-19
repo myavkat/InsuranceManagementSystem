@@ -15,36 +15,38 @@ import java.util.UUID;
 @Slf4j
 public class OutboxEventSerializer {
 
-    private final JsonMapper jsonMapper;
+	private final JsonMapper jsonMapper;
 
-    /**
-     * Build and serialize an EstimationFailed outbox event.
-     * Uses the propagated traceId to preserve end-to-end distributed tracing.
-     * Throws RuntimeException if serialization fails — caller must handle.
-     */
-    public OutboxEvent buildEstimationFailedOutboxEvent(
-            UUID sagaId, UUID traceId, String reason, String failedStep, String topic) {
+	/**
+	 * Build and serialize an EstimationFailed outbox event. Uses the propagated traceId
+	 * to preserve end-to-end distributed tracing. Throws RuntimeException if
+	 * serialization fails — caller must handle.
+	 */
+	public OutboxEvent buildEstimationFailedOutboxEvent(UUID sagaId, UUID traceId, String reason, String failedStep,
+			String topic) {
 
-        EstimationFailedEvent event = EstimationFailedEvent.builder()
-                .originalSagaId(sagaId)
-                .reason(reason)
-                .failedStep(failedStep)
-                .build();
+		EstimationFailedEvent event = EstimationFailedEvent.builder()
+			.originalSagaId(sagaId)
+			.reason(reason)
+			.failedStep(failedStep)
+			.build();
 
-        EventEnvelope envelope = event.toEnvelope(sagaId, traceId);
+		EventEnvelope envelope = event.toEnvelope(sagaId, traceId);
 
-        String payloadJson;
-        try {
-            payloadJson = jsonMapper.writeValueAsString(envelope);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to serialize EstimationFailed outbox payload for sagaId=" + sagaId, e);
-        }
+		String payloadJson;
+		try {
+			payloadJson = jsonMapper.writeValueAsString(envelope);
+		}
+		catch (Exception e) {
+			throw new RuntimeException("Failed to serialize EstimationFailed outbox payload for sagaId=" + sagaId, e);
+		}
 
-        return OutboxEvent.builder()
-                .sagaId(sagaId)
-                .topic(topic)
-                .payload(payloadJson)
-                .status(OutboxEvent.Status.PENDING)
-                .build();
-    }
+		return OutboxEvent.builder()
+			.sagaId(sagaId)
+			.topic(topic)
+			.payload(payloadJson)
+			.status(OutboxEvent.Status.PENDING)
+			.build();
+	}
+
 }

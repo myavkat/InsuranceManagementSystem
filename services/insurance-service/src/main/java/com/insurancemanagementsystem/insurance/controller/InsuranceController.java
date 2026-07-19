@@ -26,88 +26,85 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class InsuranceController {
 
-    private final InsuranceService insuranceService;
+	private final InsuranceService insuranceService;
 
-    // ---------------------------------------------------------------
-    // Insurance Products
-    // ---------------------------------------------------------------
+	// ---------------------------------------------------------------
+	// Insurance Products
+	// ---------------------------------------------------------------
 
-    @GetMapping
-    public ResponseEntity<ApiResponse<Page<InsuranceResponse>>> getAll(
-            @RequestParam(required = false) Integer typeId,
-            @RequestParam(required = false) String search,
-            @PageableDefault(sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
+	@GetMapping
+	public ResponseEntity<ApiResponse<Page<InsuranceResponse>>> getAll(@RequestParam(required = false) Integer typeId,
+			@RequestParam(required = false) String search,
+			@PageableDefault(sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
 
-        Page<InsuranceResponse> insurances = insuranceService.findAll(typeId, search, pageable);
-        return ResponseEntity.ok(ApiResponse.success(insurances));
-    }
+		Page<InsuranceResponse> insurances = insuranceService.findAll(typeId, search, pageable);
+		return ResponseEntity.ok(ApiResponse.success(insurances));
+	}
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<InsuranceResponse>> getById(@PathVariable UUID id) {
-        InsuranceResponse insurance = insuranceService.findById(id);
-        return ResponseEntity.ok(ApiResponse.success(insurance));
-    }
+	@GetMapping("/{id}")
+	public ResponseEntity<ApiResponse<InsuranceResponse>> getById(@PathVariable UUID id) {
+		InsuranceResponse insurance = insuranceService.findById(id);
+		return ResponseEntity.ok(ApiResponse.success(insurance));
+	}
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<InsuranceResponse>> create(@Valid @RequestBody InsuranceRequest request) {
-        InsuranceResponse created = insuranceService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Insurance created successfully", created));
-    }
+	@PostMapping
+	public ResponseEntity<ApiResponse<InsuranceResponse>> create(@Valid @RequestBody InsuranceRequest request) {
+		InsuranceResponse created = insuranceService.create(request);
+		return ResponseEntity.status(HttpStatus.CREATED)
+			.body(ApiResponse.success("Insurance created successfully", created));
+	}
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<InsuranceResponse>> update(
-            @PathVariable UUID id,
-            @Valid @RequestBody InsuranceRequest request) {
-        InsuranceResponse updated = insuranceService.update(id, request);
-        return ResponseEntity.ok(ApiResponse.success("Insurance updated successfully", updated));
-    }
+	@PutMapping("/{id}")
+	public ResponseEntity<ApiResponse<InsuranceResponse>> update(@PathVariable UUID id,
+			@Valid @RequestBody InsuranceRequest request) {
+		InsuranceResponse updated = insuranceService.update(id, request);
+		return ResponseEntity.ok(ApiResponse.success("Insurance updated successfully", updated));
+	}
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<InsuranceResponse>> delete(@PathVariable UUID id) {
-        InsuranceResponse deleted = insuranceService.softDelete(id);
-        return ResponseEntity.ok(ApiResponse.success("Insurance deleted successfully", deleted));
-    }
+	@DeleteMapping("/{id}")
+	public ResponseEntity<ApiResponse<InsuranceResponse>> delete(@PathVariable UUID id) {
+		InsuranceResponse deleted = insuranceService.softDelete(id);
+		return ResponseEntity.ok(ApiResponse.success("Insurance deleted successfully", deleted));
+	}
 
-    @PatchMapping("/{id}/deactivate")
-    public ResponseEntity<ApiResponse<InsuranceResponse>> deactivate(@PathVariable UUID id) {
-        InsuranceResponse updated = insuranceService.softDelete(id);
-        return ResponseEntity.ok(ApiResponse.success("Insurance deactivated successfully", updated));
-    }
+	@PatchMapping("/{id}/deactivate")
+	public ResponseEntity<ApiResponse<InsuranceResponse>> deactivate(@PathVariable UUID id) {
+		InsuranceResponse updated = insuranceService.softDelete(id);
+		return ResponseEntity.ok(ApiResponse.success("Insurance deactivated successfully", updated));
+	}
 
-    // ---------------------------------------------------------------
-    // Insurance Types (read-only — seed data)
-    // ---------------------------------------------------------------
+	// ---------------------------------------------------------------
+	// Insurance Types (read-only — seed data)
+	// ---------------------------------------------------------------
 
-    @GetMapping("/types")
-    public ResponseEntity<ApiResponse<List<InsuranceType>>> getTypes() {
-        List<InsuranceType> types = insuranceService.getAllTypes();
-        return ResponseEntity.ok(ApiResponse.success(types));
-    }
+	@GetMapping("/types")
+	public ResponseEntity<ApiResponse<List<InsuranceType>>> getTypes() {
+		List<InsuranceType> types = insuranceService.getAllTypes();
+		return ResponseEntity.ok(ApiResponse.success(types));
+	}
 
-    // ---------------------------------------------------------------
-    // Risk Factors
-    // ---------------------------------------------------------------
+	// ---------------------------------------------------------------
+	// Risk Factors
+	// ---------------------------------------------------------------
 
-    @GetMapping("/{id}/risk-factors")
-    public ResponseEntity<ApiResponse<List<RiskFactorResponse>>> getRiskFactors(@PathVariable UUID id) {
-        List<RiskFactorResponse> factors = insuranceService.getRiskFactors(id);
-        return ResponseEntity.ok(ApiResponse.success(factors));
-    }
+	@GetMapping("/{id}/risk-factors")
+	public ResponseEntity<ApiResponse<List<RiskFactorResponse>>> getRiskFactors(@PathVariable UUID id) {
+		List<RiskFactorResponse> factors = insuranceService.getRiskFactors(id);
+		return ResponseEntity.ok(ApiResponse.success(factors));
+	}
 
-    @PutMapping("/{id}/risk-factors")
-    public ResponseEntity<ApiResponse<List<RiskFactorResponse>>> updateRiskFactors(
-            @PathVariable UUID id,
-            @Valid @RequestBody List<RiskFactorUpdateRequest> updates) {
-        List<RiskFactorResponse> updated = insuranceService.updateRiskFactors(id, updates);
-        return ResponseEntity.ok(ApiResponse.success("Risk factors updated", updated));
-    }
+	@PutMapping("/{id}/risk-factors")
+	public ResponseEntity<ApiResponse<List<RiskFactorResponse>>> updateRiskFactors(@PathVariable UUID id,
+			@Valid @RequestBody List<RiskFactorUpdateRequest> updates) {
+		List<RiskFactorResponse> updated = insuranceService.updateRiskFactors(id, updates);
+		return ResponseEntity.ok(ApiResponse.success("Risk factors updated", updated));
+	}
 
-    @GetMapping("/{id}/risk-factors/history")
-    public ResponseEntity<ApiResponse<Page<RiskFactorHistoryResponse>>> getRiskFactorHistory(
-            @PathVariable UUID id,
-            @PageableDefault(sort = "changedAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<RiskFactorHistoryResponse> history = insuranceService.getRiskFactorHistory(id, pageable);
-        return ResponseEntity.ok(ApiResponse.success(history));
-    }
+	@GetMapping("/{id}/risk-factors/history")
+	public ResponseEntity<ApiResponse<Page<RiskFactorHistoryResponse>>> getRiskFactorHistory(@PathVariable UUID id,
+			@PageableDefault(sort = "changedAt", direction = Sort.Direction.DESC) Pageable pageable) {
+		Page<RiskFactorHistoryResponse> history = insuranceService.getRiskFactorHistory(id, pageable);
+		return ResponseEntity.ok(ApiResponse.success(history));
+	}
+
 }

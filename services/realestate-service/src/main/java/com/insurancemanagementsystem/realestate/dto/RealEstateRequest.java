@@ -16,29 +16,30 @@ import java.util.UUID;
 @AllArgsConstructor
 public class RealEstateRequest {
 
-    @NotBlank(message = "Address is required")
-    private String address;
+	@NotBlank(message = "Address is required")
+	private String address;
 
-    @NotNull(message = "City ID is required")
-    private Integer cityId;
+	@NotNull(message = "City ID is required")
+	private Integer cityId;
 
-    private String district;
+	private String district;
 
-    @NotNull(message = "Square meters is required")
-    @Min(value = 1, message = "Square meters must be positive")
-    private BigDecimal squareMeters;
+	@NotNull(message = "Square meters is required")
+	@Min(value = 1, message = "Square meters must be positive")
+	private BigDecimal squareMeters;
 
-    private Integer constructionYear;
+	private Integer constructionYear;
 
-    @NotNull(message = "Construction type ID is required")
-    private Integer constructionTypeId;
+	@NotNull(message = "Construction type ID is required")
+	private Integer constructionTypeId;
 
-    @NotNull(message = "Luxury class ID is required")
-    private Integer luxuryClassId;
+	@NotNull(message = "Luxury class ID is required")
+	private Integer luxuryClassId;
 
-    @NotNull(message = "Usage type ID is required")
-    private Integer usageTypeId;
+	@NotNull(message = "Usage type ID is required")
+	private Integer usageTypeId;
 
-    @NotNull(message = "Customer ID is required")
-    private UUID customerId;
+	@NotNull(message = "Customer ID is required")
+	private UUID customerId;
+
 }

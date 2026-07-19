@@ -8,5 +8,7 @@ import java.util.List;
 
 @Repository
 public interface ProfessionRepository extends JpaRepository<Profession, Integer> {
-    List<Profession> findAllByOrderByNameAsc();
+
+	List<Profession> findAllByOrderByNameAsc();
+
 }

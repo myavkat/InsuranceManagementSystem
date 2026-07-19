@@ -18,44 +18,45 @@ import java.util.UUID;
 @Slf4j
 public class CustomerEventPublisher {
 
-    private final MessagePublisher messagePublisher;
+	private final MessagePublisher messagePublisher;
 
-    public void publishCustomerCreated(Customer customer) {
-        CustomerCreatedEvent event = CustomerCreatedEvent.builder()
-                .customerId(customer.getId())
-                .nationalId(customer.getNationalId())
-                .email(customer.getEmail())
-                .firstName(customer.getFirstName())
-                .lastName(customer.getLastName())
-                .build();
+	public void publishCustomerCreated(Customer customer) {
+		CustomerCreatedEvent event = CustomerCreatedEvent.builder()
+			.customerId(customer.getId())
+			.nationalId(customer.getNationalId())
+			.email(customer.getEmail())
+			.firstName(customer.getFirstName())
+			.lastName(customer.getLastName())
+			.build();
 
-        EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
-        messagePublisher.publish(EventConstants.CUSTOMER_EVENTS, envelope);
-        log.info("Published CustomerCreated event for customer id: {}", customer.getId());
-    }
+		EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
+		messagePublisher.publish(EventConstants.CUSTOMER_EVENTS, envelope);
+		log.info("Published CustomerCreated event for customer id: {}", customer.getId());
+	}
 
-    public void publishCustomerUpdated(Customer customer) {
-        CustomerUpdatedEvent event = CustomerUpdatedEvent.builder()
-                .customerId(customer.getId())
-                .nationalId(customer.getNationalId())
-                .email(customer.getEmail())
-                .firstName(customer.getFirstName())
-                .lastName(customer.getLastName())
-                .build();
+	public void publishCustomerUpdated(Customer customer) {
+		CustomerUpdatedEvent event = CustomerUpdatedEvent.builder()
+			.customerId(customer.getId())
+			.nationalId(customer.getNationalId())
+			.email(customer.getEmail())
+			.firstName(customer.getFirstName())
+			.lastName(customer.getLastName())
+			.build();
 
-        EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
-        messagePublisher.publish(EventConstants.CUSTOMER_EVENTS, envelope);
-        log.info("Published CustomerUpdated event for customer id: {}", customer.getId());
-    }
+		EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
+		messagePublisher.publish(EventConstants.CUSTOMER_EVENTS, envelope);
+		log.info("Published CustomerUpdated event for customer id: {}", customer.getId());
+	}
 
-    public void publishCustomerDeleted(Customer customer) {
-        CustomerDeletedEvent event = CustomerDeletedEvent.builder()
-                .customerId(customer.getId())
-                .nationalId(customer.getNationalId())
-                .build();
+	public void publishCustomerDeleted(Customer customer) {
+		CustomerDeletedEvent event = CustomerDeletedEvent.builder()
+			.customerId(customer.getId())
+			.nationalId(customer.getNationalId())
+			.build();
 
-        EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
-        messagePublisher.publish(EventConstants.CUSTOMER_EVENTS, envelope);
-        log.info("Published CustomerDeleted event for customer id: {}", customer.getId());
-    }
+		EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
+		messagePublisher.publish(EventConstants.CUSTOMER_EVENTS, envelope);
+		log.info("Published CustomerDeleted event for customer id: {}", customer.getId());
+	}
+
 }

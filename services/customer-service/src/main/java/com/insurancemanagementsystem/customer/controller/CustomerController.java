@@ -21,46 +21,46 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CustomerController {
 
-    private final CustomerService customerService;
+	private final CustomerService customerService;
 
-    @GetMapping
-    public ResponseEntity<ApiResponse<Page<CustomerResponse>>> getAll(
-            @RequestParam(required = false) String search,
-            @PageableDefault(sort = "lastName", direction = Sort.Direction.ASC) Pageable pageable) {
+	@GetMapping
+	public ResponseEntity<ApiResponse<Page<CustomerResponse>>> getAll(@RequestParam(required = false) String search,
+			@PageableDefault(sort = "lastName", direction = Sort.Direction.ASC) Pageable pageable) {
 
-        Page<CustomerResponse> customers;
-        if (search != null && !search.isBlank()) {
-            customers = customerService.search(search, null, pageable);
-        } else {
-            customers = customerService.findAll(pageable);
-        }
-        return ResponseEntity.ok(ApiResponse.success(customers));
-    }
+		Page<CustomerResponse> customers;
+		if (search != null && !search.isBlank()) {
+			customers = customerService.search(search, null, pageable);
+		}
+		else {
+			customers = customerService.findAll(pageable);
+		}
+		return ResponseEntity.ok(ApiResponse.success(customers));
+	}
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<CustomerResponse>> getById(@PathVariable UUID id) {
-        CustomerResponse customer = customerService.findById(id);
-        return ResponseEntity.ok(ApiResponse.success(customer));
-    }
+	@GetMapping("/{id}")
+	public ResponseEntity<ApiResponse<CustomerResponse>> getById(@PathVariable UUID id) {
+		CustomerResponse customer = customerService.findById(id);
+		return ResponseEntity.ok(ApiResponse.success(customer));
+	}
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<CustomerResponse>> create(@Valid @RequestBody CustomerRequest request) {
-        CustomerResponse created = customerService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Customer created successfully", created));
-    }
+	@PostMapping
+	public ResponseEntity<ApiResponse<CustomerResponse>> create(@Valid @RequestBody CustomerRequest request) {
+		CustomerResponse created = customerService.create(request);
+		return ResponseEntity.status(HttpStatus.CREATED)
+			.body(ApiResponse.success("Customer created successfully", created));
+	}
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<CustomerResponse>> update(
-            @PathVariable UUID id,
-            @Valid @RequestBody CustomerRequest request) {
-        CustomerResponse updated = customerService.update(id, request);
-        return ResponseEntity.ok(ApiResponse.success("Customer updated successfully", updated));
-    }
+	@PutMapping("/{id}")
+	public ResponseEntity<ApiResponse<CustomerResponse>> update(@PathVariable UUID id,
+			@Valid @RequestBody CustomerRequest request) {
+		CustomerResponse updated = customerService.update(id, request);
+		return ResponseEntity.ok(ApiResponse.success("Customer updated successfully", updated));
+	}
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<CustomerResponse>> delete(@PathVariable UUID id) {
-        CustomerResponse deleted = customerService.softDelete(id);
-        return ResponseEntity.ok(ApiResponse.success("Customer deleted successfully", deleted));
-    }
+	@DeleteMapping("/{id}")
+	public ResponseEntity<ApiResponse<CustomerResponse>> delete(@PathVariable UUID id) {
+		CustomerResponse deleted = customerService.softDelete(id);
+		return ResponseEntity.ok(ApiResponse.success("Customer deleted successfully", deleted));
+	}
+
 }

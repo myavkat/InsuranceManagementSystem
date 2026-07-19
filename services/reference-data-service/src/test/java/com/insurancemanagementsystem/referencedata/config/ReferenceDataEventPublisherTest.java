@@ -13,18 +13,19 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class ReferenceDataEventPublisherTest {
 
-    @Mock
-    private MessagePublisher messagePublisher;
+	@Mock
+	private MessagePublisher messagePublisher;
 
-    @InjectMocks
-    private ReferenceDataEventPublisher eventPublisher;
+	@InjectMocks
+	private ReferenceDataEventPublisher eventPublisher;
 
-    @Test
-    void shouldPublishReferenceDataChangedEvent() {
-        // When
-        eventPublisher.publishReferenceDataChanged("City", "UPDATE");
+	@Test
+	void shouldPublishReferenceDataChangedEvent() {
+		// When
+		eventPublisher.publishReferenceDataChanged("City", "UPDATE");
 
-        // Then
-        verify(messagePublisher).publish(any(), any());
-    }
+		// Then
+		verify(messagePublisher).publish(any(), any());
+	}
+
 }

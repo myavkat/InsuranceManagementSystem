@@ -32,212 +32,250 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Testcontainers
 class InsuranceServiceApplicationTests {
 
-    @Container
-    static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:16-alpine")
-            .withDatabaseName("test_insurance_db")
-            .withUsername("test")
-            .withPassword("test");
+	@Container
+	static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:16-alpine")
+		.withDatabaseName("test_insurance_db")
+		.withUsername("test")
+		.withPassword("test");
 
-    @Container
-    static ConfluentKafkaContainer kafka = new ConfluentKafkaContainer(
-            DockerImageName.parse("confluentinc/cp-kafka:7.6.0"));
+	@Container
+	static ConfluentKafkaContainer kafka = new ConfluentKafkaContainer(
+			DockerImageName.parse("confluentinc/cp-kafka:7.6.0"));
 
-    @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgres::getJdbcUrl);
-        registry.add("spring.datasource.username", postgres::getUsername);
-        registry.add("spring.datasource.password", postgres::getPassword);
-        registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
-        registry.add("spring.cloud.stream.kafka.binder.brokers", kafka::getBootstrapServers);
-        registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop");
-    }
+	@DynamicPropertySource
+	static void configureProperties(DynamicPropertyRegistry registry) {
+		registry.add("spring.datasource.url", postgres::getJdbcUrl);
+		registry.add("spring.datasource.username", postgres::getUsername);
+		registry.add("spring.datasource.password", postgres::getPassword);
+		registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
+		registry.add("spring.cloud.stream.kafka.binder.brokers", kafka::getBootstrapServers);
+		registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop");
+	}
 
-    @Autowired
-    private RestTestClient restTestClient;
+	@Autowired
+	private RestTestClient restTestClient;
 
-    @Autowired
-    private InsuranceRepository insuranceRepository;
+	@Autowired
+	private InsuranceRepository insuranceRepository;
 
-    @Autowired
-    private InsuranceTypeRepository insuranceTypeRepository;
+	@Autowired
+	private InsuranceTypeRepository insuranceTypeRepository;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+	private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @BeforeEach
-    void cleanUp() {
-        insuranceRepository.deleteAll();
-        insuranceTypeRepository.deleteAll();
+	@BeforeEach
+	void cleanUp() {
+		insuranceRepository.deleteAll();
+		insuranceTypeRepository.deleteAll();
 
-        // Seed InsuranceType data
-        insuranceTypeRepository.saveAll(List.of(
-                new InsuranceType(1, "Vehicle"),
-                new InsuranceType(2, "Real Estate"),
-                new InsuranceType(3, "Health"),
-                new InsuranceType(4, "Life")
-        ));
-    }
+		// Seed InsuranceType data
+		insuranceTypeRepository.saveAll(List.of(new InsuranceType(1, "Vehicle"), new InsuranceType(2, "Real Estate"),
+				new InsuranceType(3, "Health"), new InsuranceType(4, "Life")));
+	}
 
-    @Test
-    void contextLoads() {
-        // Verifies that the application context starts with all beans wired correctly
-    }
+	@Test
+	void contextLoads() {
+		// Verifies that the application context starts with all beans wired correctly
+	}
 
-    @Test
-    void createInsuranceViaRest_verifyInDb() throws Exception {
-        InsuranceRequest request = createValidInsuranceRequest();
+	@Test
+	void createInsuranceViaRest_verifyInDb() throws Exception {
+		InsuranceRequest request = createValidInsuranceRequest();
 
-        var result = restTestClient.post()
-                .uri("/api/insurances")
-                .body(request)
-                .exchange()
-                .expectStatus().isCreated()
-                .expectBody()
-                .jsonPath("$.success").isEqualTo(true)
-                .jsonPath("$.message").isEqualTo("Insurance created successfully")
-                .returnResult();
+		var result = restTestClient.post()
+			.uri("/api/insurances")
+			.body(request)
+			.exchange()
+			.expectStatus()
+			.isCreated()
+			.expectBody()
+			.jsonPath("$.success")
+			.isEqualTo(true)
+			.jsonPath("$.message")
+			.isEqualTo("Insurance created successfully")
+			.returnResult();
 
-        // Extract ID from response body
-        UUID insuranceId = UUID.fromString(
-                objectMapper.readTree(result.getResponseBodyContent()).get("data").get("id").asText());
+		// Extract ID from response body
+		UUID insuranceId = UUID
+			.fromString(objectMapper.readTree(result.getResponseBodyContent()).get("data").get("id").asText());
 
-        // Verify entity persisted in DB
-        Optional<Insurance> found = insuranceRepository.findById(insuranceId);
-        assertThat(found).isPresent();
-        assertThat(found.get().getIsActive()).isTrue();
-        assertThat(found.get().getCreatedAt()).isNotNull();
-    }
+		// Verify entity persisted in DB
+		Optional<Insurance> found = insuranceRepository.findById(insuranceId);
+		assertThat(found).isPresent();
+		assertThat(found.get().getIsActive()).isTrue();
+		assertThat(found.get().getCreatedAt()).isNotNull();
+	}
 
-    @Test
-    void listInsurances() {
-        // Seed an insurance in DB
-        Insurance insurance = Insurance.builder()
-                .name("TestInsurance")
-                .code("TESTINSURANCE")
-                .typeId(1)
-                .basePremium(new BigDecimal("1000"))
-                .build();
-        insuranceRepository.save(insurance);
+	@Test
+	void listInsurances() {
+		// Seed an insurance in DB
+		Insurance insurance = Insurance.builder()
+			.name("TestInsurance")
+			.code("TESTINSURANCE")
+			.typeId(1)
+			.basePremium(new BigDecimal("1000"))
+			.build();
+		insuranceRepository.save(insurance);
 
-        restTestClient.get().uri("/api/insurances")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.success").isEqualTo(true)
-                .jsonPath("$.data.totalElements").isEqualTo(1)
-                .jsonPath("$.data.content[0].name").isEqualTo("TestInsurance");
-    }
+		restTestClient.get()
+			.uri("/api/insurances")
+			.exchange()
+			.expectStatus()
+			.isOk()
+			.expectBody()
+			.jsonPath("$.success")
+			.isEqualTo(true)
+			.jsonPath("$.data.totalElements")
+			.isEqualTo(1)
+			.jsonPath("$.data.content[0].name")
+			.isEqualTo("TestInsurance");
+	}
 
-    @Test
-    void getById_NotFound_Returns404() {
-        restTestClient.get().uri("/api/insurances/{id}", UUID.randomUUID())
-                .exchange()
-                .expectStatus().isNotFound()
-                .expectBody()
-                .jsonPath("$.success").isEqualTo(false);
-    }
+	@Test
+	void getById_NotFound_Returns404() {
+		restTestClient.get()
+			.uri("/api/insurances/{id}", UUID.randomUUID())
+			.exchange()
+			.expectStatus()
+			.isNotFound()
+			.expectBody()
+			.jsonPath("$.success")
+			.isEqualTo(false);
+	}
 
-    @Test
-    void softDelete_thenGetReturns404() throws Exception {
-        byte[] createBody = restTestClient.post().uri("/api/insurances")
-                .body(createValidInsuranceRequest())
-                .exchange()
-                .expectStatus().isCreated()
-                .expectBody()
-                .returnResult()
-                .getResponseBodyContent();
-        UUID insuranceId = UUID.fromString(
-                objectMapper.readTree(createBody).get("data").get("id").asText());
+	@Test
+	void softDelete_thenGetReturns404() throws Exception {
+		byte[] createBody = restTestClient.post()
+			.uri("/api/insurances")
+			.body(createValidInsuranceRequest())
+			.exchange()
+			.expectStatus()
+			.isCreated()
+			.expectBody()
+			.returnResult()
+			.getResponseBodyContent();
+		UUID insuranceId = UUID.fromString(objectMapper.readTree(createBody).get("data").get("id").asText());
 
-        restTestClient.delete().uri("/api/insurances/{id}", insuranceId)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.success").isEqualTo(true);
+		restTestClient.delete()
+			.uri("/api/insurances/{id}", insuranceId)
+			.exchange()
+			.expectStatus()
+			.isOk()
+			.expectBody()
+			.jsonPath("$.success")
+			.isEqualTo(true);
 
-        // GET returns 200 but isActive=false after soft delete
-        restTestClient.get().uri("/api/insurances/{id}", insuranceId)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.data.isActive").isEqualTo(false);
+		// GET returns 200 but isActive=false after soft delete
+		restTestClient.get()
+			.uri("/api/insurances/{id}", insuranceId)
+			.exchange()
+			.expectStatus()
+			.isOk()
+			.expectBody()
+			.jsonPath("$.data.isActive")
+			.isEqualTo(false);
 
-        // Verify isActive=false in DB
-        Optional<Insurance> found = insuranceRepository.findById(insuranceId);
-        assertThat(found).isPresent();
-        assertThat(found.get().getIsActive()).isFalse();
-    }
+		// Verify isActive=false in DB
+		Optional<Insurance> found = insuranceRepository.findById(insuranceId);
+		assertThat(found).isPresent();
+		assertThat(found.get().getIsActive()).isFalse();
+	}
 
-    @Test
-    void updateInsurance() throws Exception {
-        byte[] createBody = restTestClient.post().uri("/api/insurances")
-                .body(createValidInsuranceRequest())
-                .exchange()
-                .expectStatus().isCreated()
-                .expectBody()
-                .returnResult()
-                .getResponseBodyContent();
-        UUID insuranceId = UUID.fromString(
-                objectMapper.readTree(createBody).get("data").get("id").asText());
+	@Test
+	void updateInsurance() throws Exception {
+		byte[] createBody = restTestClient.post()
+			.uri("/api/insurances")
+			.body(createValidInsuranceRequest())
+			.exchange()
+			.expectStatus()
+			.isCreated()
+			.expectBody()
+			.returnResult()
+			.getResponseBodyContent();
+		UUID insuranceId = UUID.fromString(objectMapper.readTree(createBody).get("data").get("id").asText());
 
-        InsuranceRequest updateReq = new InsuranceRequest();
-        updateReq.setName("UpdatedInsurance");
-        updateReq.setTypeId(1);
-        updateReq.setBasePremium(new BigDecimal("1500"));
+		InsuranceRequest updateReq = new InsuranceRequest();
+		updateReq.setName("UpdatedInsurance");
+		updateReq.setTypeId(1);
+		updateReq.setBasePremium(new BigDecimal("1500"));
 
-        restTestClient.put().uri("/api/insurances/{id}", insuranceId)
-                .body(updateReq)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.success").isEqualTo(true)
-                .jsonPath("$.message").isEqualTo("Insurance updated successfully")
-                .jsonPath("$.data.name").isEqualTo("UpdatedInsurance")
-                .jsonPath("$.data.basePremium").isEqualTo(1500);
+		restTestClient.put()
+			.uri("/api/insurances/{id}", insuranceId)
+			.body(updateReq)
+			.exchange()
+			.expectStatus()
+			.isOk()
+			.expectBody()
+			.jsonPath("$.success")
+			.isEqualTo(true)
+			.jsonPath("$.message")
+			.isEqualTo("Insurance updated successfully")
+			.jsonPath("$.data.name")
+			.isEqualTo("UpdatedInsurance")
+			.jsonPath("$.data.basePremium")
+			.isEqualTo(1500);
 
-        // Verify via GET
-        restTestClient.get().uri("/api/insurances/{id}", insuranceId)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.success").isEqualTo(true)
-                .jsonPath("$.data.name").isEqualTo("UpdatedInsurance")
-                .jsonPath("$.data.basePremium").isEqualTo(1500);
-    }
+		// Verify via GET
+		restTestClient.get()
+			.uri("/api/insurances/{id}", insuranceId)
+			.exchange()
+			.expectStatus()
+			.isOk()
+			.expectBody()
+			.jsonPath("$.success")
+			.isEqualTo(true)
+			.jsonPath("$.data.name")
+			.isEqualTo("UpdatedInsurance")
+			.jsonPath("$.data.basePremium")
+			.isEqualTo(1500);
+	}
 
-    @Test
-    void createInsuranceWithBlankName_returns400() {
-        InsuranceRequest request = new InsuranceRequest();
-        request.setName("");
-        request.setTypeId(1);
-        request.setBasePremium(new BigDecimal("1000"));
+	@Test
+	void createInsuranceWithBlankName_returns400() {
+		InsuranceRequest request = new InsuranceRequest();
+		request.setName("");
+		request.setTypeId(1);
+		request.setBasePremium(new BigDecimal("1000"));
 
-        restTestClient.post().uri("/api/insurances")
-                .body(request)
-                .exchange()
-                .expectStatus().isBadRequest()
-                .expectBody()
-                .jsonPath("$.success").isEqualTo(false);
-    }
+		restTestClient.post()
+			.uri("/api/insurances")
+			.body(request)
+			.exchange()
+			.expectStatus()
+			.isBadRequest()
+			.expectBody()
+			.jsonPath("$.success")
+			.isEqualTo(false);
+	}
 
-    @Test
-    void getTypes_returnsSeedData() {
-        restTestClient.get().uri("/api/insurances/types")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.success").isEqualTo(true)
-                .jsonPath("$.data.length()").isEqualTo(4)
-                .jsonPath("$.data[0].name").isEqualTo("Vehicle")
-                .jsonPath("$.data[1].name").isEqualTo("Real Estate")
-                .jsonPath("$.data[2].name").isEqualTo("Health")
-                .jsonPath("$.data[3].name").isEqualTo("Life");
-    }
+	@Test
+	void getTypes_returnsSeedData() {
+		restTestClient.get()
+			.uri("/api/insurances/types")
+			.exchange()
+			.expectStatus()
+			.isOk()
+			.expectBody()
+			.jsonPath("$.success")
+			.isEqualTo(true)
+			.jsonPath("$.data.length()")
+			.isEqualTo(4)
+			.jsonPath("$.data[0].name")
+			.isEqualTo("Vehicle")
+			.jsonPath("$.data[1].name")
+			.isEqualTo("Real Estate")
+			.jsonPath("$.data[2].name")
+			.isEqualTo("Health")
+			.jsonPath("$.data[3].name")
+			.isEqualTo("Life");
+	}
 
-    private InsuranceRequest createValidInsuranceRequest() {
-        InsuranceRequest request = new InsuranceRequest();
-        request.setName("TestInsurance");
-        request.setTypeId(1);
-        request.setBasePremium(new BigDecimal("1000"));
-        return request;
-    }
+	private InsuranceRequest createValidInsuranceRequest() {
+		InsuranceRequest request = new InsuranceRequest();
+		request.setName("TestInsurance");
+		request.setTypeId(1);
+		request.setBasePremium(new BigDecimal("1000"));
+		return request;
+	}
+
 }

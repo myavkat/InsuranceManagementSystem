@@ -10,6 +10,9 @@ import java.util.UUID;
 
 @Repository
 public interface RiskFactorHistoryRepository extends JpaRepository<RiskFactorHistory, UUID> {
-    Page<RiskFactorHistory> findByInsuranceIdOrderByChangedAtDesc(UUID insuranceId, Pageable pageable);
-    Page<RiskFactorHistory> findByRiskFactorIdOrderByChangedAtDesc(UUID riskFactorId, Pageable pageable);
+
+	Page<RiskFactorHistory> findByInsuranceIdOrderByChangedAtDesc(UUID insuranceId, Pageable pageable);
+
+	Page<RiskFactorHistory> findByRiskFactorIdOrderByChangedAtDesc(UUID riskFactorId, Pageable pageable);
+
 }

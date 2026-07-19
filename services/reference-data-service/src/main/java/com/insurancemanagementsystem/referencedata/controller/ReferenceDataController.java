@@ -21,21 +21,22 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class ReferenceDataController {
 
-    private final ReferenceDataService service;
+	private final ReferenceDataService service;
 
-    @GetMapping("/cities")
-    public ResponseEntity<ApiResponse<List<CityResponse>>> getCities() {
-        List<CityResponse> cities = service.getCities();
-        return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(300, TimeUnit.SECONDS))
-                .body(ApiResponse.success(cities));
-    }
+	@GetMapping("/cities")
+	public ResponseEntity<ApiResponse<List<CityResponse>>> getCities() {
+		List<CityResponse> cities = service.getCities();
+		return ResponseEntity.ok()
+			.cacheControl(CacheControl.maxAge(300, TimeUnit.SECONDS))
+			.body(ApiResponse.success(cities));
+	}
 
-    @GetMapping("/professions")
-    public ResponseEntity<ApiResponse<List<ProfessionResponse>>> getProfessions() {
-        List<ProfessionResponse> professions = service.getProfessions();
-        return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(300, TimeUnit.SECONDS))
-                .body(ApiResponse.success(professions));
-    }
+	@GetMapping("/professions")
+	public ResponseEntity<ApiResponse<List<ProfessionResponse>>> getProfessions() {
+		List<ProfessionResponse> professions = service.getProfessions();
+		return ResponseEntity.ok()
+			.cacheControl(CacheControl.maxAge(300, TimeUnit.SECONDS))
+			.body(ApiResponse.success(professions));
+	}
+
 }

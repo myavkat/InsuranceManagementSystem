@@ -28,51 +28,53 @@ import java.nio.charset.StandardCharsets;
 @Slf4j
 public class GlobalErrorWebExceptionHandler implements ErrorWebExceptionHandler {
 
-    @Override
-    public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
-        ServerHttpResponse response = exchange.getResponse();
+	@Override
+	public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
+		ServerHttpResponse response = exchange.getResponse();
 
-        HttpStatus status;
-        String message;
+		HttpStatus status;
+		String message;
 
-        if (ex instanceof ResponseStatusException rse) {
-            status = HttpStatus.valueOf(rse.getStatusCode().value());
-            message = rse.getReason() != null ? rse.getReason() : status.getReasonPhrase();
-            if (status.is5xxServerError()) {
-                log.error("Gateway error: {} - {}", status.value(), message, ex);
-            } else {
-                log.warn("Gateway client error: {} - {}", status.value(), message);
-            }
-        } else if (ex instanceof IllegalArgumentException) {
-            status = HttpStatus.BAD_REQUEST;
-            message = ex.getMessage();
-            log.warn("Bad request: {}", message);
-        } else {
-            status = HttpStatus.INTERNAL_SERVER_ERROR;
-            message = "An unexpected error occurred";
-            log.error("Unhandled gateway error", ex);
-        }
+		if (ex instanceof ResponseStatusException rse) {
+			status = HttpStatus.valueOf(rse.getStatusCode().value());
+			message = rse.getReason() != null ? rse.getReason() : status.getReasonPhrase();
+			if (status.is5xxServerError()) {
+				log.error("Gateway error: {} - {}", status.value(), message, ex);
+			}
+			else {
+				log.warn("Gateway client error: {} - {}", status.value(), message);
+			}
+		}
+		else if (ex instanceof IllegalArgumentException) {
+			status = HttpStatus.BAD_REQUEST;
+			message = ex.getMessage();
+			log.warn("Bad request: {}", message);
+		}
+		else {
+			status = HttpStatus.INTERNAL_SERVER_ERROR;
+			message = "An unexpected error occurred";
+			log.error("Unhandled gateway error", ex);
+		}
 
-        response.setStatusCode(status);
-        response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+		response.setStatusCode(status);
+		response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
 
-        String errorJson = String.format(
-                "{\"success\":false,\"message\":\"%s\",\"data\":null,\"timestamp\":\"%s\"}",
-                escapeJson(message),
-                java.time.Instant.now().toString()
-        );
+		String errorJson = String.format("{\"success\":false,\"message\":\"%s\",\"data\":null,\"timestamp\":\"%s\"}",
+				escapeJson(message), java.time.Instant.now().toString());
 
-        byte[] bytes = errorJson.getBytes(StandardCharsets.UTF_8);
-        DataBuffer buffer = response.bufferFactory().wrap(bytes);
-        return response.writeWith(Mono.just(buffer));
-    }
+		byte[] bytes = errorJson.getBytes(StandardCharsets.UTF_8);
+		DataBuffer buffer = response.bufferFactory().wrap(bytes);
+		return response.writeWith(Mono.just(buffer));
+	}
 
-    private String escapeJson(String s) {
-        if (s == null) return "";
-        return s.replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
-                .replace("\t", "\\t");
-    }
+	private String escapeJson(String s) {
+		if (s == null)
+			return "";
+		return s.replace("\\", "\\\\")
+			.replace("\"", "\\\"")
+			.replace("\n", "\\n")
+			.replace("\r", "\\r")
+			.replace("\t", "\\t");
+	}
+
 }

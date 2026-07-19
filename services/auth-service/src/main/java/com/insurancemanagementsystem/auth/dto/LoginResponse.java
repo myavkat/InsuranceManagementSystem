@@ -11,8 +11,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class LoginResponse {
 
-    private String accessToken;
-    private String refreshToken;
-    private long expiresIn;       // seconds (not milliseconds — frontend expects seconds)
-    private String tokenType;     // "Bearer"
+	private String accessToken;
+
+	private String refreshToken;
+
+	private long expiresIn; // seconds (not milliseconds — frontend expects seconds)
+
+	private String tokenType; // "Bearer"
+
 }

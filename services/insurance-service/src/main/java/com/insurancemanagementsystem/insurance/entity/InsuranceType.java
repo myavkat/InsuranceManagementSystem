@@ -12,9 +12,10 @@ import lombok.NoArgsConstructor;
 @Table(name = "insurance_types")
 public class InsuranceType {
 
-    @Id
-    private Integer id;
+	@Id
+	private Integer id;
 
-    @Column(nullable = false, unique = true, length = 50)
-    private String name;
+	@Column(nullable = false, unique = true, length = 50)
+	private String name;
+
 }

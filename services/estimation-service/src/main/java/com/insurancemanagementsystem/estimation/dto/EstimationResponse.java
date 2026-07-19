@@ -15,80 +15,96 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EstimationResponse {
-    private UUID id;
-    private UUID sagaId;
-    private UUID customerId;
-    private String customerName;
-    private String customerNationalId;
-    private UUID vehicleId;
-    private String vehiclePlate;
-    private String vehicleChassisNumber;
-    private UUID realEstateId;
-    private String realEstateAddress;
-    private UUID insuranceId;
-    private String insuranceName;
-    private String insuranceTypeName;
-    private String status;
-    private BigDecimal premium;
-    private String details;
-    private Instant startDate;
-    private Instant endDate;
-    private Instant createdAt;
-    private Instant updatedAt;
 
-    /**
-     * Creates a response from the entity without enriched display fields.
-     * Used for list queries (findAll) and create where cross-service calls are avoided.
-     */
-    public static EstimationResponse fromEntity(Estimation estimation) {
-        return EstimationResponse.builder()
-                .id(estimation.getId())
-                .sagaId(estimation.getSagaId())
-                .customerId(estimation.getCustomerId())
-                .vehicleId(estimation.getVehicleId())
-                .realEstateId(estimation.getRealEstateId())
-                .insuranceId(estimation.getInsuranceId())
-                .status(estimation.getStatus().name())
-                .premium(estimation.getPremium())
-                .details(estimation.getDetails())
-                .startDate(estimation.getStartDate())
-                .endDate(estimation.getEndDate())
-                .createdAt(estimation.getCreatedAt())
-                .updatedAt(estimation.getUpdatedAt())
-                .build();
-    }
+	private UUID id;
 
-    /**
-     * Creates a fully enriched response with resolved display names.
-     * Used for the detail endpoint (findById).
-     */
-    public static EstimationResponse fromEntity(Estimation estimation,
-                                                  String customerName,
-                                                  String customerNationalId,
-                                                  String vehiclePlate,
-                                                  String vehicleChassisNumber,
-                                                  String insuranceName,
-                                                  String insuranceTypeName) {
-        return EstimationResponse.builder()
-                .id(estimation.getId())
-                .sagaId(estimation.getSagaId())
-                .customerId(estimation.getCustomerId())
-                .customerName(customerName)
-                .customerNationalId(customerNationalId)
-                .vehicleId(estimation.getVehicleId())
-                .vehiclePlate(vehiclePlate)
-                .vehicleChassisNumber(vehicleChassisNumber)
-                .realEstateId(estimation.getRealEstateId())
-                .insuranceId(estimation.getInsuranceId())
-                .insuranceName(insuranceName)
-                .insuranceTypeName(insuranceTypeName)
-                .status(estimation.getStatus().name())
-                .premium(estimation.getPremium())
-                .details(estimation.getDetails())
-                .startDate(estimation.getStartDate())
-                .endDate(estimation.getEndDate())
-                .createdAt(estimation.getCreatedAt())
-                .updatedAt(estimation.getUpdatedAt())
-                .build();
-    }
+	private UUID sagaId;
+
+	private UUID customerId;
+
+	private String customerName;
+
+	private String customerNationalId;
+
+	private UUID vehicleId;
+
+	private String vehiclePlate;
+
+	private String vehicleChassisNumber;
+
+	private UUID realEstateId;
+
+	private String realEstateAddress;
+
+	private UUID insuranceId;
+
+	private String insuranceName;
+
+	private String insuranceTypeName;
+
+	private String status;
+
+	private BigDecimal premium;
+
+	private String details;
+
+	private Instant startDate;
+
+	private Instant endDate;
+
+	private Instant createdAt;
+
+	private Instant updatedAt;
+
+	/**
+	 * Creates a response from the entity without enriched display fields. Used for list
+	 * queries (findAll) and create where cross-service calls are avoided.
+	 */
+	public static EstimationResponse fromEntity(Estimation estimation) {
+		return EstimationResponse.builder()
+			.id(estimation.getId())
+			.sagaId(estimation.getSagaId())
+			.customerId(estimation.getCustomerId())
+			.vehicleId(estimation.getVehicleId())
+			.realEstateId(estimation.getRealEstateId())
+			.insuranceId(estimation.getInsuranceId())
+			.status(estimation.getStatus().name())
+			.premium(estimation.getPremium())
+			.details(estimation.getDetails())
+			.startDate(estimation.getStartDate())
+			.endDate(estimation.getEndDate())
+			.createdAt(estimation.getCreatedAt())
+			.updatedAt(estimation.getUpdatedAt())
+			.build();
+	}
+
+	/**
+	 * Creates a fully enriched response with resolved display names. Used for the detail
+	 * endpoint (findById).
+	 */
+	public static EstimationResponse fromEntity(Estimation estimation, String customerName, String customerNationalId,
+			String vehiclePlate, String vehicleChassisNumber, String insuranceName, String insuranceTypeName) {
+		return EstimationResponse.builder()
+			.id(estimation.getId())
+			.sagaId(estimation.getSagaId())
+			.customerId(estimation.getCustomerId())
+			.customerName(customerName)
+			.customerNationalId(customerNationalId)
+			.vehicleId(estimation.getVehicleId())
+			.vehiclePlate(vehiclePlate)
+			.vehicleChassisNumber(vehicleChassisNumber)
+			.realEstateId(estimation.getRealEstateId())
+			.insuranceId(estimation.getInsuranceId())
+			.insuranceName(insuranceName)
+			.insuranceTypeName(insuranceTypeName)
+			.status(estimation.getStatus().name())
+			.premium(estimation.getPremium())
+			.details(estimation.getDetails())
+			.startDate(estimation.getStartDate())
+			.endDate(estimation.getEndDate())
+			.createdAt(estimation.getCreatedAt())
+			.updatedAt(estimation.getUpdatedAt())
+			.build();
+	}
+
 }

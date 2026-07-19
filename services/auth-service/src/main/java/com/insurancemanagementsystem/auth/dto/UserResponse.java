@@ -13,8 +13,12 @@ import java.util.List;
 @AllArgsConstructor
 public class UserResponse {
 
-    private String userId;
-    private String username;
-    private String email;
-    private List<String> roles;
+	private String userId;
+
+	private String username;
+
+	private String email;
+
+	private List<String> roles;
+
 }

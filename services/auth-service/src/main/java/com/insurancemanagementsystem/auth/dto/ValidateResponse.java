@@ -13,7 +13,10 @@ import java.util.List;
 @AllArgsConstructor
 public class ValidateResponse {
 
-    private boolean valid;
-    private String userId;
-    private List<String> roles;
+	private boolean valid;
+
+	private String userId;
+
+	private List<String> roles;
+
 }

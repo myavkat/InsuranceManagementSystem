@@ -13,19 +13,20 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class MessagePublisherTest {
 
-    @Mock
-    private KafkaTemplate<String, String> kafkaTemplate;
+	@Mock
+	private KafkaTemplate<String, String> kafkaTemplate;
 
-    @InjectMocks
-    private KafkaMessagePublisher messagePublisher;
+	@InjectMocks
+	private KafkaMessagePublisher messagePublisher;
 
-    @Test
-    void publish_sendsViaKafkaTemplate() {
-        String topic = "test.topic";
-        String payload = "test-payload";
+	@Test
+	void publish_sendsViaKafkaTemplate() {
+		String topic = "test.topic";
+		String payload = "test-payload";
 
-        messagePublisher.publish(topic, payload);
+		messagePublisher.publish(topic, payload);
 
-        verify(kafkaTemplate).send(topic, payload);
-    }
+		verify(kafkaTemplate).send(topic, payload);
+	}
+
 }

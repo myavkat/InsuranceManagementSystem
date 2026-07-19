@@ -10,6 +10,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProfessionResponse {
-    private Integer id;
-    private String name;
+
+	private Integer id;
+
+	private String name;
+
 }

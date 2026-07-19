@@ -12,81 +12,80 @@ import java.util.UUID;
 @Slf4j
 public class CustomerServiceClient {
 
-    private final RestClient restClient;
+	private final RestClient restClient;
 
-    public CustomerServiceClient(@Value("${estimation.customer-service-url}") String baseUrl) {
-        this.restClient = RestClient.create(baseUrl);
-    }
+	public CustomerServiceClient(@Value("${estimation.customer-service-url}") String baseUrl) {
+		this.restClient = RestClient.create(baseUrl);
+	}
 
-    /**
-     * Fetches the full display name (firstName + lastName) for a customer.
-     * Returns null if the customerId is null or the customer is not found.
-     */
-    public String getCustomerName(UUID customerId) {
-        if (customerId == null) {
-            return null;
-        }
-        try {
-            var response = restClient.get()
-                    .uri("/api/customers/{id}", customerId)
-                    .retrieve()
-                    .body(Map.class);
+	/**
+	 * Fetches the full display name (firstName + lastName) for a customer. Returns null
+	 * if the customerId is null or the customer is not found.
+	 */
+	public String getCustomerName(UUID customerId) {
+		if (customerId == null) {
+			return null;
+		}
+		try {
+			var response = restClient.get().uri("/api/customers/{id}", customerId).retrieve().body(Map.class);
 
-            if (response == null) {
-                return null;
-            }
+			if (response == null) {
+				return null;
+			}
 
-            @SuppressWarnings("unchecked")
-            Map<String, Object> data = (Map<String, Object>) response.get("data");
-            if (data == null) {
-                return null;
-            }
+			@SuppressWarnings("unchecked")
+			Map<String, Object> data = (Map<String, Object>) response.get("data");
+			if (data == null) {
+				return null;
+			}
 
-            String firstName = (String) data.get("firstName");
-            String lastName = (String) data.get("lastName");
+			String firstName = (String) data.get("firstName");
+			String lastName = (String) data.get("lastName");
 
-            if (firstName != null && lastName != null) {
-                return firstName + " " + lastName;
-            } else if (firstName != null) {
-                return firstName;
-            } else if (lastName != null) {
-                return lastName;
-            }
-            return null;
-        } catch (Exception e) {
-            log.warn("Failed to fetch customer name for customerId={}: {}", customerId, e.getMessage());
-            return null;
-        }
-    }
+			if (firstName != null && lastName != null) {
+				return firstName + " " + lastName;
+			}
+			else if (firstName != null) {
+				return firstName;
+			}
+			else if (lastName != null) {
+				return lastName;
+			}
+			return null;
+		}
+		catch (Exception e) {
+			log.warn("Failed to fetch customer name for customerId={}: {}", customerId, e.getMessage());
+			return null;
+		}
+	}
 
-    /**
-     * Fetches the national ID (TCKN) for a customer.
-     * Returns null if the customerId is null or the customer is not found.
-     */
-    public String getCustomerNationalId(UUID customerId) {
-        if (customerId == null) {
-            return null;
-        }
-        try {
-            var response = restClient.get()
-                    .uri("/api/customers/{id}", customerId)
-                    .retrieve()
-                    .body(Map.class);
+	/**
+	 * Fetches the national ID (TCKN) for a customer. Returns null if the customerId is
+	 * null or the customer is not found.
+	 */
+	public String getCustomerNationalId(UUID customerId) {
+		if (customerId == null) {
+			return null;
+		}
+		try {
+			var response = restClient.get().uri("/api/customers/{id}", customerId).retrieve().body(Map.class);
 
-            if (response == null) {
-                return null;
-            }
+			if (response == null) {
+				return null;
+			}
 
-            @SuppressWarnings("unchecked")
-            Map<String, Object> data = (Map<String, Object>) response.get("data");
-            if (data == null) {
-                return null;
-            }
+			@SuppressWarnings("unchecked")
+			Map<String, Object> data = (Map<String, Object>) response.get("data");
+			if (data == null) {
+				return null;
+			}
 
-            return (String) data.get("nationalId");
-        } catch (Exception e) {
-            log.warn("Failed to fetch customer nationalId for customerId={}: {}", customerId, e.getMessage());
-            return null;
-        }
-    }
+			return (String) data.get("nationalId");
+		}
+		catch (Exception e) {
+			log.warn("Failed to fetch customer nationalId for customerId={}: {}", customerId, e.getMessage());
+			return null;
+		}
+	}
+
 }

@@ -33,261 +33,312 @@ import static org.mockito.Mockito.verify;
 @Import(GlobalExceptionHandler.class)
 class InsuranceControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+	@Autowired
+	private MockMvc mockMvc;
 
-    private RestTestClient restTestClient;
+	private RestTestClient restTestClient;
 
-    @MockitoBean
-    private InsuranceService insuranceService;
+	@MockitoBean
+	private InsuranceService insuranceService;
 
-    private final UUID testId = UUID.randomUUID();
+	private final UUID testId = UUID.randomUUID();
 
-    @BeforeEach
-    void setUp() {
-        restTestClient = RestTestClient.bindTo(mockMvc).build();
-    }
+	@BeforeEach
+	void setUp() {
+		restTestClient = RestTestClient.bindTo(mockMvc).build();
+	}
 
-    private InsuranceResponse createSampleResponse() {
-        return InsuranceResponse.builder()
-                .id(testId)
-                .name("Kasko Sigortası")
-                .description("Kapsamlı kasko teminatı")
-                .typeId(1)
-                .typeName("Kasko")
-                .basePremium(new BigDecimal("2500.00"))
-                .isActive(true)
-                .createdAt(Instant.now())
-                .updatedAt(Instant.now())
-                .build();
-    }
+	private InsuranceResponse createSampleResponse() {
+		return InsuranceResponse.builder()
+			.id(testId)
+			.name("Kasko Sigortası")
+			.description("Kapsamlı kasko teminatı")
+			.typeId(1)
+			.typeName("Kasko")
+			.basePremium(new BigDecimal("2500.00"))
+			.isActive(true)
+			.createdAt(Instant.now())
+			.updatedAt(Instant.now())
+			.build();
+	}
 
-    private InsuranceType createSampleInsuranceType() {
-        return new InsuranceType(1, "Kasko");
-    }
+	private InsuranceType createSampleInsuranceType() {
+		return new InsuranceType(1, "Kasko");
+	}
 
-    // ---------------------------------------------------------------
-    // 1. GET /api/insurances — paginated list
-    // ---------------------------------------------------------------
-    @Test
-    void getAll_ReturnsPaginatedResponse() {
-        // Arrange
-        Page<InsuranceResponse> page = new PageImpl<>(List.of(createSampleResponse()));
-        given(insuranceService.findAll(any(), any(), any(Pageable.class))).willReturn(page);
+	// ---------------------------------------------------------------
+	// 1. GET /api/insurances — paginated list
+	// ---------------------------------------------------------------
+	@Test
+	void getAll_ReturnsPaginatedResponse() {
+		// Arrange
+		Page<InsuranceResponse> page = new PageImpl<>(List.of(createSampleResponse()));
+		given(insuranceService.findAll(any(), any(), any(Pageable.class))).willReturn(page);
 
-        // Act & Assert
-        restTestClient.get().uri("/api/insurances")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.success").isEqualTo(true)
-                .jsonPath("$.data").exists()
-                .jsonPath("$.data.content").isArray()
-                .jsonPath("$.data.content[0].name").isEqualTo("Kasko Sigortası")
-                .jsonPath("$.data.content[0].typeName").isEqualTo("Kasko");
+		// Act & Assert
+		restTestClient.get()
+			.uri("/api/insurances")
+			.exchange()
+			.expectStatus()
+			.isOk()
+			.expectBody()
+			.jsonPath("$.success")
+			.isEqualTo(true)
+			.jsonPath("$.data")
+			.exists()
+			.jsonPath("$.data.content")
+			.isArray()
+			.jsonPath("$.data.content[0].name")
+			.isEqualTo("Kasko Sigortası")
+			.jsonPath("$.data.content[0].typeName")
+			.isEqualTo("Kasko");
 
-        verify(insuranceService).findAll(any(), any(), any(Pageable.class));
-    }
+		verify(insuranceService).findAll(any(), any(), any(Pageable.class));
+	}
 
-    // ---------------------------------------------------------------
-    // 2. GET /api/insurances?typeId=1 — filtered by type
-    // ---------------------------------------------------------------
-    @Test
-    void getAll_WithTypeFilter_ReturnsFilteredResults() {
-        // Arrange
-        Page<InsuranceResponse> page = new PageImpl<>(List.of(createSampleResponse()));
-        given(insuranceService.findAll(eq(1), any(), any(Pageable.class))).willReturn(page);
+	// ---------------------------------------------------------------
+	// 2. GET /api/insurances?typeId=1 — filtered by type
+	// ---------------------------------------------------------------
+	@Test
+	void getAll_WithTypeFilter_ReturnsFilteredResults() {
+		// Arrange
+		Page<InsuranceResponse> page = new PageImpl<>(List.of(createSampleResponse()));
+		given(insuranceService.findAll(eq(1), any(), any(Pageable.class))).willReturn(page);
 
-        // Act & Assert
-        restTestClient.get().uri("/api/insurances?typeId=1")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.success").isEqualTo(true)
-                .jsonPath("$.data").exists();
+		// Act & Assert
+		restTestClient.get()
+			.uri("/api/insurances?typeId=1")
+			.exchange()
+			.expectStatus()
+			.isOk()
+			.expectBody()
+			.jsonPath("$.success")
+			.isEqualTo(true)
+			.jsonPath("$.data")
+			.exists();
 
-        verify(insuranceService).findAll(eq(1), any(), any(Pageable.class));
-    }
+		verify(insuranceService).findAll(eq(1), any(), any(Pageable.class));
+	}
 
-    // ---------------------------------------------------------------
-    // 3. GET /api/insurances?search=Kasko — filtered by search
-    // ---------------------------------------------------------------
-    @Test
-    void getAll_WithSearch_ReturnsFilteredResults() {
-        // Arrange
-        Page<InsuranceResponse> page = new PageImpl<>(List.of(createSampleResponse()));
-        given(insuranceService.findAll(any(), eq("Kasko"), any(Pageable.class))).willReturn(page);
+	// ---------------------------------------------------------------
+	// 3. GET /api/insurances?search=Kasko — filtered by search
+	// ---------------------------------------------------------------
+	@Test
+	void getAll_WithSearch_ReturnsFilteredResults() {
+		// Arrange
+		Page<InsuranceResponse> page = new PageImpl<>(List.of(createSampleResponse()));
+		given(insuranceService.findAll(any(), eq("Kasko"), any(Pageable.class))).willReturn(page);
 
-        // Act & Assert
-        restTestClient.get().uri("/api/insurances?search=Kasko")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.success").isEqualTo(true)
-                .jsonPath("$.data").exists();
+		// Act & Assert
+		restTestClient.get()
+			.uri("/api/insurances?search=Kasko")
+			.exchange()
+			.expectStatus()
+			.isOk()
+			.expectBody()
+			.jsonPath("$.success")
+			.isEqualTo(true)
+			.jsonPath("$.data")
+			.exists();
 
-        verify(insuranceService).findAll(any(), eq("Kasko"), any(Pageable.class));
-    }
+		verify(insuranceService).findAll(any(), eq("Kasko"), any(Pageable.class));
+	}
 
-    // ---------------------------------------------------------------
-    // 4. GET /api/insurances/{id} — found
-    // ---------------------------------------------------------------
-    @Test
-    void getById_ReturnsInsurance() {
-        // Arrange
-        InsuranceResponse response = createSampleResponse();
-        given(insuranceService.findById(testId)).willReturn(response);
+	// ---------------------------------------------------------------
+	// 4. GET /api/insurances/{id} — found
+	// ---------------------------------------------------------------
+	@Test
+	void getById_ReturnsInsurance() {
+		// Arrange
+		InsuranceResponse response = createSampleResponse();
+		given(insuranceService.findById(testId)).willReturn(response);
 
-        // Act & Assert
-        restTestClient.get().uri("/api/insurances/{id}", testId)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.success").isEqualTo(true)
-                .jsonPath("$.data.name").isEqualTo("Kasko Sigortası")
-                .jsonPath("$.data.typeName").isEqualTo("Kasko")
-                .jsonPath("$.data.basePremium").isEqualTo(2500.00);
+		// Act & Assert
+		restTestClient.get()
+			.uri("/api/insurances/{id}", testId)
+			.exchange()
+			.expectStatus()
+			.isOk()
+			.expectBody()
+			.jsonPath("$.success")
+			.isEqualTo(true)
+			.jsonPath("$.data.name")
+			.isEqualTo("Kasko Sigortası")
+			.jsonPath("$.data.typeName")
+			.isEqualTo("Kasko")
+			.jsonPath("$.data.basePremium")
+			.isEqualTo(2500.00);
 
-        verify(insuranceService).findById(testId);
-    }
+		verify(insuranceService).findById(testId);
+	}
 
-    // ---------------------------------------------------------------
-    // 5. GET /api/insurances/{id} — not found → 404
-    // ---------------------------------------------------------------
-    @Test
-    void getById_NotFound_Returns404() {
-        // Arrange
-        given(insuranceService.findById(testId))
-                .willThrow(new EntityNotFoundException("Insurance not found with id: " + testId));
+	// ---------------------------------------------------------------
+	// 5. GET /api/insurances/{id} — not found → 404
+	// ---------------------------------------------------------------
+	@Test
+	void getById_NotFound_Returns404() {
+		// Arrange
+		given(insuranceService.findById(testId))
+			.willThrow(new EntityNotFoundException("Insurance not found with id: " + testId));
 
-        // Act & Assert
-        restTestClient.get().uri("/api/insurances/{id}", testId)
-                .exchange()
-                .expectStatus().isNotFound()
-                .expectBody()
-                .jsonPath("$.success").isEqualTo(false)
-                .jsonPath("$.message").isEqualTo("Insurance not found with id: " + testId);
+		// Act & Assert
+		restTestClient.get()
+			.uri("/api/insurances/{id}", testId)
+			.exchange()
+			.expectStatus()
+			.isNotFound()
+			.expectBody()
+			.jsonPath("$.success")
+			.isEqualTo(false)
+			.jsonPath("$.message")
+			.isEqualTo("Insurance not found with id: " + testId);
 
-        verify(insuranceService).findById(testId);
-    }
+		verify(insuranceService).findById(testId);
+	}
 
-    // ---------------------------------------------------------------
-    // 6. POST /api/insurances — valid body → 201
-    // ---------------------------------------------------------------
-    @Test
-    void create_WithValidBody_Returns201() {
-        // Arrange
-        InsuranceRequest request = new InsuranceRequest();
-        request.setName("Kasko Sigortası");
-        request.setDescription("Kapsamlı kasko teminatı");
-        request.setTypeId(1);
-        request.setBasePremium(new BigDecimal("2500.00"));
-        request.setIsActive(true);
+	// ---------------------------------------------------------------
+	// 6. POST /api/insurances — valid body → 201
+	// ---------------------------------------------------------------
+	@Test
+	void create_WithValidBody_Returns201() {
+		// Arrange
+		InsuranceRequest request = new InsuranceRequest();
+		request.setName("Kasko Sigortası");
+		request.setDescription("Kapsamlı kasko teminatı");
+		request.setTypeId(1);
+		request.setBasePremium(new BigDecimal("2500.00"));
+		request.setIsActive(true);
 
-        InsuranceResponse response = createSampleResponse();
-        given(insuranceService.create(any(InsuranceRequest.class))).willReturn(response);
+		InsuranceResponse response = createSampleResponse();
+		given(insuranceService.create(any(InsuranceRequest.class))).willReturn(response);
 
-        // Act & Assert
-        restTestClient.post().uri("/api/insurances")
-                .body(request)
-                .exchange()
-                .expectStatus().isCreated()
-                .expectBody()
-                .jsonPath("$.success").isEqualTo(true)
-                .jsonPath("$.message").isEqualTo("Insurance created successfully")
-                .jsonPath("$.data.name").isEqualTo("Kasko Sigortası");
+		// Act & Assert
+		restTestClient.post()
+			.uri("/api/insurances")
+			.body(request)
+			.exchange()
+			.expectStatus()
+			.isCreated()
+			.expectBody()
+			.jsonPath("$.success")
+			.isEqualTo(true)
+			.jsonPath("$.message")
+			.isEqualTo("Insurance created successfully")
+			.jsonPath("$.data.name")
+			.isEqualTo("Kasko Sigortası");
 
-        verify(insuranceService).create(any(InsuranceRequest.class));
-    }
+		verify(insuranceService).create(any(InsuranceRequest.class));
+	}
 
-    // ---------------------------------------------------------------
-    // 7. POST /api/insurances — invalid body → 400
-    // ---------------------------------------------------------------
-    @Test
-    void create_WithInvalidBody_Returns400() {
-        // Arrange (empty object — missing required fields)
+	// ---------------------------------------------------------------
+	// 7. POST /api/insurances — invalid body → 400
+	// ---------------------------------------------------------------
+	@Test
+	void create_WithInvalidBody_Returns400() {
+		// Arrange (empty object — missing required fields)
 
-        // Act & Assert
-        restTestClient.post().uri("/api/insurances")
-                .body(Collections.emptyMap())
-                .exchange()
-                .expectStatus().isBadRequest()
-                .expectBody()
-                .jsonPath("$.success").isEqualTo(false)
-                .jsonPath("$.message").isNotEmpty();
+		// Act & Assert
+		restTestClient.post()
+			.uri("/api/insurances")
+			.body(Collections.emptyMap())
+			.exchange()
+			.expectStatus()
+			.isBadRequest()
+			.expectBody()
+			.jsonPath("$.success")
+			.isEqualTo(false)
+			.jsonPath("$.message")
+			.isNotEmpty();
 
-        verify(insuranceService, never()).create(any(InsuranceRequest.class));
-    }
+		verify(insuranceService, never()).create(any(InsuranceRequest.class));
+	}
 
-    // ---------------------------------------------------------------
-    // 8. PUT /api/insurances/{id} — valid body → 200
-    // ---------------------------------------------------------------
-    @Test
-    void update_Returns200() {
-        // Arrange
-        InsuranceRequest request = new InsuranceRequest();
-        request.setName("Kasko Sigortası");
-        request.setDescription("Kapsamlı kasko teminatı");
-        request.setTypeId(1);
-        request.setBasePremium(new BigDecimal("2500.00"));
-        request.setIsActive(true);
+	// ---------------------------------------------------------------
+	// 8. PUT /api/insurances/{id} — valid body → 200
+	// ---------------------------------------------------------------
+	@Test
+	void update_Returns200() {
+		// Arrange
+		InsuranceRequest request = new InsuranceRequest();
+		request.setName("Kasko Sigortası");
+		request.setDescription("Kapsamlı kasko teminatı");
+		request.setTypeId(1);
+		request.setBasePremium(new BigDecimal("2500.00"));
+		request.setIsActive(true);
 
-        InsuranceResponse response = createSampleResponse();
-        given(insuranceService.update(any(UUID.class), any(InsuranceRequest.class))).willReturn(response);
+		InsuranceResponse response = createSampleResponse();
+		given(insuranceService.update(any(UUID.class), any(InsuranceRequest.class))).willReturn(response);
 
-        // Act & Assert
-        restTestClient.put().uri("/api/insurances/{id}", testId)
-                .body(request)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.success").isEqualTo(true)
-                .jsonPath("$.message").isEqualTo("Insurance updated successfully")
-                .jsonPath("$.data.name").isEqualTo("Kasko Sigortası");
+		// Act & Assert
+		restTestClient.put()
+			.uri("/api/insurances/{id}", testId)
+			.body(request)
+			.exchange()
+			.expectStatus()
+			.isOk()
+			.expectBody()
+			.jsonPath("$.success")
+			.isEqualTo(true)
+			.jsonPath("$.message")
+			.isEqualTo("Insurance updated successfully")
+			.jsonPath("$.data.name")
+			.isEqualTo("Kasko Sigortası");
 
-        verify(insuranceService).update(any(UUID.class), any(InsuranceRequest.class));
-    }
+		verify(insuranceService).update(any(UUID.class), any(InsuranceRequest.class));
+	}
 
-    // ---------------------------------------------------------------
-    // 9. DELETE /api/insurances/{id} → 200
-    // ---------------------------------------------------------------
-    @Test
-    void delete_Returns200() {
-        // Arrange
-        InsuranceResponse response = createSampleResponse();
-        given(insuranceService.softDelete(any(UUID.class))).willReturn(response);
+	// ---------------------------------------------------------------
+	// 9. DELETE /api/insurances/{id} → 200
+	// ---------------------------------------------------------------
+	@Test
+	void delete_Returns200() {
+		// Arrange
+		InsuranceResponse response = createSampleResponse();
+		given(insuranceService.softDelete(any(UUID.class))).willReturn(response);
 
-        // Act & Assert
-        restTestClient.delete().uri("/api/insurances/{id}", testId)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.success").isEqualTo(true)
-                .jsonPath("$.message").isEqualTo("Insurance deleted successfully")
-                .jsonPath("$.data.name").isEqualTo("Kasko Sigortası");
+		// Act & Assert
+		restTestClient.delete()
+			.uri("/api/insurances/{id}", testId)
+			.exchange()
+			.expectStatus()
+			.isOk()
+			.expectBody()
+			.jsonPath("$.success")
+			.isEqualTo(true)
+			.jsonPath("$.message")
+			.isEqualTo("Insurance deleted successfully")
+			.jsonPath("$.data.name")
+			.isEqualTo("Kasko Sigortası");
 
-        verify(insuranceService).softDelete(any(UUID.class));
-    }
+		verify(insuranceService).softDelete(any(UUID.class));
+	}
 
-    // ---------------------------------------------------------------
-    // 10. GET /api/insurances/types — type list
-    // ---------------------------------------------------------------
-    @Test
-    void getTypes_ReturnsTypeList() {
-        // Arrange
-        List<InsuranceType> types = List.of(createSampleInsuranceType());
-        given(insuranceService.getAllTypes()).willReturn(types);
+	// ---------------------------------------------------------------
+	// 10. GET /api/insurances/types — type list
+	// ---------------------------------------------------------------
+	@Test
+	void getTypes_ReturnsTypeList() {
+		// Arrange
+		List<InsuranceType> types = List.of(createSampleInsuranceType());
+		given(insuranceService.getAllTypes()).willReturn(types);
 
-        // Act & Assert
-        restTestClient.get().uri("/api/insurances/types")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.success").isEqualTo(true)
-                .jsonPath("$.data").isArray()
-                .jsonPath("$.data[0].id").isEqualTo(1)
-                .jsonPath("$.data[0].name").isEqualTo("Kasko");
+		// Act & Assert
+		restTestClient.get()
+			.uri("/api/insurances/types")
+			.exchange()
+			.expectStatus()
+			.isOk()
+			.expectBody()
+			.jsonPath("$.success")
+			.isEqualTo(true)
+			.jsonPath("$.data")
+			.isArray()
+			.jsonPath("$.data[0].id")
+			.isEqualTo(1)
+			.jsonPath("$.data[0].name")
+			.isEqualTo("Kasko");
 
-        verify(insuranceService).getAllTypes();
-    }
+		verify(insuranceService).getAllTypes();
+	}
+
 }

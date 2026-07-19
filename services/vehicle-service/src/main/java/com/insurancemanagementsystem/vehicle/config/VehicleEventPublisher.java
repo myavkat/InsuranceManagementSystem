@@ -18,42 +18,43 @@ import java.util.UUID;
 @Slf4j
 public class VehicleEventPublisher {
 
-    private final MessagePublisher messagePublisher;
+	private final MessagePublisher messagePublisher;
 
-    public void publishVehicleCreated(Vehicle vehicle) {
-        VehicleCreatedEvent event = VehicleCreatedEvent.builder()
-                .vehicleId(vehicle.getId())
-                .plate(vehicle.getPlate())
-                .customerId(vehicle.getCustomerId())
-                .carBrandId(vehicle.getCarBrandId())
-                .build();
+	public void publishVehicleCreated(Vehicle vehicle) {
+		VehicleCreatedEvent event = VehicleCreatedEvent.builder()
+			.vehicleId(vehicle.getId())
+			.plate(vehicle.getPlate())
+			.customerId(vehicle.getCustomerId())
+			.carBrandId(vehicle.getCarBrandId())
+			.build();
 
-        EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
-        messagePublisher.publish(EventConstants.VEHICLE_EVENTS, envelope);
-        log.info("Published VehicleCreated event for vehicle id: {}", vehicle.getId());
-    }
+		EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
+		messagePublisher.publish(EventConstants.VEHICLE_EVENTS, envelope);
+		log.info("Published VehicleCreated event for vehicle id: {}", vehicle.getId());
+	}
 
-    public void publishVehicleUpdated(Vehicle vehicle) {
-        VehicleUpdatedEvent event = VehicleUpdatedEvent.builder()
-                .vehicleId(vehicle.getId())
-                .plate(vehicle.getPlate())
-                .customerId(vehicle.getCustomerId())
-                .carBrandId(vehicle.getCarBrandId())
-                .build();
+	public void publishVehicleUpdated(Vehicle vehicle) {
+		VehicleUpdatedEvent event = VehicleUpdatedEvent.builder()
+			.vehicleId(vehicle.getId())
+			.plate(vehicle.getPlate())
+			.customerId(vehicle.getCustomerId())
+			.carBrandId(vehicle.getCarBrandId())
+			.build();
 
-        EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
-        messagePublisher.publish(EventConstants.VEHICLE_EVENTS, envelope);
-        log.info("Published VehicleUpdated event for vehicle id: {}", vehicle.getId());
-    }
+		EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
+		messagePublisher.publish(EventConstants.VEHICLE_EVENTS, envelope);
+		log.info("Published VehicleUpdated event for vehicle id: {}", vehicle.getId());
+	}
 
-    public void publishVehicleDeleted(Vehicle vehicle) {
-        VehicleDeletedEvent event = VehicleDeletedEvent.builder()
-                .vehicleId(vehicle.getId())
-                .plate(vehicle.getPlate())
-                .build();
+	public void publishVehicleDeleted(Vehicle vehicle) {
+		VehicleDeletedEvent event = VehicleDeletedEvent.builder()
+			.vehicleId(vehicle.getId())
+			.plate(vehicle.getPlate())
+			.build();
 
-        EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
-        messagePublisher.publish(EventConstants.VEHICLE_EVENTS, envelope);
-        log.info("Published VehicleDeleted event for vehicle id: {}", vehicle.getId());
-    }
+		EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
+		messagePublisher.publish(EventConstants.VEHICLE_EVENTS, envelope);
+		log.info("Published VehicleDeleted event for vehicle id: {}", vehicle.getId());
+	}
+
 }

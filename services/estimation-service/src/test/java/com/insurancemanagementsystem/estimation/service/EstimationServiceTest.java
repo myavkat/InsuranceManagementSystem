@@ -36,267 +36,271 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class EstimationServiceTest {
 
-    @Mock
-    private EstimationRepository estimationRepository;
+	@Mock
+	private EstimationRepository estimationRepository;
 
-    @Mock
-    private OutboxMessagePublisher outboxMessagePublisher;
+	@Mock
+	private OutboxMessagePublisher outboxMessagePublisher;
 
-    @Mock
-    private CustomerServiceClient customerServiceClient;
+	@Mock
+	private CustomerServiceClient customerServiceClient;
 
-    @Mock
-    private VehicleServiceClient vehicleServiceClient;
+	@Mock
+	private VehicleServiceClient vehicleServiceClient;
 
-    @Mock
-    private InsuranceServiceClient insuranceServiceClient;
+	@Mock
+	private InsuranceServiceClient insuranceServiceClient;
 
-    @InjectMocks
-    private EstimationService estimationService;
+	@InjectMocks
+	private EstimationService estimationService;
 
-    @Captor
-    private ArgumentCaptor<Estimation> estimationCaptor;
+	@Captor
+	private ArgumentCaptor<Estimation> estimationCaptor;
 
-    private final UUID testId = UUID.randomUUID();
+	private final UUID testId = UUID.randomUUID();
 
-    private final UUID customerId = UUID.randomUUID();
-    private final UUID vehicleId = UUID.randomUUID();
-    private final UUID insuranceId = UUID.randomUUID();
+	private final UUID customerId = UUID.randomUUID();
 
-    // ---------------------------------------------------------------
-    // Helper methods
-    // ---------------------------------------------------------------
+	private final UUID vehicleId = UUID.randomUUID();
 
-    private EstimationRequest createValidRequest() {
-        EstimationRequest request = new EstimationRequest();
-        request.setCustomerId(customerId);
-        request.setVehicleId(vehicleId);
-        request.setInsuranceId(insuranceId);
-        return request;
-    }
+	private final UUID insuranceId = UUID.randomUUID();
 
-    private Estimation createSampleEntity() {
-        return Estimation.builder()
-                .id(testId)
-                .sagaId(UUID.randomUUID())
-                .customerId(customerId)
-                .vehicleId(vehicleId)
-                .insuranceId(insuranceId)
-                .status(Estimation.Status.STARTED)
-                .createdAt(Instant.now())
-                .updatedAt(Instant.now())
-                .build();
-    }
+	// ---------------------------------------------------------------
+	// Helper methods
+	// ---------------------------------------------------------------
 
-    // ---------------------------------------------------------------
-    // 1. create — valid request
-    // ---------------------------------------------------------------
-    @Test
-    void create_withValidRequest_createsEstimationWithStartedStatus() {
-        // Arrange
-        EstimationRequest request = createValidRequest();
-        Estimation savedEntity = createSampleEntity();
+	private EstimationRequest createValidRequest() {
+		EstimationRequest request = new EstimationRequest();
+		request.setCustomerId(customerId);
+		request.setVehicleId(vehicleId);
+		request.setInsuranceId(insuranceId);
+		return request;
+	}
 
-        when(estimationRepository.save(any(Estimation.class))).thenReturn(savedEntity);
-        when(insuranceServiceClient.getInsurance(insuranceId))
-                .thenReturn(new InsuranceServiceClient.InsuranceInfo(insuranceId, "Trafik Sigortası", 1, "Vehicle"));
+	private Estimation createSampleEntity() {
+		return Estimation.builder()
+			.id(testId)
+			.sagaId(UUID.randomUUID())
+			.customerId(customerId)
+			.vehicleId(vehicleId)
+			.insuranceId(insuranceId)
+			.status(Estimation.Status.STARTED)
+			.createdAt(Instant.now())
+			.updatedAt(Instant.now())
+			.build();
+	}
 
-        // Act
-        EstimationResponse response = estimationService.create(request);
+	// ---------------------------------------------------------------
+	// 1. create — valid request
+	// ---------------------------------------------------------------
+	@Test
+	void create_withValidRequest_createsEstimationWithStartedStatus() {
+		// Arrange
+		EstimationRequest request = createValidRequest();
+		Estimation savedEntity = createSampleEntity();
 
-        // Assert
-        assertThat(response).isNotNull();
-        assertThat(response.getId()).isEqualTo(testId);
-        assertThat(response.getStatus()).isEqualTo("STARTED");
-        assertThat(response.getCustomerId()).isEqualTo(customerId);
-        assertThat(response.getVehicleId()).isEqualTo(vehicleId);
-        assertThat(response.getInsuranceId()).isEqualTo(insuranceId);
-        assertThat(response.getSagaId()).isNotNull();
+		when(estimationRepository.save(any(Estimation.class))).thenReturn(savedEntity);
+		when(insuranceServiceClient.getInsurance(insuranceId))
+			.thenReturn(new InsuranceServiceClient.InsuranceInfo(insuranceId, "Trafik Sigortası", 1, "Vehicle"));
 
-        verify(estimationRepository).save(estimationCaptor.capture());
-        Estimation saved = estimationCaptor.getValue();
-        assertThat(saved.getStatus()).isEqualTo(Estimation.Status.STARTED);
-        assertThat(saved.getSagaId()).isNotNull();
+		// Act
+		EstimationResponse response = estimationService.create(request);
 
-        verify(outboxMessagePublisher).publish(any(), any(), any(), eq(EventConstants.ESTIMATION_SAGA));
-    }
+		// Assert
+		assertThat(response).isNotNull();
+		assertThat(response.getId()).isEqualTo(testId);
+		assertThat(response.getStatus()).isEqualTo("STARTED");
+		assertThat(response.getCustomerId()).isEqualTo(customerId);
+		assertThat(response.getVehicleId()).isEqualTo(vehicleId);
+		assertThat(response.getInsuranceId()).isEqualTo(insuranceId);
+		assertThat(response.getSagaId()).isNotNull();
 
-    // ---------------------------------------------------------------
-    // 2. create — both vehicleId and realEstateId null
-    // ---------------------------------------------------------------
-    @Test
-    void create_withBothVehicleAndRealEstateNull_throwsIllegalArgumentException() {
-        // Arrange
-        EstimationRequest request = new EstimationRequest();
-        request.setCustomerId(customerId);
-        request.setInsuranceId(insuranceId);
-        // vehicleId and realEstateId are both null
+		verify(estimationRepository).save(estimationCaptor.capture());
+		Estimation saved = estimationCaptor.getValue();
+		assertThat(saved.getStatus()).isEqualTo(Estimation.Status.STARTED);
+		assertThat(saved.getSagaId()).isNotNull();
 
-        // Act & Assert
-        when(insuranceServiceClient.getInsurance(insuranceId))
-                .thenReturn(new InsuranceServiceClient.InsuranceInfo(insuranceId, "Trafik Sigortası", 1, "Vehicle"));
+		verify(outboxMessagePublisher).publish(any(), any(), any(), eq(EventConstants.ESTIMATION_SAGA));
+	}
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> estimationService.create(request));
-        assertThat(exception.getMessage()).contains("vehicleId is required for Vehicle-type insurance");
+	// ---------------------------------------------------------------
+	// 2. create — both vehicleId and realEstateId null
+	// ---------------------------------------------------------------
+	@Test
+	void create_withBothVehicleAndRealEstateNull_throwsIllegalArgumentException() {
+		// Arrange
+		EstimationRequest request = new EstimationRequest();
+		request.setCustomerId(customerId);
+		request.setInsuranceId(insuranceId);
+		// vehicleId and realEstateId are both null
 
-        verify(estimationRepository, never()).save(any(Estimation.class));
-        verify(outboxMessagePublisher, never()).publish(any(), any(), any(), any());
-    }
+		// Act & Assert
+		when(insuranceServiceClient.getInsurance(insuranceId))
+			.thenReturn(new InsuranceServiceClient.InsuranceInfo(insuranceId, "Trafik Sigortası", 1, "Vehicle"));
 
-    // ---------------------------------------------------------------
-    // 3. findById — existing id
-    // ---------------------------------------------------------------
-    @Test
-    void findById_whenExists_returnsEstimationResponse() {
-        // Arrange
-        Estimation entity = createSampleEntity();
-        when(estimationRepository.findById(testId)).thenReturn(Optional.of(entity));
-        when(customerServiceClient.getCustomerName(customerId)).thenReturn("Ahmet Yılmaz");
-        when(customerServiceClient.getCustomerNationalId(customerId)).thenReturn("12345678901");
-        when(vehicleServiceClient.getVehicleInfo(vehicleId)).thenReturn(Map.of("plate", "34ABC123", "chassisNumber", "WDB1234567890"));
-        when(insuranceServiceClient.getInsurance(insuranceId))
-                .thenReturn(new InsuranceServiceClient.InsuranceInfo(insuranceId, "Trafik Sigortası", 1, "Vehicle"));
+		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+				() -> estimationService.create(request));
+		assertThat(exception.getMessage()).contains("vehicleId is required for Vehicle-type insurance");
 
-        // Act
-        EstimationResponse response = estimationService.findById(testId);
+		verify(estimationRepository, never()).save(any(Estimation.class));
+		verify(outboxMessagePublisher, never()).publish(any(), any(), any(), any());
+	}
 
-        // Assert
-        assertThat(response).isNotNull();
-        assertThat(response.getId()).isEqualTo(testId);
-        assertThat(response.getStatus()).isEqualTo("STARTED");
-        assertThat(response.getCustomerId()).isEqualTo(customerId);
-        assertThat(response.getCustomerName()).isEqualTo("Ahmet Yılmaz");
-        assertThat(response.getCustomerNationalId()).isEqualTo("12345678901");
-        assertThat(response.getVehiclePlate()).isEqualTo("34ABC123");
-        assertThat(response.getVehicleChassisNumber()).isEqualTo("WDB1234567890");
-        assertThat(response.getInsuranceTypeName()).isEqualTo("Vehicle");
+	// ---------------------------------------------------------------
+	// 3. findById — existing id
+	// ---------------------------------------------------------------
+	@Test
+	void findById_whenExists_returnsEstimationResponse() {
+		// Arrange
+		Estimation entity = createSampleEntity();
+		when(estimationRepository.findById(testId)).thenReturn(Optional.of(entity));
+		when(customerServiceClient.getCustomerName(customerId)).thenReturn("Ahmet Yılmaz");
+		when(customerServiceClient.getCustomerNationalId(customerId)).thenReturn("12345678901");
+		when(vehicleServiceClient.getVehicleInfo(vehicleId))
+			.thenReturn(Map.of("plate", "34ABC123", "chassisNumber", "WDB1234567890"));
+		when(insuranceServiceClient.getInsurance(insuranceId))
+			.thenReturn(new InsuranceServiceClient.InsuranceInfo(insuranceId, "Trafik Sigortası", 1, "Vehicle"));
 
-        verify(estimationRepository).findById(testId);
-        verify(customerServiceClient).getCustomerName(customerId);
-        verify(customerServiceClient).getCustomerNationalId(customerId);
-        verify(vehicleServiceClient).getVehicleInfo(vehicleId);
-    }
+		// Act
+		EstimationResponse response = estimationService.findById(testId);
 
-    // ---------------------------------------------------------------
-    // 4. findById — non-existing id
-    // ---------------------------------------------------------------
-    @Test
-    void findById_whenNotExists_throwsEntityNotFoundException() {
-        // Arrange
-        when(estimationRepository.findById(testId)).thenReturn(Optional.empty());
+		// Assert
+		assertThat(response).isNotNull();
+		assertThat(response.getId()).isEqualTo(testId);
+		assertThat(response.getStatus()).isEqualTo("STARTED");
+		assertThat(response.getCustomerId()).isEqualTo(customerId);
+		assertThat(response.getCustomerName()).isEqualTo("Ahmet Yılmaz");
+		assertThat(response.getCustomerNationalId()).isEqualTo("12345678901");
+		assertThat(response.getVehiclePlate()).isEqualTo("34ABC123");
+		assertThat(response.getVehicleChassisNumber()).isEqualTo("WDB1234567890");
+		assertThat(response.getInsuranceTypeName()).isEqualTo("Vehicle");
 
-        // Act & Assert
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
-                () -> estimationService.findById(testId));
-        assertThat(exception.getMessage()).contains("Estimation not found");
+		verify(estimationRepository).findById(testId);
+		verify(customerServiceClient).getCustomerName(customerId);
+		verify(customerServiceClient).getCustomerNationalId(customerId);
+		verify(vehicleServiceClient).getVehicleInfo(vehicleId);
+	}
 
-        verify(estimationRepository).findById(testId);
-    }
+	// ---------------------------------------------------------------
+	// 4. findById — non-existing id
+	// ---------------------------------------------------------------
+	@Test
+	void findById_whenNotExists_throwsEntityNotFoundException() {
+		// Arrange
+		when(estimationRepository.findById(testId)).thenReturn(Optional.empty());
 
-    // ---------------------------------------------------------------
-    // 5. findAll — no filters
-    // ---------------------------------------------------------------
-    @Test
-    void findAll_withNoFilters_returnsAllEstimations() {
-        // Arrange
-        Pageable pageable = PageRequest.of(0, 20);
-        Estimation entity = createSampleEntity();
-        Page<Estimation> entityPage = new PageImpl<>(List.of(entity));
+		// Act & Assert
+		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+				() -> estimationService.findById(testId));
+		assertThat(exception.getMessage()).contains("Estimation not found");
 
-        when(estimationRepository.findAll(pageable)).thenReturn(entityPage);
+		verify(estimationRepository).findById(testId);
+	}
 
-        // Act
-        Page<EstimationResponse> result = estimationService.findAll(null, null, pageable);
+	// ---------------------------------------------------------------
+	// 5. findAll — no filters
+	// ---------------------------------------------------------------
+	@Test
+	void findAll_withNoFilters_returnsAllEstimations() {
+		// Arrange
+		Pageable pageable = PageRequest.of(0, 20);
+		Estimation entity = createSampleEntity();
+		Page<Estimation> entityPage = new PageImpl<>(List.of(entity));
 
-        // Assert
-        assertThat(result).isNotEmpty();
-        assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getContent().getFirst().getId()).isEqualTo(testId);
+		when(estimationRepository.findAll(pageable)).thenReturn(entityPage);
 
-        verify(estimationRepository).findAll(pageable);
-        verify(estimationRepository, never()).findByCustomerId(any(UUID.class), any(Pageable.class));
-        verify(estimationRepository, never()).findByStatus(any(Estimation.Status.class), any(Pageable.class));
-    }
+		// Act
+		Page<EstimationResponse> result = estimationService.findAll(null, null, pageable);
 
-    // ---------------------------------------------------------------
-    // 6. findAll — with customerId filter
-    // ---------------------------------------------------------------
-    @Test
-    void findAll_withCustomerId_returnsFilteredResults() {
-        // Arrange
-        Pageable pageable = PageRequest.of(0, 20);
-        Estimation entity = createSampleEntity();
-        Page<Estimation> entityPage = new PageImpl<>(List.of(entity));
+		// Assert
+		assertThat(result).isNotEmpty();
+		assertThat(result.getContent()).hasSize(1);
+		assertThat(result.getContent().getFirst().getId()).isEqualTo(testId);
 
-        when(estimationRepository.findByCustomerId(customerId, pageable)).thenReturn(entityPage);
+		verify(estimationRepository).findAll(pageable);
+		verify(estimationRepository, never()).findByCustomerId(any(UUID.class), any(Pageable.class));
+		verify(estimationRepository, never()).findByStatus(any(Estimation.Status.class), any(Pageable.class));
+	}
 
-        // Act
-        Page<EstimationResponse> result = estimationService.findAll(customerId, null, pageable);
+	// ---------------------------------------------------------------
+	// 6. findAll — with customerId filter
+	// ---------------------------------------------------------------
+	@Test
+	void findAll_withCustomerId_returnsFilteredResults() {
+		// Arrange
+		Pageable pageable = PageRequest.of(0, 20);
+		Estimation entity = createSampleEntity();
+		Page<Estimation> entityPage = new PageImpl<>(List.of(entity));
 
-        // Assert
-        assertThat(result).isNotEmpty();
-        assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getContent().getFirst().getCustomerId()).isEqualTo(customerId);
+		when(estimationRepository.findByCustomerId(customerId, pageable)).thenReturn(entityPage);
 
-        verify(estimationRepository).findByCustomerId(customerId, pageable);
-        verify(estimationRepository, never()).findAll(any(Pageable.class));
-        verify(estimationRepository, never()).findByStatus(any(Estimation.Status.class), any(Pageable.class));
-    }
+		// Act
+		Page<EstimationResponse> result = estimationService.findAll(customerId, null, pageable);
 
-    // ---------------------------------------------------------------
-    // 7. findAll — with status filter
-    // ---------------------------------------------------------------
-    @Test
-    void findAll_withStatus_returnsFilteredResults() {
-        // Arrange
-        Pageable pageable = PageRequest.of(0, 20);
-        Estimation entity = createSampleEntity();
-        Page<Estimation> entityPage = new PageImpl<>(List.of(entity));
+		// Assert
+		assertThat(result).isNotEmpty();
+		assertThat(result.getContent()).hasSize(1);
+		assertThat(result.getContent().getFirst().getCustomerId()).isEqualTo(customerId);
 
-        when(estimationRepository.findByStatus(Estimation.Status.STARTED, pageable)).thenReturn(entityPage);
+		verify(estimationRepository).findByCustomerId(customerId, pageable);
+		verify(estimationRepository, never()).findAll(any(Pageable.class));
+		verify(estimationRepository, never()).findByStatus(any(Estimation.Status.class), any(Pageable.class));
+	}
 
-        // Act
-        Page<EstimationResponse> result = estimationService.findAll(null, "STARTED", pageable);
+	// ---------------------------------------------------------------
+	// 7. findAll — with status filter
+	// ---------------------------------------------------------------
+	@Test
+	void findAll_withStatus_returnsFilteredResults() {
+		// Arrange
+		Pageable pageable = PageRequest.of(0, 20);
+		Estimation entity = createSampleEntity();
+		Page<Estimation> entityPage = new PageImpl<>(List.of(entity));
 
-        // Assert
-        assertThat(result).isNotEmpty();
-        assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getContent().getFirst().getStatus()).isEqualTo("STARTED");
+		when(estimationRepository.findByStatus(Estimation.Status.STARTED, pageable)).thenReturn(entityPage);
 
-        verify(estimationRepository).findByStatus(Estimation.Status.STARTED, pageable);
-        verify(estimationRepository, never()).findAll(any(Pageable.class));
-        verify(estimationRepository, never()).findByCustomerId(any(UUID.class), any(Pageable.class));
-    }
+		// Act
+		Page<EstimationResponse> result = estimationService.findAll(null, "STARTED", pageable);
 
-    // ---------------------------------------------------------------
-    // 8. findAll — with invalid status → throws IllegalArgumentException
-    // ---------------------------------------------------------------
-    @Test
-    void findAll_withInvalidStatus_throwsIllegalArgumentException() {
-        Pageable pageable = PageRequest.of(0, 20);
+		// Assert
+		assertThat(result).isNotEmpty();
+		assertThat(result.getContent()).hasSize(1);
+		assertThat(result.getContent().getFirst().getStatus()).isEqualTo("STARTED");
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> estimationService.findAll(null, "INVALID", pageable));
-        assertThat(exception.getMessage()).contains("Invalid status");
-        assertThat(exception.getMessage()).contains("INVALID");
+		verify(estimationRepository).findByStatus(Estimation.Status.STARTED, pageable);
+		verify(estimationRepository, never()).findAll(any(Pageable.class));
+		verify(estimationRepository, never()).findByCustomerId(any(UUID.class), any(Pageable.class));
+	}
 
-        verify(estimationRepository, never()).findAll(any(Pageable.class));
-        verify(estimationRepository, never()).findByStatus(any(Estimation.Status.class), any(Pageable.class));
-    }
+	// ---------------------------------------------------------------
+	// 8. findAll — with invalid status → throws IllegalArgumentException
+	// ---------------------------------------------------------------
+	@Test
+	void findAll_withInvalidStatus_throwsIllegalArgumentException() {
+		Pageable pageable = PageRequest.of(0, 20);
 
-    // ---------------------------------------------------------------
-    // 9. findAll — with customerId + invalid status
-    // ---------------------------------------------------------------
-    @Test
-    void findAll_withCustomerIdAndInvalidStatus_throwsIllegalArgumentException() {
-        Pageable pageable = PageRequest.of(0, 20);
-        UUID customerId = UUID.randomUUID();
+		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+				() -> estimationService.findAll(null, "INVALID", pageable));
+		assertThat(exception.getMessage()).contains("Invalid status");
+		assertThat(exception.getMessage()).contains("INVALID");
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> estimationService.findAll(customerId, "INVALID", pageable));
-        assertThat(exception.getMessage()).contains("Invalid status");
+		verify(estimationRepository, never()).findAll(any(Pageable.class));
+		verify(estimationRepository, never()).findByStatus(any(Estimation.Status.class), any(Pageable.class));
+	}
 
-        verify(estimationRepository, never()).findByCustomerIdAndStatus(any(), any(), any(Pageable.class));
-    }
+	// ---------------------------------------------------------------
+	// 9. findAll — with customerId + invalid status
+	// ---------------------------------------------------------------
+	@Test
+	void findAll_withCustomerIdAndInvalidStatus_throwsIllegalArgumentException() {
+		Pageable pageable = PageRequest.of(0, 20);
+		UUID customerId = UUID.randomUUID();
+
+		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+				() -> estimationService.findAll(customerId, "INVALID", pageable));
+		assertThat(exception.getMessage()).contains("Invalid status");
+
+		verify(estimationRepository, never()).findByCustomerIdAndStatus(any(), any(), any(Pageable.class));
+	}
+
 }

@@ -10,11 +10,13 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RiskFactorUpdateRequest {
-    @NotBlank
-    private String factorName;
 
-    @NotNull
-    @DecimalMin("0.00")
-    @DecimalMax("1.00")
-    private BigDecimal factorValue;
+	@NotBlank
+	private String factorName;
+
+	@NotNull
+	@DecimalMin("0.00")
+	@DecimalMax("1.00")
+	private BigDecimal factorValue;
+
 }

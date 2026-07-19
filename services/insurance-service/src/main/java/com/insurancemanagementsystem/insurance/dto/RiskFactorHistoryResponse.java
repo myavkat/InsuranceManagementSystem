@@ -15,23 +15,31 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RiskFactorHistoryResponse {
-    private UUID id;
-    private UUID riskFactorId;
-    private UUID insuranceId;
-    private String factorName;
-    private BigDecimal oldValue;
-    private BigDecimal newValue;
-    private Instant changedAt;
 
-    public static RiskFactorHistoryResponse fromEntity(RiskFactorHistory entity) {
-        return RiskFactorHistoryResponse.builder()
-                .id(entity.getId())
-                .riskFactorId(entity.getRiskFactorId())
-                .insuranceId(entity.getInsuranceId())
-                .factorName(entity.getFactorName())
-                .oldValue(entity.getOldValue())
-                .newValue(entity.getNewValue())
-                .changedAt(entity.getChangedAt())
-                .build();
-    }
+	private UUID id;
+
+	private UUID riskFactorId;
+
+	private UUID insuranceId;
+
+	private String factorName;
+
+	private BigDecimal oldValue;
+
+	private BigDecimal newValue;
+
+	private Instant changedAt;
+
+	public static RiskFactorHistoryResponse fromEntity(RiskFactorHistory entity) {
+		return RiskFactorHistoryResponse.builder()
+			.id(entity.getId())
+			.riskFactorId(entity.getRiskFactorId())
+			.insuranceId(entity.getInsuranceId())
+			.factorName(entity.getFactorName())
+			.oldValue(entity.getOldValue())
+			.newValue(entity.getNewValue())
+			.changedAt(entity.getChangedAt())
+			.build();
+	}
+
 }

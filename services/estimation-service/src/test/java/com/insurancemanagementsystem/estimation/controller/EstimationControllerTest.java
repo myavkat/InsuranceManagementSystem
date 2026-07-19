@@ -33,210 +33,260 @@ import static org.mockito.Mockito.verify;
 @Import(GlobalExceptionHandler.class)
 class EstimationControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+	@Autowired
+	private MockMvc mockMvc;
 
-    private RestTestClient restTestClient;
+	private RestTestClient restTestClient;
 
-    @MockitoBean
-    private EstimationService estimationService;
+	@MockitoBean
+	private EstimationService estimationService;
 
-    private final UUID testId = UUID.randomUUID();
-    private final UUID customerId = UUID.randomUUID();
-    private final UUID vehicleId = UUID.randomUUID();
-    private final UUID insuranceId = UUID.randomUUID();
+	private final UUID testId = UUID.randomUUID();
 
-    @BeforeEach
-    void setUp() {
-        restTestClient = RestTestClient.bindTo(mockMvc).build();
-    }
+	private final UUID customerId = UUID.randomUUID();
 
-    private EstimationResponse createSampleResponse() {
-        return EstimationResponse.builder()
-                .id(testId)
-                .sagaId(UUID.randomUUID())
-                .customerId(customerId)
-                .vehicleId(vehicleId)
-                .insuranceId(insuranceId)
-                .status("STARTED")
-                .createdAt(Instant.now())
-                .updatedAt(Instant.now())
-                .build();
-    }
+	private final UUID vehicleId = UUID.randomUUID();
 
-    // ---------------------------------------------------------------
-    // 1. POST /api/estimations — valid request → 201 CREATED
-    // ---------------------------------------------------------------
-    @Test
-    void create_WithValidRequest_Returns201() {
-        EstimationRequest request = new EstimationRequest();
-        request.setCustomerId(customerId);
-        request.setVehicleId(vehicleId);
-        request.setInsuranceId(insuranceId);
+	private final UUID insuranceId = UUID.randomUUID();
 
-        EstimationResponse response = createSampleResponse();
-        given(estimationService.create(any(EstimationRequest.class))).willReturn(response);
+	@BeforeEach
+	void setUp() {
+		restTestClient = RestTestClient.bindTo(mockMvc).build();
+	}
 
-        restTestClient.post().uri("/api/estimations")
-                .body(request)
-                .exchange()
-                .expectStatus().isCreated()
-                .expectBody()
-                .jsonPath("$.success").isEqualTo(true)
-                .jsonPath("$.message").isEqualTo("Estimation created successfully")
-                .jsonPath("$.data.id").isEqualTo(testId.toString())
-                .jsonPath("$.data.status").isEqualTo("STARTED");
+	private EstimationResponse createSampleResponse() {
+		return EstimationResponse.builder()
+			.id(testId)
+			.sagaId(UUID.randomUUID())
+			.customerId(customerId)
+			.vehicleId(vehicleId)
+			.insuranceId(insuranceId)
+			.status("STARTED")
+			.createdAt(Instant.now())
+			.updatedAt(Instant.now())
+			.build();
+	}
 
-        verify(estimationService).create(any(EstimationRequest.class));
-    }
+	// ---------------------------------------------------------------
+	// 1. POST /api/estimations — valid request → 201 CREATED
+	// ---------------------------------------------------------------
+	@Test
+	void create_WithValidRequest_Returns201() {
+		EstimationRequest request = new EstimationRequest();
+		request.setCustomerId(customerId);
+		request.setVehicleId(vehicleId);
+		request.setInsuranceId(insuranceId);
 
-    // ---------------------------------------------------------------
-    // 2. POST /api/estimations — missing customerId → 400 BAD_REQUEST
-    // ---------------------------------------------------------------
-    @Test
-    void create_WithMissingCustomerId_Returns400() {
-        restTestClient.post().uri("/api/estimations")
-                .body(new EstimationRequest())
-                .exchange()
-                .expectStatus().isBadRequest()
-                .expectBody()
-                .jsonPath("$.success").isEqualTo(false)
-                .jsonPath("$.message").isNotEmpty();
+		EstimationResponse response = createSampleResponse();
+		given(estimationService.create(any(EstimationRequest.class))).willReturn(response);
 
-        verify(estimationService, never()).create(any(EstimationRequest.class));
-    }
+		restTestClient.post()
+			.uri("/api/estimations")
+			.body(request)
+			.exchange()
+			.expectStatus()
+			.isCreated()
+			.expectBody()
+			.jsonPath("$.success")
+			.isEqualTo(true)
+			.jsonPath("$.message")
+			.isEqualTo("Estimation created successfully")
+			.jsonPath("$.data.id")
+			.isEqualTo(testId.toString())
+			.jsonPath("$.data.status")
+			.isEqualTo("STARTED");
 
-    // ---------------------------------------------------------------
-    // 3. POST /api/estimations — both vehicleId and realEstateId null → 400
-    // ---------------------------------------------------------------
-    @Test
-    void create_WithBothVehicleAndRealEstateNull_Returns400() {
-        EstimationRequest request = new EstimationRequest();
-        request.setCustomerId(customerId);
-        request.setInsuranceId(insuranceId);
+		verify(estimationService).create(any(EstimationRequest.class));
+	}
 
-        given(estimationService.create(any(EstimationRequest.class)))
-                .willThrow(new IllegalArgumentException("Either vehicleId or realEstateId must be provided"));
+	// ---------------------------------------------------------------
+	// 2. POST /api/estimations — missing customerId → 400 BAD_REQUEST
+	// ---------------------------------------------------------------
+	@Test
+	void create_WithMissingCustomerId_Returns400() {
+		restTestClient.post()
+			.uri("/api/estimations")
+			.body(new EstimationRequest())
+			.exchange()
+			.expectStatus()
+			.isBadRequest()
+			.expectBody()
+			.jsonPath("$.success")
+			.isEqualTo(false)
+			.jsonPath("$.message")
+			.isNotEmpty();
 
-        restTestClient.post().uri("/api/estimations")
-                .body(request)
-                .exchange()
-                .expectStatus().isBadRequest()
-                .expectBody()
-                .jsonPath("$.success").isEqualTo(false)
-                .jsonPath("$.message").isEqualTo("Either vehicleId or realEstateId must be provided");
+		verify(estimationService, never()).create(any(EstimationRequest.class));
+	}
 
-        verify(estimationService).create(any(EstimationRequest.class));
-    }
+	// ---------------------------------------------------------------
+	// 3. POST /api/estimations — both vehicleId and realEstateId null → 400
+	// ---------------------------------------------------------------
+	@Test
+	void create_WithBothVehicleAndRealEstateNull_Returns400() {
+		EstimationRequest request = new EstimationRequest();
+		request.setCustomerId(customerId);
+		request.setInsuranceId(insuranceId);
 
-    // ---------------------------------------------------------------
-    // 4. GET /api/estimations/{id} — existing id → 200 OK
-    // ---------------------------------------------------------------
-    @Test
-    void getById_WhenExists_Returns200() {
-        EstimationResponse response = createSampleResponse();
-        given(estimationService.findById(testId)).willReturn(response);
+		given(estimationService.create(any(EstimationRequest.class)))
+			.willThrow(new IllegalArgumentException("Either vehicleId or realEstateId must be provided"));
 
-        restTestClient.get().uri("/api/estimations/{id}", testId)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.success").isEqualTo(true)
-                .jsonPath("$.data.id").isEqualTo(testId.toString())
-                .jsonPath("$.data.status").isEqualTo("STARTED");
+		restTestClient.post()
+			.uri("/api/estimations")
+			.body(request)
+			.exchange()
+			.expectStatus()
+			.isBadRequest()
+			.expectBody()
+			.jsonPath("$.success")
+			.isEqualTo(false)
+			.jsonPath("$.message")
+			.isEqualTo("Either vehicleId or realEstateId must be provided");
 
-        verify(estimationService).findById(testId);
-    }
+		verify(estimationService).create(any(EstimationRequest.class));
+	}
 
-    // ---------------------------------------------------------------
-    // 5. GET /api/estimations/{id} — non-existing id → 404 NOT_FOUND
-    // ---------------------------------------------------------------
-    @Test
-    void getById_WhenNotExists_Returns404() {
-        given(estimationService.findById(testId))
-                .willThrow(new EntityNotFoundException("Estimation not found with id: " + testId));
+	// ---------------------------------------------------------------
+	// 4. GET /api/estimations/{id} — existing id → 200 OK
+	// ---------------------------------------------------------------
+	@Test
+	void getById_WhenExists_Returns200() {
+		EstimationResponse response = createSampleResponse();
+		given(estimationService.findById(testId)).willReturn(response);
 
-        restTestClient.get().uri("/api/estimations/{id}", testId)
-                .exchange()
-                .expectStatus().isNotFound()
-                .expectBody()
-                .jsonPath("$.success").isEqualTo(false)
-                .jsonPath("$.message").isEqualTo("Estimation not found with id: " + testId);
+		restTestClient.get()
+			.uri("/api/estimations/{id}", testId)
+			.exchange()
+			.expectStatus()
+			.isOk()
+			.expectBody()
+			.jsonPath("$.success")
+			.isEqualTo(true)
+			.jsonPath("$.data.id")
+			.isEqualTo(testId.toString())
+			.jsonPath("$.data.status")
+			.isEqualTo("STARTED");
 
-        verify(estimationService).findById(testId);
-    }
+		verify(estimationService).findById(testId);
+	}
 
-    // ---------------------------------------------------------------
-    // 6. GET /api/estimations — no filters → 200 OK + paginated list
-    // ---------------------------------------------------------------
-    @Test
-    void getAll_WithNoFilters_ReturnsPaginatedList() {
-        Page<EstimationResponse> page = new PageImpl<>(List.of(createSampleResponse()));
-        given(estimationService.findAll(nullable(UUID.class), nullable(String.class), any(Pageable.class))).willReturn(page);
+	// ---------------------------------------------------------------
+	// 5. GET /api/estimations/{id} — non-existing id → 404 NOT_FOUND
+	// ---------------------------------------------------------------
+	@Test
+	void getById_WhenNotExists_Returns404() {
+		given(estimationService.findById(testId))
+			.willThrow(new EntityNotFoundException("Estimation not found with id: " + testId));
 
-        restTestClient.get().uri("/api/estimations")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.success").isEqualTo(true)
-                .jsonPath("$.data.content").isArray()
-                .jsonPath("$.data.content[0].id").isEqualTo(testId.toString())
-                .jsonPath("$.data.content[0].status").isEqualTo("STARTED");
+		restTestClient.get()
+			.uri("/api/estimations/{id}", testId)
+			.exchange()
+			.expectStatus()
+			.isNotFound()
+			.expectBody()
+			.jsonPath("$.success")
+			.isEqualTo(false)
+			.jsonPath("$.message")
+			.isEqualTo("Estimation not found with id: " + testId);
 
-        verify(estimationService).findAll(isNull(UUID.class), isNull(String.class), any(Pageable.class));
-    }
+		verify(estimationService).findById(testId);
+	}
 
-    // ---------------------------------------------------------------
-    // 7. GET /api/estimations?customerId=... → 200 OK + filtered list
-    // ---------------------------------------------------------------
-    @Test
-    void getAll_WithCustomerIdFilter_ReturnsFilteredList() {
-        Page<EstimationResponse> page = new PageImpl<>(List.of(createSampleResponse()));
-        given(estimationService.findAll(eq(customerId), nullable(String.class), any(Pageable.class))).willReturn(page);
+	// ---------------------------------------------------------------
+	// 6. GET /api/estimations — no filters → 200 OK + paginated list
+	// ---------------------------------------------------------------
+	@Test
+	void getAll_WithNoFilters_ReturnsPaginatedList() {
+		Page<EstimationResponse> page = new PageImpl<>(List.of(createSampleResponse()));
+		given(estimationService.findAll(nullable(UUID.class), nullable(String.class), any(Pageable.class)))
+			.willReturn(page);
 
-        restTestClient.get().uri("/api/estimations?customerId={customerId}", customerId)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.success").isEqualTo(true)
-                .jsonPath("$.data.content").isArray()
-                .jsonPath("$.data.content[0].id").isEqualTo(testId.toString());
+		restTestClient.get()
+			.uri("/api/estimations")
+			.exchange()
+			.expectStatus()
+			.isOk()
+			.expectBody()
+			.jsonPath("$.success")
+			.isEqualTo(true)
+			.jsonPath("$.data.content")
+			.isArray()
+			.jsonPath("$.data.content[0].id")
+			.isEqualTo(testId.toString())
+			.jsonPath("$.data.content[0].status")
+			.isEqualTo("STARTED");
 
-        verify(estimationService).findAll(eq(customerId), isNull(String.class), any(Pageable.class));
-    }
+		verify(estimationService).findAll(isNull(UUID.class), isNull(String.class), any(Pageable.class));
+	}
 
-    // ---------------------------------------------------------------
-    // 8. GET /api/estimations?status=STARTED → 200 OK + filtered list
-    // ---------------------------------------------------------------
-    @Test
-    void getAll_WithStatusFilter_ReturnsFilteredList() {
-        Page<EstimationResponse> page = new PageImpl<>(List.of(createSampleResponse()));
-        given(estimationService.findAll(nullable(UUID.class), eq("STARTED"), any(Pageable.class))).willReturn(page);
+	// ---------------------------------------------------------------
+	// 7. GET /api/estimations?customerId=... → 200 OK + filtered list
+	// ---------------------------------------------------------------
+	@Test
+	void getAll_WithCustomerIdFilter_ReturnsFilteredList() {
+		Page<EstimationResponse> page = new PageImpl<>(List.of(createSampleResponse()));
+		given(estimationService.findAll(eq(customerId), nullable(String.class), any(Pageable.class))).willReturn(page);
 
-        restTestClient.get().uri("/api/estimations?status=STARTED")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.success").isEqualTo(true)
-                .jsonPath("$.data.content").isArray()
-                .jsonPath("$.data.content[0].id").isEqualTo(testId.toString());
+		restTestClient.get()
+			.uri("/api/estimations?customerId={customerId}", customerId)
+			.exchange()
+			.expectStatus()
+			.isOk()
+			.expectBody()
+			.jsonPath("$.success")
+			.isEqualTo(true)
+			.jsonPath("$.data.content")
+			.isArray()
+			.jsonPath("$.data.content[0].id")
+			.isEqualTo(testId.toString());
 
-        verify(estimationService).findAll(isNull(UUID.class), eq("STARTED"), any(Pageable.class));
-    }
+		verify(estimationService).findAll(eq(customerId), isNull(String.class), any(Pageable.class));
+	}
 
-    // ---------------------------------------------------------------
-    // 9. GET /api/estimations?status=INVALID → 400 BAD_REQUEST
-    // ---------------------------------------------------------------
-    @Test
-    void getAll_WithInvalidStatus_Returns400() {
-        given(estimationService.findAll(nullable(UUID.class), eq("INVALID"), any(Pageable.class)))
-                .willThrow(new IllegalArgumentException("Invalid status: 'INVALID'. Valid values: STARTED, WAITING_APPROVAL, PAYMENT_WAITING, ACTIVE, COMPLETED, REJECTED"));
+	// ---------------------------------------------------------------
+	// 8. GET /api/estimations?status=STARTED → 200 OK + filtered list
+	// ---------------------------------------------------------------
+	@Test
+	void getAll_WithStatusFilter_ReturnsFilteredList() {
+		Page<EstimationResponse> page = new PageImpl<>(List.of(createSampleResponse()));
+		given(estimationService.findAll(nullable(UUID.class), eq("STARTED"), any(Pageable.class))).willReturn(page);
 
-        restTestClient.get().uri("/api/estimations?status=INVALID")
-                .exchange()
-                .expectStatus().isBadRequest()
-                .expectBody()
-                .jsonPath("$.success").isEqualTo(false)
-                .jsonPath("$.message").isEqualTo("Invalid status: 'INVALID'. Valid values: STARTED, WAITING_APPROVAL, PAYMENT_WAITING, ACTIVE, COMPLETED, REJECTED");
-    }
+		restTestClient.get()
+			.uri("/api/estimations?status=STARTED")
+			.exchange()
+			.expectStatus()
+			.isOk()
+			.expectBody()
+			.jsonPath("$.success")
+			.isEqualTo(true)
+			.jsonPath("$.data.content")
+			.isArray()
+			.jsonPath("$.data.content[0].id")
+			.isEqualTo(testId.toString());
+
+		verify(estimationService).findAll(isNull(UUID.class), eq("STARTED"), any(Pageable.class));
+	}
+
+	// ---------------------------------------------------------------
+	// 9. GET /api/estimations?status=INVALID → 400 BAD_REQUEST
+	// ---------------------------------------------------------------
+	@Test
+	void getAll_WithInvalidStatus_Returns400() {
+		given(estimationService.findAll(nullable(UUID.class), eq("INVALID"), any(Pageable.class)))
+			.willThrow(new IllegalArgumentException(
+					"Invalid status: 'INVALID'. Valid values: STARTED, WAITING_APPROVAL, PAYMENT_WAITING, ACTIVE, COMPLETED, REJECTED"));
+
+		restTestClient.get()
+			.uri("/api/estimations?status=INVALID")
+			.exchange()
+			.expectStatus()
+			.isBadRequest()
+			.expectBody()
+			.jsonPath("$.success")
+			.isEqualTo(false)
+			.jsonPath("$.message")
+			.isEqualTo(
+					"Invalid status: 'INVALID'. Valid values: STARTED, WAITING_APPROVAL, PAYMENT_WAITING, ACTIVE, COMPLETED, REJECTED");
+	}
+
 }

@@ -29,64 +29,67 @@ import java.util.UUID;
 @Table(name = "estimations")
 public class Estimation {
 
-    public enum Status {
-        STARTED, WAITING_APPROVAL, PAYMENT_WAITING, ACTIVE, COMPLETED, REJECTED
-    }
+	public enum Status {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+		STARTED, WAITING_APPROVAL, PAYMENT_WAITING, ACTIVE, COMPLETED, REJECTED
 
-    @Column(name = "saga_id", unique = true, nullable = false)
-    private UUID sagaId;
+	}
 
-    @Column(name = "customer_id")
-    private UUID customerId;
+	@Id
+	@GeneratedValue(strategy = GenerationType.UUID)
+	private UUID id;
 
-    @Column(name = "vehicle_id")
-    private UUID vehicleId;
+	@Column(name = "saga_id", unique = true, nullable = false)
+	private UUID sagaId;
 
-    @Column(name = "real_estate_id")
-    private UUID realEstateId;
+	@Column(name = "customer_id")
+	private UUID customerId;
 
-    @Column(name = "insurance_id")
-    private UUID insuranceId;
+	@Column(name = "vehicle_id")
+	private UUID vehicleId;
 
-    @Column(name = "trace_id")
-    private UUID traceId;
+	@Column(name = "real_estate_id")
+	private UUID realEstateId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", length = 20, nullable = false)
-    private Status status;
+	@Column(name = "insurance_id")
+	private UUID insuranceId;
 
-    @Column(name = "premium", precision = 12, scale = 2)
-    private BigDecimal premium;
+	@Column(name = "trace_id")
+	private UUID traceId;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "details")
-    private String details;
+	@Enumerated(EnumType.STRING)
+	@Column(name = "status", length = 20, nullable = false)
+	private Status status;
 
-    @Column(name = "start_date")
-    private Instant startDate;
+	@Column(name = "premium", precision = 12, scale = 2)
+	private BigDecimal premium;
 
-    @Column(name = "end_date")
-    private Instant endDate;
+	@JdbcTypeCode(SqlTypes.JSON)
+	@Column(name = "details")
+	private String details;
 
-    @Column(name = "created_at", updatable = false)
-    private Instant createdAt;
+	@Column(name = "start_date")
+	private Instant startDate;
 
-    @Column(name = "updated_at")
-    private Instant updatedAt;
+	@Column(name = "end_date")
+	private Instant endDate;
 
-    @PrePersist
-    protected void onCreate() {
-        Instant now = Instant.now();
-        this.createdAt = now;
-        this.updatedAt = now;
-    }
+	@Column(name = "created_at", updatable = false)
+	private Instant createdAt;
 
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = Instant.now();
-    }
+	@Column(name = "updated_at")
+	private Instant updatedAt;
+
+	@PrePersist
+	protected void onCreate() {
+		Instant now = Instant.now();
+		this.createdAt = now;
+		this.updatedAt = now;
+	}
+
+	@PreUpdate
+	protected void onUpdate() {
+		this.updatedAt = Instant.now();
+	}
+
 }

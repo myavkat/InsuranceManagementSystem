@@ -18,40 +18,41 @@ import java.util.UUID;
 @Slf4j
 public class InsuranceEventPublisher {
 
-    private final MessagePublisher messagePublisher;
+	private final MessagePublisher messagePublisher;
 
-    public void publishInsuranceCreated(Insurance insurance) {
-        InsuranceCreatedEvent event = InsuranceCreatedEvent.builder()
-                .insuranceId(insurance.getId())
-                .typeId(insurance.getTypeId())
-                .name(insurance.getName())
-                .build();
+	public void publishInsuranceCreated(Insurance insurance) {
+		InsuranceCreatedEvent event = InsuranceCreatedEvent.builder()
+			.insuranceId(insurance.getId())
+			.typeId(insurance.getTypeId())
+			.name(insurance.getName())
+			.build();
 
-        EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
-        messagePublisher.publish(EventConstants.INSURANCE_EVENTS, envelope);
-        log.info("Published InsuranceCreated event for insurance id: {}", insurance.getId());
-    }
+		EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
+		messagePublisher.publish(EventConstants.INSURANCE_EVENTS, envelope);
+		log.info("Published InsuranceCreated event for insurance id: {}", insurance.getId());
+	}
 
-    public void publishInsuranceUpdated(Insurance insurance) {
-        InsuranceUpdatedEvent event = InsuranceUpdatedEvent.builder()
-                .insuranceId(insurance.getId())
-                .typeId(insurance.getTypeId())
-                .name(insurance.getName())
-                .build();
+	public void publishInsuranceUpdated(Insurance insurance) {
+		InsuranceUpdatedEvent event = InsuranceUpdatedEvent.builder()
+			.insuranceId(insurance.getId())
+			.typeId(insurance.getTypeId())
+			.name(insurance.getName())
+			.build();
 
-        EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
-        messagePublisher.publish(EventConstants.INSURANCE_EVENTS, envelope);
-        log.info("Published InsuranceUpdated event for insurance id: {}", insurance.getId());
-    }
+		EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
+		messagePublisher.publish(EventConstants.INSURANCE_EVENTS, envelope);
+		log.info("Published InsuranceUpdated event for insurance id: {}", insurance.getId());
+	}
 
-    public void publishInsuranceDeleted(Insurance insurance) {
-        InsuranceDeletedEvent event = InsuranceDeletedEvent.builder()
-                .insuranceId(insurance.getId())
-                .typeId(insurance.getTypeId())
-                .build();
+	public void publishInsuranceDeleted(Insurance insurance) {
+		InsuranceDeletedEvent event = InsuranceDeletedEvent.builder()
+			.insuranceId(insurance.getId())
+			.typeId(insurance.getTypeId())
+			.build();
 
-        EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
-        messagePublisher.publish(EventConstants.INSURANCE_EVENTS, envelope);
-        log.info("Published InsuranceDeleted event for insurance id: {}", insurance.getId());
-    }
+		EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
+		messagePublisher.publish(EventConstants.INSURANCE_EVENTS, envelope);
+		log.info("Published InsuranceDeleted event for insurance id: {}", insurance.getId());
+	}
+
 }

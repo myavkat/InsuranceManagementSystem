@@ -8,5 +8,7 @@ import java.util.List;
 
 @Repository
 public interface CityRepository extends JpaRepository<City, Integer> {
-    List<City> findAllByOrderByNameAsc();
+
+	List<City> findAllByOrderByNameAsc();
+
 }

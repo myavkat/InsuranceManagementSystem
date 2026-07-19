@@ -15,20 +15,21 @@ import java.util.UUID;
 @Slf4j
 public class ReferenceDataEventPublisher {
 
-    private final MessagePublisher messagePublisher;
+	private final MessagePublisher messagePublisher;
 
-    /**
-     * Publish a ReferenceDataChangedEvent to reference-data.events topic.
-     * Called after any reference data mutation (admin endpoints, DB migrations, etc.).
-     */
-    public void publishReferenceDataChanged(String entityType, String changeType) {
-        ReferenceDataChangedEvent event = ReferenceDataChangedEvent.builder()
-                .entityType(entityType)
-                .changeType(changeType)
-                .build();
+	/**
+	 * Publish a ReferenceDataChangedEvent to reference-data.events topic. Called after
+	 * any reference data mutation (admin endpoints, DB migrations, etc.).
+	 */
+	public void publishReferenceDataChanged(String entityType, String changeType) {
+		ReferenceDataChangedEvent event = ReferenceDataChangedEvent.builder()
+			.entityType(entityType)
+			.changeType(changeType)
+			.build();
 
-        EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
-        messagePublisher.publish(EventConstants.REFERENCE_DATA_EVENTS, envelope);
-        log.info("Published ReferenceDataChanged event: entityType={}, changeType={}", entityType, changeType);
-    }
+		EventEnvelope envelope = event.toEnvelope(null, UUID.randomUUID());
+		messagePublisher.publish(EventConstants.REFERENCE_DATA_EVENTS, envelope);
+		log.info("Published ReferenceDataChanged event: entityType={}, changeType={}", entityType, changeType);
+	}
+
 }

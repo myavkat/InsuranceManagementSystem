@@ -14,19 +14,20 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class InsuranceRequest {
 
-    @NotBlank(message = "Insurance name is required")
-    private String name;
+	@NotBlank(message = "Insurance name is required")
+	private String name;
 
-    private String code;    // optional — auto-generated from name if not set
+	private String code; // optional — auto-generated from name if not set
 
-    private String description;
+	private String description;
 
-    @NotNull(message = "Insurance type ID is required")
-    private Integer typeId;
+	@NotNull(message = "Insurance type ID is required")
+	private Integer typeId;
 
-    @NotNull(message = "Base premium is required")
-    @DecimalMin(value = "0.01", message = "Base premium must be positive")
-    private BigDecimal basePremium;
+	@NotNull(message = "Base premium is required")
+	@DecimalMin(value = "0.01", message = "Base premium must be positive")
+	private BigDecimal basePremium;
 
-    private Boolean isActive;
+	private Boolean isActive;
+
 }

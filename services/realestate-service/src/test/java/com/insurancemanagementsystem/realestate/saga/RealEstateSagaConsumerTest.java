@@ -37,217 +37,202 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
-@EmbeddedKafka(
-        topics = {"estimation.saga"},
-        partitions = 1,
-        controlledShutdown = true
-)
+@EmbeddedKafka(topics = { "estimation.saga" }, partitions = 1, controlledShutdown = true)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class RealEstateSagaConsumerTest {
 
-    @Container
-    static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:16-alpine")
-            .withDatabaseName("test_realestate_db")
-            .withUsername("test")
-            .withPassword("test");
+	@Container
+	static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:16-alpine")
+		.withDatabaseName("test_realestate_db")
+		.withUsername("test")
+		.withPassword("test");
 
-    @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgres::getJdbcUrl);
-        registry.add("spring.datasource.username", postgres::getUsername);
-        registry.add("spring.datasource.password", postgres::getPassword);
-        registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop");
-    }
+	@DynamicPropertySource
+	static void configureProperties(DynamicPropertyRegistry registry) {
+		registry.add("spring.datasource.url", postgres::getJdbcUrl);
+		registry.add("spring.datasource.username", postgres::getUsername);
+		registry.add("spring.datasource.password", postgres::getPassword);
+		registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop");
+	}
 
-    @Autowired
-    private RealEstateRepository realEstateRepository;
+	@Autowired
+	private RealEstateRepository realEstateRepository;
 
-    @Autowired
-    private KafkaTemplate<String, String> kafkaTemplate;
+	@Autowired
+	private KafkaTemplate<String, String> kafkaTemplate;
 
-    @MockitoBean
-    private OutboxEventRepository outboxEventRepository;
+	@MockitoBean
+	private OutboxEventRepository outboxEventRepository;
 
-    private final List<OutboxEvent> capturedOutboxEvents = new ArrayList<>();
+	private final List<OutboxEvent> capturedOutboxEvents = new ArrayList<>();
 
-    private static final ObjectMapper MAPPER = new JsonMapper();
+	private static final ObjectMapper MAPPER = new JsonMapper();
 
-    private UUID sagaId;
-    private UUID traceId;
+	private UUID sagaId;
 
-    @BeforeEach
-    void setUp() {
-        realEstateRepository.deleteAll();
-        capturedOutboxEvents.clear();
-        sagaId = UUID.randomUUID();
-        traceId = UUID.randomUUID();
+	private UUID traceId;
 
-        // Capture saved outbox events and assign an ID (as the real DB would)
-        doAnswer(invocation -> {
-            OutboxEvent event = invocation.getArgument(0);
-            if (event.getId() == null) {
-                event.setId(UUID.randomUUID());
-            }
-            capturedOutboxEvents.add(event);
-            return event;
-        }).when(outboxEventRepository).save(any(OutboxEvent.class));
+	@BeforeEach
+	void setUp() {
+		realEstateRepository.deleteAll();
+		capturedOutboxEvents.clear();
+		sagaId = UUID.randomUUID();
+		traceId = UUID.randomUUID();
 
-        // Ensure relay queries return empty lists so the OutboxRelay scheduled task is a no-op
-        when(outboxEventRepository.findTop10ByStatusOrderByCreatedAtAsc(any()))
-                .thenReturn(List.of());
-        when(outboxEventRepository.findByStatusAndCreatedAtBefore(any(), any()))
-                .thenReturn(List.of());
-    }
+		// Capture saved outbox events and assign an ID (as the real DB would)
+		doAnswer(invocation -> {
+			OutboxEvent event = invocation.getArgument(0);
+			if (event.getId() == null) {
+				event.setId(UUID.randomUUID());
+			}
+			capturedOutboxEvents.add(event);
+			return event;
+		}).when(outboxEventRepository).save(any(OutboxEvent.class));
 
-    // ---------------------------------------------------------------
-    // 1. Valid real estate → RealEstateValidated
-    // ---------------------------------------------------------------
-    @Test
-    void validRealEstate_ShouldSaveOutboxEventForRealEstateValidated() throws Exception {
-        // Arrange
-        RealEstate realEstate = realEstateRepository.save(RealEstate.builder()
-                .address("123 Main St")
-                .cityId(34)
-                .build());
+		// Ensure relay queries return empty lists so the OutboxRelay scheduled task is a
+		// no-op
+		when(outboxEventRepository.findTop10ByStatusOrderByCreatedAtAsc(any())).thenReturn(List.of());
+		when(outboxEventRepository.findByStatusAndCreatedAtBefore(any(), any())).thenReturn(List.of());
+	}
 
-        EstimationRequestedEvent sagaEvent = EstimationRequestedEvent.builder()
-                .realEstateId(realEstate.getId())
-                .build();
-        EventEnvelope envelope = sagaEvent.toEnvelope(sagaId, traceId);
-        String message = MAPPER.writeValueAsString(envelope);
+	// ---------------------------------------------------------------
+	// 1. Valid real estate → RealEstateValidated
+	// ---------------------------------------------------------------
+	@Test
+	void validRealEstate_ShouldSaveOutboxEventForRealEstateValidated() throws Exception {
+		// Arrange
+		RealEstate realEstate = realEstateRepository
+			.save(RealEstate.builder().address("123 Main St").cityId(34).build());
 
-        // Act — send Kafka message
-        kafkaTemplate.send("estimation.saga", message).get(10, TimeUnit.SECONDS);
+		EstimationRequestedEvent sagaEvent = EstimationRequestedEvent.builder()
+			.realEstateId(realEstate.getId())
+			.build();
+		EventEnvelope envelope = sagaEvent.toEnvelope(sagaId, traceId);
+		String message = MAPPER.writeValueAsString(envelope);
 
-        // Assert
-        verify(outboxEventRepository, timeout(15000).times(1))
-                .save(any(OutboxEvent.class));
+		// Act — send Kafka message
+		kafkaTemplate.send("estimation.saga", message).get(10, TimeUnit.SECONDS);
 
-        OutboxEvent saved = capturedOutboxEvents.get(0);
-        EventEnvelope published = MAPPER.readValue(saved.getPayload(), EventEnvelope.class);
-        assertThat(published.getEventType()).isEqualTo(EventConstants.REAL_ESTATE_VALIDATED);
-        assertThat(published.getSagaId()).isEqualTo(sagaId);
-        assertThat(published.getTraceId()).isEqualTo(traceId);
+		// Assert
+		verify(outboxEventRepository, timeout(15000).times(1)).save(any(OutboxEvent.class));
 
-        RealEstateValidatedEvent payload = MAPPER.convertValue(published.getPayload(), RealEstateValidatedEvent.class);
-        assertThat(payload.getRealEstateId()).isEqualTo(realEstate.getId());
-        assertThat(payload.getAddress()).isEqualTo("123 Main St");
-        assertThat(payload.getCityId()).isEqualTo(34);
-    }
+		OutboxEvent saved = capturedOutboxEvents.get(0);
+		EventEnvelope published = MAPPER.readValue(saved.getPayload(), EventEnvelope.class);
+		assertThat(published.getEventType()).isEqualTo(EventConstants.REAL_ESTATE_VALIDATED);
+		assertThat(published.getSagaId()).isEqualTo(sagaId);
+		assertThat(published.getTraceId()).isEqualTo(traceId);
 
-    // ---------------------------------------------------------------
-    // 2. Non-existent realEstateId → RealEstateInvalidated
-    // ---------------------------------------------------------------
-    @Test
-    void nonExistentRealEstateId_ShouldSaveOutboxEventForRealEstateInvalidated() throws Exception {
-        // Arrange
-        UUID nonExistentId = UUID.randomUUID();
-        EstimationRequestedEvent sagaEvent = EstimationRequestedEvent.builder()
-                .realEstateId(nonExistentId)
-                .build();
-        EventEnvelope envelope = sagaEvent.toEnvelope(sagaId, traceId);
-        String message = MAPPER.writeValueAsString(envelope);
+		RealEstateValidatedEvent payload = MAPPER.convertValue(published.getPayload(), RealEstateValidatedEvent.class);
+		assertThat(payload.getRealEstateId()).isEqualTo(realEstate.getId());
+		assertThat(payload.getAddress()).isEqualTo("123 Main St");
+		assertThat(payload.getCityId()).isEqualTo(34);
+	}
 
-        // Act — send Kafka message
-        kafkaTemplate.send("estimation.saga", message).get(10, TimeUnit.SECONDS);
+	// ---------------------------------------------------------------
+	// 2. Non-existent realEstateId → RealEstateInvalidated
+	// ---------------------------------------------------------------
+	@Test
+	void nonExistentRealEstateId_ShouldSaveOutboxEventForRealEstateInvalidated() throws Exception {
+		// Arrange
+		UUID nonExistentId = UUID.randomUUID();
+		EstimationRequestedEvent sagaEvent = EstimationRequestedEvent.builder().realEstateId(nonExistentId).build();
+		EventEnvelope envelope = sagaEvent.toEnvelope(sagaId, traceId);
+		String message = MAPPER.writeValueAsString(envelope);
 
-        // Assert
-        verify(outboxEventRepository, timeout(15000).times(1))
-                .save(any(OutboxEvent.class));
+		// Act — send Kafka message
+		kafkaTemplate.send("estimation.saga", message).get(10, TimeUnit.SECONDS);
 
-        OutboxEvent saved = capturedOutboxEvents.get(0);
-        EventEnvelope published = MAPPER.readValue(saved.getPayload(), EventEnvelope.class);
-        assertThat(published.getEventType()).isEqualTo(EventConstants.REAL_ESTATE_INVALIDATED);
-        assertThat(published.getSagaId()).isEqualTo(sagaId);
+		// Assert
+		verify(outboxEventRepository, timeout(15000).times(1)).save(any(OutboxEvent.class));
 
-        RealEstateInvalidatedEvent payload = MAPPER.convertValue(published.getPayload(), RealEstateInvalidatedEvent.class);
-        assertThat(payload.getRealEstateId()).isEqualTo(nonExistentId);
-        assertThat(payload.getReason()).containsIgnoringCase("not found");
-    }
+		OutboxEvent saved = capturedOutboxEvents.get(0);
+		EventEnvelope published = MAPPER.readValue(saved.getPayload(), EventEnvelope.class);
+		assertThat(published.getEventType()).isEqualTo(EventConstants.REAL_ESTATE_INVALIDATED);
+		assertThat(published.getSagaId()).isEqualTo(sagaId);
 
-    // ---------------------------------------------------------------
-    // 3. Null realEstateId → RealEstateValidated with null realEstateId
-    // ---------------------------------------------------------------
-    @Test
-    void nullRealEstateId_ShouldSaveOutboxEventForRealEstateValidatedWithNullId() throws Exception {
-        // Arrange
-        EstimationRequestedEvent sagaEvent = EstimationRequestedEvent.builder()
-                .realEstateId(null)
-                .build();
-        EventEnvelope envelope = sagaEvent.toEnvelope(sagaId, traceId);
-        String message = MAPPER.writeValueAsString(envelope);
+		RealEstateInvalidatedEvent payload = MAPPER.convertValue(published.getPayload(),
+				RealEstateInvalidatedEvent.class);
+		assertThat(payload.getRealEstateId()).isEqualTo(nonExistentId);
+		assertThat(payload.getReason()).containsIgnoringCase("not found");
+	}
 
-        // Act — send Kafka message
-        kafkaTemplate.send("estimation.saga", message).get(10, TimeUnit.SECONDS);
+	// ---------------------------------------------------------------
+	// 3. Null realEstateId → RealEstateValidated with null realEstateId
+	// ---------------------------------------------------------------
+	@Test
+	void nullRealEstateId_ShouldSaveOutboxEventForRealEstateValidatedWithNullId() throws Exception {
+		// Arrange
+		EstimationRequestedEvent sagaEvent = EstimationRequestedEvent.builder().realEstateId(null).build();
+		EventEnvelope envelope = sagaEvent.toEnvelope(sagaId, traceId);
+		String message = MAPPER.writeValueAsString(envelope);
 
-        // Assert
-        verify(outboxEventRepository, timeout(15000).times(1))
-                .save(any(OutboxEvent.class));
+		// Act — send Kafka message
+		kafkaTemplate.send("estimation.saga", message).get(10, TimeUnit.SECONDS);
 
-        OutboxEvent saved = capturedOutboxEvents.get(0);
-        EventEnvelope published = MAPPER.readValue(saved.getPayload(), EventEnvelope.class);
-        assertThat(published.getEventType()).isEqualTo(EventConstants.REAL_ESTATE_VALIDATED);
-        assertThat(published.getSagaId()).isEqualTo(sagaId);
+		// Assert
+		verify(outboxEventRepository, timeout(15000).times(1)).save(any(OutboxEvent.class));
 
-        RealEstateValidatedEvent payload = MAPPER.convertValue(published.getPayload(), RealEstateValidatedEvent.class);
-        assertThat(payload.getRealEstateId()).isNull();
-    }
+		OutboxEvent saved = capturedOutboxEvents.get(0);
+		EventEnvelope published = MAPPER.readValue(saved.getPayload(), EventEnvelope.class);
+		assertThat(published.getEventType()).isEqualTo(EventConstants.REAL_ESTATE_VALIDATED);
+		assertThat(published.getSagaId()).isEqualTo(sagaId);
 
-    // ---------------------------------------------------------------
-    // 4. Duplicate event → idempotent (save called once)
-    // ---------------------------------------------------------------
-    @Test
-    void duplicateEvent_ShouldBeIdempotent() throws Exception {
-        // Arrange
-        RealEstate realEstate = realEstateRepository.save(RealEstate.builder()
-                .address("123 Main St")
-                .cityId(34)
-                .build());
+		RealEstateValidatedEvent payload = MAPPER.convertValue(published.getPayload(), RealEstateValidatedEvent.class);
+		assertThat(payload.getRealEstateId()).isNull();
+	}
 
-        EstimationRequestedEvent sagaEvent = EstimationRequestedEvent.builder()
-                .realEstateId(realEstate.getId())
-                .build();
-        EventEnvelope envelope = sagaEvent.toEnvelope(sagaId, traceId);
-        String message = MAPPER.writeValueAsString(envelope);
+	// ---------------------------------------------------------------
+	// 4. Duplicate event → idempotent (save called once)
+	// ---------------------------------------------------------------
+	@Test
+	void duplicateEvent_ShouldBeIdempotent() throws Exception {
+		// Arrange
+		RealEstate realEstate = realEstateRepository
+			.save(RealEstate.builder().address("123 Main St").cityId(34).build());
 
-        // Act — send first event and verify it was processed
-        kafkaTemplate.send("estimation.saga", message).get(10, TimeUnit.SECONDS);
-        verify(outboxEventRepository, timeout(15000).times(1))
-                .save(any(OutboxEvent.class));
-        assertThat(capturedOutboxEvents).hasSize(1);
+		EstimationRequestedEvent sagaEvent = EstimationRequestedEvent.builder()
+			.realEstateId(realEstate.getId())
+			.build();
+		EventEnvelope envelope = sagaEvent.toEnvelope(sagaId, traceId);
+		String message = MAPPER.writeValueAsString(envelope);
 
-        // Send duplicate event with the same sagaId
-        kafkaTemplate.send("estimation.saga", message).get(10, TimeUnit.SECONDS);
+		// Act — send first event and verify it was processed
+		kafkaTemplate.send("estimation.saga", message).get(10, TimeUnit.SECONDS);
+		verify(outboxEventRepository, timeout(15000).times(1)).save(any(OutboxEvent.class));
+		assertThat(capturedOutboxEvents).hasSize(1);
 
-        // Wait for consumer to potentially process the duplicate
-        Thread.sleep(5000);
+		// Send duplicate event with the same sagaId
+		kafkaTemplate.send("estimation.saga", message).get(10, TimeUnit.SECONDS);
 
-        // Verify the total number of saves is still 1 (idempotent)
-        verify(outboxEventRepository, times(1))
-                .save(any(OutboxEvent.class));
-    }
+		// Wait for consumer to potentially process the duplicate
+		Thread.sleep(5000);
 
-    // ---------------------------------------------------------------
-    // 5. EstimationFailed → no outbox event saved
-    // ---------------------------------------------------------------
-    @Test
-    void estimationFailed_ShouldNotSaveOutboxEvent() throws Exception {
-        // Arrange
-        EstimationFailedEvent failEvent = EstimationFailedEvent.builder()
-                .originalSagaId(sagaId)
-                .reason("Calculation timeout")
-                .failedStep("InsuranceService")
-                .build();
-        EventEnvelope envelope = failEvent.toEnvelope(sagaId, traceId);
-        String message = MAPPER.writeValueAsString(envelope);
+		// Verify the total number of saves is still 1 (idempotent)
+		verify(outboxEventRepository, times(1)).save(any(OutboxEvent.class));
+	}
 
-        // Act — send ESTIMATION_FAILED
-        kafkaTemplate.send("estimation.saga", message).get(10, TimeUnit.SECONDS);
+	// ---------------------------------------------------------------
+	// 5. EstimationFailed → no outbox event saved
+	// ---------------------------------------------------------------
+	@Test
+	void estimationFailed_ShouldNotSaveOutboxEvent() throws Exception {
+		// Arrange
+		EstimationFailedEvent failEvent = EstimationFailedEvent.builder()
+			.originalSagaId(sagaId)
+			.reason("Calculation timeout")
+			.failedStep("InsuranceService")
+			.build();
+		EventEnvelope envelope = failEvent.toEnvelope(sagaId, traceId);
+		String message = MAPPER.writeValueAsString(envelope);
 
-        // Wait for consumer to process
-        Thread.sleep(5000);
+		// Act — send ESTIMATION_FAILED
+		kafkaTemplate.send("estimation.saga", message).get(10, TimeUnit.SECONDS);
 
-        // Assert — no outbox event should be saved
-        assertThat(capturedOutboxEvents).isEmpty();
-    }
+		// Wait for consumer to process
+		Thread.sleep(5000);
+
+		// Assert — no outbox event should be saved
+		assertThat(capturedOutboxEvents).isEmpty();
+	}
+
 }

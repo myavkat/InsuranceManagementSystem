@@ -19,13 +19,14 @@ import lombok.NoArgsConstructor;
 @Table(name = "car_models")
 public class CarModel {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Integer id;
 
-    @Column(name = "name", length = 100, nullable = false)
-    private String name;
+	@Column(name = "name", length = 100, nullable = false)
+	private String name;
 
-    @Column(name = "brand_id", nullable = false)
-    private Integer brandId;
+	@Column(name = "brand_id", nullable = false)
+	private Integer brandId;
+
 }

@@ -17,9 +17,10 @@ import lombok.NoArgsConstructor;
 @Table(name = "real_estate_usage_types")
 public class RealEstateUsageType {
 
-    @Id
-    private Integer id;
+	@Id
+	private Integer id;
 
-    @Column(name = "name", length = 100, unique = true, nullable = false)
-    private String name;
+	@Column(name = "name", length = 100, unique = true, nullable = false)
+	private String name;
+
 }

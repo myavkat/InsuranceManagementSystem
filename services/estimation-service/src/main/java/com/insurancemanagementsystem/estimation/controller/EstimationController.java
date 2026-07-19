@@ -21,40 +21,40 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class EstimationController {
 
-    private final EstimationService estimationService;
+	private final EstimationService estimationService;
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<EstimationResponse>> create(@Valid @RequestBody EstimationRequest request) {
-        EstimationResponse created = estimationService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Estimation created successfully", created));
-    }
+	@PostMapping
+	public ResponseEntity<ApiResponse<EstimationResponse>> create(@Valid @RequestBody EstimationRequest request) {
+		EstimationResponse created = estimationService.create(request);
+		return ResponseEntity.status(HttpStatus.CREATED)
+			.body(ApiResponse.success("Estimation created successfully", created));
+	}
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<EstimationResponse>> getById(@PathVariable UUID id) {
-        EstimationResponse estimation = estimationService.findById(id);
-        return ResponseEntity.ok(ApiResponse.success(estimation));
-    }
+	@GetMapping("/{id}")
+	public ResponseEntity<ApiResponse<EstimationResponse>> getById(@PathVariable UUID id) {
+		EstimationResponse estimation = estimationService.findById(id);
+		return ResponseEntity.ok(ApiResponse.success(estimation));
+	}
 
-    @GetMapping
-    public ResponseEntity<ApiResponse<Page<EstimationResponse>>> getAll(
-            @RequestParam(required = false) UUID customerId,
-            @RequestParam(required = false) String status,
-            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+	@GetMapping
+	public ResponseEntity<ApiResponse<Page<EstimationResponse>>> getAll(@RequestParam(required = false) UUID customerId,
+			@RequestParam(required = false) String status,
+			@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        Page<EstimationResponse> estimations = estimationService.findAll(customerId, status, pageable);
-        return ResponseEntity.ok(ApiResponse.success(estimations));
-    }
+		Page<EstimationResponse> estimations = estimationService.findAll(customerId, status, pageable);
+		return ResponseEntity.ok(ApiResponse.success(estimations));
+	}
 
-    @PutMapping("/{id}/accept-offer")
-    public ResponseEntity<ApiResponse<EstimationResponse>> acceptOffer(@PathVariable UUID id) {
-        EstimationResponse updated = estimationService.acceptOffer(id);
-        return ResponseEntity.ok(ApiResponse.success("Offer accepted — payment is now required", updated));
-    }
+	@PutMapping("/{id}/accept-offer")
+	public ResponseEntity<ApiResponse<EstimationResponse>> acceptOffer(@PathVariable UUID id) {
+		EstimationResponse updated = estimationService.acceptOffer(id);
+		return ResponseEntity.ok(ApiResponse.success("Offer accepted — payment is now required", updated));
+	}
 
-    @PutMapping("/{id}/process-payment")
-    public ResponseEntity<ApiResponse<EstimationResponse>> processPayment(@PathVariable UUID id) {
-        EstimationResponse updated = estimationService.processPayment(id);
-        return ResponseEntity.ok(ApiResponse.success("Payment processed — policy is now active", updated));
-    }
+	@PutMapping("/{id}/process-payment")
+	public ResponseEntity<ApiResponse<EstimationResponse>> processPayment(@PathVariable UUID id) {
+		EstimationResponse updated = estimationService.processPayment(id);
+		return ResponseEntity.ok(ApiResponse.success("Payment processed — policy is now active", updated));
+	}
+
 }

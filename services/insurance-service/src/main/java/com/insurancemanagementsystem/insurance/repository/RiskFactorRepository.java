@@ -10,6 +10,9 @@ import java.util.UUID;
 
 @Repository
 public interface RiskFactorRepository extends JpaRepository<RiskFactor, UUID> {
-    List<RiskFactor> findByInsuranceId(UUID insuranceId);
-    Optional<RiskFactor> findByInsuranceIdAndFactorName(UUID insuranceId, String factorName);
+
+	List<RiskFactor> findByInsuranceId(UUID insuranceId);
+
+	Optional<RiskFactor> findByInsuranceIdAndFactorName(UUID insuranceId, String factorName);
+
 }

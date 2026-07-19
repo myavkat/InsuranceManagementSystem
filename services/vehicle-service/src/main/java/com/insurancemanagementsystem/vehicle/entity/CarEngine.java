@@ -21,16 +21,17 @@ import java.math.BigDecimal;
 @Table(name = "car_engines")
 public class CarEngine {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Integer id;
 
-    @Column(name = "name", length = 100)
-    private String name;
+	@Column(name = "name", length = 100)
+	private String name;
 
-    @Column(name = "volume", precision = 4, scale = 1)
-    private BigDecimal volume;
+	@Column(name = "volume", precision = 4, scale = 1)
+	private BigDecimal volume;
 
-    @Column(name = "power")
-    private Integer power;
+	@Column(name = "power")
+	private Integer power;
+
 }

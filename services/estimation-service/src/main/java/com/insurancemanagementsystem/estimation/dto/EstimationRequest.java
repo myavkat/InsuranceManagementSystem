@@ -11,12 +11,15 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EstimationRequest {
-    @NotNull(message = "Customer ID is required")
-    private UUID customerId;
 
-    private UUID vehicleId;      // optional — null for non-vehicle insurances
-    private UUID realEstateId;   // optional — null for non-real-estate insurances
+	@NotNull(message = "Customer ID is required")
+	private UUID customerId;
 
-    @NotNull(message = "Insurance ID is required")
-    private UUID insuranceId;
+	private UUID vehicleId; // optional — null for non-vehicle insurances
+
+	private UUID realEstateId; // optional — null for non-real-estate insurances
+
+	@NotNull(message = "Insurance ID is required")
+	private UUID insuranceId;
+
 }

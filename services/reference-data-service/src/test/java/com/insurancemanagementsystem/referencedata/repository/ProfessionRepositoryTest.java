@@ -21,59 +21,59 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Testcontainers
 class ProfessionRepositoryTest {
 
-    @Container
-    static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:16")
-            .withDatabaseName("testdb")
-            .withUsername("test")
-            .withPassword("test");
+	@Container
+	static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:16").withDatabaseName("testdb")
+		.withUsername("test")
+		.withPassword("test");
 
-    @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgres::getJdbcUrl);
-        registry.add("spring.datasource.username", postgres::getUsername);
-        registry.add("spring.datasource.password", postgres::getPassword);
-        registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop");
-    }
+	@DynamicPropertySource
+	static void configureProperties(DynamicPropertyRegistry registry) {
+		registry.add("spring.datasource.url", postgres::getJdbcUrl);
+		registry.add("spring.datasource.username", postgres::getUsername);
+		registry.add("spring.datasource.password", postgres::getPassword);
+		registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop");
+	}
 
-    @Autowired
-    private ProfessionRepository professionRepository;
+	@Autowired
+	private ProfessionRepository professionRepository;
 
-    @Test
-    void shouldReturnProfessionsSortedByName() {
-        // Given
-        Profession doctor = Profession.builder().id(1).name("Doktor").build();
-        Profession engineer = Profession.builder().id(2).name("Mühendis").build();
-        professionRepository.saveAll(List.of(doctor, engineer));
+	@Test
+	void shouldReturnProfessionsSortedByName() {
+		// Given
+		Profession doctor = Profession.builder().id(1).name("Doktor").build();
+		Profession engineer = Profession.builder().id(2).name("Mühendis").build();
+		professionRepository.saveAll(List.of(doctor, engineer));
 
-        // When
-        List<Profession> professions = professionRepository.findAllByOrderByNameAsc();
+		// When
+		List<Profession> professions = professionRepository.findAllByOrderByNameAsc();
 
-        // Then
-        assertThat(professions).hasSizeGreaterThanOrEqualTo(2);
-        assertThat(professions.get(0).getName()).isEqualTo("Doktor");
-        assertThat(professions.get(1).getName()).isEqualTo("Mühendis");
-    }
+		// Then
+		assertThat(professions).hasSizeGreaterThanOrEqualTo(2);
+		assertThat(professions.get(0).getName()).isEqualTo("Doktor");
+		assertThat(professions.get(1).getName()).isEqualTo("Mühendis");
+	}
 
-    @Test
-    void shouldFindProfessionById() {
-        // Given
-        Profession doctor = Profession.builder().id(1).name("Doktor").build();
-        professionRepository.save(doctor);
+	@Test
+	void shouldFindProfessionById() {
+		// Given
+		Profession doctor = Profession.builder().id(1).name("Doktor").build();
+		professionRepository.save(doctor);
 
-        // When
-        Optional<Profession> found = professionRepository.findById(1);
+		// When
+		Optional<Profession> found = professionRepository.findById(1);
 
-        // Then
-        assertThat(found).isPresent();
-        assertThat(found.get().getName()).isEqualTo("Doktor");
-    }
+		// Then
+		assertThat(found).isPresent();
+		assertThat(found.get().getName()).isEqualTo("Doktor");
+	}
 
-    @Test
-    void shouldReturnEmptyForUnknownId() {
-        // When
-        Optional<Profession> found = professionRepository.findById(999);
+	@Test
+	void shouldReturnEmptyForUnknownId() {
+		// When
+		Optional<Profession> found = professionRepository.findById(999);
 
-        // Then
-        assertThat(found).isEmpty();
-    }
+		// Then
+		assertThat(found).isEmpty();
+	}
+
 }

@@ -33,264 +33,274 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class CustomerServiceTest {
 
-    @Mock
-    private CustomerRepository customerRepository;
+	@Mock
+	private CustomerRepository customerRepository;
 
-    @Mock
-    private CustomerEventPublisher customerEventPublisher;
+	@Mock
+	private CustomerEventPublisher customerEventPublisher;
 
-    @InjectMocks
-    private CustomerService customerService;
+	@InjectMocks
+	private CustomerService customerService;
 
-    @Captor
-    private ArgumentCaptor<Customer> customerCaptor;
+	@Captor
+	private ArgumentCaptor<Customer> customerCaptor;
 
-    private static final UUID TEST_ID = UUID.randomUUID();
-    private static final String FIRST_NAME = "John";
-    private static final String LAST_NAME = "Doe";
-    private static final String NATIONAL_ID = "12345678901";
-    private static final String EMAIL = "john.doe@example.com";
-    private static final String PHONE = "+905551234567";
-    private static final LocalDate BIRTH_DATE = LocalDate.of(1990, 1, 15);
-    private static final String ADDRESS = "123 Main St";
-    private static final Integer CITY_ID = 34;
-    private static final Integer PROFESSION_ID = 1;
+	private static final UUID TEST_ID = UUID.randomUUID();
 
-    private CustomerRequest createValidRequest() {
-        CustomerRequest request = new CustomerRequest();
-        request.setFirstName(FIRST_NAME);
-        request.setLastName(LAST_NAME);
-        request.setNationalId(NATIONAL_ID);
-        request.setEmail(EMAIL);
-        request.setPhone(PHONE);
-        request.setBirthDate(BIRTH_DATE);
-        request.setAddress(ADDRESS);
-        request.setCityId(CITY_ID);
-        request.setProfessionId(PROFESSION_ID);
-        return request;
-    }
+	private static final String FIRST_NAME = "John";
 
-    private Customer createCustomer(UUID id, String nationalIdValue, Instant deletedAt) {
-        return Customer.builder()
-                .id(id)
-                .firstName(FIRST_NAME)
-                .lastName(LAST_NAME)
-                .nationalId(nationalIdValue)
-                .email(EMAIL)
-                .phone(PHONE)
-                .birthDate(BIRTH_DATE)
-                .address(ADDRESS)
-                .cityId(CITY_ID)
-                .professionId(PROFESSION_ID)
-                .createdAt(Instant.now())
-                .updatedAt(Instant.now())
-                .deletedAt(deletedAt)
-                .build();
-    }
+	private static final String LAST_NAME = "Doe";
 
-    // ---------------------------------------------------------------
-    // 1. create – valid data
-    // ---------------------------------------------------------------
-    @Test
-    void createCustomerWithValidData_ReturnsSavedEntity() {
-        // Arrange
-        CustomerRequest request = createValidRequest();
-        Customer savedCustomer = createCustomer(TEST_ID, NATIONAL_ID, null);
+	private static final String NATIONAL_ID = "12345678901";
 
-        when(customerRepository.findByNationalId(NATIONAL_ID.trim())).thenReturn(Optional.empty());
-        when(customerRepository.save(any(Customer.class))).thenReturn(savedCustomer);
+	private static final String EMAIL = "john.doe@example.com";
 
-        // Act
-        CustomerResponse response = customerService.create(request);
+	private static final String PHONE = "+905551234567";
 
-        // Assert
-        assertThat(response).isNotNull();
-        assertThat(response.getId()).isEqualTo(TEST_ID);
-        assertThat(response.getFirstName()).isEqualTo(FIRST_NAME);
-        assertThat(response.getLastName()).isEqualTo(LAST_NAME);
-        assertThat(response.getNationalId()).isEqualTo(NATIONAL_ID);
-        assertThat(response.getEmail()).isEqualTo(EMAIL);
-        assertThat(response.getPhone()).isEqualTo(PHONE);
-        assertThat(response.getBirthDate()).isEqualTo(BIRTH_DATE);
-        assertThat(response.getAddress()).isEqualTo(ADDRESS);
-        assertThat(response.getCityId()).isEqualTo(CITY_ID);
-        assertThat(response.getProfessionId()).isEqualTo(PROFESSION_ID);
+	private static final LocalDate BIRTH_DATE = LocalDate.of(1990, 1, 15);
 
-        verify(customerRepository).findByNationalId(NATIONAL_ID.trim());
-        verify(customerRepository).save(any(Customer.class));
-        verify(customerEventPublisher).publishCustomerCreated(savedCustomer);
-    }
+	private static final String ADDRESS = "123 Main St";
 
-    // ---------------------------------------------------------------
-    // 2. create – duplicate national ID
-    // ---------------------------------------------------------------
-    @Test
-    void createCustomerWithDuplicateNationalId_ThrowsIllegalArgumentException() {
-        // Arrange
-        CustomerRequest request = createValidRequest();
-        Customer existingCustomer = createCustomer(UUID.randomUUID(), NATIONAL_ID, null);
+	private static final Integer CITY_ID = 34;
 
-        when(customerRepository.findByNationalId(NATIONAL_ID.trim())).thenReturn(Optional.of(existingCustomer));
+	private static final Integer PROFESSION_ID = 1;
 
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> customerService.create(request));
-        assertThat(exception.getMessage()).contains("already exists");
+	private CustomerRequest createValidRequest() {
+		CustomerRequest request = new CustomerRequest();
+		request.setFirstName(FIRST_NAME);
+		request.setLastName(LAST_NAME);
+		request.setNationalId(NATIONAL_ID);
+		request.setEmail(EMAIL);
+		request.setPhone(PHONE);
+		request.setBirthDate(BIRTH_DATE);
+		request.setAddress(ADDRESS);
+		request.setCityId(CITY_ID);
+		request.setProfessionId(PROFESSION_ID);
+		return request;
+	}
 
-        verify(customerRepository).findByNationalId(NATIONAL_ID.trim());
-        verify(customerRepository, never()).save(any(Customer.class));
-        verify(customerEventPublisher, never()).publishCustomerCreated(any(Customer.class));
-    }
+	private Customer createCustomer(UUID id, String nationalIdValue, Instant deletedAt) {
+		return Customer.builder()
+			.id(id)
+			.firstName(FIRST_NAME)
+			.lastName(LAST_NAME)
+			.nationalId(nationalIdValue)
+			.email(EMAIL)
+			.phone(PHONE)
+			.birthDate(BIRTH_DATE)
+			.address(ADDRESS)
+			.cityId(CITY_ID)
+			.professionId(PROFESSION_ID)
+			.createdAt(Instant.now())
+			.updatedAt(Instant.now())
+			.deletedAt(deletedAt)
+			.build();
+	}
 
-    // ---------------------------------------------------------------
-    // 3. findById – not found
-    // ---------------------------------------------------------------
-    @Test
-    void findById_NotFound_ThrowsEntityNotFoundException() {
-        // Arrange
-        when(customerRepository.findById(TEST_ID)).thenReturn(Optional.empty());
+	// ---------------------------------------------------------------
+	// 1. create – valid data
+	// ---------------------------------------------------------------
+	@Test
+	void createCustomerWithValidData_ReturnsSavedEntity() {
+		// Arrange
+		CustomerRequest request = createValidRequest();
+		Customer savedCustomer = createCustomer(TEST_ID, NATIONAL_ID, null);
 
-        // Act & Assert
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
-                () -> customerService.findById(TEST_ID));
-        assertThat(exception.getMessage()).contains("Customer not found");
+		when(customerRepository.findByNationalId(NATIONAL_ID.trim())).thenReturn(Optional.empty());
+		when(customerRepository.save(any(Customer.class))).thenReturn(savedCustomer);
 
-        verify(customerRepository).findById(TEST_ID);
-    }
+		// Act
+		CustomerResponse response = customerService.create(request);
 
-    // ---------------------------------------------------------------
-    // 4. findById – soft-deleted
-    // ---------------------------------------------------------------
-    @Test
-    void findById_SoftDeleted_ThrowsEntityNotFoundException() {
-        // Arrange
-        Customer deletedCustomer = createCustomer(TEST_ID, NATIONAL_ID, Instant.now());
+		// Assert
+		assertThat(response).isNotNull();
+		assertThat(response.getId()).isEqualTo(TEST_ID);
+		assertThat(response.getFirstName()).isEqualTo(FIRST_NAME);
+		assertThat(response.getLastName()).isEqualTo(LAST_NAME);
+		assertThat(response.getNationalId()).isEqualTo(NATIONAL_ID);
+		assertThat(response.getEmail()).isEqualTo(EMAIL);
+		assertThat(response.getPhone()).isEqualTo(PHONE);
+		assertThat(response.getBirthDate()).isEqualTo(BIRTH_DATE);
+		assertThat(response.getAddress()).isEqualTo(ADDRESS);
+		assertThat(response.getCityId()).isEqualTo(CITY_ID);
+		assertThat(response.getProfessionId()).isEqualTo(PROFESSION_ID);
 
-        when(customerRepository.findById(TEST_ID)).thenReturn(Optional.of(deletedCustomer));
+		verify(customerRepository).findByNationalId(NATIONAL_ID.trim());
+		verify(customerRepository).save(any(Customer.class));
+		verify(customerEventPublisher).publishCustomerCreated(savedCustomer);
+	}
 
-        // Act & Assert
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
-                () -> customerService.findById(TEST_ID));
-        assertThat(exception.getMessage()).contains("Customer not found");
+	// ---------------------------------------------------------------
+	// 2. create – duplicate national ID
+	// ---------------------------------------------------------------
+	@Test
+	void createCustomerWithDuplicateNationalId_ThrowsIllegalArgumentException() {
+		// Arrange
+		CustomerRequest request = createValidRequest();
+		Customer existingCustomer = createCustomer(UUID.randomUUID(), NATIONAL_ID, null);
 
-        verify(customerRepository).findById(TEST_ID);
-    }
+		when(customerRepository.findByNationalId(NATIONAL_ID.trim())).thenReturn(Optional.of(existingCustomer));
 
-    // ---------------------------------------------------------------
-    // 5. softDelete – sets deletedAt
-    // ---------------------------------------------------------------
-    @Test
-    void softDelete_SetsDeletedAt() {
-        // Arrange
-        Customer customer = createCustomer(TEST_ID, NATIONAL_ID, null);
+		// Act & Assert
+		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+				() -> customerService.create(request));
+		assertThat(exception.getMessage()).contains("already exists");
 
-        when(customerRepository.findById(TEST_ID)).thenReturn(Optional.of(customer));
-        when(customerRepository.save(any(Customer.class))).thenAnswer(invocation -> invocation.getArgument(0));
+		verify(customerRepository).findByNationalId(NATIONAL_ID.trim());
+		verify(customerRepository, never()).save(any(Customer.class));
+		verify(customerEventPublisher, never()).publishCustomerCreated(any(Customer.class));
+	}
 
-        // Act
-        CustomerResponse response = customerService.softDelete(TEST_ID);
+	// ---------------------------------------------------------------
+	// 3. findById – not found
+	// ---------------------------------------------------------------
+	@Test
+	void findById_NotFound_ThrowsEntityNotFoundException() {
+		// Arrange
+		when(customerRepository.findById(TEST_ID)).thenReturn(Optional.empty());
 
-        // Assert
-        verify(customerRepository).findById(TEST_ID);
-        verify(customerRepository).save(customerCaptor.capture());
+		// Act & Assert
+		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+				() -> customerService.findById(TEST_ID));
+		assertThat(exception.getMessage()).contains("Customer not found");
 
-        Customer savedCustomer = customerCaptor.getValue();
-        assertThat(savedCustomer.getDeletedAt()).isNotNull();
+		verify(customerRepository).findById(TEST_ID);
+	}
 
-        assertThat(response).isNotNull();
-        assertThat(response.getId()).isEqualTo(TEST_ID);
-        assertThat(response.getFirstName()).isEqualTo(FIRST_NAME);
+	// ---------------------------------------------------------------
+	// 4. findById – soft-deleted
+	// ---------------------------------------------------------------
+	@Test
+	void findById_SoftDeleted_ThrowsEntityNotFoundException() {
+		// Arrange
+		Customer deletedCustomer = createCustomer(TEST_ID, NATIONAL_ID, Instant.now());
 
-        verify(customerEventPublisher, never()).publishCustomerCreated(any(Customer.class));
-        verify(customerEventPublisher, never()).publishCustomerUpdated(any(Customer.class));
-    }
+		when(customerRepository.findById(TEST_ID)).thenReturn(Optional.of(deletedCustomer));
 
-    // ---------------------------------------------------------------
-    // 6. update – fields updated
-    // ---------------------------------------------------------------
-    @Test
-    void updateCustomer_FieldsUpdated() {
-        // Arrange
-        Customer existingCustomer = createCustomer(TEST_ID, "98765432109", null);
-        CustomerRequest request = createValidRequest();
+		// Act & Assert
+		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+				() -> customerService.findById(TEST_ID));
+		assertThat(exception.getMessage()).contains("Customer not found");
 
-        when(customerRepository.findById(TEST_ID)).thenReturn(Optional.of(existingCustomer));
-        when(customerRepository.findByNationalId(NATIONAL_ID.trim())).thenReturn(Optional.empty());
-        when(customerRepository.save(any(Customer.class))).thenAnswer(invocation -> invocation.getArgument(0));
+		verify(customerRepository).findById(TEST_ID);
+	}
 
-        // Act
-        CustomerResponse response = customerService.update(TEST_ID, request);
+	// ---------------------------------------------------------------
+	// 5. softDelete – sets deletedAt
+	// ---------------------------------------------------------------
+	@Test
+	void softDelete_SetsDeletedAt() {
+		// Arrange
+		Customer customer = createCustomer(TEST_ID, NATIONAL_ID, null);
 
-        // Assert
-        verify(customerRepository).findById(TEST_ID);
-        verify(customerRepository).findByNationalId(NATIONAL_ID.trim());
-        verify(customerRepository).save(customerCaptor.capture());
+		when(customerRepository.findById(TEST_ID)).thenReturn(Optional.of(customer));
+		when(customerRepository.save(any(Customer.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        Customer updatedCustomer = customerCaptor.getValue();
-        assertThat(updatedCustomer.getFirstName()).isEqualTo(FIRST_NAME);
-        assertThat(updatedCustomer.getLastName()).isEqualTo(LAST_NAME);
-        assertThat(updatedCustomer.getNationalId()).isEqualTo(NATIONAL_ID);
-        assertThat(updatedCustomer.getEmail()).isEqualTo(EMAIL);
-        assertThat(updatedCustomer.getPhone()).isEqualTo(PHONE);
-        assertThat(updatedCustomer.getBirthDate()).isEqualTo(BIRTH_DATE);
-        assertThat(updatedCustomer.getAddress()).isEqualTo(ADDRESS);
-        assertThat(updatedCustomer.getCityId()).isEqualTo(CITY_ID);
-        assertThat(updatedCustomer.getProfessionId()).isEqualTo(PROFESSION_ID);
+		// Act
+		CustomerResponse response = customerService.softDelete(TEST_ID);
 
-        verify(customerEventPublisher).publishCustomerUpdated(updatedCustomer);
+		// Assert
+		verify(customerRepository).findById(TEST_ID);
+		verify(customerRepository).save(customerCaptor.capture());
 
-        assertThat(response).isNotNull();
-        assertThat(response.getFirstName()).isEqualTo(FIRST_NAME);
-        assertThat(response.getLastName()).isEqualTo(LAST_NAME);
-        assertThat(response.getNationalId()).isEqualTo(NATIONAL_ID);
-    }
+		Customer savedCustomer = customerCaptor.getValue();
+		assertThat(savedCustomer.getDeletedAt()).isNotNull();
 
-    // ---------------------------------------------------------------
-    // 7. search – by name
-    // ---------------------------------------------------------------
-    @Test
-    void searchByName_ReturnsMatchingResults() {
-        // Arrange
-        Pageable pageable = PageRequest.of(0, 10);
-        Customer customer = createCustomer(TEST_ID, NATIONAL_ID, null);
-        Page<Customer> customerPage = new PageImpl<>(List.of(customer));
+		assertThat(response).isNotNull();
+		assertThat(response.getId()).isEqualTo(TEST_ID);
+		assertThat(response.getFirstName()).isEqualTo(FIRST_NAME);
 
-        when(customerRepository.findByNameSearch("Doe", pageable)).thenReturn(customerPage);
+		verify(customerEventPublisher, never()).publishCustomerCreated(any(Customer.class));
+		verify(customerEventPublisher, never()).publishCustomerUpdated(any(Customer.class));
+	}
 
-        // Act
-        Page<CustomerResponse> result = customerService.search("Doe", null, pageable);
+	// ---------------------------------------------------------------
+	// 6. update – fields updated
+	// ---------------------------------------------------------------
+	@Test
+	void updateCustomer_FieldsUpdated() {
+		// Arrange
+		Customer existingCustomer = createCustomer(TEST_ID, "98765432109", null);
+		CustomerRequest request = createValidRequest();
 
-        // Assert
-        assertThat(result).isNotEmpty();
-        assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getContent().getFirst().getFirstName()).isEqualTo(FIRST_NAME);
-        assertThat(result.getContent().getFirst().getLastName()).isEqualTo(LAST_NAME);
+		when(customerRepository.findById(TEST_ID)).thenReturn(Optional.of(existingCustomer));
+		when(customerRepository.findByNationalId(NATIONAL_ID.trim())).thenReturn(Optional.empty());
+		when(customerRepository.save(any(Customer.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        verify(customerRepository).findByNameSearch("Doe", pageable);
-        verify(customerRepository, never()).findByNationalIdContaining(anyString(), any(Pageable.class));
-    }
+		// Act
+		CustomerResponse response = customerService.update(TEST_ID, request);
 
-    // ---------------------------------------------------------------
-    // 8. search – by national ID
-    // ---------------------------------------------------------------
-    @Test
-    void searchByNationalId_ReturnsMatchingResults() {
-        // Arrange
-        Pageable pageable = PageRequest.of(0, 10);
-        Customer customer = createCustomer(TEST_ID, NATIONAL_ID, null);
-        Page<Customer> customerPage = new PageImpl<>(List.of(customer));
+		// Assert
+		verify(customerRepository).findById(TEST_ID);
+		verify(customerRepository).findByNationalId(NATIONAL_ID.trim());
+		verify(customerRepository).save(customerCaptor.capture());
 
-        when(customerRepository.findByNationalIdContaining(NATIONAL_ID, pageable)).thenReturn(customerPage);
+		Customer updatedCustomer = customerCaptor.getValue();
+		assertThat(updatedCustomer.getFirstName()).isEqualTo(FIRST_NAME);
+		assertThat(updatedCustomer.getLastName()).isEqualTo(LAST_NAME);
+		assertThat(updatedCustomer.getNationalId()).isEqualTo(NATIONAL_ID);
+		assertThat(updatedCustomer.getEmail()).isEqualTo(EMAIL);
+		assertThat(updatedCustomer.getPhone()).isEqualTo(PHONE);
+		assertThat(updatedCustomer.getBirthDate()).isEqualTo(BIRTH_DATE);
+		assertThat(updatedCustomer.getAddress()).isEqualTo(ADDRESS);
+		assertThat(updatedCustomer.getCityId()).isEqualTo(CITY_ID);
+		assertThat(updatedCustomer.getProfessionId()).isEqualTo(PROFESSION_ID);
 
-        // Act
-        Page<CustomerResponse> result = customerService.search(null, NATIONAL_ID, pageable);
+		verify(customerEventPublisher).publishCustomerUpdated(updatedCustomer);
 
-        // Assert
-        assertThat(result).isNotEmpty();
-        assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getContent().getFirst().getNationalId()).isEqualTo(NATIONAL_ID);
+		assertThat(response).isNotNull();
+		assertThat(response.getFirstName()).isEqualTo(FIRST_NAME);
+		assertThat(response.getLastName()).isEqualTo(LAST_NAME);
+		assertThat(response.getNationalId()).isEqualTo(NATIONAL_ID);
+	}
 
-        verify(customerRepository).findByNationalIdContaining(NATIONAL_ID, pageable);
-        verify(customerRepository, never()).findByNameSearch(anyString(), any(Pageable.class));
-    }
+	// ---------------------------------------------------------------
+	// 7. search – by name
+	// ---------------------------------------------------------------
+	@Test
+	void searchByName_ReturnsMatchingResults() {
+		// Arrange
+		Pageable pageable = PageRequest.of(0, 10);
+		Customer customer = createCustomer(TEST_ID, NATIONAL_ID, null);
+		Page<Customer> customerPage = new PageImpl<>(List.of(customer));
+
+		when(customerRepository.findByNameSearch("Doe", pageable)).thenReturn(customerPage);
+
+		// Act
+		Page<CustomerResponse> result = customerService.search("Doe", null, pageable);
+
+		// Assert
+		assertThat(result).isNotEmpty();
+		assertThat(result.getContent()).hasSize(1);
+		assertThat(result.getContent().getFirst().getFirstName()).isEqualTo(FIRST_NAME);
+		assertThat(result.getContent().getFirst().getLastName()).isEqualTo(LAST_NAME);
+
+		verify(customerRepository).findByNameSearch("Doe", pageable);
+		verify(customerRepository, never()).findByNationalIdContaining(anyString(), any(Pageable.class));
+	}
+
+	// ---------------------------------------------------------------
+	// 8. search – by national ID
+	// ---------------------------------------------------------------
+	@Test
+	void searchByNationalId_ReturnsMatchingResults() {
+		// Arrange
+		Pageable pageable = PageRequest.of(0, 10);
+		Customer customer = createCustomer(TEST_ID, NATIONAL_ID, null);
+		Page<Customer> customerPage = new PageImpl<>(List.of(customer));
+
+		when(customerRepository.findByNationalIdContaining(NATIONAL_ID, pageable)).thenReturn(customerPage);
+
+		// Act
+		Page<CustomerResponse> result = customerService.search(null, NATIONAL_ID, pageable);
+
+		// Assert
+		assertThat(result).isNotEmpty();
+		assertThat(result.getContent()).hasSize(1);
+		assertThat(result.getContent().getFirst().getNationalId()).isEqualTo(NATIONAL_ID);
+
+		verify(customerRepository).findByNationalIdContaining(NATIONAL_ID, pageable);
+		verify(customerRepository, never()).findByNameSearch(anyString(), any(Pageable.class));
+	}
+
 }

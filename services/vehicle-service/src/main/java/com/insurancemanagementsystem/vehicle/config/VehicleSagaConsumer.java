@@ -31,138 +31,150 @@ import java.util.function.Consumer;
 @Slf4j
 public class VehicleSagaConsumer {
 
-    private final VehicleRepository vehicleRepository;
-    private final CarBrandRepository carBrandRepository;
-    private final CarModelRepository carModelRepository;
-    private final SagaEventRepository sagaEventRepository;
-    private final OutboxEventRepository outboxEventRepository;
-    private final TransactionTemplate transactionTemplate;
-    private final JsonMapper jsonMapper;
+	private final VehicleRepository vehicleRepository;
 
-    @Bean
-    public Consumer<String> processVehicleSaga(JsonMapper jsonMapperArg) {
-        return message -> {
-            // Deserialize — JacksonException (including StreamReadException) is a
-            // RuntimeException in Jackson 3, but deserialization failures are
-            // poison-pill messages that cannot be fixed by retry.
-            EventEnvelope envelope;
-            try {
-                envelope = jsonMapperArg.readValue(message, EventEnvelope.class);
-            } catch (Exception e) {
-                log.error("Failed to deserialize SAGA message — routing to DLQ: {}", e.getMessage(), e);
-                throw new RuntimeException("Deserialization failed — routing to DLQ", e);
-            }
+	private final CarBrandRepository carBrandRepository;
 
-            try {
-                UUID sagaId = envelope.getSagaId();
-                UUID traceId = envelope.getTraceId();
-                String eventType = envelope.getEventType();
+	private final CarModelRepository carModelRepository;
 
-                MDC.put("sagaId", sagaId != null ? sagaId.toString() : "");
-                MDC.put("traceId", traceId != null ? traceId.toString() : "");
+	private final SagaEventRepository sagaEventRepository;
 
-                log.info("Received SAGA event: {} for sagaId: {}", eventType, sagaId);
+	private final OutboxEventRepository outboxEventRepository;
 
-                switch (eventType) {
-                    case EventConstants.ESTIMATION_REQUESTED ->
-                        handleEstimationRequested(envelope, sagaId, traceId);
-                    case EventConstants.ESTIMATION_FAILED ->
-                        handleEstimationFailed(envelope);
-                    default ->
-                        log.warn("Unknown SAGA event type: {}", eventType);
-                }
-            } catch (Exception e) {
-                log.error("Error processing SAGA message: {}", e.getMessage(), e);
-                // Re-throw RuntimeExceptions so the binder can retry/DLQ
-                // transient failures (e.g. DB deadlocks). Checked exceptions
-                // are re-wrapped so the binder also sees a failure.
-                if (e instanceof RuntimeException re) throw re;
-                throw new RuntimeException("Failed to process SAGA message", e);
-            } finally {
-                MDC.clear();
-            }
-        };
-    }
+	private final TransactionTemplate transactionTemplate;
 
-    private void handleEstimationRequested(EventEnvelope envelope, UUID sagaId, UUID traceId) {
-        String eventType = envelope.getEventType();
+	private final JsonMapper jsonMapper;
 
-        transactionTemplate.executeWithoutResult(status -> {
-            if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
-                log.info("Duplicate event: sagaId={}, eventType={} — skipping", sagaId, eventType);
-                return;
-            }
+	@Bean
+	public Consumer<String> processVehicleSaga(JsonMapper jsonMapperArg) {
+		return message -> {
+			// Deserialize — JacksonException (including StreamReadException) is a
+			// RuntimeException in Jackson 3, but deserialization failures are
+			// poison-pill messages that cannot be fixed by retry.
+			EventEnvelope envelope;
+			try {
+				envelope = jsonMapperArg.readValue(message, EventEnvelope.class);
+			}
+			catch (Exception e) {
+				log.error("Failed to deserialize SAGA message — routing to DLQ: {}", e.getMessage(), e);
+				throw new RuntimeException("Deserialization failed — routing to DLQ", e);
+			}
 
-            EstimationRequestedEvent requestEvent = jsonMapper.convertValue(
-                    envelope.getPayload(), EstimationRequestedEvent.class);
-            UUID vehicleId = requestEvent.getVehicleId();
+			try {
+				UUID sagaId = envelope.getSagaId();
+				UUID traceId = envelope.getTraceId();
+				String eventType = envelope.getEventType();
 
-            EventEnvelope outcomeEnvelope;
-            if (vehicleId != null) {
-                Optional<Vehicle> vehicleOpt = vehicleRepository.findById(vehicleId);
-                if (vehicleOpt.isPresent()) {
-                    Vehicle vehicle = vehicleOpt.get();
-                    String brandName = carBrandRepository.findById(vehicle.getCarBrandId())
-                            .map(CarBrand::getName).orElse(null);
-                    String modelName = carModelRepository.findById(vehicle.getCarModelId())
-                            .map(CarModel::getName).orElse(null);
+				MDC.put("sagaId", sagaId != null ? sagaId.toString() : "");
+				MDC.put("traceId", traceId != null ? traceId.toString() : "");
 
-                    VehicleValidatedEvent validatedEvent = VehicleValidatedEvent.builder()
-                            .vehicleId(vehicleId)
-                            .plate(vehicle.getPlate())
-                            .brand(brandName)
-                            .model(modelName)
-                            .build();
-                    outcomeEnvelope = validatedEvent.toEnvelope(sagaId, traceId);
-                    log.info("Vehicle {} validated for saga: {}", vehicleId, sagaId);
-                } else {
-                    String reason = "Vehicle not found";
-                    VehicleInvalidatedEvent invalidatedEvent = VehicleInvalidatedEvent.builder()
-                            .vehicleId(vehicleId)
-                            .reason(reason)
-                            .build();
-                    outcomeEnvelope = invalidatedEvent.toEnvelope(sagaId, traceId);
-                    log.warn("Vehicle {} invalidated for saga: {} — {}", vehicleId, sagaId, reason);
-                }
-            } else {
-                // No vehicleId in the estimation request — this estimation doesn't need vehicle validation.
-                // Still publish a validated event to unblock the saga
-                VehicleValidatedEvent validatedEvent = VehicleValidatedEvent.builder()
-                        .vehicleId(null)
-                        .build();
-                outcomeEnvelope = validatedEvent.toEnvelope(sagaId, traceId);
-                log.info("No vehicleId in estimation request — publishing empty VehicleValidated for saga: {}", sagaId);
-            }
+				log.info("Received SAGA event: {} for sagaId: {}", eventType, sagaId);
 
-            outboxEventRepository.save(buildOutboxEvent(sagaId, outcomeEnvelope, EventConstants.ESTIMATION_SAGA));
-            log.debug("Saved outbox event for sagaId={}, eventType={}", sagaId, outcomeEnvelope.getEventType());
-        });
-    }
+				switch (eventType) {
+					case EventConstants.ESTIMATION_REQUESTED -> handleEstimationRequested(envelope, sagaId, traceId);
+					case EventConstants.ESTIMATION_FAILED -> handleEstimationFailed(envelope);
+					default -> log.warn("Unknown SAGA event type: {}", eventType);
+				}
+			}
+			catch (Exception e) {
+				log.error("Error processing SAGA message: {}", e.getMessage(), e);
+				// Re-throw RuntimeExceptions so the binder can retry/DLQ
+				// transient failures (e.g. DB deadlocks). Checked exceptions
+				// are re-wrapped so the binder also sees a failure.
+				if (e instanceof RuntimeException re)
+					throw re;
+				throw new RuntimeException("Failed to process SAGA message", e);
+			}
+			finally {
+				MDC.clear();
+			}
+		};
+	}
 
-    private void handleEstimationFailed(EventEnvelope envelope) {
-        UUID sagaId = envelope.getSagaId();
-        String eventType = envelope.getEventType();
+	private void handleEstimationRequested(EventEnvelope envelope, UUID sagaId, UUID traceId) {
+		String eventType = envelope.getEventType();
 
-        transactionTemplate.executeWithoutResult(status -> {
-            if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
-                return;
-            }
-            log.warn("Estimation failed for saga: {} — no compensation needed (read-only validation)", sagaId);
-        });
-    }
+		transactionTemplate.executeWithoutResult(status -> {
+			if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
+				log.info("Duplicate event: sagaId={}, eventType={} — skipping", sagaId, eventType);
+				return;
+			}
 
-    private OutboxEvent buildOutboxEvent(UUID sagaId, EventEnvelope envelope, String topic) {
-        String payloadJson;
-        try {
-            payloadJson = jsonMapper.writeValueAsString(envelope);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to serialize outbox payload for sagaId=" + sagaId, e);
-        }
-        return OutboxEvent.builder()
-                .sagaId(sagaId)
-                .topic(topic)
-                .payload(payloadJson)
-                .status(OutboxEvent.Status.PENDING)
-                .build();
-    }
+			EstimationRequestedEvent requestEvent = jsonMapper.convertValue(envelope.getPayload(),
+					EstimationRequestedEvent.class);
+			UUID vehicleId = requestEvent.getVehicleId();
+
+			EventEnvelope outcomeEnvelope;
+			if (vehicleId != null) {
+				Optional<Vehicle> vehicleOpt = vehicleRepository.findById(vehicleId);
+				if (vehicleOpt.isPresent()) {
+					Vehicle vehicle = vehicleOpt.get();
+					String brandName = carBrandRepository.findById(vehicle.getCarBrandId())
+						.map(CarBrand::getName)
+						.orElse(null);
+					String modelName = carModelRepository.findById(vehicle.getCarModelId())
+						.map(CarModel::getName)
+						.orElse(null);
+
+					VehicleValidatedEvent validatedEvent = VehicleValidatedEvent.builder()
+						.vehicleId(vehicleId)
+						.plate(vehicle.getPlate())
+						.brand(brandName)
+						.model(modelName)
+						.build();
+					outcomeEnvelope = validatedEvent.toEnvelope(sagaId, traceId);
+					log.info("Vehicle {} validated for saga: {}", vehicleId, sagaId);
+				}
+				else {
+					String reason = "Vehicle not found";
+					VehicleInvalidatedEvent invalidatedEvent = VehicleInvalidatedEvent.builder()
+						.vehicleId(vehicleId)
+						.reason(reason)
+						.build();
+					outcomeEnvelope = invalidatedEvent.toEnvelope(sagaId, traceId);
+					log.warn("Vehicle {} invalidated for saga: {} — {}", vehicleId, sagaId, reason);
+				}
+			}
+			else {
+				// No vehicleId in the estimation request — this estimation doesn't need
+				// vehicle validation.
+				// Still publish a validated event to unblock the saga
+				VehicleValidatedEvent validatedEvent = VehicleValidatedEvent.builder().vehicleId(null).build();
+				outcomeEnvelope = validatedEvent.toEnvelope(sagaId, traceId);
+				log.info("No vehicleId in estimation request — publishing empty VehicleValidated for saga: {}", sagaId);
+			}
+
+			outboxEventRepository.save(buildOutboxEvent(sagaId, outcomeEnvelope, EventConstants.ESTIMATION_SAGA));
+			log.debug("Saved outbox event for sagaId={}, eventType={}", sagaId, outcomeEnvelope.getEventType());
+		});
+	}
+
+	private void handleEstimationFailed(EventEnvelope envelope) {
+		UUID sagaId = envelope.getSagaId();
+		String eventType = envelope.getEventType();
+
+		transactionTemplate.executeWithoutResult(status -> {
+			if (sagaEventRepository.tryInsertDedup(sagaId, eventType)) {
+				return;
+			}
+			log.warn("Estimation failed for saga: {} — no compensation needed (read-only validation)", sagaId);
+		});
+	}
+
+	private OutboxEvent buildOutboxEvent(UUID sagaId, EventEnvelope envelope, String topic) {
+		String payloadJson;
+		try {
+			payloadJson = jsonMapper.writeValueAsString(envelope);
+		}
+		catch (Exception e) {
+			throw new RuntimeException("Failed to serialize outbox payload for sagaId=" + sagaId, e);
+		}
+		return OutboxEvent.builder()
+			.sagaId(sagaId)
+			.topic(topic)
+			.payload(payloadJson)
+			.status(OutboxEvent.Status.PENDING)
+			.build();
+	}
+
 }

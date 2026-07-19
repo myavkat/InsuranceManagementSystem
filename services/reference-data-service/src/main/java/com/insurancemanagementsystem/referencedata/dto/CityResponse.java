@@ -10,7 +10,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CityResponse {
-    private Integer id;
-    private String name;
-    private String plateCode;
+
+	private Integer id;
+
+	private String name;
+
+	private String plateCode;
+
 }

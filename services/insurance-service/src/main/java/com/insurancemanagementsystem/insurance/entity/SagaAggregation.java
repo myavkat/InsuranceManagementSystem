@@ -16,15 +16,14 @@ import java.time.Instant;
 import java.util.UUID;
 
 /**
- * Persistent saga aggregation store — replaces the in-memory {@code ConcurrentHashMap}
- * in {@link com.insurancemanagementsystem.insurance.config.SagaAggregationStore}.
+ * Persistent saga aggregation store — replaces the in-memory {@code ConcurrentHashMap} in
+ * {@link com.insurancemanagementsystem.insurance.config.SagaAggregationStore}.
  * <p>
  * Each row correlates the payloads of up to three independent events
- * ({@code ESTIMATION_REQUESTED}, {@code CUSTOMER_VALIDATED},
- * {@code VEHICLE_VALIDATED}) needed for premium calculation.
- * The row is consumed atomically (SELECT FOR UPDATE + DELETE) within the
- * same DB transaction as the outbox event save, so a rollback preserves
- * the aggregation state for retry.
+ * ({@code ESTIMATION_REQUESTED}, {@code CUSTOMER_VALIDATED}, {@code VEHICLE_VALIDATED})
+ * needed for premium calculation. The row is consumed atomically (SELECT FOR UPDATE +
+ * DELETE) within the same DB transaction as the outbox event save, so a rollback
+ * preserves the aggregation state for retry.
  */
 @Data
 @Builder
@@ -34,37 +33,36 @@ import java.util.UUID;
 @Table(name = "saga_aggregations")
 public class SagaAggregation {
 
-    @Id
-    @Column(name = "saga_id")
-    private UUID sagaId;
+	@Id
+	@Column(name = "saga_id")
+	private UUID sagaId;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "estimation_request_payload")
-    private String estimationRequestPayload;
+	@JdbcTypeCode(SqlTypes.JSON)
+	@Column(name = "estimation_request_payload")
+	private String estimationRequestPayload;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "customer_validated_payload")
-    private String customerValidatedPayload;
+	@JdbcTypeCode(SqlTypes.JSON)
+	@Column(name = "customer_validated_payload")
+	private String customerValidatedPayload;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "vehicle_validated_payload")
-    private String vehicleValidatedPayload;
+	@JdbcTypeCode(SqlTypes.JSON)
+	@Column(name = "vehicle_validated_payload")
+	private String vehicleValidatedPayload;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private Instant createdAt;
+	@Column(name = "created_at", nullable = false, updatable = false)
+	private Instant createdAt;
 
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = Instant.now();
-    }
+	@PrePersist
+	protected void onCreate() {
+		this.createdAt = Instant.now();
+	}
 
-    /**
-     * Returns {@code true} when all three event payloads have been stored
-     * and the saga is ready for premium calculation.
-     */
-    public boolean isComplete() {
-        return estimationRequestPayload != null
-                && customerValidatedPayload != null
-                && vehicleValidatedPayload != null;
-    }
+	/**
+	 * Returns {@code true} when all three event payloads have been stored and the saga is
+	 * ready for premium calculation.
+	 */
+	public boolean isComplete() {
+		return estimationRequestPayload != null && customerValidatedPayload != null && vehicleValidatedPayload != null;
+	}
+
 }

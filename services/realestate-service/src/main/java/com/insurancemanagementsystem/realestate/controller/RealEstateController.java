@@ -25,59 +25,59 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class RealEstateController {
 
-    private final RealEstateService realEstateService;
+	private final RealEstateService realEstateService;
 
-    @GetMapping
-    public ResponseEntity<ApiResponse<Page<RealEstateResponse>>> getAll(
-            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
-            @RequestParam(value = "search", required = false) String search,
-            @RequestParam(value = "customerId", required = false) UUID customerId) {
-        Page<RealEstateResponse> realEstates = realEstateService.findAll(pageable, search, customerId);
-        return ResponseEntity.ok(ApiResponse.success(realEstates));
-    }
+	@GetMapping
+	public ResponseEntity<ApiResponse<Page<RealEstateResponse>>> getAll(
+			@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+			@RequestParam(value = "search", required = false) String search,
+			@RequestParam(value = "customerId", required = false) UUID customerId) {
+		Page<RealEstateResponse> realEstates = realEstateService.findAll(pageable, search, customerId);
+		return ResponseEntity.ok(ApiResponse.success(realEstates));
+	}
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<RealEstateResponse>> getById(@PathVariable UUID id) {
-        RealEstateResponse realEstate = realEstateService.findById(id);
-        return ResponseEntity.ok(ApiResponse.success(realEstate));
-    }
+	@GetMapping("/{id}")
+	public ResponseEntity<ApiResponse<RealEstateResponse>> getById(@PathVariable UUID id) {
+		RealEstateResponse realEstate = realEstateService.findById(id);
+		return ResponseEntity.ok(ApiResponse.success(realEstate));
+	}
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<RealEstateResponse>> create(@Valid @RequestBody RealEstateRequest request) {
-        RealEstateResponse created = realEstateService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("RealEstate created successfully", created));
-    }
+	@PostMapping
+	public ResponseEntity<ApiResponse<RealEstateResponse>> create(@Valid @RequestBody RealEstateRequest request) {
+		RealEstateResponse created = realEstateService.create(request);
+		return ResponseEntity.status(HttpStatus.CREATED)
+			.body(ApiResponse.success("RealEstate created successfully", created));
+	}
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<RealEstateResponse>> update(
-            @PathVariable UUID id,
-            @Valid @RequestBody RealEstateRequest request) {
-        RealEstateResponse updated = realEstateService.update(id, request);
-        return ResponseEntity.ok(ApiResponse.success("RealEstate updated successfully", updated));
-    }
+	@PutMapping("/{id}")
+	public ResponseEntity<ApiResponse<RealEstateResponse>> update(@PathVariable UUID id,
+			@Valid @RequestBody RealEstateRequest request) {
+		RealEstateResponse updated = realEstateService.update(id, request);
+		return ResponseEntity.ok(ApiResponse.success("RealEstate updated successfully", updated));
+	}
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable UUID id) {
-        realEstateService.delete(id);
-        return ResponseEntity.ok(ApiResponse.success("RealEstate deleted successfully", null));
-    }
+	@DeleteMapping("/{id}")
+	public ResponseEntity<ApiResponse<Void>> delete(@PathVariable UUID id) {
+		realEstateService.delete(id);
+		return ResponseEntity.ok(ApiResponse.success("RealEstate deleted successfully", null));
+	}
 
-    @GetMapping("/construction-types")
-    public ResponseEntity<ApiResponse<List<RealEstateConstructionType>>> getConstructionTypes() {
-        List<RealEstateConstructionType> types = realEstateService.getConstructionTypes();
-        return ResponseEntity.ok(ApiResponse.success(types));
-    }
+	@GetMapping("/construction-types")
+	public ResponseEntity<ApiResponse<List<RealEstateConstructionType>>> getConstructionTypes() {
+		List<RealEstateConstructionType> types = realEstateService.getConstructionTypes();
+		return ResponseEntity.ok(ApiResponse.success(types));
+	}
 
-    @GetMapping("/luxury-classes")
-    public ResponseEntity<ApiResponse<List<RealEstateLuxuryClass>>> getLuxuryClasses() {
-        List<RealEstateLuxuryClass> classes = realEstateService.getLuxuryClasses();
-        return ResponseEntity.ok(ApiResponse.success(classes));
-    }
+	@GetMapping("/luxury-classes")
+	public ResponseEntity<ApiResponse<List<RealEstateLuxuryClass>>> getLuxuryClasses() {
+		List<RealEstateLuxuryClass> classes = realEstateService.getLuxuryClasses();
+		return ResponseEntity.ok(ApiResponse.success(classes));
+	}
 
-    @GetMapping("/usage-types")
-    public ResponseEntity<ApiResponse<List<RealEstateUsageType>>> getUsageTypes() {
-        List<RealEstateUsageType> types = realEstateService.getUsageTypes();
-        return ResponseEntity.ok(ApiResponse.success(types));
-    }
+	@GetMapping("/usage-types")
+	public ResponseEntity<ApiResponse<List<RealEstateUsageType>>> getUsageTypes() {
+		List<RealEstateUsageType> types = realEstateService.getUsageTypes();
+		return ResponseEntity.ok(ApiResponse.success(types));
+	}
+
 }

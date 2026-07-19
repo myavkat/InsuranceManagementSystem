@@ -16,30 +16,31 @@ import java.time.Instant;
 @AllArgsConstructor
 public class City {
 
-    @Id
-    @Column(name = "id")
-    private Integer id;          // INT, matches plate code — NOT generated
+	@Id
+	@Column(name = "id")
+	private Integer id; // INT, matches plate code — NOT generated
 
-    @Column(nullable = false, length = 100)
-    private String name;
+	@Column(nullable = false, length = 100)
+	private String name;
 
-    @Column(name = "plate_code", nullable = false, length = 2)
-    private String plateCode;
+	@Column(name = "plate_code", nullable = false, length = 2)
+	private String plateCode;
 
-    @Column(name = "created_at", updatable = false)
-    private Instant createdAt;
+	@Column(name = "created_at", updatable = false)
+	private Instant createdAt;
 
-    @Column(name = "updated_at")
-    private Instant updatedAt;
+	@Column(name = "updated_at")
+	private Instant updatedAt;
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = Instant.now();
-        updatedAt = Instant.now();
-    }
+	@PrePersist
+	protected void onCreate() {
+		createdAt = Instant.now();
+		updatedAt = Instant.now();
+	}
 
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = Instant.now();
-    }
+	@PreUpdate
+	protected void onUpdate() {
+		updatedAt = Instant.now();
+	}
+
 }

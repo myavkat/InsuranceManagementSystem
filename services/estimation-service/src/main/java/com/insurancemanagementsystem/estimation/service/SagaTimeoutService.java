@@ -26,84 +26,98 @@ import java.util.UUID;
 @Slf4j
 public class SagaTimeoutService {
 
-    private final EstimationRepository estimationRepository;
-    private final OutboxEventRepository outboxEventRepository;
-    private final OutboxEventSerializer outboxEventSerializer;
-    private final JsonMapper jsonMapper;
+	private final EstimationRepository estimationRepository;
 
-    @Value("${estimation.saga.timeout-minutes:5}")
-    private int timeoutMinutes;
+	private final OutboxEventRepository outboxEventRepository;
 
-    /**
-     * Scheduled task that runs every 30 seconds.
-     * Finds all estimations in STARTED status older than timeoutMinutes,
-     * transitions them to REJECTED, and publishes EstimationFailed.
-     */
-    @Scheduled(fixedDelayString = "${estimation.saga.poll-interval-ms:30000}")
-    @Transactional
-    public void checkForTimedOutSagas() {
-        try {
-            Instant cutoff = Instant.now().minus(timeoutMinutes, ChronoUnit.MINUTES);
-            List<Estimation> startedEstimations = estimationRepository
-                    .findByStatusAndCreatedAtBefore(Estimation.Status.STARTED, cutoff);
-            List<Estimation> waitingApprovalEstimations = estimationRepository
-                    .findByStatusAndCreatedAtBefore(Estimation.Status.WAITING_APPROVAL, cutoff);
+	private final OutboxEventSerializer outboxEventSerializer;
 
-            List<Estimation> staleEstimations = new ArrayList<>();
-            staleEstimations.addAll(startedEstimations);
-            staleEstimations.addAll(waitingApprovalEstimations);
+	private final JsonMapper jsonMapper;
 
-            if (staleEstimations.isEmpty()) {
-                log.trace("No timed-out estimations found (timeout={}min)", timeoutMinutes);
-                return;
-            }
+	@Value("${estimation.saga.timeout-minutes:5}")
+	private int timeoutMinutes;
 
-            log.warn("Found {} timed-out estimations (timeout={}min)", staleEstimations.size(), timeoutMinutes);
+	/**
+	 * Scheduled task that runs every 30 seconds. Finds all estimations in STARTED status
+	 * older than timeoutMinutes, transitions them to REJECTED, and publishes
+	 * EstimationFailed.
+	 */
+	@Scheduled(fixedDelayString = "${estimation.saga.poll-interval-ms:30000}")
+	@Transactional
+	public void checkForTimedOutSagas() {
+		try {
+			Instant cutoff = Instant.now().minus(timeoutMinutes, ChronoUnit.MINUTES);
+			List<Estimation> startedEstimations = estimationRepository
+				.findByStatusAndCreatedAtBefore(Estimation.Status.STARTED, cutoff);
+			List<Estimation> waitingApprovalEstimations = estimationRepository
+				.findByStatusAndCreatedAtBefore(Estimation.Status.WAITING_APPROVAL, cutoff);
 
-            for (Estimation estimation : staleEstimations) {
-                try {
-                    UUID sagaId = estimation.getSagaId();
-                    log.warn("Timing out estimation id={}, sagaId={}, created at {}",
-                            estimation.getId(), sagaId, estimation.getCreatedAt());
+			List<Estimation> staleEstimations = new ArrayList<>();
+			staleEstimations.addAll(startedEstimations);
+			staleEstimations.addAll(waitingApprovalEstimations);
 
-                    String reason = "SAGA timed out after " + timeoutMinutes + " minutes";
+			if (staleEstimations.isEmpty()) {
+				log.trace("No timed-out estimations found (timeout={}min)", timeoutMinutes);
+				return;
+			}
 
-                    // Use stored traceId (fall back to sagaId for pre-migration records)
-                    UUID traceId = estimation.getTraceId() != null ? estimation.getTraceId() : sagaId;
+			log.warn("Found {} timed-out estimations (timeout={}min)", staleEstimations.size(), timeoutMinutes);
 
-                    // Serialize outbox event FIRST — if serialization fails, exception propagates
-                    // and @Transactional rolls back the transaction, keeping estimation as STARTED
-                    OutboxEvent outboxEvent = outboxEventSerializer.buildEstimationFailedOutboxEvent(
-                            sagaId, traceId, reason, "SagaTimeoutService", EventConstants.ESTIMATION_SAGA);
+			for (Estimation estimation : staleEstimations) {
+				try {
+					UUID sagaId = estimation.getSagaId();
+					log.warn("Timing out estimation id={}, sagaId={}, created at {}", estimation.getId(), sagaId,
+							estimation.getCreatedAt());
 
-                    // Transition to REJECTED
-                    estimation.setStatus(Estimation.Status.REJECTED);
-                    try {
-                        estimation.setDetails(jsonMapper.writeValueAsString(Map.of("reason", reason)));
-                    } catch (Exception e) {
-                        log.warn("Failed to serialize timeout details for sagaId={} — using safe fallback", sagaId, e);
-                        try {
-                            // Nested try with a fresh JsonMapper to avoid any poisoned state
-                            estimation.setDetails(tools.jackson.databind.json.JsonMapper.builder()
-                                    .build().writeValueAsString(Map.of("reason", reason)));
-                        } catch (Exception ex) {
-                            // Absolute last resort — log and set a minimal valid JSON literal
-                            log.error("Safe fallback serialization also failed for sagaId={}: {}", sagaId, ex.getMessage(), ex);
-                            estimation.setDetails("{\"reason\":\"serialization failed\"}");
-                        }
-                    }
-                    estimationRepository.save(estimation);
-                    outboxEventRepository.save(outboxEvent);
+					String reason = "SAGA timed out after " + timeoutMinutes + " minutes";
 
-                    log.info("Rejected timed-out estimation sagaId={} and saved outbox event", sagaId);
-                } catch (Exception e) {
-                    log.error("Failed to timeout estimation sagaId={}: {}", estimation.getSagaId(), e.getMessage(), e);
-                    // Continue with next estimation — don't let one failure block others
-                }
-            }
-        } catch (Exception e) {
-            log.error("SagaTimeoutService.checkForTimedOutSagas() failed — scheduler will retry on next tick", e);
-            // Do NOT re-throw — prevents silent scheduler cancellation
-        }
-    }
+					// Use stored traceId (fall back to sagaId for pre-migration records)
+					UUID traceId = estimation.getTraceId() != null ? estimation.getTraceId() : sagaId;
+
+					// Serialize outbox event FIRST — if serialization fails, exception
+					// propagates
+					// and @Transactional rolls back the transaction, keeping estimation
+					// as STARTED
+					OutboxEvent outboxEvent = outboxEventSerializer.buildEstimationFailedOutboxEvent(sagaId, traceId,
+							reason, "SagaTimeoutService", EventConstants.ESTIMATION_SAGA);
+
+					// Transition to REJECTED
+					estimation.setStatus(Estimation.Status.REJECTED);
+					try {
+						estimation.setDetails(jsonMapper.writeValueAsString(Map.of("reason", reason)));
+					}
+					catch (Exception e) {
+						log.warn("Failed to serialize timeout details for sagaId={} — using safe fallback", sagaId, e);
+						try {
+							// Nested try with a fresh JsonMapper to avoid any poisoned
+							// state
+							estimation.setDetails(tools.jackson.databind.json.JsonMapper.builder()
+								.build()
+								.writeValueAsString(Map.of("reason", reason)));
+						}
+						catch (Exception ex) {
+							// Absolute last resort — log and set a minimal valid JSON
+							// literal
+							log.error("Safe fallback serialization also failed for sagaId={}: {}", sagaId,
+									ex.getMessage(), ex);
+							estimation.setDetails("{\"reason\":\"serialization failed\"}");
+						}
+					}
+					estimationRepository.save(estimation);
+					outboxEventRepository.save(outboxEvent);
+
+					log.info("Rejected timed-out estimation sagaId={} and saved outbox event", sagaId);
+				}
+				catch (Exception e) {
+					log.error("Failed to timeout estimation sagaId={}: {}", estimation.getSagaId(), e.getMessage(), e);
+					// Continue with next estimation — don't let one failure block others
+				}
+			}
+		}
+		catch (Exception e) {
+			log.error("SagaTimeoutService.checkForTimedOutSagas() failed — scheduler will retry on next tick", e);
+			// Do NOT re-throw — prevents silent scheduler cancellation
+		}
+	}
+
 }

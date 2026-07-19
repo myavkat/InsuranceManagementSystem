@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface RealEstateLuxuryClassRepository extends JpaRepository<RealEstateLuxuryClass, Integer> {
+
 }
