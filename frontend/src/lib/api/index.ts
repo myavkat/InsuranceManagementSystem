@@ -10,3 +10,4 @@ export * as estimationsApi from "./estimations";
 export * as vehiclesApi from "./vehicles";
 export * as realEstateApi from "./realestate";
 export * as referenceDataApi from "./reference-data";
+export * as dashboardApi from "./dashboard";
