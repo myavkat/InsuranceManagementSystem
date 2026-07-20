@@ -112,6 +112,22 @@ spring:
               metadata:
                 auth-required: true
 
+            # Dashboard Service — authenticated (aggregated from estimation-service)
+            - id: dashboard-service
+              uri: lb://estimation-service
+              predicates:
+                - Path=/api/dashboard/**
+              filters:
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 1
+                    redis-rate-limiter.burstCapacity: 100
+                    redis-rate-limiter.requestedTokens: 1
+                    key-resolver: "#{@rateLimitKeyResolver}"
+                    throwOnLimit: true
+              metadata:
+                auth-required: true
+
             # Reference Data Service — public (read-only lookup data)
             - id: reference-data-service
               uri: lb://reference-data-service
