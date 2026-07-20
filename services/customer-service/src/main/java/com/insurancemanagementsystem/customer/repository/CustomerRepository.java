@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -26,6 +27,9 @@ public interface CustomerRepository extends JpaRepository<Customer, UUID> {
 			+ "LOWER(CONCAT(c.firstName, ' ', c.lastName)) LIKE LOWER(CONCAT('%', :search, '%')) "
 			+ "OR c.nationalId LIKE CONCAT('%', :search, '%'))")
 	Page<Customer> findBySearchAll(@Param("search") String search, Pageable pageable);
+
+	@Query("SELECT COUNT(c) FROM Customer c WHERE c.createdAt >= :since AND c.deletedAt IS NULL")
+	long countNewCustomersSince(@Param("since") Instant since);
 
 	Optional<Customer> findByNationalId(String nationalId);
 
